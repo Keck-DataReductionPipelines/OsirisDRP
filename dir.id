@@ -1,0 +1,11 @@
+directory (./): /kroot/kss/osiris/drs
+
+parent (./../): /kroot/kss/osiris/
+
+subdirectories: none
+
+files:
+
+purpose: contains source files for OSIRIS Data Reduction Pipeline
+
+notes:
