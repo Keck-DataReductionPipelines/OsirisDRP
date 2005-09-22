@@ -1,0 +1,2 @@
+#!/bin/tcsh
+cp $1 $QUEUE_DIR/$2.$1:r.waiting

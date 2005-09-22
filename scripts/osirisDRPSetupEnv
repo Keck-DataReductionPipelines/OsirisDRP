@@ -1,0 +1,76 @@
+# This file is sourced by the current user's .tcshrc or .cshrc  The shriek
+# file sets the top level variables OSIRIS_DRS_TOP and OSIRIS_DATA_ROOT
+# This file then sets the rest of the variables based on them.  This file
+# requires that the following scripts have been run for the user.
+#
+#  mkOSIRISCALBtree*
+#  mkOSIRISusercalibtree*
+#  mkOSIRISuserdatetree*
+#
+
+# Set the queue directory for any pipelines started by this user
+#setenv QUEUE_DIR $OSIRIS_DRS_TOP/backbone/DRFqueue
+setenv QUEUE_DIR $HOME/osiris/drf_queue
+#setenv QUEUE_DIR /u/osiris2/osiris/drf_queue
+
+# Set a default for the overall (general) DRP log files to go.  These log
+# files are created each time the pipeline backbone is started
+setenv DEFAULTLOGDIR /net/napilip/kroot/data/osiris/logs/drp
+
+# This is where the backbone IDL code looks for the shared libraries that
+# implement C code called by the IDL code.
+setenv EXTERNAL_CODE_DIR $OSIRIS_DRS_TOP/modules/lib
+
+# Set the default for DRFs held in common, i.e., not generated for the user
+# based on data acquired for the user.  This mostly means test DRFs as well
+# as default DRFs used to build DRFs for collected data.
+#setenv DRF_HOME $OSIRIS_DRS_TOP/backbone/DRFHome
+
+# The only support file of any consequence is the RPBconfig.xml file.
+setenv BACKBONE_SUPPORT_DIR $OSIRIS_DRS_TOP/backbone/SupportFiles
+
+# This is the file that contains the actual config file name.  The default is to
+# contain RPBconfig.xml, i.e., the contents of config_filename_file is usually
+# RPBconfig.xml but it may be something else for special cases.
+setenv CONFIG_FILENAME_FILE config_filename_file
+
+# These are used by the pipeline to make sure it has access to all code that it
+# needs to compile.
+setenv OSIRIS_DRP_MODULE_PATH $OSIRIS_DRS_TOP/modules
+setenv OSIRIS_DRP_IDL_DOWNLOADS_PATH $OSIRIS_DRS_TOP/modules/idl_downloads
+setenv OSIRIS_DRP_BACKBONE_PATH $OSIRIS_DRS_TOP/backbone
+
+# Set the directory for building the cfitsio library
+#setenv CFITSIODIR $OSIRIS_DRS_TOP
+
+# Names the default DRF file used build ORP DRFs in an automated fashion.
+setenv DEFAULTORPDRFFILE default_ORP_SPEC_DRF.xml
+
+# Set a default data directory to use for testing.
+setenv DATADIR $OSIRIS_DRS_TOP/data
+
+# Set some environment variables related to the Users Tree as defined in
+# OSDN39.  These allow access to the standard directory structure for the
+# user.
+setenv CURRENTDATE `date -u "+%y%m%d"`
+setenv CURRENTDATESPECRAWDIR $OSIRIS_DATA_ROOT/$USER/$CURRENTDATE/SPEC/raw
+setenv CURRENTDATESPECORPDIR $OSIRIS_DATA_ROOT/$USER/$CURRENTDATE/SPEC/ORP
+
+### DEBUG ###
+# These are historical and used for intial testing and will be removed as soon
+# as possible
+# Set some directories used in testing.
+#setenv TESTOUTPUTDIR $OSIRIS_DRS_TOP/backbone/output
+#setenv TESTLOGDIR $OSIRIS_DRS_TOP/backbone/code/backbone
+#setenv ZERODATADIR $OSIRIS_DRS_TOP/backbone/data
+#setenv ONEDATADIR $OSIRIS_DRS_TOP/backbone/data
+#setenv ZERODATA $ZERODATADIR/zeroDatasmall.fits
+#setenv ONEDATA $ONEDATADIR/oneDatasmall.fits
+#setenv OSIRISCALDIR /Users/tgasaway/OSIRIS/Test/calib/SPEC/rectification
+#setenv OSIRISOUTDIR /Users/tgasaway/OSIRIS/Test/testOutput
+#setenv OSIRISINDIR /Users/tgasaway/OSIRIS/Test/030806/SPEC/raw
+#setenv TESTFITSDIR /Users/tgasaway/testfitsdir
+#setenv COOLFITSDIR /Users/tgasaway/cooldown14Data/cdCopy
+#setenv DRFTOP /Users/tgasaway/OSIRIS/Test
+### END DEBUG ###
+
