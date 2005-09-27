@@ -61,7 +61,7 @@ FUNCTION swapchan_000, DataSet, Modules, Backbone
                 temp[*,i*19+j]=im[*,j*64+i]
             end
         end
-        (*DataSet.Frames[n])[*,*]=temp[*,*
+        (*DataSet.Frames[n])[*,*]=temp[*,*]
 
     endfor
 
