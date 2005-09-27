@@ -19,7 +19,7 @@
     calibrwave_COMMON___UpperLimitBad     = '5.'
     calibrwave_COMMON___NoiseMultiplier   = '10.'
     calibrwave_COMMON___InterPolType      = 'LINEAR'
-    calibrwave_COMMON___Filterfile         ='$OSIRIS_DRP_MODULE_PATH/filter_info.list'
+    calibrwave_COMMON___Filterfile         ='$OSIRIS_DRP_DATA_PATH/osiris_filter_info.list'
 
     cleannoise_COMMON___SetIntFrame="1"
     cleannoise_COMMON___ValIntFrame="1."
@@ -46,7 +46,7 @@
     computspec_COMMON___OptClipSigma = "0"
     computspec_COMMON___Debug = "0"        
 
-    detspecres_COMMON___Linefile         = '$OSIRIS_DRP_MODULE_PATH/cal_line.list'
+    detspecres_COMMON___Linefile         = '$OSIRIS_DRP_DATA_PATH/osiris_cal_line.list'
     detspecres_COMMON___FitHalfWindow    ='12'
     detspecres_COMMON___FitFunction      ='GAUSSIAN'
     detspecres_COMMON___FitTerms         ='4'
@@ -108,15 +108,15 @@
     mkwavcalfr_COMMON___MaxLag_px            = '20'
     mkwavcalfr_COMMON___DispFitSigma_fact    = '2.'
     mkwavcalfr_COMMON___DispFitIter          = '2'
-    mkwavcalfr_COMMON___Linefile             = '$OSIRIS_DRP_MODULE_PATH/callines.list'
-    mkwavcalfr_COMMON___Filterfile           = '$OSIRIS_DRP_MODULE_PATH/filter_info.list'
+    mkwavcalfr_COMMON___Linefile             = '$OSIRIS_DRP_DATA_PATH/osiris_callines.list'
+    mkwavcalfr_COMMON___Filterfile           = '$OSIRIS_DRP_DATA_PATH/osiris_filter_info.list'
     mkwavcalfr_COMMON___MedianLag            = '0'
 
     mkwavsmo_COMMON___Debug                  = '1'
     mkwavsmo_COMMON___Order                  = '1'
     mkwavsmo_COMMON___MedianWindow           = '5'
     mkwavsmo_COMMON___LimitPixel             = '2'
-    mkwavsmo_COMMON___FilterFile             = '$OSIRIS_DRP_MODULE_PATH/filter_info.list'
+    mkwavsmo_COMMON___FilterFile             = '$OSIRIS_DRP_DATA_PATH/osiris_filter_info.list'
 
     mosaicdpos_COMMON___Debug             = '1'
     mosaicdpos_COMMON___Magnification     = '1.'
@@ -132,7 +132,7 @@
     saveflatfi_COMMON___Debug="1"
     spatrectif_COMMON___numiter="4"
     spatrectif_ARP_SPEC_numiter="50"
-    spatrectif_ORP_SPEC_numiter="10"
+    spatrectif_ORP_SPEC_numiter="25"
     spatrectif_COMMON___relaxation="1.0"
     srtrectdat_COMMON___Debug="1"
     srtrectdat_COMMON___nframesInNBMode="51"
@@ -182,6 +182,7 @@
     <Module Name="Pack NB Frames" IDLFunc="packnbfrms_000"></Module>
     <Module Name="Find Bad Pixels from Noise" IDLFunc="badpixnois_000"></Module>
     <Module Name="Determine Mosaic Positions" IDLFunc="mosaicdpos_000"></Module>
+    <Module Name="Swap Channels for Test" IDLFunc="swapchan_000"></Module>
     <Module Name="Glitch Identification" IDLFunc="glitchid_000"></Module> 
     <Module Name="Remove Crosstalk" IDLFunc="rmcrosstalk_000"></Module> 
     <Module Name="Adjust Channel Levels" IDLFunc="adjchan_000"></Module>
@@ -223,6 +224,7 @@
     <Module Name="Mosaic Dithered Frames" IDLFunc="mosaicdith_000" Order="12"></Module>
     <Module Name="Clean Noise Frame" IDLFunc="cleannoise_000"></Module>
     <Module Name="Save Master Flat Field" IDLFunc="saveflatfi_000"></Module>
+    <Module Name="Swap Channels for Test" IDLFunc="swapchan_000"></Module>
     <Module Name="Glitch Identification" IDLFunc="glitchid_000"></Module>
     <Module Name="Telluric Correction" IDLFunc="tellcor_000"></Module>  
     <Module Name="Remove Crosstalk" IDLFunc="rmcrosstalk_000"></Module> 
@@ -253,6 +255,7 @@
     <Module Name="Subtract Dark Frame" IDLFunc="subtradark_000"></Module>
     <Module Name="Find Bad Pixels from Noise" IDLFunc="badpixnois_000"></Module>
     <Module Name="Clean Noise Frame" IDLFunc="cleannoise_000"></Module>
+    <Module Name="Swap Channels for Test" IDLFunc="swapchan_000"></Module>
     <Module Name="Glitch Identification" IDLFunc="glitchid_000"></Module> 
     <Module Name="Telluric Correction" IDLFunc="tellcor_000"></Module> 
     <Module Name="Remove Crosstalk" IDLFunc="rmcrosstalk_000"></Module> 
@@ -293,6 +296,7 @@
     <Module Name="Clean Noise Frame" IDLFunc="cleannoise_000"></Module>
     <Module Name="Adjust Channel Levels" IDLFunc="adjchan_000"></Module>
     <Module Name="Find Bad Pixels from Noise" IDLFunc="badpixnois_000"></Module>
+    <Module Name="Swap Channels for Test" IDLFunc="swapchan_000"></Module>
     <Module Name="Glitch Identification" IDLFunc="glitchid_000"></Module> 
     <Module Name="Telluric Correction" IDLFunc="tellcor_000"></Module> 
     <Module Name="Remove Crosstalk" IDLFunc="rmcrosstalk_000"></Module> 
