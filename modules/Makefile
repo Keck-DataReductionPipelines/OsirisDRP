@@ -22,7 +22,7 @@ CFLAGS  =
 SOURCE	= 
 OBJECT	= 
 
-DIRS	= idl_downloads source lib
+DIRS	= idl_downloads source
 
 #  Files to make are ...
 FILES	= 
@@ -78,6 +78,7 @@ RELPRO   = adjchan_000.pro \
 	   subbackgrd_000.pro \
 	   subtracsky_000.pro \
 	   subtradark_000.pro \
+           swapchan_000.pro \
 	   tellcor_000.pro 
 
 PROSUB = odrs/modules
