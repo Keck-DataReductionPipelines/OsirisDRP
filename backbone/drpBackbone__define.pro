@@ -62,7 +62,7 @@ PRO drpBackbone::Run, QueueDir
 	IF Error EQ 0 THEN BEGIN
 		drpSetAppConstants		; Set the application constants
 		drpPushCallStack, 'drpBackbone::Run'	
-		Self -> OpenLog, drpXlateFileName(GETENV('DEFAULTLOGDIR')) + '/' + general_log_name(), /GENERAL
+		Self -> OpenLog, drpXlateFileName(GETENV('OSIRIS_DRP_DEFAULTLOGDIR')) + '/' + general_log_name(), /GENERAL
 		drpLog, 'Run Backbone', /GENERAL		 
 		InErrHandler = 0
 		; The following should probably be done in a drpBackbone::INIT method
