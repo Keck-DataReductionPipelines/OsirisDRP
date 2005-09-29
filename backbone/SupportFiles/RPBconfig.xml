@@ -98,22 +98,22 @@
 
     mkwavcalfr_COMMON___Debug                = '0'
     mkwavcalfr_COMMON___MinDiff_adu          = '1.e-2'
-    mkwavcalfr_COMMON___LineFitDSigma_fact   = '5.'
-    mkwavcalfr_COMMON___DispFitOrder         = '3'
+    mkwavcalfr_COMMON___LineFitDSigma_fact   = '3.'
+    mkwavcalfr_COMMON___DispFitOrder         = '2'
     mkwavcalfr_COMMON___LineFitFunction      = 'GAUSSIAN'
     mkwavcalfr_COMMON___LineFitTerms         = '4'
-    mkwavcalfr_COMMON___MinSigma_px          = '.4'
-    mkwavcalfr_COMMON___MaxSigma_px          = '2.5'
+    mkwavcalfr_COMMON___MinSigma_px          = '.5'
+    mkwavcalfr_COMMON___MaxSigma_px          = '3.5'
     mkwavcalfr_COMMON___MinFlux_adu          = '1.'
     mkwavcalfr_COMMON___MaxLag_px            = '20'
     mkwavcalfr_COMMON___DispFitSigma_fact    = '2.'
     mkwavcalfr_COMMON___DispFitIter          = '2'
     mkwavcalfr_COMMON___Linefile             = '$OSIRIS_DRP_DATA_PATH/osiris_callines.list'
     mkwavcalfr_COMMON___Filterfile           = '$OSIRIS_DRP_DATA_PATH/osiris_filter_info.list'
-    mkwavcalfr_COMMON___MedianLag            = '0'
+    mkwavcalfr_COMMON___MedianLag            = '1'
 
     mkwavsmo_COMMON___Debug                  = '1'
-    mkwavsmo_COMMON___Order                  = '1'
+    mkwavsmo_COMMON___Order                  = '2'
     mkwavsmo_COMMON___MedianWindow           = '5'
     mkwavsmo_COMMON___LimitPixel             = '2'
     mkwavsmo_COMMON___FilterFile             = '$OSIRIS_DRP_DATA_PATH/osiris_filter_info.list'
@@ -125,8 +125,11 @@
     mosaicdpos_COMMON___Mode              = 'MED'
   
     mosaicdith_COMMON___Cubic = '-0.5'
+    mosaicdith_COMMON___SumMethod = 'AVERAGE'    
+    mosaicdith_COMMON___ShiftMethod = 'ROUNDED'
     mosaicdith_COMMON___Debug = '1'   
     mosaicdith_COMMON___OffsetMethod = 'TEL'   
+    mosaicdith_COMMON___Equalize = '0'
 
     savedatset_COMMON___Debug="1"
     saveflatfi_COMMON___Debug="1"
