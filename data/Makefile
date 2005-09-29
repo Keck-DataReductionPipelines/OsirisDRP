@@ -30,12 +30,10 @@ FILES	=
 #  Files to release are ...
 RELFILES = 
 
-RELDAT   = cal_line.list \
-	   filter_info.list \
-	   filters \
-	   linelist
+RELDAT   = osiris_cal_line.list \
+	   osiris_filter_info.list
 
-override SYSNAM = kss/osiris/drs/data
+override SYSNAM = kss/osiris/drs/data/
 override VERNUM = 1.4
 
 #  Include general make rules (use /etc if no environment variable).
