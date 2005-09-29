@@ -11,8 +11,8 @@
 ##############################################################################
 
 IDL_INCLUDE = /usr/local/rsi/idl_6.1/external/include
-CFITSIOLIBDIR = $(KROOT)kss/osiris/drs/modules/lib
-OUTPUTDIR = ../lib
+CFITSIOLIBDIR = $(KROOT)/kss/osiris/drs/modules/lib/
+OUTPUTDIR = .
 
 # Include files.
 INCLUDE = 
@@ -21,15 +21,15 @@ LD_LIBRARY_PATH =
 # C source and object files.
 CFLAGS  =  -I$(KROOT)/kss/osiris/drs/modules/source/include -I$(IDL_INCLUDE) -D__REENTRANT -fPIC
 
-NAMES = osiris_rename_null.c \
-	osiris_wait_on_sem_signal_null.c \
-	osiris_post_sem_signal_null.c \
-	osiris_test.c \
-	osiris_rectify_lib.c \
-	mkrecmatrx_000.c \
-	spatrectif_000.c \
-	dumpxmlptr.c \
-	idlgetpid.c 
+NAMES = osiris_rename_null \
+	osiris_wait_on_sem_signal_null \
+	osiris_post_sem_signal_null \
+	osiris_test \
+	osiris_rectify_lib \
+	mkrecmatrx_000 \
+	spatrectif_000 \
+	dumpxmlptr \
+	idlgetpid 
 SOURCE = $(NAMES:%=%.c)
 OBJECT = $(NAMES:%=%.o)
 COBJ = 
@@ -38,10 +38,10 @@ COBJ =
 DIRS = 
 
 # Files to make are ..
-FILES = osiris_ext_null.so
+FILES = libosiris_drp_ext_null.so.0.0
 
 # Files to release are ..
-RELFILES  = 
+RELFILES = libosiris_drp_ext_null.so.0.0
 RELDAT =  
 
 # This is a release point. Define version macros to override values
@@ -52,16 +52,16 @@ override VERNUM = 1.4
 # Include general make rules (use /etc if no environment variable)
 include $(KROOT)/etc/config.mk
 
-RM     = rm -f
+RM  = rm -f
+SED = /bin/sed
 
-osiris_ext_null.so : $(OBJECT) 
-
-	$(SHLIB_LD_NOPIC) -o $(OUTPUTDIR)/$@ $(OBJECT) $(COBJ) \
-	-L$(LIBDIR) -L$(CFITSIOLIBDIR) -lm lcfitsio
+libosiris_drp_ext_null.so.0.0 : $(OBJECT) drp_structs.h
+	ld -shared -o $(OUTPUTDIR)/$@ $(OBJECT) $(COBJ) \
+	-L$(LIBDIR) -L$(CFITSIOLIBDIR) -lm -losirisDRPcfitsio
 
 
 clean:
-	$(RM) $(OBJECT) $(OUTPUTDIR)/osiris_ext_null.so
+	$(RM) $(OBJECT) $(OUTPUTDIR)/libosiris_drp_ext_null.so.0.0
 
 
 
