@@ -32,28 +32,18 @@ RELFILES =
 
 RELDAT   = 
 RELPRO   = drpBackbone__define.pro \
-	   drpCalibrationBackbone_define.pro \
 	   drpConfigParser__define.pro \
-	   drpCRFPipeline__define.pro \
 	   drpDRFParser__define.pro \
 	   drpDRFPipeline__define.pro \
 	   drpMain.pro \
 	   drpPipeline__define.pro \
 	   drpRun.pro \
-	   drpXlateFileName.pro \
-	   drpXlateFileName_with_PRINT.pro \
-	   idlpipeline__define.pro \
-	   idlpipeline.pro \
-	   idlPipeRun.pro \
-	   incmsgbufferpointer.pro \
-	   readfromtaili.pro \
-	   teststruct.pro \
-	   writetoheado.pro
+	   osiris_drp_backbone_startup.pro
 
 
 PROSUB = odrs/backbone
 
-override SYSNAM = kss/osiris/drs/backbone
+override SYSNAM = kss/osiris/drs/backbone/
 override VERNUM = 1.4
 
 #  Include general make rules (use /etc if no environment variable).
