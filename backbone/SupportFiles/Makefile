@@ -30,7 +30,8 @@ FILES	=
 #  Files to release are ...
 RELFILES = 
 
-RELDAT   = RPBconfig.xml
+RELDAT   = osirisDRPConfigFile \
+	   RPBconfig.xml
 
 #override SYSNAM = kss/osiris/drs/backbone
 #override VERNUM = 1.4
