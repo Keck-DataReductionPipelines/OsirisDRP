@@ -120,7 +120,7 @@ int spatrectif_000(int argc, void* argv[])
 	for (l=0; l<basesize; l++) {
 	  j = hilo[sp][0]+l;          
 	  c_bv[sp][l]=basis_vectors[sp][l][i];     // Store the basis vector in a local variable.
-	  blame[sp][l]=c_bv[sp][l]*c_bv[sp][l]*c_bv[sp][l]*c_bv[sp][l]; // initial blame is very focused on peak pixels.
+	  blame[sp][l]=c_bv[sp][l]*c_bv[sp][l]*c_bv[sp][l]; // initial blame is very focused on peak pixels.
 	  weight[sp]=weight[sp]+blame[sp][l];      // Weight factor for distributing blame
 	  fblame[sp][l]=c_bv[sp][l];                  // final blame is a copy of the infl matrices
 	  fweight[sp]=fweight[sp]+fblame[sp][l];      // Weight factor for distributing blame
@@ -189,7 +189,7 @@ int spatrectif_000(int argc, void* argv[])
 	//    c_image[sp]=t_image[sp];
 	//  }
 	//}
-	if ( (ii<8) && (ii < 8) ) {
+	if ( (ii > 2) && (ii < 6) ) {
 	  for (sp = 0; sp<numspec; sp++)
 	    {
 	      t_image[sp]=c_image[sp];
