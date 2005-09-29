@@ -22,7 +22,7 @@ CFLAGS  =
 SOURCE	= 
 OBJECT	= 
 
-DIRS	= backbone data modules
+DIRS	= backbone data scripts modules
 
 #  Files to make are ...
 FILES	= 
