@@ -13,5 +13,5 @@
 set backbone_dir=$KROOT/rel/default/idl/odrs/backbone
 
 #start drp
-xterm -iconic -e idl ${backbone_dir}/osiris_drp_backbone_startup.pro
+xterm +ls -e idl ${backbone_dir}/osiris_drp_backbone_startup.pro
 
