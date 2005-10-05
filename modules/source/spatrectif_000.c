@@ -189,7 +189,7 @@ int spatrectif_000(int argc, void* argv[])
 	//    c_image[sp]=t_image[sp];
 	//  }
 	//}
-	if ( (ii > 2) && (ii < 6) ) {
+	if ( (ii > 2) && (ii < -1) ) {
 	  for (sp = 0; sp<numspec; sp++)
 	    {
 	      t_image[sp]=c_image[sp];

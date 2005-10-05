@@ -160,12 +160,14 @@
     <Module Name="Make Rectification Matrix" IDLFunc="mkrecmatrx_000"></Module>
     <Module Name="Find Bad Pixels from Noise" IDLFunc="badpixnois_000"></Module>
     <Module Name="Clean Noise Frame" IDLFunc="cleannoise_000"></Module>
+    <Module Name="Clean Cosmic Rays" IDLFunc="cleancosmic_000"></Module>
     <Module Name="Save Master Flat Field" IDLFunc="saveflatfi_000"></Module>
   </TEST_DRP>
   <TRP_SPEC>
     <Module Name="Make Integration Frame" IDLFunc="makintfram_000" Order="0"></Module>
     <Module Name="Determine Mosaic Positions" IDLFunc="mosaicdpos_000"></Module>
     <Module Name="Linearize and Correct Pixel" IDLFunc="lineapixel_000" Order="1"></Module>
+    <Module Name="Clean Cosmic Rays" IDLFunc="cleancosmic_000"></Module>
     <Module Name="Extract Signal SPEC" IDLFunc="extracsigs_000" Order="2"></Module>
   </TRP_SPEC>
   <TRP_IMAG>
@@ -190,6 +192,7 @@
     <Module Name="Remove Crosstalk" IDLFunc="rmcrosstalk_000"></Module> 
     <Module Name="Adjust Channel Levels" IDLFunc="adjchan_000"></Module>
     <Module Name="Clean Noise Frame" IDLFunc="cleannoise_000"></Module>
+    <Module Name="Clean Cosmic Rays" IDLFunc="cleancosmic_000"></Module>
     <Module Name="Telluric Correction" IDLFunc="tellcor_000"></Module> 
     <Module Name="Save DataSet Information" IDLFunc="savedatset_000"></Module>
     <Module Name="Subtract Dark Frame" IDLFunc="subtradark_000"></Module>
@@ -226,6 +229,7 @@
     <Module Name="Adjust Channel Levels" IDLFunc="adjchan_000"></Module>
     <Module Name="Mosaic Dithered Frames" IDLFunc="mosaicdith_000" Order="12"></Module>
     <Module Name="Clean Noise Frame" IDLFunc="cleannoise_000"></Module>
+    <Module Name="Clean Cosmic Rays" IDLFunc="cleancosmic_000"></Module>
     <Module Name="Save Master Flat Field" IDLFunc="saveflatfi_000"></Module>
     <Module Name="Swap Channels for Test" IDLFunc="swapchan_000"></Module>
     <Module Name="Glitch Identification" IDLFunc="glitchid_000"></Module>
@@ -258,6 +262,7 @@
     <Module Name="Subtract Dark Frame" IDLFunc="subtradark_000"></Module>
     <Module Name="Find Bad Pixels from Noise" IDLFunc="badpixnois_000"></Module>
     <Module Name="Clean Noise Frame" IDLFunc="cleannoise_000"></Module>
+    <Module Name="Clean Cosmic Rays" IDLFunc="cleancosmic_000"></Module>
     <Module Name="Swap Channels for Test" IDLFunc="swapchan_000"></Module>
     <Module Name="Glitch Identification" IDLFunc="glitchid_000"></Module> 
     <Module Name="Telluric Correction" IDLFunc="tellcor_000"></Module> 
@@ -297,6 +302,7 @@
     <Module Name="Correct Telluric Lines" IDLFunc="corrtellin_000" Order="10"></Module>
     <Module Name="Mosaic Dithered Frames" IDLFunc="mosaicdith_000" Order="11"></Module>
     <Module Name="Clean Noise Frame" IDLFunc="cleannoise_000"></Module>
+    <Module Name="Clean Cosmic Rays" IDLFunc="cleancosmic_000"></Module>
     <Module Name="Adjust Channel Levels" IDLFunc="adjchan_000"></Module>
     <Module Name="Find Bad Pixels from Noise" IDLFunc="badpixnois_000"></Module>
     <Module Name="Swap Channels for Test" IDLFunc="swapchan_000"></Module>
