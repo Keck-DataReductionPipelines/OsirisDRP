@@ -34,6 +34,7 @@ int spatrectif_000(int argc, void* argv[])
   // Parameters input in IDL calling program
   short int     totalParmCount;
   short int     numiter;
+  float         scale;
   float         relaxation;
   float         relax;
   short int     basesize;
@@ -84,6 +85,7 @@ int spatrectif_000(int argc, void* argv[])
   image          = (float (*)[DATA]          )argv[i++];
   noise          = (float (*)[DATA]          )argv[i++];
   quality        = (unsigned char (*)[DATA]  )argv[i++];
+  scale          = *(float *                 )argv[i++];   // Plate scale 
 
   /*
    * Start placing items from the original rectification code here.
@@ -93,6 +95,7 @@ int spatrectif_000(int argc, void* argv[])
   printf( "spatrectif_000.c: Now processing RAW data...\n");
   printf("Number of iterations = %d.\n",numiter);
   printf("Relaxation Parameter = %f.\n",relaxation);
+  printf("Platescale = %f.\n",scale);
   (void)fflush(stdout);
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // Iterate on each lenslet.
@@ -189,25 +192,15 @@ int spatrectif_000(int argc, void* argv[])
 	//    c_image[sp]=t_image[sp];
 	//  }
 	//}
-	if ( (ii > 2) && (ii < -1) ) {
+	// For the coarse scales, use a hanning filter on the early iterations to reduce ringing
+	if ( (scale > 0.099) && (ii < -1) && (ii < 15) ) {
 	  for (sp = 0; sp<numspec; sp++)
 	    {
 	      t_image[sp]=c_image[sp];
 	    }
 	  for (sp = 64; sp<(numspec-64); sp++) 
 	    {
-	      if ( (c_image[sp] < 0.0) && (c_image[sp] < c_image[sp-64]) && (c_image[sp] < c_image[sp+64]) ) {
-		// For the iterations 3 to 8, apply a hanning filter to reduce ringing
-		t_image[sp]=c_image[sp]+0.5*c_image[sp-64]+0.5*c_image[sp+64];
-		t_image[sp-64]=0.5*c_image[sp-64];
-		t_image[sp+64]=0.5*c_image[sp+64];
-	      }
-	      if ( (c_image[sp] > 0.0) && (c_image[sp] > c_image[sp-64]) && (c_image[sp] > c_image[sp+64]) ) {
-		// For the iterations 3 to 8, apply a hanning filter to reduce ringing
-		t_image[sp]=c_image[sp]+0.5*c_image[sp-64]+0.5*c_image[sp+64];
-		t_image[sp-64]=0.5*c_image[sp-64];
-		t_image[sp+64]=0.5*c_image[sp+64];
-	      }
+	      t_image[sp]=0.5*c_image[sp]+0.25*c_image[sp-64]+0.25*c_image[sp+64];
 	    }
 	  for (sp = 0; sp<numspec; sp++)
 	    {
@@ -217,7 +210,6 @@ int spatrectif_000(int argc, void* argv[])
 	if ( ii < -1 ) {
 	  for (sp = 1; sp<(numspec-1); sp++) 
 	    {
-		// For the iterations 7, apply a hanning filter to reduce ringing
 	      t_image[sp]=0.5*c_image[sp]+0.25*c_image[sp+1]+0.25*c_image[sp-1];
 	    }
 	  for (sp = 1; sp<(numspec-1); sp++)
