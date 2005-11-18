@@ -2,6 +2,9 @@
 
     adjchan_COMMON___Debug="1"
 
+    assembcube_COMMON___CoeffFile         ='$OSIRIS_DRP_DATA_PATH/osiris_wave_coeffs.fits'
+    assembcube_COMMON___Filterfile        ='$OSIRIS_DRP_DATA_PATH/osiris_filter_info.list'
+
     badpixnois_COMMON___Debug="1"
     badpixnois_COMMON___loReject="0.1"
     badpixnois_COMMON___hiReject="0.9"
@@ -19,7 +22,7 @@
     calibrwave_COMMON___UpperLimitBad     = '5.'
     calibrwave_COMMON___NoiseMultiplier   = '10.'
     calibrwave_COMMON___InterPolType      = 'LINEAR'
-    calibrwave_COMMON___Filterfile         ='$OSIRIS_DRP_DATA_PATH/osiris_filter_info.list'
+    calibrwave_COMMON___Filterfile        ='$OSIRIS_DRP_DATA_PATH/osiris_filter_info.list'
 
     cleannoise_COMMON___SetIntFrame="1"
     cleannoise_COMMON___ValIntFrame="1."
@@ -191,6 +194,7 @@
     <Module Name="Glitch Identification" IDLFunc="glitchid_000"></Module> 
     <Module Name="Remove Crosstalk" IDLFunc="rmcrosstalk_000"></Module> 
     <Module Name="Adjust Channel Levels" IDLFunc="adjchan_000"></Module>
+    <Module Name="Assemble Data Cube" IDLFunc="assembcube_000"></Module>
     <Module Name="Clean Noise Frame" IDLFunc="cleannoise_000"></Module>
     <Module Name="Clean Cosmic Rays" IDLFunc="cleancosmic_000"></Module>
     <Module Name="Telluric Correction" IDLFunc="tellcor_000"></Module> 
@@ -227,6 +231,7 @@
     <Module Name="Clean PSF" IDLFunc="cleanpsf___000" Order="11"></Module>
     <Module Name="Determine Mosaic Positions" IDLFunc="mosaicdpos_000"></Module>
     <Module Name="Adjust Channel Levels" IDLFunc="adjchan_000"></Module>
+    <Module Name="Assemble Data Cube" IDLFunc="assembcube_000"></Module>
     <Module Name="Mosaic Dithered Frames" IDLFunc="mosaicdith_000" Order="12"></Module>
     <Module Name="Clean Noise Frame" IDLFunc="cleannoise_000"></Module>
     <Module Name="Clean Cosmic Rays" IDLFunc="cleancosmic_000"></Module>
@@ -268,6 +273,7 @@
     <Module Name="Telluric Correction" IDLFunc="tellcor_000"></Module> 
     <Module Name="Remove Crosstalk" IDLFunc="rmcrosstalk_000"></Module> 
     <Module Name="Adjust Channel Levels" IDLFunc="adjchan_000"></Module>
+    <Module Name="Assemble Data Cube" IDLFunc="assembcube_000"></Module>
     <Module Name="Save Master Flat Field" IDLFunc="saveflatfi_000"></Module>
     <Module Name='Determine Spectral Resolution' IDLFunc='detspecres_000'></Module>
   </SRP_SPEC>
@@ -304,6 +310,7 @@
     <Module Name="Clean Noise Frame" IDLFunc="cleannoise_000"></Module>
     <Module Name="Clean Cosmic Rays" IDLFunc="cleancosmic_000"></Module>
     <Module Name="Adjust Channel Levels" IDLFunc="adjchan_000"></Module>
+    <Module Name="Assemble Data Cube" IDLFunc="assembcube_000"></Module>
     <Module Name="Find Bad Pixels from Noise" IDLFunc="badpixnois_000"></Module>
     <Module Name="Swap Channels for Test" IDLFunc="swapchan_000"></Module>
     <Module Name="Glitch Identification" IDLFunc="glitchid_000"></Module> 
