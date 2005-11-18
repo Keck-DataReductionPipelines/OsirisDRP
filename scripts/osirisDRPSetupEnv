@@ -1,12 +1,15 @@
 # top of osiris drp code
-setenv OSIRIS_DRS_TOP $KROOT/kss/osiris/DRP/
+setenv OSIRIS_DRS_TOP $KROOT/kss/osiris/drs/
+
+# Location of data files
+setenv OSIRIS_DRP_DATA_PATH $OSIRIS_DRS_TOP/data/
 
 # Set the queue directory for any pipelines started by this user
 setenv DRF_QUEUE_DIR $HOME/osiris/drf_queue
 
 # Set a default for the overall (general) DRP log files to go.  These log
 # files are created each time the pipeline backbone is started
-setenv OSIRIS_DRP_DEFAULTLOGDIR /net/napilip/kroot/data/osiris/logs/drp
+setenv OSIRIS_DRP_DEFAULTLOGDIR /u/osrsdev/osiris/drf_queue/logs
 
 # This is where the backbone IDL code looks for the shared libraries that
 # implement C code called by the IDL code.
