@@ -83,15 +83,17 @@ PRO drpBackbone::Run, QueueDir
 	ENDELSE	
 
 	; Replace this fixed assignement with some environment variable stuff
-	OriginalPath = STRING(!PATH)
-	newModulePath = drpXlateFileName(GETENV('OSIRIS_DRP_MODULE_PATH')) + ':' + OriginalPath
-	drpSetModulePath, newModulePath
-	OriginalPath = STRING(!PATH)
-	newModulePath = drpXlateFileName(GETENV('OSIRIS_DRP_IDL_DOWNLOADS_PATH')) + ':' + OriginalPath
-	drpSetModulePath, newModulePath
-	OriginalPath = STRING(!PATH)
-	newModulePath = drpXlateFileName(GETENV('OSIRIS_DRP_BACKBONE_PATH')) + ':' + OriginalPath
-	drpSetModulePath, newModulePath
+
+; Commented out by James Larkin, Oct. 29, 2005
+;	OriginalPath = STRING(!PATH)
+;	newModulePath = drpXlateFileName(GETENV('OSIRIS_DRP_MODULE_PATH')) + ':' + OriginalPath
+;	drpSetModulePath, newModulePath
+;	OriginalPath = STRING(!PATH)
+;	newModulePath = drpXlateFileName(GETENV('OSIRIS_DRP_IDL_DOWNLOADS_PATH')) + ':' + OriginalPath
+;	drpSetModulePath, newModulePath
+;	OriginalPath = STRING(!PATH)
+;	newModulePath = drpXlateFileName(GETENV('OSIRIS_DRP_BACKBONE_PATH')) + ':' + OriginalPath
+;	drpSetModulePath, newModulePath
 
 	;  Poll the 'queue' directory continuously.  If a DRF is encountered, reduce it.
 	DRPCONTINUE = 1  ; Start off with a continuous loop
