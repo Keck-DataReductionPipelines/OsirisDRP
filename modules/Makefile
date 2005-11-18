@@ -32,6 +32,7 @@ RELFILES =
 
 RELDAT   = 
 RELPRO   = adjchan_000.pro \
+	   assembcube_000.pro \
 	   badpixnois_000.pro \
 	   calibrflux_000.pro \
 	   calibrwave_000.pro \
