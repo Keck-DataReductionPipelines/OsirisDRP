@@ -2,39 +2,39 @@
 ;-----------------------------------------------------------------------
 ; THIS IS A DRP MODULE
 ;
-; NAME:  adjchan_000
+; @NAME:  adjchan_000
 ;
-; PURPOSE: Measure any dcs bias shifts between the 32 spectrograph
+; @PURPOSE: Measure any dcs bias shifts between the 32 spectrograph
 ; outputs and adjust to common level.
 ;
-; PARAMETERS IN RPBCONFIG.XML :
+; @PARAMETERS IN RPBCONFIG.XML :
 ;
 ;    None
 ;
-; INPUT-FILES : None
+; @INPUT-FILES : None
 ;
-; OUTPUT : None
+; @OUTPUT : None
 ;
-; DATASET : contains the adjusted data. The number of valid pointers 
+; @DATASET : contains the adjusted data. The number of valid pointers 
 ;           is not changed.
 ;
-; QUALITY BITS : 0th     : checked
+; @QUALITY BITS : 0th     : checked
 ;                1st-3rd : ignored
 ;
-; DEBUG : nothing special
+; @DEBUG : nothing special
 ;
-; MAIN ROUTINE : 
+; @MAIN ROUTINE : 
 ;
-; SAVES : Nothing
+; @SAVES : Nothing
 ;
-; NOTES : - The inside bit is ignored.
+; @@@@NOTES : - The inside bit is ignored.
 ;         - Input frames must be 2d.
 ;
-; STATUS : not tested
+; @STATUS : not tested
 ;
-; HISTORY : 5.29.2005, created
+; @HISTORY : 5.29.2005, created
 ;
-; AUTHOR : James Larkin
+; @AUTHOR : James Larkin
 ;
 ;-----------------------------------------------------------------------
 
