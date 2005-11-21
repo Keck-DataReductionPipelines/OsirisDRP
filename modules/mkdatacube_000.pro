@@ -1,13 +1,13 @@
 ;-----------------------------------------------------------------------
 ; THIS IS A DRP MODULE
 ;
-; NAME:  mkdatacube_000
+; @NAME:  mkdatacube_000
 ;
-; PURPOSE: create a 3D cube data from a spaitially rectified 2D frame
+; @PURPOSE: create a 3D cube data from a spaitially rectified 2D frame
 ;
-; STATUS : prototype
+; @STATUS : prototype
 ;
-; NOTES : 
+; @@@@NOTES : 
 ;         It is assumed that input frames are spatially rectified
 ;         through spatrectif_000.pro routine. 
 ;
@@ -16,14 +16,14 @@
 ;         accessible by `DATADIR' environmental variable.
 ;         Currently, the file is under DRP/backbone/data/
 ;
-; ALGORITHM :
+; @ALGORITHM :
 ;         - re-ordering spectra so that the final output has a 3-D format of
 ;           1st dim: wavelength
 ;           2nd dim: lenslet X-coord (left->right)
 ;           3rd dim: lenslet Y-coord (up->down)
 ;           lenslet [0,0] is the upper-left corner of the lenslet array.
 ;           ;; the above order of 3-axes conforms the Euro-3D structure.
-; REQUIRED ROUTINE :
+; @REQUIRED ROUTINE :
 ;         - lenslets.pro  : calculates locations of lenslet pupil iamges 
 ;                           on the detector
 ;         - filterinfo.pro: for a given filter, this routine calculates
@@ -32,10 +32,10 @@
 ;                           of left/right edges of spectra.
 ;         These two routines are at DRP/backbone/code/idl_downloads/
 ;
-; HISTORY : Aug 2004    created.
+; @HISTORY : Aug 2004    created.
 ;           Sep 2004    changed to conform DRP module structure.
 ;
-; AUTHOR : created by Inseok Song (song@gemini.edu)
+; @AUTHOR : created by Inseok Song (song@gemini.edu)
 ;          geometry and extraction redone from Oct.04-June 05 - Larkin
 ;-----------------------------------------------------------------------
 FUNCTION mkdatacube_000, DataSet, Modules, Backbone

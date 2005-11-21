@@ -2,37 +2,37 @@
 ;-----------------------------------------------------------------------
 ; THIS IS A DRP MODULE
 ;
-; NAME: rmcrosstalk_000.pro
+; @NAME: rmcrosstalk_000.pro
 ;
-; PURPOSE: For each readout row, we measure the median value for each
+; @PURPOSE: For each readout row, we measure the median value for each
 ; of the 32 channels and subtract the lowest of these medians. The
 ; purpose is to remove crosstalk caused by bright stars and residual
 ; gradients within the raw data.
 ;
-; PARAMETERS IN RPBCONFIG.XML : None
+; @@@PARAMETERS IN RPBCONFIG.XML : None
 ;
-; INPUT-FILES : None
+; @INPUT-FILES : None
 ;
-; OUTPUT : None
+; @OUTPUT : None
 ;
-; DATASET : contains the adjusted data. The number of valid pointers 
+; @DATASET : contains the adjusted data. The number of valid pointers 
 ;           is not changed.
 ;
-; QUALITY BITS : all ignored
+; @QUALITY BITS : all ignored
 ;
-; DEBUG : nothing special
+; @DEBUG : nothing special
 ;
-; MAIN ROUTINE : 
+; @MAIN ROUTINE : 
 ;
-; SAVES : Nothing
+; @@@SAVES : Nothing
 ;
-; NOTES :   - Input frames must be 2d.
+; @@@@NOTES :   - Input frames must be 2d.
 ;
-; STATUS : not tested
+; @STATUS : not tested
 ;
-; HISTORY : 6.15.2005, created
+; @HISTORY : 6.15.2005, created
 ;
-; AUTHOR : James Larkin
+; @AUTHOR : James Larkin
 ;
 ;-----------------------------------------------------------------------
 

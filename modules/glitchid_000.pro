@@ -7,7 +7,7 @@
 ; @PURPOSE: Identify glitches in raw OSIRIS frames and write out pixel
 ;  values into bad pixel map
 ;
-; @PARAMETERS IN RPBCONFIG.XML :
+; @@@PARAMETERS IN RPBCONFIG.XML :
 ;
 ;   glitchid_COMMON___SlopeThresh  : Threshold used for individual channels
 ;					of slope (up and down) for each pix 
@@ -29,9 +29,9 @@
 ;
 ; @MAIN ROUTINE : 
 ;
-; @SAVES : Nothing
+; @@@SAVES : Nothing
 ;
-; @NOTES : - The inside bit is ignored.
+; @@@@NOTES : - The inside bit is ignored.
 ;         - Input frames must be 2d.
 ;
 ; @STATUS : not tested

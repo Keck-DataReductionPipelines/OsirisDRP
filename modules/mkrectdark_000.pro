@@ -1,42 +1,42 @@
 ;-----------------------------------------------------------------------
 ; THIS IS A DRP MODULE
 ;
-; NAME: mkrectdark_000 
+; @NAME: mkrectdark_000 
 ;
-; PURPOSE: Read in the frames of data from a rectification matrix scan set that
+; @PURPOSE: Read in the frames of data from a rectification matrix scan set that
 ;          are used to generate the scan set's dark frame
 ;
 ; ALLOWED BRANCH IDS: CRP_SPEC
 ;
-; PARAMETERS IN RPBCONFIG.XML :
+; @@@PARAMETERS IN RPBCONFIG.XML :
 ;    mkrectdark_COMMON___Debug : bool, initialize debugging mode
 ;
-; MINIMUM/MAXIMUM NUMBER OF ALLOWED INPUT DATASETS : 1/1
+; @MINIMUM/MAXIMUM NUMBER OF ALLOWED INPUT DATASETS : 1/1
 ;
-; INPUT-FILES : None
+; @INPUT-FILES : None
 ;
-; OUTPUT : None.  The DataSet pointers are modified and new data resides in
+; @OUTPUT : None.  The DataSet pointers are modified and new data resides in
 ;          memory
 ;
-; INPUT : Defined by DataSet
+; @INPUT : Defined by DataSet
 ;
-; DATASET : Changed
+; @DATASET : Changed
 ;
-; QUALITY BITS : ignored
+; @QUALITY BITS : ignored
 ;
-; DEBUG : Nothing special
+; @DEBUG : Nothing special
 ;
-; MAIN ROUTINE : None
+; @MAIN ROUTINE : None
 ;
-; SAVES : see OUTPUT
+; @@@SAVES : see OUTPUT
 ;
-; NOTES : Christof, thanks for the header format :)
+; @@@@NOTES : Christof, thanks for the header format :)
 ;
-; STATUS : Tested successfully 2005-01-06
+; @STATUS : Tested successfully 2005-01-06
 ;
-; HISTORY : 2005-01-06, created
+; @HISTORY : 2005-01-06, created
 ;
-; AUTHOR : T. Gasaway (tgasaway@ucsd.edu)
+; @AUTHOR : T. Gasaway (tgasaway@ucsd.edu)
 ;
 ;-----------------------------------------------------------------------
 

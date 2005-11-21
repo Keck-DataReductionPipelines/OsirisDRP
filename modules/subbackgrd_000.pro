@@ -1,38 +1,38 @@
 ;-----------------------------------------------------------------------
 ; THIS IS A DRP MODULE
 ;
-; NAME:  subbackgrd_000
+; @NAME:  subbackgrd_000
 ;
-; PURPOSE: see subtract_slice_bg_from_cube.pro
+; @PURPOSE: see subtract_slice_bg_from_cube.pro
 ;
-; ALLOWED BRANCH IDS: ARP_SPEC
+; @ALLOWED BRANCH IDS: ARP_SPEC
 ;
-; PARAMETERS IN RPBCONFIG.XML : 
+; @@@PARAMETERS IN RPBCONFIG.XML : 
 ;    subbackgrd_ARP_SPEC_bMEDIAN   : instead of fitting the background
 ;                                    with a plane the median value is determined
 ;    subbackgrd_COMMON___Debug     : bool, initializes the debugging mode
 ;
-; MINIMUM/MAXIMUM NUMBER OF ALLOWED INPUT DATASETS : 1/-
+; @MINIMUM/MAXIMUM NUMBER OF ALLOWED INPUT DATASETS : 1/-
 ;
-; INPUT-FILES : Optional mask to mask out regions of the fov not to take into
+; @INPUT-FILES : Optional mask to mask out regions of the fov not to take into
 ;               account. 0 means not use, 1 means use.
 ;
-; OUTPUT : None
+; @OUTPUT : None
 ;
-; INPUT : 3d frames
+; @INPUT : 3d frames
 ;
-; DATASET : updated
+; @DATASET : updated
 ;
-; QUALITY BITS : 0th     : checked
+; @QUALITY BITS : 0th     : checked
 ;                1st-3rd : ignored
 ;
-; SPECIAL FITSKEYWORDS : none
+; @SPECIAL FITSKEYWORDS : none
 ;
-; DEBUG : nothing special
+; @DEBUG : nothing special
 ;
-; MAIN ROUTINE : subtract_slice_bg_from_cube.pro
+; @MAIN ROUTINE : subtract_slice_bg_from_cube.pro
 ;
-; SAVES : If the SAVE tag in the module section of the drf has been
+; @@@SAVES : If the SAVE tag in the module section of the drf has been
 ;         set to 1, the found background coefficients are saved.
 ;         Returns a cube, [3,n,n_Sets] with n being the number of spectral
 ;         channels and n_Sets being the number of input frames, meaning of the 0th axis :
@@ -44,11 +44,11 @@
 ;         image [n,n_Sets] with the median values.
 ;
 ;
-; STATUS : not tested
+; @STATUS : not tested
 ;
-; HISTORY : 8.3.2004, created
+; @HISTORY : 8.3.2004, created
 ;
-; AUTHOR : Christof Iserlohe (iserlohe@ph1.uni-koeln.de)
+; @AUTHOR : Christof Iserlohe (iserlohe@ph1.uni-koeln.de)
 ;
 ;-----------------------------------------------------------------------
 
