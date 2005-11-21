@@ -7,7 +7,7 @@
 ; @PURPOSE: Measure any dcs bias shifts between the 32 spectrograph
 ; outputs and adjust to common level.
 ;
-; @PARAMETERS IN RPBCONFIG.XML :
+; @@@PARAMETERS IN RPBCONFIG.XML :
 ;
 ;    None
 ;
@@ -25,7 +25,7 @@
 ;
 ; @MAIN ROUTINE : 
 ;
-; @SAVES : Nothing
+; @@@SAVES : Nothing
 ;
 ; @@@@NOTES : - The inside bit is ignored.
 ;         - Input frames must be 2d.
