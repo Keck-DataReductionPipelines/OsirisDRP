@@ -1,38 +1,42 @@
 ;-----------------------------------------------------------------------
 ; THIS IS A DRP MODULE
-;@BEGIN
-; @NAME:  assembcube_000
 ;
-; @PURPOSE: resample the spectra to a regular wavelength grid by cubic
+; @BEGIN
+;
+; @NAME  assembcube_000
+;
+; @PURPOSE resample the spectra to a regular wavelength grid by cubic
 ;          spline interpolation
 ;
-; @@@PARAMETERS IN RPBCONFIG.XML :
+; @@@PARAMETERS IN RPBCONFIG.XML
 ;
 ;   assembcube_COMMON___CoeffFile    : File that contains the
 ;                                      wavelength solutions for each lenslet.
-;   assembcube_COMMON___Filterfile   ; File that contains filter info.
+;   assembcube_COMMON___Filterfile   : File that contains filter info.
 ;
-; @INPUT-FILES : wavelength fit coefficients cube
+; @INPUT-FILES wavelength fit coefficients cube
 ;
-; @OUTPUT : none 
+; @OUTPUT none 
 ;
-; @DATASET : contains a 2-d set of images that have all been extracted.
+; @DATASET contains a 2-d set of images that have all been extracted.
 ;
-; @QUALITY BITS : all bits checked
+; @QUALITY BITS all bits checked
 ;
-; @DEBUG : nothing special
+; @DEBUG nothing special
 ;
-; @SAVES : see Output
+; @SAVES see Output
 ;
-; @NOTES : - This module reads a spatially rectified frame containing the
-;           wavelengths for each pixel of the dataframes
+; @NOTES This module reads a spatially rectified frame containing the
+;        wavelengths for each pixel of the dataframes
 ;
-; @STATUS : not tested
+; @STATUS not tested
 ;
-; @HISTORY : 11.12.2005, created
+; @HISTORY 11.12.2005, created
 ;
-; @AUTHOR : James Larkin
-;@END
+; @AUTHOR  James Larkin
+;
+; @END
+;
 ;-----------------------------------------------------------------------
 
 FUNCTION assembcube_000, DataSet, Modules, Backbone

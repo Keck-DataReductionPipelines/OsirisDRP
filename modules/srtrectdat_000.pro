@@ -1,44 +1,40 @@
 ;-----------------------------------------------------------------------
 ; THIS IS A DRP MODULE
-;@BEGIN
-; @NAME: srtrectdat_000 
 ;
-; @PURPOSE: Read in the frames of data from a rectification matrix scan set that
+; @BEGIN
+;
+; @NAME srtrectdat_000 
+;
+; @PURPOSE Read in the frames of data from a rectification matrix scan set that
 ;          are used to generate the actual rectification matrix.  In the case of
 ;          a narrowband scan, re-order and combine the frames as needed
 ;
-; @ALLOWED BRANCH IDS: CRP_SPEC
-;
-; @@@PARAMETERS IN RPBCONFIG.XML :
+; @@@PARAMETERS
 ;    srtrectdat_COMMON___Debug : bool, initialize debugging mode
 ;
-; @MINIMUM/MAXIMUM NUMBER OF ALLOWED INPUT DATASETS : 1/1
+; @CALIBRATION-FILES None
 ;
-; @INPUT-FILES : None
+; @INPUT Defined by DataSet
 ;
-; @OUTPUT : None.  The DataSet pointers are modified and new data resides in
-;          memory
+; @OUTPUT None. The DataSet pointers are modified and new data resides in
+;         memory
 ;
-; @INPUT : Defined by DataSet
+; @MAIN None
 ;
-; @DATASET : Changed
+; @QBITS ignored
 ;
-; @QUALITY BITS : ignored
+; @SAVES nothing
 ;
-; @DEBUG : Nothing special
+; @NOTES Christof, thanks for the header format :)
 ;
-; @MAIN ROUTINE : None
+; @STATUS Tested 2005-01-25
 ;
-; @@@SAVES : see OUTPUT
+; @HISTORY 2005-01-11, created
 ;
-; @@@@NOTES : Christof, thanks for the header format :)
+; @AUTHOR T. Gasaway (tgasaway@ucsd.edu)
 ;
-; @STATUS : Tested 2005-01-25
+; @END
 ;
-; @HISTORY : 2005-01-11, created
-;
-; @AUTHOR : T. Gasaway (tgasaway@ucsd.edu)
-;@END
 ;-----------------------------------------------------------------------
 
 FUNCTION srtrectdat_000, DataSet, Modules, Backbone

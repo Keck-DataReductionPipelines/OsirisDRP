@@ -1,46 +1,50 @@
 
 ;-----------------------------------------------------------------------
 ; THIS IS A DRP MODULE
-;@BEGIN
-; @NAME: glitchid 
 ;
-; @PURPOSE: Identify glitches in raw OSIRIS frames and write out pixel
-;  values into bad pixel map
+; @BEGIN
 ;
-; @@@PARAMETERS IN RPBCONFIG.XML :
+; @NAME glitchid 
+;
+; @PURPOSE Identify glitches in raw OSIRIS frames and write out pixel
+;          values into bad pixel map
+;
+; @@@PARAMETERS IN RPBCONFIG.XML
 ;
 ;   glitchid_COMMON___SlopeThresh  : Threshold used for individual channels
-;					of slope (up and down) for each pix 
+;		          	     of slope (up and down) for each pix 
 ;   glitchid_COMMON___ChanThresh   : Threshold for the number of channels
-;					a glitch needs to found to be
-;					labeled in quality extension 
+;				     a glitch needs to found to be
+;				     labeled in quality extension 
 ;
-; @INPUT-FILES : None
+; @INPUT-FILES None
 ;
-; @OUTPUT : None
+; @OUTPUT None
 ;
-; @DATASET : contains the adjusted data. The number of valid pointers 
+; @DATASET  contains the adjusted data. The number of valid pointers 
 ;           is not changed.
 ;
-; @QUALITY BITS : 0th     : checked
-;                1st-3rd : checked 
+; @@@QUALITY BITS  0th     : checked
+;                  1st-3rd : checked 
 ;
-; @DEBUG : nothing special
+; @DEBUG nothing special
 ;
-; @MAIN ROUTINE : 
+; @MAIN ROUTINE None
 ;
-; @@@SAVES : Nothing
+; @SAVES Nothing
 ;
-; @@@@NOTES : - The inside bit is ignored.
-;         - Input frames must be 2d.
+; @@@@NOTES  - The inside bit is ignored.
+;            - Input frames must be 2d.
 ;
-; @STATUS : not tested
+; @STATUS  not tested
 ;
-; @HISTORY : 6.14.2005, created
-;	     11.21.2005, modified with M. Perrin suggestions
+; @HISTORY  6.14.2005, created
+;	    11.21.2005, modified with M. Perrin suggestions
 ;	
-; @AUTHOR : Shelley Wright 
-;@BEGIN
+; @AUTHOR  Shelley Wright 
+;
+; @BEGIN
+;
 ;-----------------------------------------------------------------------
 
 FUNCTION glitchid_000, DataSet, Modules, Backbone

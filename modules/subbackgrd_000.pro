@@ -1,54 +1,19 @@
 ;-----------------------------------------------------------------------
 ; THIS IS A DRP MODULE
 ;
-; @NAME:  subbackgrd_000
+; @BEGIN
 ;
-; @PURPOSE: see subtract_slice_bg_from_cube.pro
+; @NAME  subbackgrd_000
 ;
-; @ALLOWED BRANCH IDS: ARP_SPEC
+; @PURPOSE background subtraction, this routine is obsolete !!!
 ;
-; @@@PARAMETERS IN RPBCONFIG.XML : 
-;    subbackgrd_ARP_SPEC_bMEDIAN   : instead of fitting the background
-;                                    with a plane the median value is determined
-;    subbackgrd_COMMON___Debug     : bool, initializes the debugging mode
+; @STATUS not tested
 ;
-; @MINIMUM/MAXIMUM NUMBER OF ALLOWED INPUT DATASETS : 1/-
+; @HISTORY 8.3.2004, created
 ;
-; @INPUT-FILES : Optional mask to mask out regions of the fov not to take into
-;               account. 0 means not use, 1 means use.
+; @AUTHOR Christof Iserlohe (iserlohe@ph1.uni-koeln.de)
 ;
-; @OUTPUT : None
-;
-; @INPUT : 3d frames
-;
-; @DATASET : updated
-;
-; @QUALITY BITS : 0th     : checked
-;                1st-3rd : ignored
-;
-; @SPECIAL FITSKEYWORDS : none
-;
-; @DEBUG : nothing special
-;
-; @MAIN ROUTINE : subtract_slice_bg_from_cube.pro
-;
-; @@@SAVES : If the SAVE tag in the module section of the drf has been
-;         set to 1, the found background coefficients are saved.
-;         Returns a cube, [3,n,n_Sets] with n being the number of spectral
-;         channels and n_Sets being the number of input frames, meaning of the 0th axis :
-;                   0: fitted offsets
-;                   1: fitted x-slopes
-;                   2: fitted y-slopes
-;
-;         If subbackgrd_ARP_SPEC_bMEDIAN is set to 1 it returns an
-;         image [n,n_Sets] with the median values.
-;
-;
-; @STATUS : not tested
-;
-; @HISTORY : 8.3.2004, created
-;
-; @AUTHOR : Christof Iserlohe (iserlohe@ph1.uni-koeln.de)
+; @END
 ;
 ;-----------------------------------------------------------------------
 
