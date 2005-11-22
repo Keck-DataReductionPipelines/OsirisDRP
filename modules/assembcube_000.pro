@@ -3,24 +3,24 @@
 ;
 ; @BEGIN
 ;
-; @NAME  assembcube_000
+; @NAME assembcube_000
 ;
 ; @PURPOSE resample the spectra to a regular wavelength grid by cubic
 ;          spline interpolation
 ;
-; @@@PARAMETERS IN RPBCONFIG.XML
+; @@@PARAMETERS
 ;
 ;   assembcube_COMMON___CoeffFile    : File that contains the
 ;                                      wavelength solutions for each lenslet.
 ;   assembcube_COMMON___Filterfile   : File that contains filter info.
 ;
-; @INPUT-FILES wavelength fit coefficients cube
+; @CALIBRATION-FILES wavelength fit coefficients cube
 ;
-; @OUTPUT none 
+; @INPUT
 ;
-; @DATASET contains a 2-d set of images that have all been extracted.
+; @OUTPUT The dataset contains a 2-d set of images that have all been extracted.
 ;
-; @QUALITY BITS all bits checked
+; @QBITS all bits checked
 ;
 ; @DEBUG nothing special
 ;

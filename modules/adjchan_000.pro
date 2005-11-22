@@ -11,13 +11,15 @@
 ;
 ; @PARAMETERS None
 ;
+; @CALIBRATION-FILES None
+;
 ; @INPUT None
 ;
 ; @OUTPUT contains the adjusted data. The number of valid pointers 
 ;         is not changed.
 ;
-; @@@QUALITY BITS  0th     : checked
-;                  1st-3rd : ignored
+; @@@QBITS  0th     : checked
+;           1st-3rd : ignored
 ;
 ; @DEBUG nothing special
 ;
