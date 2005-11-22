@@ -1,43 +1,43 @@
 
 ;-----------------------------------------------------------------------
 ; THIS IS A DRP MODULE
-;@BEGIN
 ;
-; @NAME:  adjchan_000
+; @BEGIN
 ;
-; @PURPOSE: Measure any dcs bias shifts between the 32 spectrograph
-; outputs and adjust to common level.
+; @NAME adjchan_000
 ;
-; @@@PARAMETERS IN RPBCONFIG.XML :
+; @PURPOSE Measure any dcs bias shifts between the 32 spectrograph
+;          outputs and adjust to common level.
 ;
-;    None
+; @PARAMETERS IN RPBCONFIG.XML
 ;
-; @INPUT-FILES : None
+; @INPUT-FILES None
 ;
-; @OUTPUT : None
+; @OUTPUT None
 ;
-; @DATASET : contains the adjusted data. The number of valid pointers 
+; @DATASET  contains the adjusted data. The number of valid pointers 
 ;           is not changed.
 ;
-; @QUALITY BITS : 0th     : checked
-;                1st-3rd : ignored
+; @@@QUALITY BITS  0th     : checked
+;                  1st-3rd : ignored
 ;
-; @DEBUG : nothing special
+; @DEBUG nothing special
 ;
-; @MAIN ROUTINE : 
+; @MAIN ROUTINE None
 ;
-; @@@SAVES : Nothing
+; @SAVES Nothing
 ;
-; @@@@NOTES : - The inside bit is ignored.
-;         - Input frames must be 2d.
+; @@@@NOTES  - The inside bit is ignored.
+;            - Input frames must be 2d.
 ;
-; @STATUS : not tested
+; @STATUS  not tested
 ;
-; @HISTORY : 5.29.2005, created
+; @HISTORY  5.29.2005, created
 ;
-; @AUTHOR : James Larkin
+; @AUTHOR  James Larkin
 ;
-;@END
+; @END
+;
 ;-----------------------------------------------------------------------
 
 FUNCTION adjchan_000, DataSet, Modules, Backbone
