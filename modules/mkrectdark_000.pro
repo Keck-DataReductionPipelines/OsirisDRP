@@ -1,43 +1,41 @@
 ;-----------------------------------------------------------------------
 ; THIS IS A DRP MODULE
-;@BEGIN
-; @NAME: mkrectdark_000 
 ;
-; @PURPOSE: Read in the frames of data from a rectification matrix scan set that
+; @BEGIN
+;
+; @NAME mkrectdark_000 
+;
+; @PURPOSE Read in the frames of data from a rectification matrix scan set that
 ;          are used to generate the scan set's dark frame
 ;
-; ALLOWED BRANCH IDS: CRP_SPEC
+; @@@PARAMETERS IN RPBCONFIG.XML
+;    mkrectdark_COMMON___Debug : BOOL, initialize debugging mode
 ;
-; @@@PARAMETERS IN RPBCONFIG.XML :
-;    mkrectdark_COMMON___Debug : bool, initialize debugging mode
+; @CALIBRATION-FILES None
 ;
-; @MINIMUM/MAXIMUM NUMBER OF ALLOWED INPUT DATASETS : 1/1
+; @INPUT 
 ;
-; @INPUT-FILES : None
+; @OUTPUT None.  The DataSet pointers are modified and new data resides in
+;         memory
 ;
-; @OUTPUT : None.  The DataSet pointers are modified and new data resides in
-;          memory
+; @MAIN None
 ;
-; @INPUT : Defined by DataSet
+; @QBITS ignored
 ;
-; @DATASET : Changed
+; @DEBUG Nothing special
 ;
-; @QUALITY BITS : ignored
+; @SAVES see OUTPUT
 ;
-; @DEBUG : Nothing special
+; @NOTES Christof, thanks for the header format :)
 ;
-; @MAIN ROUTINE : None
+; @STATUS Tested successfully 2005-01-06
 ;
-; @@@SAVES : see OUTPUT
+; @HISTORY 2005-01-06, created
 ;
-; @@@@NOTES : Christof, thanks for the header format :)
+; @AUTHOR T. Gasaway (tgasaway@ucsd.edu)
 ;
-; @STATUS : Tested successfully 2005-01-06
+; @END
 ;
-; @HISTORY : 2005-01-06, created
-;
-; @AUTHOR : T. Gasaway (tgasaway@ucsd.edu)
-;@END
 ;-----------------------------------------------------------------------
 
 FUNCTION mkrectdark_000, DataSet, Modules, Backbone

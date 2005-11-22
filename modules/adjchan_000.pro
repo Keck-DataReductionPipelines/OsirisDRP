@@ -9,21 +9,19 @@
 ; @PURPOSE Measure any dcs bias shifts between the 32 spectrograph
 ;          outputs and adjust to common level.
 ;
-; @PARAMETERS IN RPBCONFIG.XML
+; @PARAMETERS None
 ;
-; @INPUT-FILES None
+; @INPUT None
 ;
-; @OUTPUT None
-;
-; @DATASET  contains the adjusted data. The number of valid pointers 
-;           is not changed.
+; @OUTPUT contains the adjusted data. The number of valid pointers 
+;         is not changed.
 ;
 ; @@@QUALITY BITS  0th     : checked
 ;                  1st-3rd : ignored
 ;
 ; @DEBUG nothing special
 ;
-; @MAIN ROUTINE None
+; @MAIN None
 ;
 ; @SAVES Nothing
 ;

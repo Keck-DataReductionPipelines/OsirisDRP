@@ -1,43 +1,48 @@
 ;-----------------------------------------------------------------------
 ; THIS IS A DRP MODULE
-;@BEGIN
-; @NAME:  mkdatacube_000
 ;
-; @PURPOSE: create a 3D cube data from a spaitially rectified 2D frame
+; @BEGIN
 ;
-; @STATUS : prototype
+; @NAME mkdatacube_000
 ;
-; @@@@NOTES : 
-;         It is assumed that input frames are spatially rectified
+; @PURPOSE create a 3D cube data from a spaitially rectified 2D frame
+;
+; @@@@NOTES
+;       - It is assumed that input frames are spatially rectified
 ;         through spatrectif_000.pro routine. 
 ;
-;         Filter passband data should be available. The name of
+;       - Filter passband data should be available. The name of
 ;         filter information file is 'filters' and it should be
 ;         accessible by `DATADIR' environmental variable.
 ;         Currently, the file is under DRP/backbone/data/
 ;
-; @ALGORITHM :
-;         - re-ordering spectra so that the final output has a 3-D format of
-;           1st dim: wavelength
-;           2nd dim: lenslet X-coord (left->right)
-;           3rd dim: lenslet Y-coord (up->down)
-;           lenslet [0,0] is the upper-left corner of the lenslet array.
-;           ;; the above order of 3-axes conforms the Euro-3D structure.
-; @REQUIRED ROUTINE :
-;         - lenslets.pro  : calculates locations of lenslet pupil iamges 
-;                           on the detector
-;         - filterinfo.pro: for a given filter, this routine calculates
-;                           wavelength at the pupil image location, dispersion,
-;                           min/max wavelengths, and min/max pixel coordinates 
-;                           of left/right edges of spectra.
+;       - Algorithm :\\
+;         re-ordering spectra so that the final output has a 3-D format of
+;         1st dim: wavelength
+;         2nd dim: lenslet X-coord (left->right)
+;         3rd dim: lenslet Y-coord (up->down)
+;         lenslet [0,0] is the upper-left corner of the lenslet array.
+;         ;; the above order of 3-axes conforms the Euro-3D structure.
+; 
+;       - required files are\\
+;         lenslets.pro: calculates locations of lenslet pupil iamges 
+;                         on the detector\\
+;         filterinfo.pro: for a given filter, this routine calculates
+;                         wavelength at the pupil image location, dispersion,
+;                         min/max wavelengths, and min/max pixel coordinates 
+;                         of left/right edges of spectra.\\
 ;         These two routines are at DRP/backbone/code/idl_downloads/
 ;
-; @HISTORY : Aug 2004    created.
+; @STATUS prototype
+;
+; @HISTORY  Aug 2004    created.
 ;           Sep 2004    changed to conform DRP module structure.
 ;
-; @AUTHOR : created by Inseok Song (song@gemini.edu)
+; @AUTHOR  created by Inseok Song (song@gemini.edu)
 ;          geometry and extraction redone from Oct.04-June 05 - Larkin
-;@END
+;
+; @END
+;
 ;-----------------------------------------------------------------------
 FUNCTION mkdatacube_000, DataSet, Modules, Backbone
 

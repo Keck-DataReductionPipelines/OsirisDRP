@@ -3,7 +3,7 @@
 ;
 ; @BEGIN
 ;
-; @NAME  subbackgrd_000
+; @NAME subbackgrd_000
 ;
 ; @PURPOSE background subtraction, this routine is obsolete !!!
 ;

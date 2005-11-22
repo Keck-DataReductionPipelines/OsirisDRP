@@ -1,40 +1,43 @@
 
 ;-----------------------------------------------------------------------
 ; THIS IS A DRP MODULE
-;@BEGIN
 ;
-; @NAME: rmcrosstalk_000.pro
+; @BEGIN
 ;
-; @PURPOSE: For each readout row, we measure the median value for each
-; of the 32 channels and subtract the lowest of these medians. The
-; purpose is to remove crosstalk caused by bright stars and residual
-; gradients within the raw data.
+; @NAME rmcrosstalk_000.pro
 ;
-; @@@PARAMETERS IN RPBCONFIG.XML : None
+; @PURPOSE For each readout row, we measure the median value for each
+;          of the 32 channels and subtract the lowest of these medians. The
+;          purpose is to remove crosstalk caused by bright stars and residual
+;          gradients within the raw data.
 ;
-; @INPUT-FILES : None
+; @PARAMETERS None
 ;
-; @OUTPUT : None
+; @CALIBRATION-FILES None
 ;
-; @DATASET : contains the adjusted data. The number of valid pointers 
-;           is not changed.
+; @INPUT Raw images
 ;
-; @QUALITY BITS : all ignored
+; @OUTPUT the dataset contains the adjusted data. The number of valid pointers 
+;         is not changed.
 ;
-; @DEBUG : nothing special
+; @QBITS all ignored
 ;
-; @MAIN ROUTINE : 
+; @DEBUG nothing special
 ;
-; @@@SAVES : Nothing
+; @MAIN ROUTINE None
 ;
-; @@@@NOTES :   - Input frames must be 2d.
+; @SAVES Nothing
 ;
-; @STATUS : not tested
+; @NOTES Input frames must be 2d.
 ;
-; @HISTORY : 6.15.2005, created
+; @STATUS not tested
 ;
-; @AUTHOR : James Larkin
-;@END
+; @HISTORY 6.15.2005, created
+;
+; @AUTHOR James Larkin and Shelley Wright
+;
+; @END
+;
 ;-----------------------------------------------------------------------
 
 FUNCTION rmcrosstalk_000, DataSet, Modules, Backbone
@@ -67,9 +70,9 @@ FUNCTION rmcrosstalk_000, DataSet, Modules, Backbone
 	q4 = im[1024:2047,1024:2047]
 
 	;;; Rotate quadrants to q1 orientation
-	q2 = rot(q2,90)
-	q3 = rot(q3,180)
-	q4 = rot(q4,270)
+	q2 = rotate(q2,90)
+	q3 = rotate(q3,180)
+	q4 = rotate(q4,270)
         ;;; Value stores the median value of each channel (32) for
         ;;; every row (1024).
 	value = fltarr(1024, 32)
@@ -95,9 +98,9 @@ FUNCTION rmcrosstalk_000, DataSet, Modules, Backbone
         endfor
 
 	;;; Rotate quadrants back to detector rotation
-	q2 = rot(q2,270)
-	q3 = rot(q3,180)
-	q4 = rot(q4,90)
+	q2 = rotate(q2,270)
+	q3 = rotate(q3,180)
+	q4 = rotate(q4,90)
 
         ;;; Set the original frame to the corrected values.
         (*DataSet.Frames[n])[0:1023,1024:2047]=q1
