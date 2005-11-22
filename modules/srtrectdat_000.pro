@@ -55,7 +55,8 @@ FUNCTION srtrectdat_000, DataSet, Modules, Backbone
 ; Each filter actually needs its own first and last pixel. The ones in
 ; the RPBconfig file are only used if no valid filter is found.
   filters=["ZN2","ZN3","ZN4","ZN5","JN1","JN2","JN3","JN4","HN1","HN2","HN3","HN4","HN5","KN1","KN2","KN3","KN4","KN5"]
-  fpix=[1450,1450,1450,1450,1450,1450,1450,1450,1450,1450,1450,1450,1450,2023,1750,1450,1150,860]
+  fpix=[1766,1461,1141,814,2074,1737,1441,1145,2069,1742,1470,1141,805,2068,1763,1450,1126,814]
+;  fpix=[1450,1450,1450,1450,1450,1450,1450,1450,1450,1450,1450,1450,1450,2023,1750,1450,1150,860]
   BranchID = Backbone->getType()
   CASE BranchID OF
     'CRP_SPEC':  BEGIN
