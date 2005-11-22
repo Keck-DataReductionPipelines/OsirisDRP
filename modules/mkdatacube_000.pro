@@ -1,6 +1,6 @@
 ;-----------------------------------------------------------------------
 ; THIS IS A DRP MODULE
-;
+;@BEGIN
 ; @NAME:  mkdatacube_000
 ;
 ; @PURPOSE: create a 3D cube data from a spaitially rectified 2D frame
@@ -37,6 +37,7 @@
 ;
 ; @AUTHOR : created by Inseok Song (song@gemini.edu)
 ;          geometry and extraction redone from Oct.04-June 05 - Larkin
+;@END
 ;-----------------------------------------------------------------------
 FUNCTION mkdatacube_000, DataSet, Modules, Backbone
 

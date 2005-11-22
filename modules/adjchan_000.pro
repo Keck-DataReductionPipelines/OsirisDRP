@@ -1,6 +1,7 @@
 
 ;-----------------------------------------------------------------------
 ; THIS IS A DRP MODULE
+;@BEGIN
 ;
 ; @NAME:  adjchan_000
 ;
@@ -36,6 +37,7 @@
 ;
 ; @AUTHOR : James Larkin
 ;
+;@END
 ;-----------------------------------------------------------------------
 
 FUNCTION adjchan_000, DataSet, Modules, Backbone

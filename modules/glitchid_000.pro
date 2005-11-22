@@ -1,7 +1,7 @@
 
 ;-----------------------------------------------------------------------
 ; THIS IS A DRP MODULE
-;
+;@BEGIN
 ; @NAME: glitchid 
 ;
 ; @PURPOSE: Identify glitches in raw OSIRIS frames and write out pixel
@@ -40,7 +40,7 @@
 ;	     11.21.2005, modified with M. Perrin suggestions
 ;	
 ; @AUTHOR : Shelley Wright 
-;
+;@BEGIN
 ;-----------------------------------------------------------------------
 
 FUNCTION glitchid_000, DataSet, Modules, Backbone

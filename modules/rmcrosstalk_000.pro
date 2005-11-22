@@ -1,6 +1,7 @@
 
 ;-----------------------------------------------------------------------
 ; THIS IS A DRP MODULE
+;@BEGIN
 ;
 ; @NAME: rmcrosstalk_000.pro
 ;
@@ -33,7 +34,7 @@
 ; @HISTORY : 6.15.2005, created
 ;
 ; @AUTHOR : James Larkin
-;
+;@END
 ;-----------------------------------------------------------------------
 
 FUNCTION rmcrosstalk_000, DataSet, Modules, Backbone

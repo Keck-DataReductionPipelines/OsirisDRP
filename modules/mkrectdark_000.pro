@@ -1,6 +1,6 @@
 ;-----------------------------------------------------------------------
 ; THIS IS A DRP MODULE
-;
+;@BEGIN
 ; @NAME: mkrectdark_000 
 ;
 ; @PURPOSE: Read in the frames of data from a rectification matrix scan set that
@@ -37,7 +37,7 @@
 ; @HISTORY : 2005-01-06, created
 ;
 ; @AUTHOR : T. Gasaway (tgasaway@ucsd.edu)
-;
+;@END
 ;-----------------------------------------------------------------------
 
 FUNCTION mkrectdark_000, DataSet, Modules, Backbone
