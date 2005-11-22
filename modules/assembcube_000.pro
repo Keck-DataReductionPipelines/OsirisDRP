@@ -16,7 +16,7 @@
 ;
 ; @CALIBRATION-FILES wavelength fit coefficients cube
 ;
-; @INPUT
+; @INPUT rectified frames
 ;
 ; @OUTPUT The dataset contains a 2-d set of images that have all been extracted.
 ;

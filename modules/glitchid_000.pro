@@ -9,7 +9,7 @@
 ; @PURPOSE Identify glitches in raw OSIRIS frames and write out pixel
 ;          values into bad pixel map
 ;
-; @@@PARAMETERS IN RPBCONFIG.XML
+; @@@PARAMETERS
 ;
 ;   glitchid_COMMON___SlopeThresh  : Threshold used for individual channels
 ;		          	     of slope (up and down) for each pix 
@@ -17,19 +17,19 @@
 ;				     a glitch needs to found to be
 ;				     labeled in quality extension 
 ;
-; @INPUT-FILES None
+; @CALIBRATION-FILES None
 ;
-; @OUTPUT None
+; @INPUT Raw data
 ;
-; @DATASET  contains the adjusted data. The number of valid pointers 
+; @OUTPUT The dataset contains the adjusted data. The number of valid pointers 
 ;           is not changed.
 ;
-; @@@QUALITY BITS  0th     : checked
-;                  1st-3rd : checked 
+; @@@QBITS  0th     : checked
+;           1st-3rd : checked 
 ;
 ; @DEBUG nothing special
 ;
-; @MAIN ROUTINE None
+; @MAIN None
 ;
 ; @SAVES Nothing
 ;
