@@ -31,7 +31,8 @@ FILES	=
 RELFILES = 
 
 RELDAT   = osiris_cal_line.list \
-	   osiris_filter_info.list
+	   osiris_filter_info.list \
+	   osiris_wave_coeffs.fits
 
 override SYSNAM = kss/osiris/drs/data/
 override VERNUM = 1.4

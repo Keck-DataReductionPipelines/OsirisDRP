@@ -108,7 +108,7 @@ FUNCTION glitchid_000, DataSet, Modules, Backbone
 	wgl = where( (du gt (slthresh/itime)) and (dd gt slthresh/itime) , glcount)
 	if glcount gt 0 then gl[wgl]=1
 	wflag = where( rebin(total(gl,3),128,1024,16) gt chthresh, flagct)
-	if flagct gt 0 then gl[wflag]-1
+	if flagct gt 0 then gl[wflag]=1
 
 ;	for i=0, 127 do begin
 ;		for j=1, 1022 do begin

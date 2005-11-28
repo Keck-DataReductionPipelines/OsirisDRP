@@ -101,7 +101,6 @@ RELPRO   = add_fitskwd_to_header.pro \
 	   equalize_bak.pro \
 	   equalize.pro \
 	   error.pro \
-	   euro3d_compliant.pro \
 	   extbit.pro \
 	   extr_horne_1.pro \
 	   extr_stellar_spec_2.pro \
