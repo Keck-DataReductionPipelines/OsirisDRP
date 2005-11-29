@@ -254,12 +254,12 @@ FUNCTION assembcube_000, DataSet, Modules, Backbone
                 endif
                 ; Extract extract few spectra
                 if ( sp gt 831 ) then begin
-                    row = (sp mod (nrows-2))+2
+                    row = ((sp mod (nrows-2))+3) < (nrows-1)
                     col = floor(sp/(nrows-2))-16+3
                     j = row
                     i = col
                     if ( complete[i,j] eq 1 ) then begin
-                        pixels = poly(lambda,coeffs[*,i,(j+1)]) ; Map the desired wavelengths into the original pixels
+                        pixels = poly(lambda,coeffs[*,i,j]) ; Map the desired wavelengths into the original pixels
                         good = where( (*DataSet.IntAuxFrames[q])[*,sp] eq 9 )
                         Frame[*,row,col]=interpol((*DataSet.Frames[q])[good,sp],abscissa[good],pixels)
                         IntFrame[*,row,col]=interpol((*DataSet.IntFrames[q])[good,sp],abscissa[good],pixels)
