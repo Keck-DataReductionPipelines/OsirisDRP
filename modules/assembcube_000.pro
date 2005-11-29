@@ -259,7 +259,7 @@ FUNCTION assembcube_000, DataSet, Modules, Backbone
                     j = row
                     i = col
                     if ( complete[i,j] eq 1 ) then begin
-                        pixels = poly(lambda,coeffs[*,i,j]) ; Map the desired wavelengths into the original pixels
+                        pixels = poly(lambda,coeffs[*,i,(j+1)]) ; Map the desired wavelengths into the original pixels
                         good = where( (*DataSet.IntAuxFrames[q])[*,sp] eq 9 )
                         Frame[*,row,col]=interpol((*DataSet.Frames[q])[good,sp],abscissa[good],pixels)
                         IntFrame[*,row,col]=interpol((*DataSet.IntFrames[q])[good,sp],abscissa[good],pixels)
