@@ -1,0 +1,85 @@
+##############################################################################
+#+
+#  Author:	Jason Weiss
+#
+#  Date:	20 September 2005
+#
+#  Description:	makefile to build OSIRIS DRS C modules
+#       osiris_ext_null.so
+#
+#-
+##############################################################################
+
+IDL_INCLUDE = /usr/local/pkg/idl/external/include
+# CFITSIOLIBDIR = $(KROOT)/kss/osiris/drs/modules/lib/
+OUTPUTDIR = .
+
+# Include files.
+INCLUDE = 
+LD_LIBRARY_PATH = 
+
+# C source and object files.
+CFLAGS  =  -I../include -I$(IDL_INCLUDE) -D__REENTRANT -fPIC -g -O2 -DHAVE_CONFIG_H -c
+
+# This is a release point. Define version macros to override values
+# inherited from the environment
+override VERNUM = 1.4
+
+libosiris_drp_ext_null.so.0.0 : osiris_rename_null.o \
+	osiris_wait_on_sem_signal_null.o \
+	osiris_post_sem_signal_null.o \
+	osiris_test.o \
+	osiris_rectify_lib.o \
+	mkrecmatrx_000.o \
+	spatrectif_000.o \
+	dumpxmlptr.o \
+	idlgetpid.o \
+	drp_structs.h
+	gcc -shared \
+	osiris_rename_null.o \
+	osiris_wait_on_sem_signal_null.o \
+	osiris_post_sem_signal_null.o \
+	osiris_test.o \
+	osiris_rectify_lib.o \
+	mkrecmatrx_000.o \
+	spatrectif_000.o \
+	dumpxmlptr.o \
+	idlgetpid.o \
+	-lm -o $(OUTPUTDIR)/$@ 
+#	-L$(CFITSIOLIBDIR) -lm -losirisDRPcfitsio
+
+osiris_rename_null.o : osiris_rename_null.c
+	gcc $(CFLAGS) osiris_rename_null.c -o \
+	     osiris_rename_null.o
+
+osiris_wait_on_sem_signal_null.o : osiris_wait_on_sem_signal_null.c
+	gcc $(CFLAGS) osiris_wait_on_sem_signal_null.c -o \
+	      osiris_wait_on_sem_signal_null.o
+
+osiris_post_sem_signal_null.o : osiris_post_sem_signal_null.c
+	gcc $(CFLAGS) osiris_post_sem_signal_null.c -o \
+	      osiris_post_sem_signal_null.o
+
+osiris_test.o : osiris_test.c
+	gcc $(CFLAGS) osiris_test.c -o \
+	     osiris_test.o
+
+osiris_rectify_lib.o : osiris_rectify_lib.c
+	gcc $(CFLAGS) osiris_rectify_lib.c -o \
+	     osiris_rectify_lib.o
+
+mkrecmatrx_000.o : mkrecmatrx_000.c
+	gcc $(CFLAGS) mkrecmatrx_000.c -o \
+	      mkrecmatrx_000.o
+
+spatrectif_000.o : spatrectif_000.c
+	gcc $(CFLAGS) spatrectif_000.c -o \
+	      spatrectif_000.o
+
+dumpxmlptr.o : dumpxmlptr.c
+	gcc $(CFLAGS) dumpxmlptr.c -o \
+	     dumpxmlptr.o
+
+idlgetpid.o : idlgetpid.c
+	gcc $(CFLAGS) idlgetpid.c -o \
+	     idlgetpid.o
