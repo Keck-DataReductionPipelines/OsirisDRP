@@ -28,6 +28,8 @@ float dummy[DATA];
 float residual[DATA];
 float new_image[numspec][DATA];
 float adjust[MAXSLICE];
+float maxi;
+int where;
 
 int spatrectif_000(int argc, void* argv[])
 {
@@ -61,7 +63,6 @@ int spatrectif_000(int argc, void* argv[])
 
   // Make a temporary residual matrix
   long naxes[3];
-  //float  (*resid)[DATA][DATA];
   naxes[0] = DATA;
   naxes[1] = DATA;
   naxes[2] = (21);
@@ -88,7 +89,7 @@ int spatrectif_000(int argc, void* argv[])
   noise          = (float (*)[DATA]          )argv[i++];
   quality        = (unsigned char (*)[DATA]  )argv[i++];
   scale          = *(float *                 )argv[i++];   // Plate scale 
-
+  
   /*
    * Start placing items from the original rectification code here.
    * This code will rectify an input data frame.
@@ -103,7 +104,6 @@ int spatrectif_000(int argc, void* argv[])
   // Iterate on each lenslet.
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////
   memset((void *)image,0, IMAGECNT );  // initial guess of the solution
-  //  resid = malloc(sizeof(float)*DATA*DATA*(naxes[2]+1));
 
   t1=systime();
 
@@ -124,10 +124,10 @@ int spatrectif_000(int argc, void* argv[])
 	{
 	  in1 = index[sp] + i;
 	  fbv = fbasisv[i][sp];
-	  for (l=0; l<basesize; l++)
+	  for (l=0; l<MAXSLICE; l++)
 	    {
 	      in2 = in1 + l*DATA;
-	      fbv[l]=*(bv+in2);                      // local copy of influence matrix
+	      fbv[l]=*(bv+in2);   // local copy of influence matrix
 	    }
 	}
     }
@@ -142,10 +142,22 @@ int spatrectif_000(int argc, void* argv[])
 	  bl = blame[i][sp];
 	  fbl = fblame[i][sp];
 	  fbv = fbasisv[i][sp];
-	  for (l=0; l<basesize; l++)
+	  maxi = fbv[0];
+	  for (l=0; l<MAXSLICE; l++)
 	    {
-	      bl[l]= fbv[l]*fbv[l]*fbv[l];   // initial blame is very focused on peak pixels.
-	      w[i] += bl[l];                 // Weight factor for distributing blame
+	      bl[l]=0.0;
+	      if ( fbv[l] > maxi )
+	  	{
+	  	  maxi = fbv[l];
+	  	  where = l;
+	  	}
+	    }
+	  bl[where]= maxi;   // initial blame is very focused on peak pixels.
+	  w[i] = maxi;
+	  for (l=0; l<MAXSLICE; l++)
+	    {
+	      //bl[l]= fbv[l]*fbv[l]*fbv[l];   // initial blame is very focused on peak pixels.
+	      //w[i] += bl[l];                 // Weight factor for distributing blame
 	      fbl[l]= fbv[l];                // final blame is a copy of the infl matrices
 	      fw[i]+= fbl[l];                // Weight factor for distributing blame
 	    }
@@ -153,28 +165,28 @@ int spatrectif_000(int argc, void* argv[])
 	  // Normalize the blame arrays
 	  if ( w[i] > 0.0 ) 
 	    {
-	      for (l=0; l<basesize; l++)
+	      for (l=0; l<MAXSLICE; l++)
 		{
-		  bl[l]=bl[l]/w[i];
+		  bl[l]=bl[l]/(w[i]);
 		}
 	    }
 	  else
 	    {
-	      for (l=0; l<basesize; l++)
+	      for (l=0; l<MAXSLICE; l++)
 		{
 		  bl[l]=0.0;
 		}
 	    }	      
 	  if ( fw[i] > 0.0 ) 
 	    {
-	      for (l=0; l<basesize; l++)
+	      for (l=0; l<MAXSLICE; l++)
 		{
 		  fbl[l]=fbl[l]/fw[i];
 		}
 	    }
 	  else 
 	    {
-	      for (l=0; l<basesize; l++)
+	      for (l=0; l<MAXSLICE; l++)
 		{
 		  fbl[l]=0.0;
 		}
@@ -202,10 +214,10 @@ int spatrectif_000(int argc, void* argv[])
 	      fbv = fbasisv[i][sp];
 	      in1 = index[sp] + i;
 	      j=bottom[sp];
-	      for ( jj=0; jj<basesize; jj++ )
+	      for ( jj=0; jj<MAXSLICE; jj++ )
 		{
-		  //		  dummy[j] += *(fbv+in2) * ci[sp];   // Influence element times current best lenslet value
-		  //		  dummy[j] += fbv[in2] * ci[sp];   // Influence element times current best lenslet value
+		  //  dummy[j] += *(fbv+in2) * ci[sp];   // Influence element times current best lenslet value
+		  //  dummy[j] += fbv[in2] * ci[sp];   // Influence element times current best lenslet value
 		  dummy[j] += fbv[jj] * ci[sp];   // Influence element times current best lenslet value
 		  j++;
 		}
@@ -226,21 +238,21 @@ int spatrectif_000(int argc, void* argv[])
 	      j = bottom[sp];
 	      bl = blame[i][sp];
 	      fbl = fblame[i][sp];
-	      for ( jj=0; jj<basesize; jj++ )
+	      for ( jj=0; jj<MAXSLICE; jj++ )
 		{
 		  // Calculate how much the jth pixel would like to adjust the sp lenslet
-		  if ( ii < 20 ) {
+		  if ( ii < 15 ) {
 		    // Initially be very aggressive in applying blame.
-		    ci[sp]+=2.0*relax*residual[j]* bl[jj];
+		    ci[sp]+=relax*residual[j]* bl[jj];
 		  }
-		  if (ii > 19) {
+		  if (ii > 14) {
 		    // After first set of iterations, settle down to stable solution
 		    ci[sp]+=relax*residual[j]* fbl[jj];
 		  }
 		  j++;
 		}
 	    }
-	  if ( (scale > 0.099) && (ii == 0)  ) {
+	  if ( (scale > 0.099) && (ii == -1)  ) {
 	    for (sp = 0; sp<numspec; sp++)
 		ti[sp]=ci[sp];
 	    for (sp = 64; sp<(numspec-64); sp++) 
@@ -248,7 +260,7 @@ int spatrectif_000(int argc, void* argv[])
 	    for (sp = 0; sp<numspec; sp++)
 		ci[sp]=ti[sp];
 	  }
-	  if ( (scale > 0.099) && (ii == 1)  ) {
+	  if ( (scale > 0.099) && (ii == -1)  ) {
 	    for (sp = 0; sp<numspec; sp++)
 		ti[sp]=ci[sp];
 	    for (sp = 64; sp<(numspec-64); sp++) 
@@ -256,7 +268,7 @@ int spatrectif_000(int argc, void* argv[])
 	    for (sp = 0; sp<numspec; sp++)
 		ci[sp]=ti[sp];
 	  }
-	  if ( (scale > 0.099) && (ii == 2)  ) {
+	  if ( (scale > 0.099) && (ii == -1)  ) {
 	    for (sp = 0; sp<numspec; sp++)
 		ti[sp]=ci[sp];
 	    for (sp = 64; sp<(numspec-64); sp++) 
@@ -264,7 +276,7 @@ int spatrectif_000(int argc, void* argv[])
 	    for (sp = 0; sp<numspec; sp++)
 		ci[sp]=ti[sp];
 	  }
-	  if ( (scale > 0.099) && (ii == 3)  ) {
+	  if ( (scale > 0.099) && (ii == -1)  ) {
 	    for (sp = 0; sp<numspec; sp++)
 		ti[sp]=ci[sp];
 	    for (sp = 64; sp<(numspec-64); sp++) 
@@ -316,7 +328,7 @@ int spatrectif_000(int argc, void* argv[])
 	  noise[sp][i]=0.0;
 	  quality[sp][i]=9;
 	  j=bottom[sp];
-	  //	  for (jj=0; jj<basesize; jj++)
+	  //	  for (jj=0; jj<MAXSLICE; jj++)
 	  //        noise[sp][i] += basis_vectors[sp][jj][i]*Noise[jj][i];
 	  //  noise[sp][i] = 1.0;
 	} // for each spectral channel sp ...
