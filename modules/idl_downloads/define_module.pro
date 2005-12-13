@@ -171,7 +171,7 @@ function define_module, NOCHECK = NOCHECK
                                           'SRP_SPEC', 'SRP_IMAG'], $
                               IInput   : 0, $
                               CInput   : 0, $
-                              NInput   : [1,15] , $
+                              NInput   : [1,30] , $
                               Number   : 'All', $
                               SaveExt  : 'mosaic', $
                               Save     : '______'   }, $
@@ -182,7 +182,7 @@ function define_module, NOCHECK = NOCHECK
                                           'SRP_SPEC', 'SRP_IMAG'], $
                               IInput   : 0, $
                               CInput   : 0, $
-                              NInput   : [1,15] , $
+                              NInput   : [1,30] , $
                               Number   : 'All', $
                               SaveExt  : 'mosoff', $
                               Save     : 'mosimg'   }, $
