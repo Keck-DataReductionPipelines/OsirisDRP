@@ -57,22 +57,18 @@ FUNCTION rmcrosstalk_000, DataSet, Modules, Backbone
 
     for n = 0, (nFrames-1) do begin
 
-	;;; Read in the image and header info.
-	im = *DataSet.Frames[n]
-
-	
 	;;; Divide up into quadrants
 	;;; q1 q4
 	;;; q2 q3
-	q1 = im[0:1023,1024:2047]
-	q2 = im[0:1023,0:1023]
-	q3 = im[1024:2047,0:1023]
-	q4 = im[1024:2047,1024:2047]
+	q1 = (*DataSet.Frames[n])[0:1023,1024:2047]
+	q2 = (*DataSet.Frames[n])[0:1023,0:1023]
+	q3 = (*DataSet.Frames[n])[1024:2047,0:1023]
+	q4 = (*DataSet.Frames[n])[1024:2047,1024:2047]
 
 	;;; Rotate quadrants to q1 orientation
-	q2 = rotate(q2,90)
-	q3 = rotate(q3,180)
-	q4 = rotate(q4,270)
+	q2 = rotate(q2,3)
+	q3 = rotate(q3,2)
+	q4 = rotate(q4,1)
         ;;; Value stores the median value of each channel (32) for
         ;;; every row (1024).
 	value = fltarr(1024, 32)
@@ -98,16 +94,15 @@ FUNCTION rmcrosstalk_000, DataSet, Modules, Backbone
         endfor
 
 	;;; Rotate quadrants back to detector rotation
-	q2 = rotate(q2,270)
-	q3 = rotate(q3,180)
-	q4 = rotate(q4,90)
+	q2 = rotate(q2,1)
+	q3 = rotate(q3,2)
+	q4 = rotate(q4,3)
 
         ;;; Set the original frame to the corrected values.
         (*DataSet.Frames[n])[0:1023,1024:2047]=q1
         (*DataSet.Frames[n])[0:1023,0:1023]=q2
         (*DataSet.Frames[n])[1024:2047,0:1023]=q3
 	(*DataSet.Frames[n])[1024:2047,1024:2047]=q4
-
 
     endfor
 
