@@ -153,10 +153,10 @@ int spatrectif_000(int argc, void* argv[])
 	  	}
 	    }
 	  bl[where]= maxi;   // initial blame is very focused on peak pixels.
-	  w[i] = maxi;
+	  w[i] = bl[where];
 	  for (l=0; l<MAXSLICE; l++)
 	    {
-	      //bl[l]= fbv[l]*fbv[l]*fbv[l];   // initial blame is very focused on peak pixels.
+	      //    bl[l]= fbv[l]*fbv[l]*fbv[l];   // initial blame is very focused on peak pixels.
 	      //w[i] += bl[l];                 // Weight factor for distributing blame
 	      fbl[l]= fbv[l];                // final blame is a copy of the infl matrices
 	      fw[i]+= fbl[l];                // Weight factor for distributing blame
@@ -198,6 +198,7 @@ int spatrectif_000(int argc, void* argv[])
   (void)fflush(stdout);  // Initialize iteration status on the screen
   memset( (void *) c_image, 0.0, numspec*DATA*sizeof(float));
   for (ii=0; ii<numiter; ii++)
+    //for (ii=0; ii<200; ii++)
     {     // calculate a solution for a column (i) iteratively...
       printf("\b\b\b\b%4d",ii);
       (void)fflush(stdout);  // Update iteration status on the screen
@@ -211,6 +212,7 @@ int spatrectif_000(int argc, void* argv[])
 	  ti = t_image[i];
 	  for ( sp=0; sp<numspec; sp++ )
 	    {// calculate best current guess of raw data
+	      ti[sp]=0.0;
 	      fbv = fbasisv[i][sp];
 	      in1 = index[sp] + i;
 	      j=bottom[sp];
@@ -241,67 +243,69 @@ int spatrectif_000(int argc, void* argv[])
 	      for ( jj=0; jj<MAXSLICE; jj++ )
 		{
 		  // Calculate how much the jth pixel would like to adjust the sp lenslet
+		  //		  if ( ii < 2 ) {
+		  //  // Initially be very aggressive in applying blame.
+		  //  ti[sp]+=relax*residual[j]* bl[jj];
+		  //}
 		  if ( ii < 15 ) {
-		    // Initially be very aggressive in applying blame.
-		    ci[sp]+=relax*residual[j]* bl[jj];
+		    // Initially be very aggressive in applying blame. Accumulate the blame, but don't apply yet for the 1st iterations.
+		    ti[sp]+=relax*residual[j]* bl[jj];
 		  }
-		  if (ii > 14) {
+		  if ( ii > 14) {
 		    // After first set of iterations, settle down to stable solution
 		    ci[sp]+=relax*residual[j]* fbl[jj];
 		  }
+		  //		  if ( ii > 20) {
+		    // After first set of iterations, settle down to stable solution
+		    //		    ci[sp]+=2.0*relax*residual[j]* fbl[jj];
+		  //}
 		  j++;
 		}
 	    }
-	  if ( (scale > 0.099) && (ii == -1)  ) {
-	    for (sp = 0; sp<numspec; sp++)
-		ti[sp]=ci[sp];
-	    for (sp = 64; sp<(numspec-64); sp++) 
-		ti[sp]=2.0*ci[sp]-0.5*ci[sp-64]-0.5*ci[sp+64];
-	    for (sp = 0; sp<numspec; sp++)
-		ci[sp]=ti[sp];
+	  //	  For the first iterations, correction is sharpened and applied.
+	  if ( ii < 10 ) {
+	    for (sp=0; sp< numspec; sp++) { // Correct middle rows
+	      if ( weight[sp][i] > 0.0 ) {// Increment guess image
+		ci[sp]+= ti[sp];
+		if ( sp > 63 )
+		  if ( weight[sp-64][i] > 0.0 ) // Increment guess image
+		    ci[sp]+= 0.4*(ti[sp]-ti[sp-64]);
+		if ( sp < numspec-64 )
+		  if ( weight[sp+64][i] > 0.0 ) // Increment guess image
+		    ci[sp]+= 0.4*(ti[sp]-ti[sp+64]);
+	      }
+	    }
 	  }
-	  if ( (scale > 0.099) && (ii == -1)  ) {
-	    for (sp = 0; sp<numspec; sp++)
-		ti[sp]=ci[sp];
-	    for (sp = 64; sp<(numspec-64); sp++) 
-		ti[sp]=0.5*ci[sp]+0.25*ci[sp-64]+0.25*ci[sp+64];
-	    for (sp = 0; sp<numspec; sp++)
-		ci[sp]=ti[sp];
-	  }
-	  if ( (scale > 0.099) && (ii == -1)  ) {
-	    for (sp = 0; sp<numspec; sp++)
-		ti[sp]=ci[sp];
-	    for (sp = 64; sp<(numspec-64); sp++) 
-		ti[sp]=2.0*ci[sp]-0.5*ci[sp-64]-0.5*ci[sp+64];
-	    for (sp = 0; sp<numspec; sp++)
-		ci[sp]=ti[sp];
-	  }
-	  if ( (scale > 0.099) && (ii == -1)  ) {
-	    for (sp = 0; sp<numspec; sp++)
-		ti[sp]=ci[sp];
-	    for (sp = 64; sp<(numspec-64); sp++) 
-		ti[sp]=0.5*ci[sp]+0.25*ci[sp-64]+0.25*ci[sp+64];
-	    for (sp = 0; sp<numspec; sp++)
-		ci[sp]=ti[sp];
+	  if ( (ii > 9) && (ii < 16) ) {
+	    for (sp=0; sp< numspec; sp++) { // Correct middle rows
+	      if ( weight[sp][i] > 0.0 ) {// Increment guess image
+		ci[sp]+= ti[sp];
+		if ( sp > 63 )
+		  if ( weight[sp-64][i] > 0.0 ) // Increment guess image
+		    ci[sp]-= 0.2*(ti[sp]-ti[sp-64]);
+		if ( sp < numspec-64 )
+		  if ( weight[sp+64][i] > 0.0 ) // Increment guess image
+		    ci[sp]-= 0.2*(ti[sp]-ti[sp+64]);
+	      }
+	    }
 	  }
 
-	  if ( ii < -1 ) {
-	    for (sp = 1; sp<(numspec-1); sp++) 
-	      {
-		ti[sp]=0.5*ci[sp]+0.25*ci[sp+1]+0.25*ci[sp-1];
-	      }
-	    for (sp = 1; sp<(numspec-1); sp++)
-	      {
-		ci[sp]=ti[sp];
-	      }
-  
-	  }
+	  //	  if ( (scale > 0.099) && (ii < 2)  ) {
+
 	} // end of loop over image.
-      //      if ( (scale > 0.099) && (ii == 2)  ) {
-      //for (sp = 0; sp<numspec; sp++)
-      //  for (i = 1; i<(DATA-1); i++ )
-      //    c_image[i][sp]=0.25*c_image[i-1][sp]+0.5*c_image[i][sp]+0.25*c_image[i+1][sp];
-      //}
+      // Smooth early iterations along the spectral direction.
+      if ( (ii > 11) && (ii < 18) )
+	{
+	  for (sp = 0; sp<numspec; sp++)
+	    for (i = 2; i<(DATA-2); i++ )
+	      // t_image[i][sp]=0.2*c_image[i-2][sp]+0.2*c_image[i-1][sp]+0.2*c_image[i][sp]+0.2*c_image[i+1][sp]+0.2*c_image[i+2][sp];
+	      t_image[i][sp]=0.1*c_image[i-2][sp]+0.2*c_image[i-1][sp]+0.4*c_image[i][sp]+0.2*c_image[i+1][sp]+0.1*c_image[i+2][sp];
+	  
+	  for (sp = 0; sp<numspec; sp++)
+	    for (i = 2; i<(DATA-2); i++ ) {
+	      c_image[i][sp]=t_image[i][sp];
+	    }	  
+	}
     } // for each iteration
 
   printf("out of iterations\n");
