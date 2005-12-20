@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- find_file_current -->
+<DRF
+    version="1.0"
+    LogPath="find_file_construct_from_filename"
+    ReductionType="ORP_SPEC">
+  <dataset
+      InputDir="find_file_construct_from_filename"
+      Name="find_file_current"
+      OutputDir="find_file_construct_from_filename">
+    <fits
+        FileName="find_file_current"></fits>
+  </dataset>
+  <module
+      CalibrationFile="find_file_next_raw"
+      Name="Subtract Dark Frame"
+      OutputDir="find_file_construct_from_filename"
+      Save="0"
+      SaveOnErr="0"
+      Skip="0"></module>
+  <module CalibrationFile="find_file_most_recent"
+      Name="Remove Crosstalk"
+      OutputDir="find_file_construct_from_filename"
+      Save="0"
+      SaveOnErr="0"
+      Skip="1"></module>
+  <module CalibrationFile="find_file_most_recent"
+      Name="Adjust Channel Levels"
+      OutputDir="find_file_construct_from_filename"
+      Save="0"
+      SaveOnErr="0"
+      Skip="0"></module>
+  <module CalibrationFile="find_file_most_recent"
+      Name="Glitch Identification"
+      OutputDir="find_file_construct_from_filename"
+      Save="0"
+      SaveOnErr="0" 
+      Skip="0"></module>
+  <module
+      CalibrationFile="find_file_most_recent"
+      Name="Spatially Rectify Spectrum"
+      OutputDir="find_file_construct_from_filename"
+      Save="0"
+      SaveOnErr="0"
+      Skip="0"></module>
+  <module
+      CalibrationFile="find_file_most_recent"
+      Name="Assemble Data Cube"
+      OutputDir="find_file_construct_from_filename"
+      Save="0"
+      SaveOnErr="0"
+      Skip="0"></module>
+  <module
+      CalibrationFile="find_file_most_recent"
+      Name="Divide by Flat Field"
+      OutputDir="find_file_construct_from_filename"
+      Save="0"
+      SaveOnErr="0"
+      Skip="1"></module>
+  <module
+      CalibrationFile="find_file_most_recent"
+      Name="Interpolate 1d"
+      OutputDir="find_file_construct_from_filename"
+      Save="0"
+      SaveOnErr="0"
+      Skip="1"></module>
+  <module
+      CalibrationFile="find_file_most_recent"
+      Name="Save DataSet Information"
+      OutputDir="find_file_construct_from_filename"
+      Save="0"
+      SaveOnErr="0"
+      Skip="0"></module>
+</DRF>
+

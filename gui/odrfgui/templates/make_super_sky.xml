@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- make_super_sky -->
+<DRF
+    LogPath="/net/hydrogen/data/projects/osiris/DRP/larkin/050911"
+    ReductionType="CRP_SPEC">
+  <dataset
+      InputDir="/net/hydrogen/data/irchive/osiris/osiris10/050911/SPEC/raw"
+      Name = "sky"
+      Out0putDir="/net/hydrogen/data/projects/osiris/DRP/larkin/050911/">
+    <fits
+        FileName="s050911_a029001.fits" />
+    <fits
+        FileName="s050911_a029002.fits" />
+    <fits
+        FileName="s050911_a029003.fits" />
+    <fits
+        FileName="s050911_a030001.fits" />
+ </dataset>
+ <module
+     Name="Glitch Identification"
+     Skip="1"
+  />
+  <module
+     Name="Adjust Channel Levels"
+     Skip="0"
+  />
+  <module
+      Name="Make Dark Frame"
+      OutputDir="/net/hydrogen/data/projects/osiris/DRP/larkin/050911/"
+      Skip="0"
+  />
+  <update
+     DataSetNumber="0"
+     HeaderNumber="-1">
+     <updateParameter
+       Keyword="DATAFILE"
+       KeywordValue="Sky_900"
+       KeywordComment="Output Filename"
+       KeywordType="string">
+     </updateParameter>
+  </update>
+</DRF>
