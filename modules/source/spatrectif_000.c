@@ -140,24 +140,24 @@ int spatrectif_000(int argc, void* argv[])
 	  w[i] =0.0;
 	  fw[i] =0.0;
 	  bl = blame[i][sp];
-	  fbl = fblame[i][sp];
+      	  fbl = fblame[i][sp];
 	  fbv = fbasisv[i][sp];
-	  maxi = fbv[0];
+	  //	  maxi = fbv[0];
+	  //for (l=0; l<MAXSLICE; l++)
+	  //  {
+	  //    bl[l]=0.0;
+	  //    if ( fbv[l] > maxi )
+	  //	{
+	  //	  maxi = fbv[l];
+	  //	  where = l;
+	  //	}
+	  //  }
+	  //	  bl[where]= maxi;   // Alternative initial blame where only peak pixel is used.
+	  //      w[i] = bl[where];
 	  for (l=0; l<MAXSLICE; l++)
 	    {
-	      bl[l]=0.0;
-	      if ( fbv[l] > maxi )
-	  	{
-	  	  maxi = fbv[l];
-	  	  where = l;
-	  	}
-	    }
-	  bl[where]= maxi;   // initial blame is very focused on peak pixels.
-	  w[i] = bl[where];
-	  for (l=0; l<MAXSLICE; l++)
-	    {
-	      //    bl[l]= fbv[l]*fbv[l]*fbv[l];   // initial blame is very focused on peak pixels.
-	      //w[i] += bl[l];                 // Weight factor for distributing blame
+	      bl[l]= fbv[l]*fbv[l]*fbv[l];   // initial blame is very focused on peak pixels.
+	      w[i] += bl[l];                 // Weight factor for distributing blame
 	      fbl[l]= fbv[l];                // final blame is a copy of the infl matrices
 	      fw[i]+= fbl[l];                // Weight factor for distributing blame
 	    }
@@ -198,7 +198,6 @@ int spatrectif_000(int argc, void* argv[])
   (void)fflush(stdout);  // Initialize iteration status on the screen
   memset( (void *) c_image, 0.0, numspec*DATA*sizeof(float));
   for (ii=0; ii<numiter; ii++)
-    //for (ii=0; ii<200; ii++)
     {     // calculate a solution for a column (i) iteratively...
       printf("\b\b\b\b%4d",ii);
       (void)fflush(stdout);  // Update iteration status on the screen
@@ -308,7 +307,6 @@ int spatrectif_000(int argc, void* argv[])
 	}
     } // for each iteration
 
-  printf("out of iterations\n");
   for (i=0; i<DATA; i++)
     {
       ci = c_image[i];
@@ -317,8 +315,6 @@ int spatrectif_000(int argc, void* argv[])
     }
 
   // updating noise frame!!
-  //
-  // based on a discussion and suggestion from Alfred Krabbe on 12/11/2003 @UCLA.
   //
   // (cf) quality frame will not be changed or processed through this code.
   //      quality frame will be handled via 'mkdatacube' module!!
@@ -332,15 +328,19 @@ int spatrectif_000(int argc, void* argv[])
 	  noise[sp][i]=0.0;
 	  quality[sp][i]=9;
 	  j=bottom[sp];
-	  //	  for (jj=0; jj<MAXSLICE; jj++)
-	  //        noise[sp][i] += basis_vectors[sp][jj][i]*Noise[jj][i];
-	  //  noise[sp][i] = 1.0;
+	  for (jj=0; jj<MAXSLICE; jj++)
+	    {
+	      if ( Quality[jj][i] == 9 )  // For valid pixels.
+		//	noise[sp][i] += basis_vectors[sp][jj][i]*Noise[j][i];
+		noise[sp][i] += fblame[i][sp][jj]*Noise[j][i];
+	      j++;
+	    }
 	} // for each spectral channel sp ...
     }
   printf("\n");
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////
   t2 = systime();
-  (void)printf("Total Time = %lf\n", t2-t1 );
+  //  (void)printf("Total Time = %lf\n", t2-t1 );
   
   //  writefitsimagefile("!/sdata1101/osiris-data/osiris2/050224/SPEC/ORP/resid.fits", FLOAT_IMG, 3, naxes, resid);
   //  free(resid);
