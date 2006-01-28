@@ -23,7 +23,7 @@ setenv OSIRIS_DRP_EXTERNAL_LIB_DIR $KROOT/rel/default/lib
 # This is the file that contains the actual config file name.  The default is to
 # contain RPBconfig.xml, i.e., the contents of config_filename_file is usually
 # RPBconfig.xml but it may be something else for special cases.
-setenv OSIRIS_DRP_BACKBONE_CONFIG_FILE $KROOT/rel/default/data/osirisDRPConfigFile
+setenv OSIRIS_DRP_CONFIG_FILE $KROOT/rel/default/data/osirisDRPConfigFile
 
 # These are used by the pipeline to make sure it has access to all code that it
 # needs to compile.

@@ -18,3 +18,6 @@ setenv OSIRIS_DRP_EXTERNAL_LIB_DIR $OSIRIS_ROOT/modules/source
 # implement C code called by the IDL code.
 setenv OSIRIS_BACKBONE_DIR $OSIRIS_ROOT/backbone
 
+# Specify where the configuration filename is stored. This file just
+# contains the real name of the configuration file.
+setenv OSIRIS_DRP_CONFIG_FILE $OSIRIS_ROOT/backbone/SupportFiles/local_osiris/DRPConfigFile
