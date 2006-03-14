@@ -68,6 +68,7 @@ FUNCTION assembcube_000, DataSet, Modules, Backbone
    ; Store common variables into local ones.
    s_FilterFile  = strg(Backbone->getParameter('assembcube_COMMON___Filterfile'))
    s_CoeffFile   = strg(Backbone->getParameter('assembcube_COMMON___CoeffFile'))
+   s_OldCoeffFile   = strg(Backbone->getParameter('assembcube_COMMON___OldCoeffFile'))
 
    ; midwave is a wavelength offset used to make the poly fit symmetric in wavelength
    ; This must match what is in the routine that fits raw spectra: plot_fwhm
@@ -104,7 +105,17 @@ FUNCTION assembcube_000, DataSet, Modules, Backbone
 
    ; Read in the matrix of coefficients used for fitting pixel as a function
    ; of wavelength
-   coeffs = readfits(s_CoeffFile)
+   jul_date = sxpar(*DataSet.Headers[0], "MJD-OBS", count=num)
+   
+   ; Check to see if the date is set and if it is prior to the service
+   ; mission in February 2006. If so, then use the old calib
+   ; file. Otherwise the default is the new file. 
+   if ( (num eq 1) and (jul_date lt 53790.0) ) then begin
+       coeffs = readfits(s_OldCoeffFile)
+       print, "Using old coefficient set"
+   endif else begin
+       coeffs = readfits(s_CoeffFile)
+   end
    sz = size(coeffs)
    complete = intarr(sz[2],sz[3])
 

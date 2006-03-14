@@ -82,7 +82,7 @@ FUNCTION glitchid_000, DataSet, Modules, Backbone
 	q3 = im[1024:2047,0:1023]
 	q4 = im[1024:2047,1024:2047]
 
-	;;; Rotate quadrants to q1 orientation
+	;;; Rotate quadrants (q2,q4) to q1 orientation
 	q2 = rotate(q2,3)
 	q3 = rotate(q3,2)
 	q4 = rotate(q4,1)
@@ -91,8 +91,8 @@ FUNCTION glitchid_000, DataSet, Modules, Backbone
 	chan = fltarr(128,1024,32)
 
 	for k=0, 7 do begin
-		chan[0,0,k] = q2[(0+128*k):(127+128*k),*]  ; Swapped channels so 2 & 4 are checked instead of 1 & 3
-                chan[0,0,k+8] = q4[(0+128*k):(127+128*k),*]; JEL 6/16/05
+		chan[0,0,k] = q2[(0+128*k):(127+128*k),*]  
+                chan[0,0,k+8] = q4[(0+128*k):(127+128*k),*]
 		chan[0,0,k+16] = q1[(0+128*k):(127+128*k),*]
 		chan[0,0,k+24] = q3[(0+128*k):(127+128*k),*]
 	endfor
@@ -110,21 +110,23 @@ FUNCTION glitchid_000, DataSet, Modules, Backbone
 ;	wflag = where( rebin(total(gl,3),128,1024,16) gt chthresh, flagct)
 ;	if flagct gt 0 then gl[wflag]=1
 
-	for i=0, 127 do begin
-		for j=1, 1022 do begin
-			for k=0, 15 do begin
-				;;; difference from each pixel up and down
-                             du[i,j,k] = abs(chan[i,j,k] - chan[i,j+1,k])   
-                             dd[i,j,k] = abs(chan[i,j,k] - chan[i,j-1,k]) 
-				;;; flag each pixel that is above the threshold
-                            if ( (du[i,j,k] gt (slthresh/itime)) and (dd[i,j,k] gt (slthresh/itime)) ) then $
-                              gl[i,j,k] = 1. else gl[i,j,k] = 0.
-			endfor
-			;;; flag bad pixels that occur at least in 5 channels
-			flag = where(gl[i,j,0:15] eq 1.,cnt)
-			if cnt ge chthresh then gl[i,j,*] = -1. 
-		endfor
-	endfor
+        for i=0, 127 do begin
+                for j=1, 1022 do begin
+                        for k=0, 15 do begin
+                                ;;; difference from each pixel up and down
+                             du[i,j,k] = abs(chan[i,j,k] - chan[i,j+1,k])
+                             dd[i,j,k] = abs(chan[i,j,k] - chan[i,j-1,k])
+                             ;;; flag each pixel that is above the threshold
+                              if ( ((du[i,j,k]) gt (slthresh/itime)) and $
+				((dd[i,j,k]) gt (slthresh/itime)) ) then $
+				gl[i,j,k] = 1. else gl[i,j,k] = 0.
+                        endfor
+                        ;;; flag bad pixels that occur at least in # channels
+                        flag = where(gl[i,j,0:15] eq 1.,cnt)
+                        if cnt ge chthresh then gl[i,j,*] = -1.
+                endfor
+        endfor
+
 
 	;;; Put glitch array channels back into quadrants
 	r1 = [gl[*,*,0],gl[*,*,1],gl[*,*,2],gl[*,*,3],gl[*,*,4],$
@@ -149,15 +151,14 @@ FUNCTION glitchid_000, DataSet, Modules, Backbone
 	glt[1024:2047,1024:2047] = r4
 
 	;;; Put glitch pixels into bad pixel ("quality") map
-;	for i=0, 2047 do begin
-;		for j=0, 2047 do begin
-;			if glt[i,j] eq -1. then (*DataSet.IntAuxFrames[n])[i,j] = 0.
-;		endfor	
-;	endfor
+	;for i=0, 2047 do begin
+	;	for j=0, 2047 do begin
+	;		if glt[i,j] eq -1. then (*DataSet.IntAuxFrames[n])[i,j] = 0.
+ 	;	endfor	
+	;endfor
 
 	wglitch = where(glt eq -1,glitchcount)
 	if glitchcount gt 0 then (*DataSet.IntAuxFrames[n])[wglitch]=0.
-
 
     endfor
 
