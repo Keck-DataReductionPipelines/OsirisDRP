@@ -7,16 +7,16 @@ if kroot_dir eq '' then $
 
 
 drs_idl_root = getenv('OSIRIS_IDL_BASE')
-;if drs_idl_root eq '' then begin
-;    drs_idl_root=kroot_dir+'/rel/default/idl/odrs/'
-;    backbone_dir=drs_idl_root+'backbone/'
-;    module_dir=drs_idl_root+'modules/'
-;    idl_downloads_dir=module_dir+'idl_downloads/'
-;endif else begin
+if drs_idl_root eq '' then begin
+    drs_idl_root=kroot_dir+'/rel/default/idl/odrs/'
+    backbone_dir=drs_idl_root+'backbone/'
+    module_dir=drs_idl_root+'modules/'
+    idl_downloads_dir=module_dir+'idl_downloads/'
+endif else begin
     backbone_dir=drs_idl_root+'/backbone/'
     module_dir=drs_idl_root+'/modules/'
     idl_downloads_dir=module_dir+'idl_downloads/'
-;end
+end
 
 ; put backbone code in idl path
 !path=backbone_dir+':'+module_dir+':'+idl_downloads_dir+':'+!path
