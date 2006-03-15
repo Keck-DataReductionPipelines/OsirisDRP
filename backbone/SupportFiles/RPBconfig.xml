@@ -3,6 +3,7 @@
     adjchan_COMMON___Debug="1"
 
     assembcube_COMMON___CoeffFile         ='$OSIRIS_DRP_DATA_PATH/osiris_wave_coeffs.fits'
+    assembcube_COMMON___OldCoeffFile      ='$OSIRIS_DRP_DATA_PATH/old_wave_coeffs.fits'
     assembcube_COMMON___Filterfile        ='$OSIRIS_DRP_DATA_PATH/osiris_filter_info.list'
 
     badpixnois_COMMON___Debug="1"
@@ -135,18 +136,23 @@
     mosaicdith_COMMON___Equalize = '0'
 
     savedatset_COMMON___Debug="1"
+
     saveflatfi_COMMON___Debug="1"
+
     spatrectif_COMMON___numiter="4"
-    spatrectif_ARP_SPEC_numiter="50"
+    spatrectif_ARP_SPEC_numiter="40"
     spatrectif_ORP_SPEC_numiter="25"
     spatrectif_COMMON___relaxation="1.0"
+
     srtrectdat_COMMON___Debug="1"
     srtrectdat_COMMON___nframesInNBMode="51"
     srtrectdat_COMMON___first_pixInNBMode="1450"
     srtrectdat_COMMON___last_pixInNBMode="2100"
     srtrectdat_COMMON___stepInNBMode="31"
+
     subtracsky_COMMON___Debug="1"
     subtradark_COMMON___Debug="1"
+
     mkdetrespo_COMMON___Debug="0">
 
 	<!-- Module Names to IDL functions map -->

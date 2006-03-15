@@ -97,8 +97,8 @@ int spatrectif_000(int argc, void* argv[])
   //  printf("Image is spatrectif is %x.\n",image);
   printf( "spatrectif_000.c: Now processing RAW data...\n");
   printf("Number of iterations = %d.\n",numiter);
-  printf("Relaxation Parameter = %f.\n",relaxation);
-  printf("Platescale = %f.\n",scale);
+  /*  printf("Relaxation Parameter = %f.\n",relaxation);
+      printf("Platescale = %f.\n",scale); */
   (void)fflush(stdout);
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // Iterate on each lenslet.
@@ -262,7 +262,7 @@ int spatrectif_000(int argc, void* argv[])
 		}
 	    }
 	  //	  For the first iterations, correction is sharpened and applied.
-	  if ( ii < 10 ) {
+	  if ( ii < 10 ) { 
 	    for (sp=0; sp< numspec; sp++) { // Correct middle rows
 	      if ( weight[sp][i] > 0.0 ) {// Increment guess image
 		ci[sp]+= ti[sp];
@@ -275,7 +275,7 @@ int spatrectif_000(int argc, void* argv[])
 	      }
 	    }
 	  }
-	  if ( (ii > 9) && (ii < 16) ) {
+	  if ( (ii > 9) && (ii < 15) ) {
 	    for (sp=0; sp< numspec; sp++) { // Correct middle rows
 	      if ( weight[sp][i] > 0.0 ) {// Increment guess image
 		ci[sp]+= ti[sp];
