@@ -33,8 +33,8 @@ RELFILES =
 RELDAT   = basicARP_drfTemplate.xml \
 	   basicORP_drfTemplate.xml
 
-override SYSNAM = kss/osiris/drs/gui/odrfgui
-override VERNUM = 1.4
+#override SYSNAM = kss/osiris/drs/gui/odrfgui
+#override VERNUM = 1.4
 
 #  Include general make rules (use /etc if no environment variable).
 
