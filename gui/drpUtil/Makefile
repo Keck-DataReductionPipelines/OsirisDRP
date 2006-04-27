@@ -77,6 +77,7 @@ FILES = \
 	CalibrationFileTimeComparator.class \
 	FileFilterByCalibrationType.class \
 	ReductionModule.class \
+	OsirisDRPCellEditorsAndRenderers.class \
 	DataReductionDefinition.class \
 	DRF.class \
 	osirisDrpUtil.jar
