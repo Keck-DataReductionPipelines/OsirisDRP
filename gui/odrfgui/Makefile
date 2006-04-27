@@ -95,7 +95,7 @@ CLEAN =
 # RELETC RELCLASS RELBIN instead.
 
 # If this is a release point, override ancestor makefile's values.
-override SYSNAM = kss/osiris/drs/gui/odrfgui
+override SYSNAM = kss/osiris/drs/gui/odrfgui/
 override VERNUM = 1.4
 
 
