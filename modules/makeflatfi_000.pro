@@ -76,10 +76,11 @@ FUNCTION makeflatfi_000, DataSet, Modules, Backbone
     if ( s_Mode ne 'AVRG' and s_Mode ne 'MED' ) then $
        return, error ('ERROR IN CALL ('+strtrim(functionName)+'): Mode must be AVRG or MED.')
 
+    nFrames = Backbone->getValidFrameCount(DataSet.Name)
     if ( b_Debug ) then $
        debug_info,'DEBUG INFO ('+strtrim(functionName)+'): Checking ' + strg(nFrames) + ' flats for on and off.'
 
-    nFrames = Backbone->getValidFrameCount(DataSet.Name)
+   
     ; boolean vector indicating whether frame i is on (1) or off (0)
     vb_On = intarr(nFrames)
 
@@ -186,17 +187,21 @@ FUNCTION makeflatfi_000, DataSet, Modules, Backbone
        ; This is going to be an spectrometer flatfield
 
        h_H = *DataSet.Headers(0)
-
        ; we are done now free all input data and put the result into place
-       for i=0, nFrames-1 do $
-          delete_frame, DataSet, i, /ALL
+	; note clear_frame is used to reset the values to zero not delete frame
 
-       *DataSet.Frames(0)       = *p_FrameOn
-       *DataSet.IntFrames(0)    = *p_IntAuxFrameOn
-       *DataSet.IntAuxFrames(0) = *p_IntAuxFrameOn
-       *DataSet.Headers(0)      = h_H
+	for i=0, nFrames-1 do $
+          clear_frame, DataSet, i, /ALL
 
-       nFrames = Backbone->getValidFrameCount(DataSet.Name)
+        *DataSet.Frames(0)       = *p_FrameOn
+        *DataSet.IntFrames(0)    = *p_IntFrameOn
+        *DataSet.IntAuxFrames(0) = *p_IntAuxFrameOn
+        *DataSet.Headers(0)      = h_H
+
+   ;above we've deleted all the frames so we need to reset the frame count, since it doesn't do it automatically
+	flag = Backbone->setValidFrameCount(DataSet.Name,1)
+
+    nFrames = Backbone->getValidFrameCount(DataSet.Name)
        if ( nFrames ne 1 ) then $
           return, error('FAILURE ('+strtrim(functionName)+'): Mode CRP_SPEC, failed to reset ValidFrameCount')
 

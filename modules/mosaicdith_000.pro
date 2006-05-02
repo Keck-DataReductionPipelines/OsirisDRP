@@ -148,7 +148,7 @@ FUNCTION mosaicdith_000, DataSet, Modules, Backbone
       return, error('FAILURE ('+strtrim(functionName)+'): Mosaicing failed.')
 
    ; the result is stored in the 0th pointer, delete the others
-   for i=1, n_Sets-1 do delete_frame, DataSet, i, /ALL
+   for i=1, n_Sets-1 do clear_frame, DataSet, i, /ALL
 
    ; update the header
    if ( verify_naxis ( DataSet.Frames(0), DataSet.Headers(0), /UPDATE ) ne OK ) then $
