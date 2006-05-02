@@ -89,6 +89,8 @@ FUNCTION subtradark_000, DataSet, Modules, Backbone
     ; it is not neccessary to change the dataset pointer
 
     report_success, functionName, T
+    ptr_free,pmd_DarkFrame,pmd_DarkIntFrame,pmb_DarkIntAuxFrame
+
 
     RETURN, OK
 
