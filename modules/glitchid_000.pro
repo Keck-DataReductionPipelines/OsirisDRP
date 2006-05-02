@@ -117,8 +117,8 @@ FUNCTION glitchid_000, DataSet, Modules, Backbone
                              du[i,j,k] = abs(chan[i,j,k] - chan[i,j+1,k])
                              dd[i,j,k] = abs(chan[i,j,k] - chan[i,j-1,k])
                              ;;; flag each pixel that is above the threshold
-                              if ( ((du[i,j,k]) gt (slthresh/itime)) and $
-				((dd[i,j,k]) gt (slthresh/itime)) ) then $
+                              if (((du[i,j,k]) gt (slthresh/itime)) and $
+				((dd[i,j,k]) gt (slthresh/itime))) then $
 				gl[i,j,k] = 1. else gl[i,j,k] = 0.
                         endfor
                         ;;; flag bad pixels that occur at least in # channels
