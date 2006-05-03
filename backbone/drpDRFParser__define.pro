@@ -493,6 +493,12 @@ END
 ; ARGUMENTS:
 ;	AttNames	Array of attribute names
 ;	AttValues	Array of attribute values
+;
+;
+; HISTORY:
+; 	2006-04-20	Modified to allow arbitrary additional attributes in modules.
+; 				Requires struct_merge.pro  and struct_trimtags.pro
+; 				 - Marshall Perrin
 ;-----------------------------------------------------------------------------------------------------
 PRO drpDRFParser::NewModule, AttNames, AttValues
 
@@ -501,21 +507,38 @@ PRO drpDRFParser::NewModule, AttNames, AttValues
 	drpPushCallStack,'drpDRFParser::NewModule'
 	
 	Module = {structModule}				; Create structModule variable
+;	Module = {Name: ''}
 
+	
 	FOR i = 0, N_ELEMENTS(AttNames) - 1 DO BEGIN		; Enter attribute values 
-		CASE AttNames[i] OF				; into the variable fields
-			'Name': 	Module.Name = AttValues[i]
-			'Skip':		Module.Skip = AttValues[i]
-			'Save':		Module.Save = AttValues[i]
-			'SaveOnErr':	Module.SaveOnErr = AttValues[i]
-			'OutputDir':	Module.OutputDir = AttValues[i]
-			'CalibrationFile':	Module.CalibrationFile = AttValues[i]
-      'LabDataFile':	Module.LabDataFile = AttValues[i]
-		ENDCASE
+		; if this attribute is already a tag in the structure, just add the value to
+		; that tag.
+		indx = where(tag_names(module) eq strupcase(attnames[i]))
+		if (indx ge 0) then begin
+			module.(indx) = attvalues[i]
+		endif else begin
+			; otherwise, add a new tag
+			module = create_struct(module,AttNames[i],AttValues[i])
+		endelse
+	
+				
+	
+;		CASE AttNames[i] OF				; into the variable fields
+;			'Name': 	Module.Name = AttValues[i]
+;			else:       module = create_struct(module,AttNames[i],AttValues[i])
+;			'Skip':		Module.Skip = AttValues[i]
+;			'Save':		Module.Save = AttValues[i]
+;			'SaveOnErr':	Module.SaveOnErr = AttValues[i]
+;			'OutputDir':	Module.OutputDir = AttValues[i]
+;			'CalibrationFile':	Module.CalibrationFile = AttValues[i]
+ ;     'LabDataFile':	Module.LabDataFile = AttValues[i]
+;		ENDCASE
 	ENDFOR
 
 	IF N_ELEMENTS(*Self.Modules) EQ 0 THEN *Self.Modules = [Module] $	; Add to the array
-	ELSE *Self.Modules = [*Self.Modules, Module]
+	ELSE *Self.Modules = struct_merge(*Self.Modules, Module)
+	print,module.name
+	;stop
 
 	void = drpPopCallStack()
 
