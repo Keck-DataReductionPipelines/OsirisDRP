@@ -1,7 +1,5 @@
 package edu.ucla.astro.osiris.drp.odrfgui;
 
-import java.awt.*;
-
 /**
  * <p>Title: </p>
  * <p>Description: </p>
