@@ -307,6 +307,11 @@ public class ODRFGUIModel extends GenericModel {
     workingDRD.setReductionType(reductionType);
     workingDRD.setLogPath(logPath.getAbsolutePath());
 
+    for (Iterator ii = activeModuleList.iterator(); ii.hasNext();) {
+    	ReductionModule module = (ReductionModule)(ii.next());
+    	module.setOutputDir(outputDir.getAbsolutePath());
+    }
+    
     workingDRD.setModuleList(activeModuleList);
 
     myDRF.writeDRF(drfFile, workingDRD);
