@@ -1,7 +1,6 @@
 package edu.ucla.astro.osiris.drp.odrfgui;
 
 import javax.swing.UIManager;
-import java.rmi.*;
 import javax.swing.JOptionPane;
 import edu.ucla.astro.osiris.util.XmlToParams;
 
@@ -18,7 +17,7 @@ public class ODRFGUI {
 
   public ODRFGUI() throws Exception {
     try {
-      ODRFGUIApplication myApplication = new ODRFGUIApplication();
+      new ODRFGUIApplication();
     } catch (org.jdom.JDOMException jdE) {
       JOptionPane.showMessageDialog(null, jdE.getMessage(), "ODRFGUI: Error Reading Default DRF", JOptionPane.WARNING_MESSAGE);
     } catch (java.io.IOException ioE) {
@@ -27,7 +26,6 @@ public class ODRFGUI {
  }
   public static void main(String[] args) {
     String cfgFilename=new String("");
-    XmlToParams xmlParser = new XmlToParams();
 
     if (System.getSecurityManager() == null) {
       System.setSecurityManager(new SecurityManager());
@@ -45,7 +43,7 @@ public class ODRFGUI {
 	  //. get config file
 	  java.io.File cfgFile = new java.io.File(cfgFilename);
 	  //. extract parameters from config file
-	  xmlParser.extractParams(cfgFile, ODRFGUIParameters.getInstance());
+	  XmlToParams.extractParams(cfgFile, ODRFGUIParameters.getInstance());
       }
       //. define menu fonts here in this way, so that setFont doesn't have
       //. to be called for each item.
