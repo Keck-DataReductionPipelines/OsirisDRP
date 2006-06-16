@@ -158,7 +158,10 @@ FUNCTION glitchid_000, DataSet, Modules, Backbone
 	;endfor
 
 	wglitch = where(glt eq -1,glitchcount)
-	if glitchcount gt 0 then (*DataSet.IntAuxFrames[n])[wglitch]=0.
+	if glitchcount gt 0 then begin
+            (*DataSet.IntAuxFrames[n])[wglitch]=0
+            (*DataSet.Frames[n])[wglitch]=0.0
+        end
 
     endfor
 
