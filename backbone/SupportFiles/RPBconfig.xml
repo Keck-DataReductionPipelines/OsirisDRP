@@ -77,7 +77,7 @@
     glitchremv_COMMON___LineHalfSize ="30"
     glitchremv_COMMON___LineSigma ="3."
 
-    glitchid_COMMON___SlopeThresh ="100."
+    glitchid_COMMON___SlopeThresh ="10."
     glitchid_COMMON___ChanThresh ="5."  
    
     tellcor_COMMON___BinSize="3"
@@ -226,9 +226,9 @@
     <Module Name="Remove Crosstalk" IDLFunc="rmcrosstalk_000"></Module> 
     <Module Name="Adjust Channel Levels" IDLFunc="adjchan_000"></Module>
     <Module Name="Glitch Identification" IDLFunc="glitchid_000"></Module>
+    <Module Name="Clean Cosmic Rays" IDLFunc="cleancosmic_000"></Module>
     <Module Name="Spatially Rectify Spectrum" IDLFunc="spatrectif_000" Order="1"></Module>
     <Module Name="Assemble Data Cube" IDLFunc="assembcube_000"></Module>
-    <Module Name="Clean Cosmic Rays" IDLFunc="cleancosmic_000"></Module>
     <Module Name="Divide by Flat Field" IDLFunc="divideflat_000" Order="3"></Module>
     <Module Name="Clean Noise Frame" IDLFunc="cleannoise_000"></Module>
     <Module Name="Subtract Background" IDLFunc="subbackgrd_000"></Module>
@@ -262,9 +262,9 @@
     <Module Name="Remove Crosstalk" IDLFunc="rmcrosstalk_000"></Module> 
     <Module Name="Adjust Channel Levels" IDLFunc="adjchan_000"></Module>
     <Module Name="Glitch Identification" IDLFunc="glitchid_000"></Module>
+    <Module Name="Clean Cosmic Rays" IDLFunc="cleancosmic_000"></Module>
     <Module Name="Spatially Rectify Spectrum" IDLFunc="spatrectif_000" Order="1"></Module>
     <Module Name="Assemble Data Cube" IDLFunc="assembcube_000"></Module>
-    <Module Name="Clean Cosmic Rays" IDLFunc="cleancosmic_000"></Module>
     <Module Name="Divide by Flat Field" IDLFunc="divideflat_000" Order="3"></Module>
     <Module Name="Clean Noise Frame" IDLFunc="cleannoise_000"></Module>
     <Module Name="Subtract Background" IDLFunc="subbackgrd_000"></Module>
@@ -316,9 +316,9 @@
     <Module Name="Remove Crosstalk" IDLFunc="rmcrosstalk_000"></Module> 
     <Module Name="Adjust Channel Levels" IDLFunc="adjchan_000"></Module>
     <Module Name="Glitch Identification" IDLFunc="glitchid_000"></Module>
+    <Module Name="Clean Cosmic Rays" IDLFunc="cleancosmic_000"></Module>
     <Module Name="Spatially Rectify Spectrum" IDLFunc="spatrectif_000" Order="1"></Module>
     <Module Name="Assemble Data Cube" IDLFunc="assembcube_000"></Module>
-    <Module Name="Clean Cosmic Rays" IDLFunc="cleancosmic_000"></Module>
     <Module Name="Divide by Flat Field" IDLFunc="divideflat_000" Order="3"></Module>
     <Module Name="Clean Noise Frame" IDLFunc="cleannoise_000"></Module>
     <Module Name="Subtract Background" IDLFunc="subbackgrd_000"></Module>
