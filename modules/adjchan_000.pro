@@ -91,7 +91,9 @@ FUNCTION adjchan_000, DataSet, Modules, Backbone
             del[3]=median( (*DataSet.Frames[n])[1136+128*i,0:1023]-(*DataSet.Frames[n])[1167+128*i,0:1023])
             del[4]=median( (*DataSet.Frames[n])[1131+128*i,0:1023]-(*DataSet.Frames[n])[1172+128*i,0:1023])
             d = median(del)
-            if ( abs(d) lt maxdiff ) then $
+            val = median( (*DataSet.Frames[n])[(1131+128*i):(1151+128*i),0:1023] )
+            if ( (abs(d) lt maxdiff) and (abs(val/d) lt 4.0)  ) then $
+;            if ( abs(d) lt maxdiff ) then $
               (*DataSet.Frames[n])[1024:(1151+128*i),0:1023] = (*DataSet.Frames[n])[1024:(1151+128*i),0:1023] - d
 
           ; upper left
@@ -101,7 +103,9 @@ FUNCTION adjchan_000, DataSet, Modules, Backbone
             del[3]=median((*DataSet.Frames[n])[112+128*i,1024:2047]-(*DataSet.Frames[n])[143+128*i,1024:2047])
             del[4]=median((*DataSet.Frames[n])[107+128*i,1024:2047]-(*DataSet.Frames[n])[148+128*i,1024:2047])
             d = median(del)
-            if ( abs(d) lt maxdiff ) then $
+            val = median( (*DataSet.Frames[n])[(107+128*i):(127+128*i),1024:2047] )
+            if ( (abs(d) lt maxdiff) and (abs(val/d) lt 4.0)  ) then $
+;            if ( abs(d) lt maxdiff ) then $
               (*DataSet.Frames[n])[0:(127+128*i),1024:2047] = (*DataSet.Frames[n])[0:(127+128*i),1024:2047] - d
 
         end
@@ -115,7 +119,9 @@ FUNCTION adjchan_000, DataSet, Modules, Backbone
             del[3]=median((*DataSet.Frames[n])[1000:1005,(128*i):(127+128*i)]-(*DataSet.Frames[n])[1042:1047,(128*i):(127+128*i)])
             del[4]=median((*DataSet.Frames[n])[994:999,(128*i):(127+128*i)]-(*DataSet.Frames[n])[1048:1053,(128*i):(127+128*i)])
             d = median(del)
-            if ( abs(d) lt maxdiff ) then begin
+            val = median( (*DataSet.Frames[n])[994:1023,(128*i):(127+128*i)] )
+            if ( (abs(d) lt maxdiff) and (abs(val/d) lt 4.0)  ) then begin
+;            if ( abs(d) lt maxdiff ) then begin
                 (*DataSet.Frames[n])[0:1023,(128*i):(127+128*i)] = (*DataSet.Frames[n])[0:1023,(128*i):(127+128*i)] - d
                 del_lower = del_lower + d
                 num_lower = num_lower + 1.0
@@ -136,7 +142,9 @@ FUNCTION adjchan_000, DataSet, Modules, Backbone
                 (*DataSet.IntAuxFrames[n])[1024:2047,1024:1151]=0 ; Flag the channel as bad
                 print, "Lower channel in upper right quad is marked as bad..."
             end
-            if ( abs(d) lt maxdiff ) then begin
+            val = median( (*DataSet.Frames[n])[1024:1053,(1024+128*i):(1151+128*i)] )
+            if ( (abs(d) lt maxdiff) and (abs(val/d) lt 4.0)  ) then begin
+;             if ( abs(d) lt maxdiff ) then begin
                 (*DataSet.Frames[n])[1024:2047,(1024+128*i):(1151+128*i)] = (*DataSet.Frames[n])[1024:2047,(1024+128*i):(1151+128*i)] - d
                 del_upper = del_upper + d
                 num_upper = num_upper + 1.0
