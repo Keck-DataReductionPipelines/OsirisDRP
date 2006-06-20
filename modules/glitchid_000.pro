@@ -109,24 +109,38 @@ FUNCTION glitchid_000, DataSet, Modules, Backbone
 ;	if glcount gt 0 then gl[wgl]=1
 ;	wflag = where( rebin(total(gl,3),128,1024,16) gt chthresh, flagct)
 ;	if flagct gt 0 then gl[wflag]=1
+        std = fltarr(16)
+        compare = fltarr(1024,16)
 
         for i=0, 127 do begin
-                for j=1, 1022 do begin
-                        for k=0, 15 do begin
+            ; Calculate the std for each of the outputs at this row.
+            for k = 0, 15 do begin
+                srt = sort(chan[i,*,k])
+                sz = size(srt)
+                q = srt[30:sz[1]-30]
+                std[k] = stddev(chan[q])
+                compare[*,k] = abs(chan[i,*,k])>3.0*std[k]
+            end
+            for j=1, 1022 do begin
+                for k=0, 15 do begin
                                 ;;; difference from each pixel up and down
-                             du[i,j,k] = abs(chan[i,j,k] - chan[i,j+1,k])
-                             dd[i,j,k] = abs(chan[i,j,k] - chan[i,j-1,k])
+;                             du[i,j,k] = abs(chan[i,j,k] - chan[i,j+1,k])
+;                             dd[i,j,k] = abs(chan[i,j,k] - chan[i,j-1,k])
                              ;;; flag each pixel that is above the threshold
-                              if (((du[i,j,k]) gt (slthresh/itime)) and $
-				((dd[i,j,k]) gt (slthresh/itime))) then $
-				gl[i,j,k] = 1. else gl[i,j,k] = 0.
-                        endfor
-                        ;;; flag bad pixels that occur at least in # channels
-                        flag = where(gl[i,j,0:15] eq 1.,cnt)
-                        if cnt ge chthresh then gl[i,j,*] = -1.
+;                              if (((du[i,j,k]) gt (slthresh/itime)) and $
+;				((dd[i,j,k]) gt (slthresh/itime))) then $
+;				gl[i,j,k] = 1. else gl[i,j,k] = 0.
+                            ;;; Switch to ratio detection
+                    rat=abs(chan[i,j,k])/(compare[j+1,k]+compare[j-1,k])
+                    if ( rat gt 1.0 ) then $
+                      gl[i,j,k] = 1. else gl[i,j,k] = 0.
                 endfor
+                        ;;; flag bad pixels that occur at least in # channels
+                flag = where(gl[i,j,0:15] eq 1.,cnt)
+                if cnt ge chthresh then gl[i,j,*] = -1.
+            endfor
         endfor
-
+        
 
 	;;; Put glitch array channels back into quadrants
 	r1 = [gl[*,*,0],gl[*,*,1],gl[*,*,2],gl[*,*,3],gl[*,*,4],$
