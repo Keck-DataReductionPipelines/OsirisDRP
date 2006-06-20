@@ -33,6 +33,7 @@
 ; @STATUS not tested
 ;
 ; @HISTORY 6.15.2005, created
+;          6.20.2006 - added check that there is a channel causing the crosstalk
 ;
 ; @AUTHOR James Larkin and Shelley Wright
 ;
@@ -72,17 +73,36 @@ FUNCTION rmcrosstalk_000, DataSet, Modules, Backbone
         ;;; Value stores the median value of each channel (32) for
         ;;; every row (1024).
 	value = fltarr(1024, 32)
+        temparr = fltarr(128,4)
 
         for i = 0, 1023 do begin
             for k=0, 7 do begin
-		value[i,k+16] = median(q1[(0+128*k):(127+128*k),i])
-		value[i,k+24] = median(q3[(0+128*k):(127+128*k),i])
-		value[i,k+8] = median(q2[(0+128*k):(127+128*k),i])
-		value[i,k] = median(q4[(0+128*k):(127+128*k),i])
+		value[i,k+16] = median(q1[(0+128*k):(127+128*k),i])*0.95
+		value[i,k+24] = median(q3[(0+128*k):(127+128*k),i])*0.95
+		value[i,k+8] = median(q2[(0+128*k):(127+128*k),i])*0.95
+		value[i,k] = median(q4[(0+128*k):(127+128*k),i])*0.95
             endfor
-            ;;; For every row, calculate the lowest of the median
-            ;;; values. Don't use the lower right and upper left quadrants
-            value[i,0]=min(value[i,0:15])
+            ;;; For every row, calculate the lowest in an absolute
+            ;;; sense of the median values.
+            vls = value[i,0:15]
+            srt = sort(abs(vls))
+            ;;; Make sure there is a large value that is causing the
+            ;;; crosstalk. It should be at least 50 times larger and
+            ;;; of the same sign as the crosstalk.
+            cross = vls[srt[0]]
+            if ( cross gt 0.0 ) then begin  ; Positive crosstalk
+                mx = max(value[i,*])
+                value[i,0] = 0.0  ; Default is to subtract nothing.
+                if (mx gt 50.0*cross) then begin
+                    value[i,0] = cross  ; Valid crosstalk.
+                end
+            endif else begin  ; Negative crosstalk
+                mx = min(value[i,*])
+                value[i,0] = 0.0  ; Default is to subtract nothing.
+                if (mx lt 50.0*cross) then begin
+                    value[i,0] = cross  ; Valid crosstalk.
+                end
+            end
        endfor
 
 ; Now subtract the value[i,0] from every pixel in row i of all 32 channels.
