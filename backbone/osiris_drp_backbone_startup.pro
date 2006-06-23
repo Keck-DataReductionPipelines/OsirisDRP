@@ -13,9 +13,9 @@ if drs_idl_root eq '' then begin
     module_dir=drs_idl_root+'modules/'
     idl_downloads_dir=module_dir+'idl_downloads/'
 endif else begin
-    backbone_dir=drs_idl_root+'/backbone/'
-    module_dir=drs_idl_root+'/modules/'
-    idl_downloads_dir=module_dir+'idl_downloads/'
+    backbone_dir=drs_idl_root+'/backbone/' 
+    module_dir=drs_idl_root+'/modules/' 
+    idl_downloads_dir=module_dir+'idl_downloads/' 
 end
 
 ; put backbone code in idl path

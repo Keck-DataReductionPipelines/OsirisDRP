@@ -193,6 +193,7 @@
     <Module Name="Remove Crosstalk" IDLFunc="rmcrosstalk_000"></Module> 
     <Module Name="Adjust Channel Levels" IDLFunc="adjchan_000"></Module>
     <Module Name="Glitch Identification" IDLFunc="glitchid_000"></Module> 
+    <Module Name="Clean Cosmic Rays" IDLFunc="cleancosmic_000"></Module>
     <Module Name="Make Rectification Matrix" IDLFunc="mkrecmatrx_000"></Module>
     <Module Name="Make Flat Field" IDLFunc="makeflatfi_000"></Module>
     <Module Name="Make Wave Calib Frame" IDLFunc="mkwavcalfr_000"></Module>
