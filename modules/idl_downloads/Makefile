@@ -80,10 +80,12 @@ RELPRO   = add_fitskwd_to_header.pro \
 	   chktag.pro \
 	   clean_op.pro \
 	   clean.pro \
+           clear_frame.pro \
 	   clip_frames.pro \
 	   clipimages.pro \
 	   clip.pro \
 	   cmapply.pro \
+           cmset_op.pro \
 	   cube2image.pro \
 	   cubes_mosaic_cubes.pro \
 	   data_valid.pro \
@@ -219,6 +221,8 @@ RELPRO   = add_fitskwd_to_header.pro \
 	   strg.pro \
 	   strn.pro \
 	   strnumber.pro \
+           struct_merge.pro \
+           struct_trimtags.pro \
 	   strwithzeroes.pro \
 	   subtract_slice_bg_from_cube.pro \
 	   sxaddpar.pro \
