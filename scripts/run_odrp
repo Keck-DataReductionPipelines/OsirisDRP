@@ -10,7 +10,7 @@
 #    variable -- Jason L. Weiss 02/03/00
 # modified for drp -- JLW 2005/02/19
 
-#set backbone_dir=$KROOT/rel/default/idl/odrs/backbone
+setenv OSIRIS_BACKBONE_DIR $KROOT/rel/default/idl/odrs/backbone
 
 #start drp
 xterm +ls -e idl ${OSIRIS_BACKBONE_DIR}/osiris_drp_backbone_startup.pro
