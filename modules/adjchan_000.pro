@@ -37,6 +37,9 @@
 ;              it as bad. This is done by checking the modified Julian
 ;              date against 53873 (May 18, 2006).
 ;
+;            - Bad channel was fixed on June 27, 2006, so added check
+;              if Julian date is after 53913.
+;
 ; @STATUS  not tested
 ;
 ; @HISTORY  5.29.2005, created
@@ -137,7 +140,7 @@ FUNCTION adjchan_000, DataSet, Modules, Backbone
             del[3]=median((*DataSet.Frames[n])[1042:1047,(1024+128*i):(1151+128*i)]-(*DataSet.Frames[n])[1000:1005,(1024+128*i):(1151+128*i)])
             del[4]=median((*DataSet.Frames[n])[1048:1053,(1024+128*i):(1151+128*i)]-(*DataSet.Frames[n])[994:999,(1024+128*i):(1151+128*i)])
             d = median(del)
-            if ( (jul_date ge 53873.0) and (i eq 0) ) then begin
+            if ( (jul_date ge 53873.0) and (i eq 0) and (jul_date le 53913.0) ) then begin
                 d = 0
                 (*DataSet.IntAuxFrames[n])[1024:2047,1024:1151]=0 ; Flag the channel as bad
                 print, "Lower channel in upper right quad is marked as bad..."
