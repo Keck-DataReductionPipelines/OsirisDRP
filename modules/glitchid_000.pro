@@ -40,7 +40,8 @@
 ;
 ; @HISTORY  6.14.2005, created
 ;	    11.21.2005, modified with M. Perrin suggestions
-;	
+;           06.17.2006, modified for ratio detection
+	
 ; @AUTHOR  Shelley Wright 
 ;
 ; @END
