@@ -193,20 +193,29 @@ FUNCTION adjchan_000, DataSet, Modules, Backbone
 
 
         ; Match upper and lower quadrants
-        del[0]=median((*DataSet.Frames[n])[0:1023,1023]-(*DataSet.Frames[n])[0:1023,1025])
-        del[1]=median((*DataSet.Frames[n])[0:1023,1022]-(*DataSet.Frames[n])[0:1023,1026])
-        del[2]=median((*DataSet.Frames[n])[0:1023,1021]-(*DataSet.Frames[n])[0:1023,1027])
-        del[3]=median((*DataSet.Frames[n])[0:1023,1020]-(*DataSet.Frames[n])[0:1023,1028])
-        del[4]=median((*DataSet.Frames[n])[0:1023,1019]-(*DataSet.Frames[n])[0:1023,1029])
-        d[0] = median(del)
-        print, ' upper and lower halves, using left side only, delta =', d[0]        
-
+        if ( (jul_date ge 53873.0) and (i eq 0) and (jul_date le 53913.0) ) then begin
+            del[0]=median((*DataSet.Frames[n])[0:1023,1023]-(*DataSet.Frames[n])[0:1023,1025])
+            del[1]=median((*DataSet.Frames[n])[0:1023,1022]-(*DataSet.Frames[n])[0:1023,1026])
+            del[2]=median((*DataSet.Frames[n])[0:1023,1021]-(*DataSet.Frames[n])[0:1023,1027])
+            del[3]=median((*DataSet.Frames[n])[0:1023,1020]-(*DataSet.Frames[n])[0:1023,1028])
+            del[4]=median((*DataSet.Frames[n])[0:1023,1019]-(*DataSet.Frames[n])[0:1023,1029])
+            d[0] = median(del)
+            print, ' upper and lower halves, using left side only, delta =', d[0]
+        endif else begin
+            del[0]=median((*DataSet.Frames[n])[0:2047,1023]-(*DataSet.Frames[n])[0:2047,1025])
+            del[1]=median((*DataSet.Frames[n])[0:2047,1022]-(*DataSet.Frames[n])[0:2047,1026])
+            del[2]=median((*DataSet.Frames[n])[0:2047,1021]-(*DataSet.Frames[n])[0:2047,1027])
+            del[3]=median((*DataSet.Frames[n])[0:2047,1020]-(*DataSet.Frames[n])[0:2047,1028])
+            del[4]=median((*DataSet.Frames[n])[0:2047,1019]-(*DataSet.Frames[n])[0:2047,1029])
+            d[0] = median(del)
+            print, ' upper and lower halves, using left side only, delta =', d[0]
+        end
 ;        if ( num_upper gt 0.0 ) then del_upper = del_upper / num_upper
 ;        if ( num_lower gt 0.0 ) then del_lower = del_lower / num_lower
 ;        print, ' del_upper ', del_upper, ' del_lower =', del_lower
 ;        if ( abs(d) lt 3.0*abs(del_lower - del_upper) ) then begin 
-            (*DataSet.Frames[n])[0:2047,0:1023] = (*DataSet.Frames[n])[0:2047,0:1023] - d[0]/2.0
-            (*DataSet.Frames[n])[0:2047,1024:2047] = (*DataSet.Frames[n])[0:2047,1024:2047] + d[0]/2.0
+        (*DataSet.Frames[n])[0:2047,0:1023] = (*DataSet.Frames[n])[0:2047,0:1023] - d[0]/2.0
+        (*DataSet.Frames[n])[0:2047,1024:2047] = (*DataSet.Frames[n])[0:2047,1024:2047] + d[0]/2.0
 ;        endif else begin
 ;            (*DataSet.Frames[n])[0:2047,0:1023] = (*DataSet.Frames[n])[0:2047,0:1023] + del_lower
 ;            (*DataSet.Frames[n])[0:2047,1024:2047] = (*DataSet.Frames[n])[0:2047,1024:2047] + del_upper
