@@ -178,14 +178,14 @@ FUNCTION adjchan_000, DataSet, Modules, Backbone
         end 
 
         ; For temporary use, match left and right lower quadrants
-        d[0] = median((*DataSet.Frames[n])[923:1023,0:1023]-(*DataSet.Frames[n])[1024:1124,0:1023])
+        d[0] = median((*DataSet.Frames[n])[1019:1023,0:1023]-(*DataSet.Frames[n])[1024:1028,0:1023])
         if ( abs(d[0]) lt maxdiff ) then begin
             (*DataSet.Frames[n])[0:1023,0:1023] = (*DataSet.Frames[n])[0:1023,0:1023] - d[0]/2.0
             (*DataSet.Frames[n])[1024:2047,0:1023] = (*DataSet.Frames[n])[1024:2047,0:1023] + d[0]/2.0
         end
 
         ; For temporary use, match left and right upper quadrants
-        d[0] = median((*DataSet.Frames[n])[923:1023,1024:2047]-(*DataSet.Frames[n])[1024:1124,1024:2047])
+        d[0] = median((*DataSet.Frames[n])[1019:1023,1024:2047]-(*DataSet.Frames[n])[1024:1028,1024:2047])
         if ( abs(d[0]) lt maxdiff ) then begin
             (*DataSet.Frames[n])[0:1023,1024:2047] = (*DataSet.Frames[n])[0:1023,1024:2047] - d[0]/2.0
             (*DataSet.Frames[n])[1024:2047,1024:2047] = (*DataSet.Frames[n])[1024:2047,1024:2047] + d[0]/2.0
