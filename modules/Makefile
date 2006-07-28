@@ -39,6 +39,7 @@ RELPRO   = adjchan_000.pro \
 	   cleancosmic_000.pro \
 	   cleannoise_000.pro \
 	   cleanpsf___000.pro \
+           combframes_000.pro \
 	   computspec_000.pro \
 	   comtellspe_000.pro \
 	   convertpsf_000.pro \
@@ -57,6 +58,7 @@ RELPRO   = adjchan_000.pro \
 	   interponed_000.pro \
 	   intpthreed_000.pro \
 	   lineapixel_000.pro \
+	   linext_000.pro \
 	   makedarkfr_000.pro \
 	   makeflatfi_000.pro \
 	   makekskyfr_000.pro \
@@ -68,6 +70,7 @@ RELPRO   = adjchan_000.pro \
 	   mkrectdark_000.pro \
 	   mkwavcalfr_000.pro \
 	   mkwavsmo_000.pro \
+           mosaic_000.pro \
 	   mosaicdith_000.pro \
 	   mosaicdpos_000.pro \
 	   nrmflxdens_000.pro \
