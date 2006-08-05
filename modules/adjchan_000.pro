@@ -74,139 +74,339 @@ FUNCTION adjchan_000, DataSet, Modules, Backbone
     print, 'Number of frames = ', nFrames
     for n = 0, (nFrames-1) do begin
         head = *DataSet.Headers[n]
+
+        ; Calculate and subtract the difference between neighboring
+        ; channels. Only subtract if the difference is less than 5
+        ; datanumbers when corrected back to the total exposure time.
         itime = float(SXPAR(head,"ITIME",/SILENT))
-        maxdiff = 20.0/itime
+        maxdiff = 2.0/itime
         print, 'Maximum allowed offset= ', maxdiff
-                                ; Calculate and subtract the
-                                ; difference between neighboring
-                                ; channels. Only subtract if the
-                                ; difference is less than 5
-                                ; datanumbers when corrected back to
-                                ; the total exposure time.
-; For each channel boundary use 5 different sets of columns in order
-; to find true background in the case that a spectrum spans the
-; boundary.
+
+        ; For each channel boundary use 5 different sets of columns in order
+        ; to find true background in the case that a spectrum spans the
+        ; boundary.
         del = fltarr(5)
         d = fltarr(7)
+   ;********************************************
+   ; channels within the lower right quadrant
+   ;********************************************
         for i = 0, 6 do begin
-          ; lower right
-            del[0]=median( (*DataSet.Frames[n])[1151+128*i,0:1023]-(*DataSet.Frames[n])[1152+128*i,0:1023])
-            del[1]=median( (*DataSet.Frames[n])[1146+128*i,0:1023]-(*DataSet.Frames[n])[1157+128*i,0:1023])
-            del[2]=median( (*DataSet.Frames[n])[1141+128*i,0:1023]-(*DataSet.Frames[n])[1162+128*i,0:1023])
-            del[3]=median( (*DataSet.Frames[n])[1136+128*i,0:1023]-(*DataSet.Frames[n])[1167+128*i,0:1023])
-            del[4]=median( (*DataSet.Frames[n])[1131+128*i,0:1023]-(*DataSet.Frames[n])[1172+128*i,0:1023])
+            ; For each channel boundary in the lower right quadrant, calculate the
+            ; difference for the pixels on the boundary. Do this for five different
+            ; sets of strips. For each set of paired strips take the median of
+            ; those that are within 5 times the maximum allowed step function. Then
+            ; median the five resulting measurements of the step functions.
+            tmp =( (*DataSet.Frames[n])[1151+128*i,0:1023]-(*DataSet.Frames[n])[1152+128*i,0:1023])
+            loc = where ( abs(tmp) lt 3.0*maxdiff )
+            del[0] = median( tmp[loc] )
+            tmp=( (*DataSet.Frames[n])[1146+128*i,0:1023]-(*DataSet.Frames[n])[1157+128*i,0:1023])
+            loc = where ( abs(tmp) lt 3.0*maxdiff )
+            del[1] = median( tmp[loc] )
+            tmp=( (*DataSet.Frames[n])[1141+128*i,0:1023]-(*DataSet.Frames[n])[1162+128*i,0:1023])
+            loc = where ( abs(tmp) lt 3.0*maxdiff )
+            del[2] = median( tmp[loc] )
+            tmp=( (*DataSet.Frames[n])[1136+128*i,0:1023]-(*DataSet.Frames[n])[1167+128*i,0:1023])
+            loc = where ( abs(tmp) lt 3.0*maxdiff )
+            del[3] = median( tmp[loc] )
+            tmp=( (*DataSet.Frames[n])[1131+128*i,0:1023]-(*DataSet.Frames[n])[1172+128*i,0:1023])
+            loc = where ( abs(tmp) lt 3.0*maxdiff )
+            del[4] = median( tmp[loc] )
             d[i] = median(del)
-;            val = median( (*DataSet.Frames[n])[(1131+128*i):(1151+128*i),0:1023] )
-;            d(i)=median( (*DataSet.Frames[n])[(1141+128*i):(1151+128*i),0:1023]-(*DataSet.Frames[n])[(1152+128*i):(1162+128*i),0:1023])
-;            if ( (abs(d[i]) lt maxdiff) and (abs(val/d[i]) lt 4.0)  ) then begin
-;            print, ' lower right, i =', i, ' delta =', d(i)
+            ; If the measured step function is above the maximum allowed value,
+            ; then ignore the step and set it to 0.0.
             if ( abs(d[i]) gt maxdiff ) then begin
                 d(i) = 0.0
             end
         end
-
+        ; Apply the shifts for the channels in the lower right channel.
         for i = 0, 6 do begin
-            (*DataSet.Frames[n])[1024:(1151+128*i),0:1023] = (*DataSet.Frames[n])[1024:(1151+128*i),0:1023] - d[i]
+            (*DataSet.Frames[n])[1024:(1151+128*i),0:1023] = (*DataSet.Frames[n])[1024:(1151+128*i),0:1023] - d[i]+mean(d)
         end
+        (*DataSet.Frames[n])[1024:(1151+128*7),0:1023] = (*DataSet.Frames[n])[1024:(1151+128*7),0:1023] + mean(d)
 
+   ;********************************************
+   ; channels within the upper left quadrant
+   ;********************************************
         for i = 0, 6 do begin
-          ; upper left
-            del[0]=median((*DataSet.Frames[n])[127+128*i,1024:2047]-(*DataSet.Frames[n])[128+128*i,1024:2047])
-            del[1]=median((*DataSet.Frames[n])[122+128*i,1024:2047]-(*DataSet.Frames[n])[133+128*i,1024:2047])
-            del[2]=median((*DataSet.Frames[n])[117+128*i,1024:2047]-(*DataSet.Frames[n])[138+128*i,1024:2047])
-            del[3]=median((*DataSet.Frames[n])[112+128*i,1024:2047]-(*DataSet.Frames[n])[143+128*i,1024:2047])
-            del[4]=median((*DataSet.Frames[n])[107+128*i,1024:2047]-(*DataSet.Frames[n])[148+128*i,1024:2047])
+            ; For each channel boundary in the upper left quadrant, calculate the
+            ; difference for the pixels on the boundary. Do this for five different
+            ; sets of strips. For each set of paired strips take the median of
+            ; those that are within 5 times the maximum allowed step function. Then
+            ; median the five resulting measurements of the step functions.
+            tmp=((*DataSet.Frames[n])[127+128*i,1024:2047]-(*DataSet.Frames[n])[128+128*i,1024:2047])
+            loc = where ( abs(tmp) lt 3.0*maxdiff )
+            del[0] = median( tmp[loc] )
+            tmp=((*DataSet.Frames[n])[122+128*i,1024:2047]-(*DataSet.Frames[n])[133+128*i,1024:2047])
+            loc = where ( abs(tmp) lt 3.0*maxdiff )
+            del[1] = median( tmp[loc] )
+            tmp=((*DataSet.Frames[n])[117+128*i,1024:2047]-(*DataSet.Frames[n])[138+128*i,1024:2047])
+            loc = where ( abs(tmp) lt 3.0*maxdiff )
+            del[2] = median( tmp[loc] )
+            tmp=((*DataSet.Frames[n])[112+128*i,1024:2047]-(*DataSet.Frames[n])[143+128*i,1024:2047])
+            loc = where ( abs(tmp) lt 3.0*maxdiff )
+            del[3] = median( tmp[loc] )
+            tmp=((*DataSet.Frames[n])[107+128*i,1024:2047]-(*DataSet.Frames[n])[148+128*i,1024:2047])
+            loc = where ( abs(tmp) lt 3.0*maxdiff )
+            del[4] = median( tmp[loc] )
             d[i] = median(del)
-;            val = median( (*DataSet.Frames[n])[(107+128*i):(127+128*i),1024:2047] )
-;            d(i)=median( (*DataSet.Frames[n])[(117+128*i):(127+128*i),0:1023]-(*DataSet.Frames[n])[(128+128*i):(138+128*i),0:1023])
-;            if ( (abs(d[i]) lt maxdiff) and (abs(val/d[i]) lt 4.0)  ) then begin
-;            print, ' upper left, i =', i, ' delta =', d
+            ; If the measured step function is above the maximum allowed value,
+            ; then ignore the step and set it to 0.0.
             if ( abs(d[i]) gt maxdiff ) then begin
                 d(i) = 0.0
             end
         end
+        ; Apply the shifts for the upper left channels.
         for i = 0, 6 do begin
-            (*DataSet.Frames[n])[0:(127+128*i),1024:2047] = (*DataSet.Frames[n])[0:(127+128*i),1024:2047] - d[i]
+            (*DataSet.Frames[n])[0:(127+128*i),1024:2047] = (*DataSet.Frames[n])[0:(127+128*i),1024:2047] - d[i]+mean(d)
         end
+        (*DataSet.Frames[n])[0:(127+128*7),1024:2047] = (*DataSet.Frames[n])[0:(127+128*7),1024:2047] + mean(d)
 
-;        for i = 0, 7 do begin
+; For the channels with boundaries aligned with the spectra, we check
+; both sides of the channel, plus the end that overlaps with the first
+; channel in the other quadrant.
+        bound = fltarr(7) ; Measurement of the six channel boundaries
+        ends = fltarr(8)  ; Measurement of the seven end boundaries
+   ;********************************************
+   ; channels within the lower left quadrant
+   ;********************************************
         for i = 0, 6 do begin
-          ; lower left - check the ends with the
-          ;    right quadrant so spectra
-          ;    aren't compared.
-;            del[0]=median((*DataSet.Frames[n])[1018:1023,(128*i):(127+128*i)]-(*DataSet.Frames[n])[1024:1029,(128*i):(127+128*i)])
-;            del[1]=median((*DataSet.Frames[n])[1012:1017,(128*i):(127+128*i)]-(*DataSet.Frames[n])[1030:1035,(128*i):(127+128*i)])
-;            del[2]=median((*DataSet.Frames[n])[1006:1011,(128*i):(127+128*i)]-(*DataSet.Frames[n])[1036:1041,(128*i):(127+128*i)])
-;            del[3]=median((*DataSet.Frames[n])[1000:1005,(128*i):(127+128*i)]-(*DataSet.Frames[n])[1042:1047,(128*i):(127+128*i)])
-;            del[4]=median((*DataSet.Frames[n])[994:999,(128*i):(127+128*i)]-(*DataSet.Frames[n])[1048:1053,(128*i):(127+128*i)])
-;            d = median(del)
-;            val = median( (*DataSet.Frames[n])[994:1023,(128*i):(127+128*i)] )
-;            if ( (abs(d) lt maxdiff) and (abs(val/d) lt 4.0)  ) then begin
-            d[0] = median((*DataSet.Frames[n])[0:1023,(0+128*i):(127+128*i)]-(*DataSet.Frames[n])[0:1023,(128+128*i):(255+128*i)])
-            print, ' lower left, i =', i, ' delta =', d[0]
-            if ( abs(d[0]) lt maxdiff ) then begin
-                (*DataSet.Frames[n])[0:1023,0:(127+128*i)] = (*DataSet.Frames[n])[0:1023,0:(127+128*i)] - d[0]
-                del_lower = del_lower + d[0]
-                num_lower = num_lower + 1.0
-            end
+            ; Measure the boundaries between neighboring channels
+            tmp= ((*DataSet.Frames[n])[0:1023,(128*i+127)]-(*DataSet.Frames[n])[0:1023,(128*i+129)])
+            loc = where ( abs(tmp) lt 3.0*maxdiff )
+            del[0] = median( tmp[loc] )
+            tmp= ((*DataSet.Frames[n])[0:1023,(128*i+126)]-(*DataSet.Frames[n])[0:1023,(128*i+128)])
+            loc = where ( abs(tmp) lt 3.0*maxdiff )
+            del[1] = median( tmp[loc] )
+            tmp= ((*DataSet.Frames[n])[0:1023,(128*i+125)]-(*DataSet.Frames[n])[0:1023,(128*i+131)])
+            loc = where ( abs(tmp) lt 3.0*maxdiff )
+            del[2] = median( tmp[loc] )
+            tmp= ((*DataSet.Frames[n])[0:1023,(128*i+124)]-(*DataSet.Frames[n])[0:1023,(128*i+130)])
+            loc = where ( abs(tmp) lt 3.0*maxdiff )
+            del[3] = median( tmp[loc] )
+            tmp= ((*DataSet.Frames[n])[0:1023,(128*i+123)]-(*DataSet.Frames[n])[0:1023,(128*i+133)])
+            loc = where ( abs(tmp) lt 3.0*maxdiff )
+            del[4] = median( tmp[loc] )
+            bound[i] = median(del)
+        end
+        for i = 0, 7 do begin
+            ; Measure the end boundaries.
+            tmp=((*DataSet.Frames[n])[1018:1023,(128*i):(127+128*i)]-(*DataSet.Frames[n])[1024:1029,(128*i):(127+128*i)])
+            loc = where ( abs(tmp) lt 3.0*maxdiff )
+            del[0] = median( tmp[loc] )
+            tmp=((*DataSet.Frames[n])[1012:1017,(128*i):(127+128*i)]-(*DataSet.Frames[n])[1030:1035,(128*i):(127+128*i)])
+            loc = where ( abs(tmp) lt 3.0*maxdiff )
+            del[1] = median( tmp[loc] )
+            tmp=((*DataSet.Frames[n])[1006:1011,(128*i):(127+128*i)]-(*DataSet.Frames[n])[1036:1041,(128*i):(127+128*i)])
+            loc = where ( abs(tmp) lt 3.0*maxdiff )
+            del[2] = median( tmp[loc] )
+            tmp=((*DataSet.Frames[n])[1000:1005,(128*i):(127+128*i)]-(*DataSet.Frames[n])[1042:1047,(128*i):(127+128*i)])
+            loc = where ( abs(tmp) lt 3.0*maxdiff )
+            del[3] = median( tmp[loc] )
+            tmp=((*DataSet.Frames[n])[994:999,(128*i):(127+128*i)]-(*DataSet.Frames[n])[1048:1053,(128*i):(127+128*i)])
+            loc = where ( abs(tmp) lt 3.0*maxdiff )
+            del[4] = median( tmp[loc] )
+            ends[i] = median(del)
+        end
+        shift = fltarr(8)
+        for i = 1, 6 do begin
+            s1 = ends[i]
+            s2 = ends[i-1] - bound[i-1]
+            s3 = bound[i] - ends[i+1]
+            a1 = abs(s1)
+            a2 = abs(s2)
+            a3 = abs(s3)
+            if ( (a1 lt a2) and (a1 lt a3) ) then shift[i] = s1 $
+            else if ( a2 lt a3 ) then shift[i] = s2 $
+            else shift[i] = s3
+        end
+        s1 = ends[0]
+        s3 = bound[0] - ends[1]
+        if ( abs(s1) lt abs(s3) ) then shift[0] = s1 $
+        else shift[0]= s3
 
+        s1 = ends[7]
+        s2 = ends[6] - bound[6]
+        if ( abs(s1) lt abs(s2) ) then shift[7] = s1 $
+        else shift[7]= s2
 
-          ; upper right - check the ends with the
-          ;    left quadrant so spectra
-          ;    aren't compared.
-;            del[0]=median((*DataSet.Frames[n])[1024:1029,(1024+128*i):(1151+128*i)]-(*DataSet.Frames[n])[1018:1023,(1024+128*i):(1151+128*i)])
-;            del[1]=median((*DataSet.Frames[n])[1030:1035,(1024+128*i):(1151+128*i)]-(*DataSet.Frames[n])[1012:1017,(1024+128*i):(1151+128*i)])
-;            del[2]=median((*DataSet.Frames[n])[1036:1041,(1024+128*i):(1151+128*i)]-(*DataSet.Frames[n])[1006:1011,(1024+128*i):(1151+128*i)])
-;            del[3]=median((*DataSet.Frames[n])[1042:1047,(1024+128*i):(1151+128*i)]-(*DataSet.Frames[n])[1000:1005,(1024+128*i):(1151+128*i)])
-;            del[4]=median((*DataSet.Frames[n])[1048:1053,(1024+128*i):(1151+128*i)]-(*DataSet.Frames[n])[994:999,(1024+128*i):(1151+128*i)])
-;            d = median(del)
-            d[0] = median((*DataSet.Frames[n])[1024:2047,(1024+128*i):(1151+128*i)]-(*DataSet.Frames[n])[1024:2047,(1152+128*i):(1279+128*i)])
+        for i = 0, 7 do begin
+            if ( shift[i] le maxdiff ) then $
+              (*DataSet.Frames[n])[0:1023,(128*i):(128*i+127)] = (*DataSet.Frames[n])[0:1023,(128*i):(128*i+127)] - shift[i]
+        end
+        
+
+   ;********************************************
+   ; channels within the upper right quadrant
+   ;********************************************
+        for i = 0, 6 do begin
+            ; Measure the boundaries between neighboring channels
+            tmp= ((*DataSet.Frames[n])[1024:2047,(128*i+1151)]-(*DataSet.Frames[n])[1024:2047,(128*i+1153)])
+            loc = where ( abs(tmp) lt 3.0*maxdiff )
+            del[0] = median( tmp[loc] )
+            tmp= ((*DataSet.Frames[n])[1024:2047,(128*i+1150)]-(*DataSet.Frames[n])[1024:2047,(128*i+1152)])
+            loc = where ( abs(tmp) lt 3.0*maxdiff )
+            del[1] = median( tmp[loc] )
+            tmp= ((*DataSet.Frames[n])[1024:2047,(128*i+1149)]-(*DataSet.Frames[n])[1024:2047,(128*i+1155)])
+            loc = where ( abs(tmp) lt 3.0*maxdiff )
+            del[2] = median( tmp[loc] )
+            tmp= ((*DataSet.Frames[n])[1024:2047,(128*i+1148)]-(*DataSet.Frames[n])[1024:2047,(128*i+1154)])
+            loc = where ( abs(tmp) lt 3.0*maxdiff )
+            del[3] = median( tmp[loc] )
+            tmp= ((*DataSet.Frames[n])[1024:2047,(128*i+1147)]-(*DataSet.Frames[n])[1024:2047,(128*i+1157)])
+            loc = where ( abs(tmp) lt 3.0*maxdiff )
+            del[4] = median( tmp[loc] )
+            bound[i] = median(del)
+        end
+        for i = 0, 7 do begin
+            ; Measure the end boundaries.
+            tmp=((*DataSet.Frames[n])[1018:1023,(128*i+1024):(1151+128*i)]-(*DataSet.Frames[n])[1024:1029,(128*i+1024):(1151+128*i)])
+            loc = where ( abs(tmp) lt 3.0*maxdiff )
+            del[0] = median( tmp[loc] )
+            tmp=((*DataSet.Frames[n])[1012:1017,(128*i+1024):(1151+128*i)]-(*DataSet.Frames[n])[1030:1035,(128*i+1024):(1151+128*i)])
+            loc = where ( abs(tmp) lt 3.0*maxdiff )
+            del[1] = median( tmp[loc] )
+            tmp=((*DataSet.Frames[n])[1006:1011,(128*i+1024):(1151+128*i)]-(*DataSet.Frames[n])[1036:1041,(128*i+1024):(1151+128*i)])
+            loc = where ( abs(tmp) lt 3.0*maxdiff )
+            del[2] = median( tmp[loc] )
+            tmp=((*DataSet.Frames[n])[1000:1005,(128*i+1024):(1151+128*i)]-(*DataSet.Frames[n])[1042:1047,(128*i+1024):(1151+128*i)])
+            loc = where ( abs(tmp) lt 3.0*maxdiff )
+            del[3] = median( tmp[loc] )
+            tmp=((*DataSet.Frames[n])[994:999,(128*i+1024):(1151+128*i)]-(*DataSet.Frames[n])[1048:1053,(128*i+1024):(1151+128*i)])
+            loc = where ( abs(tmp) lt 3.0*maxdiff )
+            del[4] = median( tmp[loc] )
+            ends[i] = median(del)
+        end
+        shift = fltarr(8)
+        for i = 1, 6 do begin
+            s1 = ends[i]
+            s2 = ends[i-1] - bound[i-1]
+            s3 = bound[i] - ends[i+1]
+            a1 = abs(s1)
+            a2 = abs(s2)
+            a3 = abs(s3)
+            if ( (a1 lt a2) and (a1 lt a3) ) then shift[i] = s1 $
+            else if ( a2 lt a3 ) then shift[i] = s2 $
+            else shift[i] = s3
+        end
+        s1 = ends[0]
+        s3 = bound[0] - ends[1]
+        if ( abs(s1) lt abs(s3) ) then shift[0] = s1 $
+        else shift[0]= s3
+
+        s1 = ends[7]
+        s2 = ends[6] - bound[6]
+        if ( abs(s1) lt abs(s2) ) then shift[7] = s1 $
+        else shift[7]= s2
+
+        for i = 0, 7 do begin
             if ( (jul_date ge 53873.0) and (i eq 0) and (jul_date le 53913.0) ) then begin
-                d[0] = 0
                 (*DataSet.IntAuxFrames[n])[1024:2047,1024:1151]=0 ; Flag the channel as bad
                 print, "Lower channel in upper right quad is marked as bad..."
             end
-;            val = median( (*DataSet.Frames[n])[1024:1053,(1024+128*i):(1151+128*i)] )
-;            if ( (abs(d) lt maxdiff) and (abs(val/d) lt 4.0)  ) then begin
-            print, ' upper right, i =', i, ' delta =', d[0]
-            if ( abs(d[0]) lt maxdiff ) then begin
-                (*DataSet.Frames[n])[1024:2047,1024:(1151+128*i)] = (*DataSet.Frames[n])[1024:2047,1024:(1151+128*i)] - d[0]
-                print, ' upper right, i =', i, ' delta =', d[0]
-                del_upper = del_upper + d[0]
-                num_upper = num_upper + 1.0
-            end
-        end 
+            if ( shift[i] le maxdiff ) then $
+              (*DataSet.Frames[n])[1024:2047,(128*i+1024):(128*i+1151)] = (*DataSet.Frames[n])[1024:2047,(128*i+1024):(128*i+1151)] - shift[i]
+        end
+        
 
-        ; For temporary use, match left and right lower quadrants
-        d[0] = median((*DataSet.Frames[n])[1019:1023,0:1023]-(*DataSet.Frames[n])[1024:1028,0:1023])
+
+
+        ; match lower left and upper left quadrants
+        tmp = ((*DataSet.Frames[n])[1023,0:1023]-(*DataSet.Frames[n])[1024,0:1023])
+        loc = where ( abs(tmp) lt 3.0*maxdiff )
+       ; plot, loc, tmp[loc]
+        del[0] = median( tmp[loc] )
+        tmp = ((*DataSet.Frames[n])[1022,0:1023]-(*DataSet.Frames[n])[1025,0:1023])
+        loc = where ( abs(tmp) lt 3.0*maxdiff )
+        ;oplot, loc, tmp[loc]
+        del[1] = median( tmp[loc] )
+        tmp = ((*DataSet.Frames[n])[1021,0:1023]-(*DataSet.Frames[n])[1026,0:1023])
+        loc = where ( abs(tmp) lt 3.0*maxdiff )
+        ;oplot, loc, tmp[loc]
+        del[2] = median( tmp[loc] )
+        tmp = ((*DataSet.Frames[n])[1020,0:1023]-(*DataSet.Frames[n])[1027,0:1023])
+        loc = where ( abs(tmp) lt 3.0*maxdiff )
+        ;oplot, loc, tmp[loc]
+        del[3] = median( tmp[loc] )
+        tmp = ((*DataSet.Frames[n])[1019,0:1023]-(*DataSet.Frames[n])[1028,0:1023])
+        loc = where ( abs(tmp) lt 3.0*maxdiff )
+        ;oplot, loc, tmp[loc]
+        del[4] = median( tmp[loc] )
+        d[0] = median( del )
+        print, ' lower left to lower right quadrants ', d[0]
         if ( abs(d[0]) lt maxdiff ) then begin
             (*DataSet.Frames[n])[0:1023,0:1023] = (*DataSet.Frames[n])[0:1023,0:1023] - d[0]/2.0
             (*DataSet.Frames[n])[1024:2047,0:1023] = (*DataSet.Frames[n])[1024:2047,0:1023] + d[0]/2.0
         end
 
         ; For temporary use, match left and right upper quadrants
-        d[0] = median((*DataSet.Frames[n])[1019:1023,1024:2047]-(*DataSet.Frames[n])[1024:1028,1024:2047])
+        tmp=((*DataSet.Frames[n])[1023,1024:2047]-(*DataSet.Frames[n])[1024,1024:2047])
+        loc = where ( abs(tmp) lt 3.0*maxdiff )
+        del[0] = median(tmp[loc])
+        tmp=((*DataSet.Frames[n])[1022,1024:2047]-(*DataSet.Frames[n])[1025,1024:2047])
+        loc = where ( abs(tmp) lt 3.0*maxdiff )
+        del[1] = median(tmp[loc])
+        tmp=((*DataSet.Frames[n])[1021,1024:2047]-(*DataSet.Frames[n])[1026,1024:2047])
+        loc = where ( abs(tmp) lt 3.0*maxdiff )
+        del[2] = median(tmp[loc])
+        tmp=((*DataSet.Frames[n])[1020,1024:2047]-(*DataSet.Frames[n])[1027,1024:2047])
+        loc = where ( abs(tmp) lt 3.0*maxdiff )
+        del[3] = median(tmp[loc])
+        tmp=((*DataSet.Frames[n])[1019,1024:2047]-(*DataSet.Frames[n])[1028,1024:2047])
+        loc = where ( abs(tmp) lt 3.0*maxdiff )
+        del[4] = median(tmp[loc])
+        d[0] = median( del )
+        print, ' upper left to lower right quadrants ', d[0]
         if ( abs(d[0]) lt maxdiff ) then begin
             (*DataSet.Frames[n])[0:1023,1024:2047] = (*DataSet.Frames[n])[0:1023,1024:2047] - d[0]/2.0
             (*DataSet.Frames[n])[1024:2047,1024:2047] = (*DataSet.Frames[n])[1024:2047,1024:2047] + d[0]/2.0
         end
 
 
-        ; Match upper and lower quadrants
+        ; Match upper and lower halves
         if ( (jul_date ge 53873.0) and (i eq 0) and (jul_date le 53913.0) ) then begin
-            del[0]=median((*DataSet.Frames[n])[0:1023,1023]-(*DataSet.Frames[n])[0:1023,1025])
-            del[1]=median((*DataSet.Frames[n])[0:1023,1022]-(*DataSet.Frames[n])[0:1023,1026])
-            del[2]=median((*DataSet.Frames[n])[0:1023,1021]-(*DataSet.Frames[n])[0:1023,1027])
-            del[3]=median((*DataSet.Frames[n])[0:1023,1020]-(*DataSet.Frames[n])[0:1023,1028])
-            del[4]=median((*DataSet.Frames[n])[0:1023,1019]-(*DataSet.Frames[n])[0:1023,1029])
+            tmp = (*DataSet.Frames[n])[0:1023,1023]-(*DataSet.Frames[n])[0:1023,1025]
+;            plot, tmp
+            loc = where ( abs(tmp) lt 3.0*maxdiff )
+            del[0]=median(tmp[loc])
+            tmp=((*DataSet.Frames[n])[0:1023,1022]-(*DataSet.Frames[n])[0:1023,1026])
+;            oplot, tmp
+            loc = where ( abs(tmp) lt 3.0*maxdiff )
+            del[1]=median(tmp[loc])
+            tmp=((*DataSet.Frames[n])[0:1023,1021]-(*DataSet.Frames[n])[0:1023,1027])
+;            oplot, tmp
+            loc = where ( abs(tmp) lt 3.0*maxdiff )
+            del[2]=median(tmp[loc])
+            tmp=((*DataSet.Frames[n])[0:1023,1020]-(*DataSet.Frames[n])[0:1023,1028])
+;            oplot, tmp
+            loc = where ( abs(tmp) lt 3.0*maxdiff )
+            del[3]=median(tmp[loc])
+            tmp=((*DataSet.Frames[n])[0:1023,1019]-(*DataSet.Frames[n])[0:1023,1029])
+;            oplot, tmp
+            loc = where ( abs(tmp) lt 3.0*maxdiff )
+            del[4]=median(tmp[loc])
             d[0] = median(del)
             print, ' upper and lower halves, using left side only, delta =', d[0]
         endif else begin
-            del[0]=median((*DataSet.Frames[n])[0:2047,1023]-(*DataSet.Frames[n])[0:2047,1025])
-            del[1]=median((*DataSet.Frames[n])[0:2047,1022]-(*DataSet.Frames[n])[0:2047,1026])
-            del[2]=median((*DataSet.Frames[n])[0:2047,1021]-(*DataSet.Frames[n])[0:2047,1027])
-            del[3]=median((*DataSet.Frames[n])[0:2047,1020]-(*DataSet.Frames[n])[0:2047,1028])
-            del[4]=median((*DataSet.Frames[n])[0:2047,1019]-(*DataSet.Frames[n])[0:2047,1029])
+            tmp=((*DataSet.Frames[n])[0:2047,1023]-(*DataSet.Frames[n])[0:2047,1025])
+            loc = where ( abs(tmp) lt 3.0*maxdiff )
+;            plot, loc, tmp[loc]
+            del[0]=median(tmp[loc])
+            tmp=((*DataSet.Frames[n])[0:2047,1022]-(*DataSet.Frames[n])[0:2047,1026])
+;            oplot, loc, tmp[loc]
+            loc = where ( abs(tmp) lt 3.0*maxdiff )
+            del[1]=median(tmp[loc])
+            tmp=((*DataSet.Frames[n])[0:2047,1021]-(*DataSet.Frames[n])[0:2047,1027])
+;            oplot, loc, tmp[loc]
+            loc = where ( abs(tmp) lt 3.0*maxdiff )
+            del[2]=median(tmp[loc])
+            tmp=((*DataSet.Frames[n])[0:2047,1020]-(*DataSet.Frames[n])[0:2047,1028])
+;            oplot, loc, tmp[loc]
+            loc = where ( abs(tmp) lt 3.0*maxdiff )
+            del[3]=median(tmp[loc])
+            tmp=((*DataSet.Frames[n])[0:2047,1019]-(*DataSet.Frames[n])[0:2047,1029])
+;            oplot, loc, tmp[loc]
+            loc = where ( abs(tmp) lt 3.0*maxdiff )
+            del[4]=median(tmp[loc])
             d[0] = median(del)
             print, ' upper and lower halves, using left side only, delta =', d[0]
         end
@@ -214,8 +414,10 @@ FUNCTION adjchan_000, DataSet, Modules, Backbone
 ;        if ( num_lower gt 0.0 ) then del_lower = del_lower / num_lower
 ;        print, ' del_upper ', del_upper, ' del_lower =', del_lower
 ;        if ( abs(d) lt 3.0*abs(del_lower - del_upper) ) then begin 
-        (*DataSet.Frames[n])[0:2047,0:1023] = (*DataSet.Frames[n])[0:2047,0:1023] - d[0]/2.0
-        (*DataSet.Frames[n])[0:2047,1024:2047] = (*DataSet.Frames[n])[0:2047,1024:2047] + d[0]/2.0
+        if ( abs(d[0]) lt maxdiff ) then begin
+            (*DataSet.Frames[n])[0:2047,0:1023] = (*DataSet.Frames[n])[0:2047,0:1023] - d[0]/2.0
+            (*DataSet.Frames[n])[0:2047,1024:2047] = (*DataSet.Frames[n])[0:2047,1024:2047] + d[0]/2.0
+        end
 ;        endif else begin
 ;            (*DataSet.Frames[n])[0:2047,0:1023] = (*DataSet.Frames[n])[0:2047,0:1023] + del_lower
 ;            (*DataSet.Frames[n])[0:2047,1024:2047] = (*DataSet.Frames[n])[0:2047,1024:2047] + del_upper
