@@ -194,6 +194,7 @@
     <Module Name="Make Dark Frame" IDLFunc="makedarkfr_000" Order="0"></Module>
     <Module Name="Setup Rectification Matrix Frames from Scan" IDLFunc="srtrectdat_000"></Module>
     <Module Name="Subtract Dark Frame" IDLFunc="subtradark_000"></Module>
+    <Module Name="Subtract Frame" IDLFunc="subtradark_000"></Module>
     <Module Name="Remove Crosstalk" IDLFunc="rmcrosstalk_000"></Module> 
     <Module Name="Adjust Channel Levels" IDLFunc="adjchan_000"></Module>
     <Module Name="Extract Line Emission" IDLFunc="linext_000"></Module>
@@ -229,6 +230,7 @@
   <ARP_SPEC>
     <Module Name="Determine Mosaic Positions" IDLFunc="mosaicdpos_000"></Module>
     <Module Name="Subtract Dark Frame" IDLFunc="subtradark_000"></Module>
+    <Module Name="Subtract Frame" IDLFunc="subtradark_000"></Module>
     <Module Name="Subtract Sky" IDLFunc="subtracsky_000" Order="0"></Module>
     <Module Name="Remove Crosstalk" IDLFunc="rmcrosstalk_000"></Module> 
     <Module Name="Adjust Channel Levels" IDLFunc="adjchan_000"></Module>
@@ -268,6 +270,7 @@
   <SRP_SPEC>
     <Module Name="Determine Mosaic Positions" IDLFunc="mosaicdpos_000"></Module>
     <Module Name="Subtract Dark Frame" IDLFunc="subtradark_000"></Module>
+    <Module Name="Subtract Frame" IDLFunc="subtradark_000"></Module>
     <Module Name="Subtract Sky" IDLFunc="subtracsky_000" Order="0"></Module>
     <Module Name="Remove Crosstalk" IDLFunc="rmcrosstalk_000"></Module> 
     <Module Name="Adjust Channel Levels" IDLFunc="adjchan_000"></Module>
@@ -325,6 +328,7 @@
   <ORP_SPEC>
     <Module Name="Determine Mosaic Positions" IDLFunc="mosaicdpos_000"></Module>
     <Module Name="Subtract Dark Frame" IDLFunc="subtradark_000"></Module>
+    <Module Name="Subtract Frame" IDLFunc="subtradark_000"></Module>
     <Module Name="Subtract Sky" IDLFunc="subtracsky_000" Order="0"></Module>
     <Module Name="Remove Crosstalk" IDLFunc="rmcrosstalk_000"></Module> 
     <Module Name="Adjust Channel Levels" IDLFunc="adjchan_000"></Module>
@@ -359,6 +363,7 @@
     <Module Name='Determine Spectral Resolution' IDLFunc='detspecres_000'></Module>
   </ORP_SPEC>
   <ORP_IMAG>
+    <Module Name="Subtract Frame" IDLFunc="subtradark_000"></Module>
     <Module Name="Subtract Sky" IDLFunc="subtracsky_000" Order="0"></Module>
     <Module Name="Divide by Flat Field" IDLFunc="divideflat_000" Order="1"></Module>
     <Module Name="Interpolate 1d" IDLFunc="interponed_000" Order="2"></Module>
