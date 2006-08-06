@@ -238,6 +238,7 @@
     <Module Name="Clean Cosmic Rays" IDLFunc="cleancosmic_000"></Module>
     <Module Name="Combine Frames" IDLFunc="combframes_000"></Module>
     <Module Name="Extract Line Emission" IDLFunc="linext_000"></Module>
+    <Module Name="Extract Spectra" IDLFunc="spatrectif_000" Order="1"></Module>
     <Module Name="Spatially Rectify Spectrum" IDLFunc="spatrectif_000" Order="1"></Module>
     <Module Name="Assemble Data Cube" IDLFunc="assembcube_000"></Module>
     <Module Name="Divide by Flat Field" IDLFunc="divideflat_000" Order="3"></Module>
@@ -278,6 +279,7 @@
     <Module Name="Clean Cosmic Rays" IDLFunc="cleancosmic_000"></Module>
     <Module Name="Combine Frames" IDLFunc="combframes_000"></Module>
     <Module Name="Extract Line Emission" IDLFunc="linext_000"></Module>
+    <Module Name="Extract Spectra" IDLFunc="spatrectif_000" Order="1"></Module>
     <Module Name="Spatially Rectify Spectrum" IDLFunc="spatrectif_000" Order="1"></Module>
     <Module Name="Assemble Data Cube" IDLFunc="assembcube_000"></Module>
     <Module Name="Divide by Flat Field" IDLFunc="divideflat_000" Order="3"></Module>
@@ -336,6 +338,7 @@
     <Module Name="Clean Cosmic Rays" IDLFunc="cleancosmic_000"></Module>
     <Module Name="Combine Frames" IDLFunc="combframes_000"></Module>
     <Module Name="Extract Line Emission" IDLFunc="linext_000"></Module>
+    <Module Name="Extract Spectra" IDLFunc="spatrectif_000" Order="1"></Module>
     <Module Name="Spatially Rectify Spectrum" IDLFunc="spatrectif_000" Order="1"></Module>
     <Module Name="Assemble Data Cube" IDLFunc="assembcube_000"></Module>
     <Module Name="Divide by Flat Field" IDLFunc="divideflat_000" Order="3"></Module>
