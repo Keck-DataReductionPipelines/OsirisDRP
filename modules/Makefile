@@ -37,6 +37,7 @@ RELPRO   = adjchan_000.pro \
 	   calibrflux_000.pro \
 	   calibrwave_000.pro \
 	   cleancosmic_000.pro \
+	   cleancube_000.pro \
 	   cleannoise_000.pro \
 	   cleanpsf___000.pro \
            combframes_000.pro \
