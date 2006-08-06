@@ -1,3 +1,5 @@
+setenv OSIRIS_ROOT $KROOT/kss/osiris/drs
+
 # Location of data files
 setenv OSIRIS_DRP_DATA_PATH $KROOT/rel/default/data/
 
@@ -11,6 +13,8 @@ setenv OSIRIS_DRP_DEFAULTLOGDIR /net/napilip/kroot/data/osiris/logs/drp/
 # This is where the backbone IDL code looks for the shared libraries that
 # implement C code called by the IDL code.
 setenv OSIRIS_DRP_EXTERNAL_LIB_DIR $KROOT/rel/default/lib
+
+setenv OSIRIS_BACKBONE_DIR $KROOT/rel/default/idl/odrs/backbone
 
 # Set the default for DRFs held in common, i.e., not generated for the user
 # based on data acquired for the user.  This mostly means test DRFs as well
