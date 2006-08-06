@@ -20,4 +20,6 @@ setenv OSIRIS_BACKBONE_DIR $OSIRIS_ROOT/backbone
 
 # Specify where the configuration filename is stored. This file just
 # contains the real name of the configuration file.
-setenv OSIRIS_DRP_CONFIG_FILE $OSIRIS_ROOT/backbone/SupportFiles/local_osiris/DRPConfigFile
+setenv OSIRIS_DRP_CONFIG_FILE $OSIRIS_ROOT/backbone/SupportFiles/local_osirisDRPConfigFile
+
+setenv OSIRIS_IDL_BASE $OSIRIS_ROOT
