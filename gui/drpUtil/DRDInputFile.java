@@ -16,9 +16,11 @@ import java.text.DecimalFormat;
  */
 
 public class DRDInputFile {
-  public String filter;
-  public String scale;
-  public File myFile;
+  private String filter;
+  private String scale;
+  private File myFile;
+  private Header header;
+  
   public DRDInputFile(File file) throws DRDException, IOException, TruncatedFileException {
     myFile=file;
     validateFile();
@@ -27,11 +29,11 @@ public class DRDInputFile {
     //. make sure file is OSIRIS spec file
     //. get filter and scale
     BufferedFile bf = new BufferedFile(myFile.getAbsolutePath());
-    Header hdr = Header.readHeader(bf);
-    filter = hdr.getStringValue("SFILTER");
+    header = Header.readHeader(bf);
+    filter = header.getStringValue("SFILTER");
     if (filter == null)
       throw new DRDException("Error opening FITS file.  SFILTER keyword not found.");
-   String sv = hdr.getStringValue("SSCALE");
+   String sv = header.getStringValue("SSCALE");
     if (sv == null)
       throw new DRDException("Error opening FITS file.  SSCALE keyword not found.");
     // This value may have the form "0.nXX"  where there may or may not be
@@ -54,5 +56,8 @@ public class DRDInputFile {
   }
   public String getDirectory() {
     return myFile.getParent();
+  }
+  public Header getHeader() {
+  	return header;
   }
 }
