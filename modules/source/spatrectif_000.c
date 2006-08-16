@@ -311,7 +311,7 @@ int spatrectif_000(int argc, void* argv[])
     {
       ci = c_image[i];
       for (sp=0; sp<numspec; sp++)
-	image[sp][i]=ci[sp];
+	image[sp][i]=ci[sp]/1.28;  // Dividing by 1.28 for an overall normalization
     }
 
   // updating noise frame!!
