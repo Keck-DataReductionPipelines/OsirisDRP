@@ -10,7 +10,7 @@
     <fits FileName="find_file_current" />
   </dataset>
   <module
-     Name="Subtract Dark Frame"
+     Name="Subtract Frame"
      CalibrationFile="find_file_specify_file"
   />
   <module 
@@ -21,16 +21,15 @@
      Name="Glitch Identification" 
      CalibrationFile="find_file_none"
   />
+  <module Name="Clean Cosmic Rays" 
+     CalibrationFile="find_file_none"
+  />
   <module
-     Name="Spatially Rectify Spectrum"
+     Name="Extract Spectra"
      CalibrationFile="find_file_most_recent"
   />
   <module Name="Assemble Data Cube" 
      CalibrationFile="find_file_none"
-  />
-  <module Name="Clean Cosmic Rays" 
-     CalibrationFile="find_file_none"
-     Skip="1"
   />
   <module 
      Name="Save DataSet Information"
