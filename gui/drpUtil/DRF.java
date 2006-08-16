@@ -3,6 +3,7 @@ package edu.ucla.astro.osiris.drp.util;
 import org.jdom.*;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Iterator;
 import org.jdom.output.XMLOutputter;
@@ -49,7 +50,7 @@ public class DRF {
     if (workingAtt == null) {
       //. for now, support no version, just use default
       //. throw new JDOMException("DRF must have version attribute tag.");
-      drfVersion=defaultVersion;
+    	drfVersion=defaultVersion;
     } else
       drfVersion=workingAtt.getDoubleValue();
 
@@ -88,25 +89,25 @@ public class DRF {
             //. get OutputDir attribute
 	    workingAtt=currentRootChild.getAttribute("OutputDir");
 	    if (workingAtt != null)
-              workingDRD.setDatasetOutputDir(workingAtt.getValue());
+	    	workingDRD.setDatasetOutputDir(workingAtt.getValue());
 
-            //. get dataset children elements
-            List datasetElements = currentRootChild.getChildren();
-            //. loop through them
-            for (Iterator i2 = datasetElements.iterator(); i2.hasNext(); ) {
-              //. get current dataset child element
-              Element currentDatasetChild = (Element)i2.next();
-              //. get name of element
-              String datasetChildName = currentDatasetChild.getName();
+	    //. get dataset children elements
+      List datasetElements = currentRootChild.getChildren();
+      //. loop through them
+      for (Iterator i2 = datasetElements.iterator(); i2.hasNext(); ) {
+      	//. get current dataset child element
+        Element currentDatasetChild = (Element)i2.next();
+        //. get name of element
+        String datasetChildName = currentDatasetChild.getName();
 
-              //. make sure it is a fits tag
-              if ("fits".equals(currentDatasetChild.getName())) {
-                //. get fits filename
-                workingAtt = currentDatasetChild.getAttribute("FileName");
-                if (workingAtt != null)
-		  workingDRD.getDatasetFitsFileList().add(workingAtt.getValue());
-              } //. end if name is fits
-            }  //. end for loop over dataset children
+        //. make sure it is a fits tag
+        if ("fits".equals(currentDatasetChild.getName())) {
+        	//. get fits filename
+        	workingAtt = currentDatasetChild.getAttribute("FileName");
+          if (workingAtt != null)
+          	workingDRD.getDatasetFitsFileList().add(workingAtt.getValue());
+        } //. end if name is fits
+      }  //. end for loop over dataset children
 	  } //. end if dataset tag
 
 	  else if ("module".equals(rootChildName)) {
@@ -139,10 +140,53 @@ public class DRF {
 
 	    //. add module to list
 	    workingDRD.getModuleList().add(workingModule);
-          }  //. end if module tag
+	  }  //. end if module tag
+	  else if ("update".equals(rootChildName)) {
+	    //. get DatasetNumber
+	    workingAtt =  currentRootChild.getAttribute("DataSetNumber");
+	    if (workingAtt != null)
+	      workingDRD.setUpdateDatasetNumber(workingAtt.getIntValue());
+	    //. get HeaderNumber
+	    workingAtt =  currentRootChild.getAttribute("HeaderNumber");
+	    if (workingAtt != null)
+	      workingDRD.setUpdateHeaderNumber(workingAtt.getIntValue());
+
+	    //. get update children elements
+      List updateElements = currentRootChild.getChildren();
+      //. loop through them
+      for (Iterator i3 = updateElements.iterator(); i3.hasNext(); ) {
+      	//. get current update child element
+        Element currentUpdateChild = (Element)i3.next();
+
+        //. make sure it is a updateParameters tag
+        if ("updateParameter".equals(currentUpdateChild.getName())) {
+    	    //. create KeywordUpdateReductionModule
+    	    KeywordUpdateReductionModule workingModule = new KeywordUpdateReductionModule();
+        	//. get keyword name
+        	workingAtt = currentUpdateChild.getAttribute("Keyword");
+          if (workingAtt != null)
+          	workingModule.setKeywordName(workingAtt.getValue());
+        	//. get keyword value
+          workingAtt = currentUpdateChild.getAttribute("KeywordValue");
+          if (workingAtt != null)
+          	workingModule.setKeywordValue(workingAtt.getValue());
+        	//. get keyword comment
+        	workingAtt = currentUpdateChild.getAttribute("KeywordComment");
+          if (workingAtt != null)
+          	workingModule.setKeywordComment(workingAtt.getValue());
+        	//. get keyword datatype
+        	workingAtt = currentUpdateChild.getAttribute("KeywordType");
+          if (workingAtt != null)
+          	workingModule.setKeywordDatatype(workingAtt.getValue());
+
+          //. add module to list
+  		    workingDRD.getKeywordUpdateModuleList().add(workingModule);
+        } //. end if name is updateParameter
+      }  //. end for loop over update children
+	  }  //. end if update tag
         } catch (Exception e) {
-	  //. generic exception handler... should be improved.
-	  throw new JDOMException("Error reading DRF:"+e.getMessage());
+        	//. generic exception handler... should be improved.
+        	throw new JDOMException("Error reading DRF:"+e.getMessage());
         }
       } //. end for loop over root children
     } else {
@@ -187,17 +231,39 @@ public class DRF {
       //. add modules
       java.util.ArrayList moduleList = drd.getModuleList();
       for (Iterator im = moduleList.iterator(); im.hasNext();) {
-	ReductionModule currentModule = (ReductionModule)im.next();
-	currentElement = new Element("module");
-	currentElement.setAttribute("CalibrationFile", currentModule.getCalibrationFile());
-	currentElement.setAttribute("Name", currentModule.getName());
-	currentElement.setAttribute("OutputDir", currentModule.getOutputDir());
-	currentElement.setAttribute("Save", currentModule.doSaveOutput() ? "1" : "0");
-	currentElement.setAttribute("SaveOnErr", currentModule.doSaveOnError() ? "1" : "0");
-	currentElement.setAttribute("Skip", currentModule.doSkip() ? "1" : "0");
+      	ReductionModule currentModule = (ReductionModule)im.next();
+      	currentElement = new Element("module");
+      	currentElement.setAttribute("CalibrationFile", currentModule.getCalibrationFile());
+      	currentElement.setAttribute("Name", currentModule.getName());
+      	currentElement.setAttribute("OutputDir", currentModule.getOutputDir());
+      	currentElement.setAttribute("Save", currentModule.doSaveOutput() ? "1" : "0");
+      	currentElement.setAttribute("SaveOnErr", currentModule.doSaveOnError() ? "1" : "0");
+      	currentElement.setAttribute("Skip", currentModule.doSkip() ? "1" : "0");
 
-	root.addContent(currentElement);
+      	root.addContent(currentElement);
       }
+      
+      //. add update
+      ArrayList updateList = drd.getKeywordUpdateModuleList();
+      if (!updateList.isEmpty()) {
+      	Element updateElement = new Element("update");
+      	updateElement.setAttribute("DataSetNumber", Integer.toString(drd.getUpdateDatasetNumber()));
+      	updateElement.setAttribute("HeaderNumber", Integer.toString(drd.getUpdateHeaderNumber()));
+      	for (Iterator iu = updateList.iterator(); iu.hasNext();) {
+      		KeywordUpdateReductionModule currentModule = (KeywordUpdateReductionModule)iu.next();
+      		if (currentModule.getKeywordName().length() > 0) {
+      			currentElement = new Element("updateParameter");
+      			currentElement.setAttribute("Keyword", currentModule.getKeywordName());
+      			currentElement.setAttribute("KeywordValue", currentModule.getKeywordValue());
+      			currentElement.setAttribute("KeywordComment", currentModule.getKeywordComment());
+      			currentElement.setAttribute("KeywordType", currentModule.getKeywordDatatype());
+      		
+      			updateElement.addContent(currentElement);
+      		}
+      	}
+      	root.addContent(updateElement);
+      }
+      
     } else {
       throw new JDOMException("DRF Version "+Double.toString(version)+" not supported.");
     }
