@@ -32,7 +32,8 @@ function save_dataset, DataSet, nFrames, s_OutputDir, s_Ext, DEBUG=DEBUG
           return, error('FAILURE ('+functionName+'): Output filename creation failed.')
 
        if ( strpos(c_File ,'.fits' ) ne -1 ) then $
-          c_File1 = strmid(c_File,0,strlen(c_File)-5)+'_'+strg(i)+'.fits' $
+;          c_File1 = strmid(c_File,0,strlen(c_File)-5)+'_'+strg(i)+'.fits' $
+          c_File1 = strmid(c_File,0,strlen(c_File)-5)+'.fits' $
        else begin 
           warning, 'WARNING('+functionName+'): Filename is not fits compatible. Adding .fits.'
           c_File1 = c_File+'_'+strg(i)+'.fits'
