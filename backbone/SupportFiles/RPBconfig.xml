@@ -172,6 +172,7 @@
     <Module Name="Make Rectification Matrix" IDLFunc="mkrecmatrx_000"></Module>
     <Module Name="Find Bad Pixels from Noise" IDLFunc="badpixnois_000"></Module>
     <Module Name="Clean Noise Frame" IDLFunc="cleannoise_000"></Module>
+    <Module Name="Clean Cube" IDLFunc="cleancube_000"></Module>
     <Module Name="Clean Cosmic Rays" IDLFunc="cleancosmic_000"></Module>
     <Module Name="Save Master Flat Field" IDLFunc="saveflatfi_000"></Module>
   </TEST_DRP>
@@ -180,6 +181,7 @@
     <Module Name="Determine Mosaic Positions" IDLFunc="mosaicdpos_000"></Module>
     <Module Name="Linearize and Correct Pixel" IDLFunc="lineapixel_000" Order="1"></Module>
     <Module Name="Combine Frames" IDLFunc="combframes_000"></Module>
+    <Module Name="Clean Cube" IDLFunc="cleancube_000"></Module>
     <Module Name="Clean Cosmic Rays" IDLFunc="cleancosmic_000"></Module>
     <Module Name="Extract Signal SPEC" IDLFunc="extracsigs_000" Order="2"></Module>
   </TRP_SPEC>
@@ -199,6 +201,7 @@
     <Module Name="Adjust Channel Levels" IDLFunc="adjchan_000"></Module>
     <Module Name="Extract Line Emission" IDLFunc="linext_000"></Module>
     <Module Name="Glitch Identification" IDLFunc="glitchid_000"></Module> 
+    <Module Name="Clean Cube" IDLFunc="cleancube_000"></Module>
     <Module Name="Clean Cosmic Rays" IDLFunc="cleancosmic_000"></Module>
     <Module Name="Combine Frames" IDLFunc="combframes_000"></Module>
     <Module Name="Make Rectification Matrix" IDLFunc="mkrecmatrx_000"></Module>
@@ -235,6 +238,7 @@
     <Module Name="Remove Crosstalk" IDLFunc="rmcrosstalk_000"></Module> 
     <Module Name="Adjust Channel Levels" IDLFunc="adjchan_000"></Module>
     <Module Name="Glitch Identification" IDLFunc="glitchid_000"></Module>
+    <Module Name="Clean Cube" IDLFunc="cleancube_000"></Module>
     <Module Name="Clean Cosmic Rays" IDLFunc="cleancosmic_000"></Module>
     <Module Name="Combine Frames" IDLFunc="combframes_000"></Module>
     <Module Name="Extract Line Emission" IDLFunc="linext_000"></Module>
@@ -276,6 +280,7 @@
     <Module Name="Remove Crosstalk" IDLFunc="rmcrosstalk_000"></Module> 
     <Module Name="Adjust Channel Levels" IDLFunc="adjchan_000"></Module>
     <Module Name="Glitch Identification" IDLFunc="glitchid_000"></Module>
+    <Module Name="Clean Cube" IDLFunc="cleancube_000"></Module>
     <Module Name="Clean Cosmic Rays" IDLFunc="cleancosmic_000"></Module>
     <Module Name="Combine Frames" IDLFunc="combframes_000"></Module>
     <Module Name="Extract Line Emission" IDLFunc="linext_000"></Module>
@@ -335,6 +340,7 @@
     <Module Name="Remove Crosstalk" IDLFunc="rmcrosstalk_000"></Module> 
     <Module Name="Adjust Channel Levels" IDLFunc="adjchan_000"></Module>
     <Module Name="Glitch Identification" IDLFunc="glitchid_000"></Module>
+    <Module Name="Clean Cube" IDLFunc="cleancube_000"></Module>
     <Module Name="Clean Cosmic Rays" IDLFunc="cleancosmic_000"></Module>
     <Module Name="Combine Frames" IDLFunc="combframes_000"></Module>
     <Module Name="Extract Line Emission" IDLFunc="linext_000"></Module>
