@@ -73,6 +73,8 @@ DIRS = templates
 FILES = \
 	ODRFGUIParameters.class \
 	ReductionModuleListTableModel.class \
+        UpdateModuleListTableModel.class \
+        KeywordUpdateModuleDefinitionDialog.class \
 	ODRFGUIModel.class \
 	ODRFGUIFrame.class \
 	ODRFGUIApplication.class \
