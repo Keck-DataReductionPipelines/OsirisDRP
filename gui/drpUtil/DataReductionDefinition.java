@@ -23,6 +23,9 @@ public class DataReductionDefinition {
     datasetOutputDir = "";
     datasetFitsFileList = new ArrayList();
     moduleList = new ArrayList();
+    updateDatasetNumber = 0;
+    updateHeaderNumber = -1;
+    keywordUpdateModuleList = new ArrayList();
   }
   public DataReductionDefinition(DataReductionDefinition drd) {
     logPath = drd.getLogPath();
@@ -31,6 +34,9 @@ public class DataReductionDefinition {
     datasetName = drd.getDatasetName();
     datasetOutputDir = drd.getDatasetOutputDir();
     datasetFitsFileList = new ArrayList();
+		updateDatasetNumber = drd.getUpdateDatasetNumber();
+		updateHeaderNumber = drd.getUpdateHeaderNumber();
+
     for (Iterator ii = drd.getDatasetFitsFileList().iterator(); ii.hasNext();) {
       datasetFitsFileList.add(ii.next());
     }
@@ -38,15 +44,30 @@ public class DataReductionDefinition {
     for (Iterator jj = drd.getModuleList().iterator(); jj.hasNext();) {
       moduleList.add(new ReductionModule((ReductionModule)jj.next()));
     }
+    keywordUpdateModuleList = new ArrayList();
+    for (Iterator jj = drd.getKeywordUpdateModuleList().iterator(); jj.hasNext();) {
+      keywordUpdateModuleList.add(new KeywordUpdateReductionModule((KeywordUpdateReductionModule)jj.next()));
+    }
   }
-  private String logPath;
   private transient PropertyChangeSupport propertyChangeListeners = new PropertyChangeSupport(this);
+  private String logPath;
   private String reductionType;
   private String datasetInputDir;
   private String datasetName;
   private String datasetOutputDir;
   private ArrayList datasetFitsFileList;
   private ArrayList moduleList;
+  private ArrayList keywordUpdateModuleList;
+	private int updateDatasetNumber;
+	private int updateHeaderNumber;
+	
+  public synchronized void removePropertyChangeListener(PropertyChangeListener l) {
+    propertyChangeListeners.removePropertyChangeListener(l);
+  }
+  public synchronized void addPropertyChangeListener(PropertyChangeListener l) {
+    propertyChangeListeners.addPropertyChangeListener(l);
+  }
+
   public String getLogPath() {
     return logPath;
   }
@@ -54,12 +75,6 @@ public class DataReductionDefinition {
     String  oldLogPath = this.logPath;
     this.logPath = logPath;
     propertyChangeListeners.firePropertyChange("logPath", oldLogPath, logPath);
-  }
-  public synchronized void removePropertyChangeListener(PropertyChangeListener l) {
-    propertyChangeListeners.removePropertyChangeListener(l);
-  }
-  public synchronized void addPropertyChangeListener(PropertyChangeListener l) {
-    propertyChangeListeners.addPropertyChangeListener(l);
   }
   public void setReductionType(String reductionType) {
     String  oldReductionType = this.reductionType;
@@ -109,4 +124,28 @@ public class DataReductionDefinition {
   public ArrayList getModuleList() {
     return moduleList;
   }
+  public void setKeywordUpdateModuleList(ArrayList keywordUpdateModuleList) {
+    ArrayList  oldKeywordUpdateModuleList = this.keywordUpdateModuleList;
+    this.keywordUpdateModuleList = keywordUpdateModuleList;
+    propertyChangeListeners.firePropertyChange("keywordUpdateModuleList", oldKeywordUpdateModuleList, keywordUpdateModuleList);
+  }
+  public ArrayList getKeywordUpdateModuleList() {
+    return keywordUpdateModuleList;
+  }
+	public void setUpdateDatasetNumber(int updateDatasetNumber) {
+		int oldUpdateDatasetNumber = this.updateDatasetNumber;
+		this.updateDatasetNumber = updateDatasetNumber;
+		propertyChangeListeners.firePropertyChange("updateDatasetNumber", oldUpdateDatasetNumber, updateDatasetNumber);
+	}
+	public int getUpdateDatasetNumber() {
+		return updateDatasetNumber;
+	}
+	public void setUpdateHeaderNumber(int updateHeaderNumber) {
+		int oldUpdateHeaderNumber = this.updateHeaderNumber;
+		this.updateHeaderNumber = updateHeaderNumber;
+		propertyChangeListeners.firePropertyChange("updateHeaderNumber", oldUpdateHeaderNumber, updateHeaderNumber);
+	}
+	public int getUpdateHeaderNumber() {
+		return updateHeaderNumber;
+	}
 }
