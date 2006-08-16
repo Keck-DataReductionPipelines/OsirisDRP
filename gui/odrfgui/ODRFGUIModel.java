@@ -21,6 +21,7 @@ public class ODRFGUIModel extends GenericModel {
   private ArrayList crpReductionModuleList = new ArrayList();
   private ArrayList orpReductionModuleList = new ArrayList();
   private ArrayList activeModuleList;
+  private ArrayList availableModuleList;
   private ArrayList reductionTemplates;
   private String reductionType;
   private String workingFilter = "None";
@@ -34,7 +35,8 @@ public class ODRFGUIModel extends GenericModel {
   private boolean automaticallyGenerateDatasetName;
   private File queueDir;
   private int queueNumber;
-
+  private ArrayList updateKeywordModuleList = new ArrayList();
+  
   public ODRFGUIModel() throws java.io.IOException, org.jdom.JDOMException {
     inputDir = ODRFGUIParameters.DEFAULT_INPUT_DIR;
     outputDir = ODRFGUIParameters.DEFAULT_OUTPUT_DIR;
@@ -47,19 +49,20 @@ public class ODRFGUIModel extends GenericModel {
     //. open up rpbconfig file and populate module lists
     openRPBConfig(ODRFGUIParameters.OSIRIS_DRP_BACKBONE_CONFIG_FILE);
     //. complete module definitions
-    resetModuleList(arpReductionModuleList);
-    resetModuleList(orpReductionModuleList);
-    resetModuleList(srpReductionModuleList);
-    resetModuleList(crpReductionModuleList);
+    initializeModuleList(arpReductionModuleList);
+    initializeModuleList(orpReductionModuleList);
+    initializeModuleList(srpReductionModuleList);
+    initializeModuleList(crpReductionModuleList);
 
     //. set default reduction type
     reductionType = ODRFGUIParameters.DEFAULT_REDUCTION_TYPE;
-    //. set activeModuleList to default
-    resetActiveModuleList();
+    
+    
+    //. set availableModuleList to default
+    resetAvailableModuleList();
 
     //. populate default template list
     setDefaultTemplateList();
-
 
     //. for testing:
     try {
@@ -68,7 +71,7 @@ public class ODRFGUIModel extends GenericModel {
       e.printStackTrace();
     }
   }
-  private void resetActiveModuleList() {
+  private void resetAvailableModuleList() {
     ArrayList list;
     //. set active module list
     if (reductionType.equals(ODRFGUIParameters.REDUCTION_TYPE_CRP_SPEC))
@@ -80,7 +83,7 @@ public class ODRFGUIModel extends GenericModel {
     else
       list = arpReductionModuleList;
 
-    setActiveModuleList(list);
+    setAvailableModuleList(list);
   }
   public void setDefaultTemplateList() {
     ArrayList workingTemplateList = new ArrayList();
@@ -124,7 +127,7 @@ public class ODRFGUIModel extends GenericModel {
       String rootChildName=currentRootChild.getName();
       //. check what kind of reduction definition
       if ("CRP_SPEC".equals(rootChildName)) {
-	list = crpReductionModuleList;
+      	list = crpReductionModuleList;
       } else if ("ARP_SPEC".equals(rootChildName)) {
         list = arpReductionModuleList;
       } else if ("SRP_SPEC".equals(rootChildName)) {
@@ -132,58 +135,40 @@ public class ODRFGUIModel extends GenericModel {
       } else if ("ORP_SPEC".equals(rootChildName)) {
         list = orpReductionModuleList;
       } else {
-	//. if not one of these, skip it
+      	//. if not one of these, skip it
         continue;
       }
       //. get children. should be modules
       List moduleList = currentRootChild.getChildren();
       for (Iterator i2 = moduleList.iterator(); i2.hasNext();) {
-	Element module = (Element)i2.next();
-	//. only worry about module elements
-	if (module.getName().equals("Module")) {
-	  workingAtt=module.getAttribute("Name");
-	  if (workingAtt != null) {
-	    ReductionModule newModule = new ReductionModule();
-	    newModule.setName(workingAtt.getValue());
+      	Element module = (Element)i2.next();
+      	//. only worry about module elements
+      	if (module.getName().equals("Module")) {
+      		workingAtt=module.getAttribute("Name");
+      		if (workingAtt != null) {
+      			ReductionModule newModule = new ReductionModule();
+      			newModule.setName(workingAtt.getValue());
             list.add(newModule);
-	  }
+      		}
         }
       }
     }
   }
-  private void resetModuleList(ArrayList list) {
-    for (Iterator ii = list.iterator(); ii.hasNext();) {
-      resetModule((ReductionModule)ii.next());
-    }
-  }
-  private void resetModule(ReductionModule module) {
-    //. complete module with defaults
-    module.setSkip(true);
-    //. set find file list
-    if (module.getName().equals(ODRFGUIParameters.MODULE_CALIBRATE_WAVELENGTH)) {
-      module.setAllowedFindFileMethods(ODRFGUIParameters.FIND_FILE_CHOICES_MODULE_CALIBRATE_WAVELENGTH);
-    } else if (module.getName().equals(ODRFGUIParameters.MODULE_CORRECT_DISPERSION)) {
-      module.setAllowedFindFileMethods(ODRFGUIParameters.FIND_FILE_CHOICES_MODULE_CORRECT_DISPERSION);
-    } else if (module.getName().equals(ODRFGUIParameters.MODULE_DIVIDE_FLAT)) {
-      module.setAllowedFindFileMethods(ODRFGUIParameters.FIND_FILE_CHOICES_MODULE_DIVIDE_FLAT);
-    } else if (module.getName().equals(ODRFGUIParameters.MODULE_INTERPOLATE_1D)) {
-      module.setAllowedFindFileMethods(ODRFGUIParameters.FIND_FILE_CHOICES_MODULE_INTERPOLATE_1D);
-    } else if (module.getName().equals(ODRFGUIParameters.MODULE_INTERPOLATE_3D)) {
-      module.setAllowedFindFileMethods(ODRFGUIParameters.FIND_FILE_CHOICES_MODULE_INTERPOLATE_3D);
-    } else if (module.getName().equals(ODRFGUIParameters.MODULE_SPATIALLY_RECTIFY)) {
-      module.setAllowedFindFileMethods(ODRFGUIParameters.FIND_FILE_CHOICES_MODULE_SPATIALLY_RECTIFY);
-    } else if (module.getName().equals(ODRFGUIParameters.MODULE_SUBTRACT_DARK)) {
-      module.setAllowedFindFileMethods(ODRFGUIParameters.FIND_FILE_CHOICES_MODULE_SUBTRACT_DARK);
-    } else if (module.getName().equals(ODRFGUIParameters.MODULE_SUBTRACT_SKY)) {
-      module.setAllowedFindFileMethods(ODRFGUIParameters.FIND_FILE_CHOICES_MODULE_SUBTRACT_SKY);
-    } else
-      module.setAllowedFindFileMethods(ODRFGUIParameters.FIND_FILE_CHOICES_NONE);
-
-    module.setFindFileMethod(module.getAllowedFindFileMethods()[0]);
-  }
-
   public ArrayList getInputFileList() {
     return inputFileList;
+  }
+  public void removeInputFiles(int[] indices) {
+  	int ii=0;
+  	if (indices.length > 0) {
+			if (indices[0] >= 0) {
+				if (!inputFileList.isEmpty()) {
+					for (ii=0; ii<indices.length;ii++) {
+						inputFileList.remove(indices[ii]-ii);
+					}					
+					propertyChangeListeners.firePropertyChange("inputFileList", null, inputFileList);
+				}
+			}
+  	}
   }
   public void clearInputFileList() {
     inputFileList = new ArrayList();
@@ -194,52 +179,62 @@ public class ODRFGUIModel extends GenericModel {
   public void addInputFiles(File[] fileList) throws DRDException {
     //. only allow opening of osiris spec frames with same filter and scale
     //. must be from same directory, which is set to inputDir
+  	ArrayList tempInputFileList = (ArrayList)inputFileList.clone();
     for (int ii=0; ii<fileList.length; ii++) {
       try {
         //. create DRFInputFile object which should
-	//.  - validate file
-	//.  - extract filter, scale, etc.
-	DRDInputFile drdFile = new DRDInputFile(fileList[ii]);
-	inputFileList.add(drdFile);
+      	//.  - validate file
+      	//.  - extract filter, scale, etc.
+      	DRDInputFile drdFile = new DRDInputFile(fileList[ii]);
+      	tempInputFileList.add(drdFile);
       } catch (DRDException drdE) {
-	drdE.printStackTrace();
+      	drdE.printStackTrace();
       } catch (TruncatedFileException tfE) {
-	tfE.printStackTrace();
-
+      	tfE.printStackTrace();
       } catch (IOException ioE) {
-	ioE.printStackTrace();
+      	ioE.printStackTrace();
+      	throw new DRDException(ioE.getMessage());
       }
     }
-    if (!inputFileList.isEmpty()) {
-      DRDInputFile tempFile = (DRDInputFile)inputFileList.get(0);
+    
+    if (!tempInputFileList.isEmpty()) {
+      DRDInputFile tempFile = (DRDInputFile)tempInputFileList.get(0);
       String tempInputDir = tempFile.getDirectory();
       String tempScale = tempFile.getScale();
       String tempFilter = tempFile.getFilter();
 
       //. confirm same filter and scale
-      for (Iterator jj=inputFileList.iterator(); jj.hasNext();) {
+      for (Iterator jj=tempInputFileList.iterator(); jj.hasNext();) {
         tempFile = (DRDInputFile)jj.next();
-        if (!tempInputDir.equals(tempFile.getDirectory()))
-	  throw new DRDException("All input files must be from same directory!");
-        if (!tempScale.equals(tempFile.getScale()))
-	  throw new DRDException("All input files must have same scale!");
-        if (!tempFilter.equals(tempFile.getFilter()))
-  	  throw new DRDException("All input files must have same filter!");
+        if (tempInputDir.compareToIgnoreCase(tempFile.getDirectory()) != 0) {
+        	throw new DRDException("All input files must be from same directory!");
+        } 
+        if (tempScale.compareToIgnoreCase(tempFile.getScale()) != 0) {
+        	throw new DRDException("All input files must have same scale!");
+        }
+        if (tempFilter.compareToIgnoreCase(tempFile.getFilter()) != 0) {
+        	throw new DRDException("All input files must have same filter!");
+        }        
       }
       setWorkingFilter(tempFilter);
       setWorkingScale(tempScale);
       setInputDir(new File(tempInputDir));
+      inputFileList = tempInputFileList;
+      
       if (automaticallyGenerateDatasetName)
-	generateDatasetName();
+      	generateDatasetName();
+      
       propertyChangeListeners.firePropertyChange("inputFileList", null, inputFileList);
+      
+      resolveFindFiles();
     }
   }
   public boolean areActiveCalFilesValiated() {
     for (Iterator ii = activeModuleList.iterator(); ii.hasNext();) {
       ReductionModule module = (ReductionModule)ii.next();
       if (!module.doSkip())
-	if (!module.isCalibrationFileValidated())
-	  return false;
+      	if (!module.isCalibrationFileValidated())
+      		return false;
     }
     return true;
   }
@@ -261,10 +256,13 @@ public class ODRFGUIModel extends GenericModel {
 
     addInputFiles(fileList);
 
-    resetActiveModuleList();
+    initializeModuleList(drd.getModuleList());
+    
+    setActiveModuleList(drd.getModuleList());
+    
+    setUpdateKeywordModuleList(drd.getKeywordUpdateModuleList());
 
-    mergeIntoActiveModuleList(drd.getModuleList());
-
+    resolveFindFiles();
   }
   public void writeDRFToQueue() throws java.io.IOException, org.jdom.JDOMException {
     java.text.DecimalFormat threeDigitFormatter = new java.text.DecimalFormat("000");
@@ -314,28 +312,12 @@ public class ODRFGUIModel extends GenericModel {
     
     workingDRD.setModuleList(activeModuleList);
 
+    workingDRD.setKeywordUpdateModuleList(updateKeywordModuleList);
+    
     myDRF.writeDRF(drfFile, workingDRD);
   }
 
-  public void setActiveModuleList(ArrayList activeModuleList) {
-    ArrayList  oldActiveModuleList = this.activeModuleList;
-    this.activeModuleList = activeModuleList;
-    propertyChangeListeners.firePropertyChange("activeModuleList", null, activeModuleList);
-  }
-  public ArrayList getActiveModuleList() {
-    return activeModuleList;
-  }
-  public void setReductionType(String reductionType) {
-    String oldReductionType = this.reductionType;
-    this.reductionType = reductionType;
-    propertyChangeListeners.firePropertyChange("reductionType", oldReductionType, reductionType);
-
-    resetActiveModuleList();
-  }
-  public String getReductionType() {
-    return reductionType;
-  }
-
+ 
   public void setActiveReductionTemplate(int index) throws DRDException {
     setActiveReductionTemplate((ReductionTemplate)reductionTemplates.get(index));
   }
@@ -347,52 +329,135 @@ public class ODRFGUIModel extends GenericModel {
     applyActiveReductionTemplate();
   }
   private void applyActiveReductionTemplate() throws DRDException {
-    DataReductionDefinition drd = activeReductionTemplate.getDRD();
-    ArrayList templateModules = drd.getModuleList();
+  	DataReductionDefinition drd = new DataReductionDefinition(activeReductionTemplate.getDRD());
     //. drd type of template must match active reduction type.
     if (!drd.getReductionType().equals(reductionType)) {
       throw new DRDException("DRF Template reduction type <"+drd.getReductionType()+"> does not match current reduction type <"+reductionType+">.");
     }
-    //. reset active list to defaults
-    resetModuleList(activeModuleList);
+    
+    initializeModuleList(drd.getModuleList());
+    //. set Active List with template and resolve find files
+    setActiveModuleList(drd.getModuleList());
 
-    mergeIntoActiveModuleList(templateModules);
+    resolveFindFiles();
+ 
+    
   }
-  private void mergeIntoActiveModuleList(ArrayList newModuleList) {
+  private void initializeModuleList(ArrayList list) {
     //. go through activeModuleList and set skip and find file
-    for (Iterator ii=activeModuleList.iterator(); ii.hasNext();) {
-      ReductionModule currentRM = (ReductionModule)ii.next();
-      ReductionModule templateRM;
-      if ((templateRM = getReductionModule(newModuleList, currentRM.getName())) != null) {
-	currentRM.setSkip(templateRM.doSkip());
+    for (Iterator ii=list.iterator(); ii.hasNext();) {
+      ReductionModule module = (ReductionModule)ii.next();
+ 
+      if (module.getName().equals(ODRFGUIParameters.MODULE_CALIBRATE_WAVELENGTH)) {
+        module.setAllowedFindFileMethods(ODRFGUIParameters.FIND_FILE_CHOICES_MODULE_CALIBRATE_WAVELENGTH);
+      } else if (module.getName().equals(ODRFGUIParameters.MODULE_CORRECT_DISPERSION)) {
+        module.setAllowedFindFileMethods(ODRFGUIParameters.FIND_FILE_CHOICES_MODULE_CORRECT_DISPERSION);
+      } else if (module.getName().equals(ODRFGUIParameters.MODULE_DIVIDE_FLAT)) {
+        module.setAllowedFindFileMethods(ODRFGUIParameters.FIND_FILE_CHOICES_MODULE_DIVIDE_FLAT);
+      } else if (module.getName().equals(ODRFGUIParameters.MODULE_INTERPOLATE_1D)) {
+        module.setAllowedFindFileMethods(ODRFGUIParameters.FIND_FILE_CHOICES_MODULE_INTERPOLATE_1D);
+      } else if (module.getName().equals(ODRFGUIParameters.MODULE_INTERPOLATE_3D)) {
+        module.setAllowedFindFileMethods(ODRFGUIParameters.FIND_FILE_CHOICES_MODULE_INTERPOLATE_3D);
+      } else if (module.getName().equals(ODRFGUIParameters.MODULE_SPATIALLY_RECTIFY)) {
+        module.setAllowedFindFileMethods(ODRFGUIParameters.FIND_FILE_CHOICES_MODULE_SPATIALLY_RECTIFY);
+      } else if (module.getName().equals(ODRFGUIParameters.MODULE_EXTRACT_SPECTRA)) {
+        module.setAllowedFindFileMethods(ODRFGUIParameters.FIND_FILE_CHOICES_MODULE_EXTRACT_SPECTRA);
+      } else if (module.getName().equals(ODRFGUIParameters.MODULE_SUBTRACT_DARK)) {
+        module.setAllowedFindFileMethods(ODRFGUIParameters.FIND_FILE_CHOICES_MODULE_SUBTRACT_DARK);
+      } else if (module.getName().equals(ODRFGUIParameters.MODULE_SUBTRACT_SKY)) {
+        module.setAllowedFindFileMethods(ODRFGUIParameters.FIND_FILE_CHOICES_MODULE_SUBTRACT_SKY);
+      } else if (module.getName().equals(ODRFGUIParameters.MODULE_SUBTRACT_FRAME)) {
+        module.setAllowedFindFileMethods(ODRFGUIParameters.FIND_FILE_CHOICES_MODULE_SUBTRACT_FRAME);
+      } else
+        module.setAllowedFindFileMethods(ODRFGUIParameters.FIND_FILE_CHOICES_NONE);
 
-	String calFile = templateRM.getCalibrationFile();
-	if (calFile.equals(ODRFGUIParameters.FIND_FILE_MOST_RECENT))
-	  currentRM.setFindFileMethod(ODRFGUIParameters.FIND_FILE_MENU_MOST_RECENT);
-	else if (calFile.equals(ODRFGUIParameters.FIND_FILE_CONSTRUCT_FROM_FILENAME))
-	  currentRM.setFindFileMethod(ODRFGUIParameters.FIND_FILE_MENU_CONSTRUCT_FROM_FILENAME);
-	else if (calFile.equals(ODRFGUIParameters.FIND_FILE_DO_NOT_USE))
-	  currentRM.setFindFileMethod(ODRFGUIParameters.FIND_FILE_MENU_DO_NOT_USE);
-	else if (calFile.equals(ODRFGUIParameters.FIND_FILE_NONE))
-	  currentRM.setFindFileMethod(ODRFGUIParameters.FIND_FILE_MENU_NONE);
-	else if (calFile.equals(ODRFGUIParameters.FIND_FILE_SPECIFY_FILE))
-	  currentRM.setFindFileMethod(ODRFGUIParameters.FIND_FILE_MENU_SPECIFY_FILE);
-	else {
-	  currentRM.setCalibrationFile(calFile);
-	  File tempFile = new File(calFile);
-	  if (tempFile.exists())
-	    currentRM.setCalibrationFileValidated(true);
-	}
+      
+      String calFile = module.getCalibrationFile();
+      if (calFile.length() > 0) {
+      	if (calFile.equals(ODRFGUIParameters.FIND_FILE_MOST_RECENT))
+      		module.setFindFileMethod(ODRFGUIParameters.FIND_FILE_MENU_MOST_RECENT);
+      	else if (calFile.equals(ODRFGUIParameters.FIND_FILE_CONSTRUCT_FROM_FILENAME))
+      		module.setFindFileMethod(ODRFGUIParameters.FIND_FILE_MENU_CONSTRUCT_FROM_FILENAME);
+      	else if (calFile.equals(ODRFGUIParameters.FIND_FILE_DO_NOT_USE))
+      		module.setFindFileMethod(ODRFGUIParameters.FIND_FILE_MENU_DO_NOT_USE);
+      	else if (calFile.equals(ODRFGUIParameters.MODULE_CALFILE_NOT_USED))
+      		module.setFindFileMethod(ODRFGUIParameters.FIND_FILE_MENU_NONE);
+      	else if (calFile.equals(ODRFGUIParameters.FIND_FILE_NONE))
+      		module.setFindFileMethod(ODRFGUIParameters.FIND_FILE_MENU_NONE);
+      	else if (calFile.equals(ODRFGUIParameters.FIND_FILE_SPECIFY_FILE))
+      		module.setFindFileMethod(ODRFGUIParameters.FIND_FILE_MENU_SPECIFY_FILE);
+      	else {
+      		module.setFindFileMethod(ODRFGUIParameters.FIND_FILE_MENU_SPECIFY_FILE);
+      		module.setCalibrationFile(calFile);
+      		File tempFile = new File(calFile);
+      		if (tempFile.exists())
+      			module.setCalibrationFileValidated(true);
+      	}
       }
-    }
-
-    //. if there are input files, resolve find_files
-    if (!inputFileList.isEmpty())
-      resolveFindFiles();
+      if (module.getFindFileMethod().length() == 0) {
+        module.setFindFileMethod(module.getAllowedFindFileMethods()[0]);	
+      }
+    }	
   }
+  private int getIndexForNewModule(ReductionModule newModule) {
+  	int activeIndex=0;
+  	ReductionModule currentAvailModule, currentActiveModule;
+  	if (activeModuleList.isEmpty())
+  		return 0;
+  	for (Iterator iModule = availableModuleList.iterator(); iModule.hasNext();) {
+  		currentAvailModule = (ReductionModule)iModule.next();
+  		currentActiveModule = (ReductionModule)activeModuleList.get(activeIndex);
+  		if (newModule.getName().compareTo(currentActiveModule.getName()) == 0) {
+  			return -1;
+  		} else if (currentActiveModule.getName().compareTo(currentAvailModule.getName()) == 0) {
+  			activeIndex++;
+  		} else if (newModule.getName().compareTo(currentAvailModule.getName()) == 0) {
+  			return activeIndex;
+  		}
+  		if (activeIndex >= activeModuleList.size()) {
+  			return activeIndex;
+  		}
+  	}
+  	return 0;
+  }
+  
+  
+  public void addModuleToActiveList(ReductionModule module) {
+  	//. find index of active module; if module already in active list, just return
+  	int index;
+  	if ((index = getIndexForNewModule(module)) >= 0) {
+  		activeModuleList.add(index, module);
+  		resolveFindFile(index);
+  		propertyChangeListeners.firePropertyChange("activeModuleList", null, activeModuleList);
+  	}
+  }
+
+  public void removeModuleFromActiveList(int index) {
+  	activeModuleList.remove(index);
+		propertyChangeListeners.firePropertyChange("activeModuleList", null, activeModuleList);
+  }
+  public void updateUpdateKeywordModuleList(int index, KeywordUpdateReductionModule module) {
+  	if (index < 0) {
+  		return;
+  	} else if (index >= updateKeywordModuleList.size()) {
+  		updateKeywordModuleList.add(module);
+  	} else {
+  		updateKeywordModuleList.set(index, module);
+  	}
+		propertyChangeListeners.firePropertyChange("updateKeywordModuleList", null, updateKeywordModuleList);
+  }
+  public void removeModuleFromUpdateList(int index) {
+  	updateKeywordModuleList.remove(index);
+		propertyChangeListeners.firePropertyChange("updateKeywordModuleList", null, updateKeywordModuleList);
+  }
+  
   private void resolveFindFiles() {
-    for (Iterator ii=activeModuleList.iterator(); ii.hasNext();)
-      resolveFindFile((ReductionModule)ii.next());
+    //. go through activeModuleList and set skip and find file
+  	if (!inputFileList.isEmpty()) {
+  		for (Iterator ii=activeModuleList.iterator(); ii.hasNext();) {
+  			resolveFindFile((ReductionModule)ii.next());
+  		}
+  	}
   }
   public void resolveFindFile(int index) {
     resolveFindFile((ReductionModule)activeModuleList.get(index));
@@ -409,7 +474,10 @@ public class ODRFGUIModel extends GenericModel {
       String calFileID = "";
       if (moduleName.equals(ODRFGUIParameters.MODULE_SPATIALLY_RECTIFY)) {
         calFileSubdir=ODRFGUIParameters.MODULE_DIR_SPATIALLY_RECTIFY;
-	calFileID = ODRFGUIParameters.MODULE_FILEID_SPATIALLY_RECTIFY;
+        calFileID = ODRFGUIParameters.MODULE_FILEID_SPATIALLY_RECTIFY;
+      } else  if (moduleName.equals(ODRFGUIParameters.MODULE_EXTRACT_SPECTRA)) {
+          calFileSubdir=ODRFGUIParameters.MODULE_DIR_EXTRACT_SPECTRA;
+          calFileID = ODRFGUIParameters.MODULE_FILEID_EXTRACT_SPECTRA;
       } else if (moduleName.equals(ODRFGUIParameters.MODULE_DIVIDE_FLAT)) {
         calFileSubdir=ODRFGUIParameters.MODULE_DIR_DIVIDE_FLAT;
         calFileID=ODRFGUIParameters.MODULE_FILEID_DIVIDE_FLAT;
@@ -447,7 +515,7 @@ public class ODRFGUIModel extends GenericModel {
     for (Iterator ii=moduleList.iterator(); ii.hasNext();) {
       ReductionModule module = (ReductionModule)ii.next();
       if (module.getName().equals(name))
-	return module;
+      	return module;
     }
     return null;
   }
@@ -516,6 +584,41 @@ public class ODRFGUIModel extends GenericModel {
   public ReductionModule getModule(int row) throws IndexOutOfBoundsException {
     return (ReductionModule)activeModuleList.get(row);
   }
+  public void setActiveModuleList(ArrayList activeModuleList) {
+    ArrayList  oldActiveModuleList = this.activeModuleList;
+    this.activeModuleList = activeModuleList;
+    propertyChangeListeners.firePropertyChange("activeModuleList", null, activeModuleList);
+  }
+  public ArrayList getActiveModuleList() {
+    return activeModuleList;
+  }
+  public void setAvailableModuleList(ArrayList availableModuleList) {
+    ArrayList  oldAvailableModuleList = this.availableModuleList;
+    this.availableModuleList = availableModuleList;
+    propertyChangeListeners.firePropertyChange("availableModuleList", null, availableModuleList);
+  }
+  public ArrayList getAvailableModuleList() {
+    return availableModuleList;
+  }
+  public void setUpdateKeywordModuleList(ArrayList updateKeywordModuleList) {
+    ArrayList  oldUpdateKeywordModuleList = this.updateKeywordModuleList;
+    this.updateKeywordModuleList = updateKeywordModuleList;
+    propertyChangeListeners.firePropertyChange("updateKeywordModuleList", null, updateKeywordModuleList);
+  }
+  public ArrayList getUpdateKeywordModuleList() {
+    return updateKeywordModuleList;
+  }
+  public void setReductionType(String reductionType) {
+    String oldReductionType = this.reductionType;
+    this.reductionType = reductionType;
+    propertyChangeListeners.firePropertyChange("reductionType", oldReductionType, reductionType);
+
+    resetAvailableModuleList();
+  }
+  public String getReductionType() {
+    return reductionType;
+  }
+
   public boolean isModuleSkipped(int row) throws IndexOutOfBoundsException {
     ReductionModule module = (ReductionModule)activeModuleList.get(row);
     return module.doSkip();

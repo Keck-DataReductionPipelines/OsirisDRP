@@ -45,13 +45,14 @@ public class ODRFGUIFrame extends JFrame {
   JPanel mainPanel = new JPanel();
   JPanel topPanel = new JPanel();
   JPanel filterScalePanel = new JPanel();
-
-
+  JSplitPane moduleSplitPane = new JSplitPane();
+  JSplitPane updateSplitPane = new JSplitPane();
 
   //. input file list
   JScrollPane inputFileListScrollPane = new JScrollPane();
   JList inputFileList = new JList();
   JButton addInputFilesButton = new JButton();
+  JButton removeInputFilesButton = new JButton();
   JButton clearInputFilesButton = new JButton();
 
 
@@ -84,13 +85,23 @@ public class ODRFGUIFrame extends JFrame {
   JComboBox reductionTemplateComboBox = new JComboBox(ODRFGUIParameters.DEFAULT_REDUCTION_TEMPLATE_LIST);
 
   //. module list
+  JScrollPane availableModulesTableScrollPane = new JScrollPane();
+  JTable availableModulesTable = new JTable();
+  DefaultArrayListTableModel availableModulesTableModel = new DefaultArrayListTableModel();
+  
   JScrollPane reductionModuleTableScrollPane = new JScrollPane();
   JTable reductionModuleTable = new JTable();
   ReductionModuleListTableModel reductionModuleTableModel = new ReductionModuleListTableModel();
 
+  JScrollPane updateModuleTableScrollPane = new JScrollPane();
+  JTable updateModuleTable = new JTable();
+  UpdateModuleListTableModel updateModuleTableModel = new UpdateModuleListTableModel();
+  
 
   JLabel statusBar = new JLabel();
 
+  private KeywordUpdateModuleDefinitionDialog updateDialog;
+  
   private File currentDRFReadPath = ODRFGUIParameters.DRF_READ_PATH;
   private File currentDRFWritePath = ODRFGUIParameters.DRF_WRITE_PATH;
   private File defaultSaveFile;
@@ -114,6 +125,10 @@ public class ODRFGUIFrame extends JFrame {
 
       if ("activeModuleList".equals(propertyName)) {
 	updateViewModuleList((ArrayList)e.getNewValue());
+      } else if ("availableModuleList".equals(propertyName)) {
+  	updateViewAvailableModuleList((ArrayList)e.getNewValue());
+      } else if ("updateKeywordModuleList".equals(propertyName)) {
+      	updateViewUpdateKeywordModuleList((ArrayList)e.getNewValue());
       } else if ("inputFileList".equals(propertyName)) {
 	updateViewInputFileList((ArrayList)e.getNewValue());
       } else if ("activeReductionTemplate".equals(propertyName)) {
@@ -140,7 +155,9 @@ public class ODRFGUIFrame extends JFrame {
 
   //Component initialization
   private void jbInit() throws Exception  {
-    //setIconImage(Toolkit.getDefaultToolkit().createImage(ODRFGUIFrame.class.getResource("[Your Icon]")));
+  	updateDialog = new KeywordUpdateModuleDefinitionDialog(this);
+  	
+  	//setIconImage(Toolkit.getDefaultToolkit().createImage(ODRFGUIFrame.class.getResource("[Your Icon]")));
     this.setSize(ODRFGUIParameters.DIM_MAINFRAME);
     this.setTitle("OSIRIS Data Reduction File GUI");
 
@@ -202,6 +219,12 @@ public class ODRFGUIFrame extends JFrame {
         addInputFilesButton_actionPerformed(e);
       }
     });
+    removeInputFilesButton.setText("Remove Files");
+    removeInputFilesButton.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        removeInputFilesButton_actionPerformed(e);
+      }
+    });
     clearInputFilesButton.setText("Clear List");
     clearInputFilesButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
@@ -252,6 +275,17 @@ public class ODRFGUIFrame extends JFrame {
       }
     });
 
+    String[] availColumnNames = {"Available Modules"};
+    availableModulesTableModel.setColumnNames(availColumnNames);
+    availableModulesTable.setModel(availableModulesTableModel);
+    availableModulesTable.addMouseListener(new MouseAdapter() {
+    	public void mouseClicked(MouseEvent e) {
+    		if (e.getClickCount() == 2) {
+    			availableModulesTable_doubleClickEvent();
+    		}
+    	}
+    });
+    
     reductionModuleTableModel.setData(myModel.getActiveModuleList());
     reductionModuleTable.setModel(reductionModuleTableModel);
     TableColumn tColFindFile = reductionModuleTable.getColumn(ODRFGUIParameters.REDUCTION_MODULE_TABLE_COLUMN_HEADER_FIND_FILE);
@@ -265,14 +299,57 @@ public class ODRFGUIFrame extends JFrame {
     tColFindFile.setCellEditor(new ReductionModuleTableFindFileCellEditor());
     tColResolvedFile.setPreferredWidth(ODRFGUIParameters.REDUCTION_MODULE_TABLE_COLUMN_WIDTH_RESOLVED_FILE);
     tColResolvedFile.setCellRenderer(new ReductionModuleTableCalFileCellRenderer());
+    tColResolvedFile.setHeaderRenderer(new OsirisCellEditorsAndRenderers.AlignedTextTableHeaderCellRenderer(SwingConstants.LEFT));
     tColName.setCellRenderer(new ReductionModuleTableCalFileCellRenderer());
     reductionModuleTableModel.addTableModelListener(new TableModelListener() {
       public void tableChanged(TableModelEvent e) {
-	reductionModuleTableModel_tableChanged(e);
+      	reductionModuleTableModel_tableChanged(e);
       }
+    });
+    reductionModuleTable.addMouseListener(new MouseAdapter() {
+    	public void mouseClicked(MouseEvent e) {
+    		if (e.getClickCount() == 2) {
+    			reductionModuleTable_doubleClickEvent();
+    		}
+    	}
     });
     reductionModuleTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
+    updateModuleTableModel.setData(myModel.getUpdateKeywordModuleList());
+    updateModuleTable.setModel(updateModuleTableModel);
+    TableColumn tColKeyword = updateModuleTable.getColumn(ODRFGUIParameters.UPDATE_MODULE_TABLE_COLUMN_HEADER_KEYWORD);
+    TableColumn tColDatatype = updateModuleTable.getColumn(ODRFGUIParameters.UPDATE_MODULE_TABLE_COLUMN_HEADER_DATATYPE);
+    TableColumn tColValue = updateModuleTable.getColumn(ODRFGUIParameters.UPDATE_MODULE_TABLE_COLUMN_HEADER_VALUE);
+    TableColumn tColComment = updateModuleTable.getColumn(ODRFGUIParameters.UPDATE_MODULE_TABLE_COLUMN_HEADER_COMMENT);
+    tColKeyword.setPreferredWidth(ODRFGUIParameters.UPDATE_MODULE_TABLE_COLUMN_WIDTH_KEYWORD);
+    tColDatatype.setPreferredWidth(ODRFGUIParameters.UPDATE_MODULE_TABLE_COLUMN_WIDTH_DATATYPE);
+    tColValue.setPreferredWidth(ODRFGUIParameters.UPDATE_MODULE_TABLE_COLUMN_WIDTH_VALUE);
+    tColComment.setPreferredWidth(ODRFGUIParameters.UPDATE_MODULE_TABLE_COLUMN_WIDTH_COMMENT);
+    tColDatatype.setCellRenderer(new OsirisCellEditorsAndRenderers.CenteredTextTableCellRenderer());
+    tColValue.setCellRenderer(new OsirisCellEditorsAndRenderers.CenteredTextTableCellRenderer());
+    tColComment.setHeaderRenderer(new OsirisCellEditorsAndRenderers.AlignedTextTableHeaderCellRenderer(SwingConstants.LEFT));
+    updateModuleTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+    
+    updateModuleTable.addMouseListener(new MouseAdapter() {
+    	public void mouseClicked(MouseEvent e) {
+    		if (e.getClickCount() == 2) {
+    			updateModuleTable_doubleClickEvent();
+    		}
+    	}
+    });
+    
+    moduleSplitPane.setDividerLocation(ODRFGUIParameters.SPLIT_PANE_MODULE_LIST_DIVIDER_LOCATION);
+    updateSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
+    updateSplitPane.setDividerLocation(ODRFGUIParameters.SPLIT_PANE_UPDATE_LIST_DIVIDER_LOCATION);
+    
+    updateModuleTableScrollPane.addMouseListener(new MouseAdapter() {
+    	public void mouseClicked(MouseEvent e) {
+    		if (e.getClickCount() == 2) {
+    			updateModuleTableScrollPane_doubleClickEvent();
+    		}
+    	}
+    });
+    
     //. assemble gui
     jMenuFile.add(jMenuFileSetCalibDir);
     jMenuFile.add(jMenuFileSetQueueDir);
@@ -294,7 +371,8 @@ public class ODRFGUIFrame extends JFrame {
     contentPane.add(statusBar, BorderLayout.SOUTH);
 
     reductionModuleTableScrollPane.getViewport().add(reductionModuleTable);
-
+    availableModulesTableScrollPane.getViewport().add(availableModulesTable);
+    updateModuleTableScrollPane.getViewport().add(updateModuleTable);
     inputFileListScrollPane.getViewport().add(inputFileList);
 
     filterScalePanel.setLayout(new GridLayout(1,0));
@@ -309,62 +387,72 @@ public class ODRFGUIFrame extends JFrame {
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
     topPanel.add(addInputFilesButton, new GridBagConstraints(1, topPanelRow, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    topPanel.add(clearInputFilesButton, new GridBagConstraints(2, topPanelRow, 1, 1, 0.0, 0.0
+    topPanel.add(removeInputFilesButton, new GridBagConstraints(2, topPanelRow, 1, 1, 0.0, 0.0
+        ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+    topPanel.add(clearInputFilesButton, new GridBagConstraints(3, topPanelRow, 1, 1, 0.0, 0.0
             ,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
 
     topPanelRow++;
-    topPanel.add(inputFileListScrollPane, new GridBagConstraints(0, topPanelRow, 3, 1, 1.0, 1.0
+    topPanel.add(inputFileListScrollPane, new GridBagConstraints(0, topPanelRow, 4, 1, 1.0, 1.0
             ,GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
 
     topPanelRow++;
-    topPanel.add(filterScalePanel, new GridBagConstraints(0, topPanelRow, 3, 1, 1.0, 0.0
+    topPanel.add(filterScalePanel, new GridBagConstraints(0, topPanelRow, 4, 1, 1.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
 
     topPanelRow++;
     topPanel.add(datasetNameLabel, new GridBagConstraints(0, topPanelRow, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    topPanel.add(datasetNameField, new GridBagConstraints(1, topPanelRow, 2, 1, 1.0, 0.0
+    topPanel.add(datasetNameField, new GridBagConstraints(1, topPanelRow, 3, 1, 1.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
 
     topPanelRow++;
-    topPanel.add(autosetDatasetNameCheckBox, new GridBagConstraints(1, topPanelRow, 1, 1, 0.0, 0.0
+    topPanel.add(autosetDatasetNameCheckBox, new GridBagConstraints(1, topPanelRow, 3, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
 
     topPanelRow++;
     topPanel.add(outputPathTitleLabel, new GridBagConstraints(0, topPanelRow, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    topPanel.add(outputPathLabel, new GridBagConstraints(1, topPanelRow, 1, 1, 1.0, 0.0
+    topPanel.add(outputPathLabel, new GridBagConstraints(1, topPanelRow, 2, 1, 1.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
-    topPanel.add(outputPathBrowseButton, new GridBagConstraints(2, topPanelRow, 1, 1, 0.0, 0.0
+    topPanel.add(outputPathBrowseButton, new GridBagConstraints(3, topPanelRow, 1, 1, 0.0, 0.0
             ,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
 
     topPanelRow++;
     topPanel.add(logPathTitleLabel, new GridBagConstraints(0, topPanelRow, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    topPanel.add(logPathLabel, new GridBagConstraints(1, topPanelRow, 1, 1, 1.0, 0.0
+    topPanel.add(logPathLabel, new GridBagConstraints(1, topPanelRow, 2, 1, 1.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
-    topPanel.add(logPathBrowseButton, new GridBagConstraints(2, topPanelRow, 1, 1, 0.0, 0.0
+    topPanel.add(logPathBrowseButton, new GridBagConstraints(3, topPanelRow, 1, 1, 0.0, 0.0
             ,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
 
     topPanelRow++;
     topPanel.add(reductionTypeLabel, new GridBagConstraints(0, topPanelRow, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    topPanel.add(reductionTypeComboBox, new GridBagConstraints(1, topPanelRow, 2, 1, 0.0, 0.0
+    topPanel.add(reductionTypeComboBox, new GridBagConstraints(1, topPanelRow, 3, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
 
     topPanelRow++;
     topPanel.add(reductionTemplateLabel, new GridBagConstraints(0, topPanelRow, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    topPanel.add(reductionTemplateComboBox, new GridBagConstraints(1, topPanelRow, 2, 1, 0.0, 0.0
+    topPanel.add(reductionTemplateComboBox, new GridBagConstraints(1, topPanelRow, 3, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
 
 
+    updateSplitPane.add(reductionModuleTableScrollPane, JSplitPane.TOP);
+    updateSplitPane.add(updateModuleTableScrollPane, JSplitPane.BOTTOM);
+    
+    moduleSplitPane.add(availableModulesTableScrollPane, JSplitPane.LEFT);
+    moduleSplitPane.add(updateSplitPane, JSplitPane.RIGHT);
+    
+    
     mainPanel.setLayout(new GridBagLayout());
-    mainPanel.add(topPanel, new GridBagConstraints(0, 0, 1, 1, 1.0, 2.0
+    mainPanel.add(topPanel, new GridBagConstraints(0, 0, 2, 1, 1.0, 2.0
             ,GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
-    mainPanel.add(reductionModuleTableScrollPane, new GridBagConstraints(0, 1, 1, 1, 1.0, 10.0
+    mainPanel.add(moduleSplitPane, new GridBagConstraints(0, 1, 1, 1, 1.0, 10.0
             ,GridBagConstraints.SOUTH, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
 
+  	updateDialog.setLocationRelativeTo(updateModuleTableScrollPane);
 
   }
   //Overridden so we can exit when window is closed
@@ -376,17 +464,16 @@ public class ODRFGUIFrame extends JFrame {
   }
  //File | Open DRF action performed
   public void jMenuFileOpenDRF_actionPerformed(ActionEvent e) {
-    JFileChooser fc = new JFileChooser(currentDRFReadPath);
+    XMLFileChooser fc = new XMLFileChooser(currentDRFReadPath);
     fc.setFileFilter(new OsirisFileFilters.DRFFileFilter());
     fc.setDialogTitle("Open DRF");
     int retVal = fc.showOpenDialog(this);
     if (retVal == JFileChooser.APPROVE_OPTION) {
       try {
-	currentDRFReadPath = fc.getCurrentDirectory();
-	myModel.openDRF(fc.getSelectedFile());
-      }
-      catch (Exception ex) {
-	JOptionPane.showMessageDialog(this, "Error opening DRF: "+ex.getMessage(), "ODRFGUI: Error Opening DRF", JOptionPane.ERROR_MESSAGE);
+      	currentDRFReadPath = fc.getCurrentDirectory();
+      	myModel.openDRF(fc.getSelectedFile());
+      } catch (Exception ex) {
+      	JOptionPane.showMessageDialog(this, "Error opening DRF: "+ex.getMessage(), "ODRFGUI: Error Opening DRF", JOptionPane.ERROR_MESSAGE);
       }
     }
   }
@@ -474,6 +561,8 @@ public class ODRFGUIFrame extends JFrame {
   //Help | About action performed
   public void jMenuHelpAbout_actionPerformed(ActionEvent e) {
     OsirisAboutBox dlg = new OsirisAboutBox(this, "OSIRIS Data Reduction File GUI");
+    dlg.setVersion("Version 0.1");
+    dlg.setReleased("Released: 11 August 2006");
     dlg.setLocationAtCenter(this);
     dlg.setModal(true);
     dlg.show();
@@ -514,6 +603,9 @@ public class ODRFGUIFrame extends JFrame {
   void addInputFilesButton_actionPerformed(ActionEvent e) {
     openInputFiles();
   }
+  void removeInputFilesButton_actionPerformed(ActionEvent e) {	
+  	myModel.removeInputFiles(inputFileList.getSelectedIndices());
+  }
   private void openInputFiles() {
     JFileChooser chooser = new JFileChooser(myModel.getInputDir());
     chooser.setMultiSelectionEnabled(true);
@@ -533,23 +625,24 @@ public class ODRFGUIFrame extends JFrame {
     if (e.getColumn() == ODRFGUIParameters.REDUCTION_MODULE_TABLE_COLUMN_FIND_FILE) {
       ReductionModule module = myModel.getModule(e.getFirstRow());
       if (module.getFindFileMethod().equals(ODRFGUIParameters.FIND_FILE_MENU_SPECIFY_FILE)) {
-	//. launch a file browser
-	JFileChooser fc = new JFileChooser();
-	if ((module.getName().equals(ODRFGUIParameters.MODULE_SUBTRACT_DARK)) ||
-	    (module.getName().equals(ODRFGUIParameters.MODULE_SUBTRACT_SKY)))
-	  fc.setCurrentDirectory(myModel.getInputDir());
-	fc.setDialogTitle("Select Calibration File");
-	int retval = fc.showOpenDialog(this);
-	if (retval == JFileChooser.APPROVE_OPTION) {
-	  File file = fc.getSelectedFile();
-	  module.setCalibrationFileValidated(true);
-	  module.setCalibrationFile(file.getAbsolutePath());
-	} else {
-	  File newFile = new File(module.getCalibrationFile());
-	  module.setCalibrationFileValidated(newFile.exists());
-	}
+      	//. launch a file browser
+      	JFileChooser fc = new JFileChooser();
+      	File calFile = new File(module.getCalibrationFile());
+      	if (calFile.exists())
+      		fc.setSelectedFile(calFile);
+      	else if ((module.getName().equals(ODRFGUIParameters.MODULE_SUBTRACT_DARK)) ||
+      			(module.getName().equals(ODRFGUIParameters.MODULE_SUBTRACT_SKY)) ||
+      			(module.getName().equals(ODRFGUIParameters.MODULE_SUBTRACT_FRAME)))
+      		fc.setCurrentDirectory(myModel.getInputDir());
+      	fc.setDialogTitle("Select Calibration File");
+      	int retval = fc.showOpenDialog(this);
+      	if (retval == JFileChooser.APPROVE_OPTION) {
+      		calFile = fc.getSelectedFile();
+      		module.setCalibrationFileValidated(true);
+      		module.setCalibrationFile(calFile.getAbsolutePath());
+      	} 
       } else {
-	myModel.resolveFindFile(module);
+      	myModel.resolveFindFile(module);
       }
     }
     reductionModuleTable.repaint();
@@ -557,6 +650,35 @@ public class ODRFGUIFrame extends JFrame {
   void autosetDatasetNameCheckBox_actionPerformed(ActionEvent e) {
     myModel.setAutomaticallyGenerateDatasetName(autosetDatasetNameCheckBox.isSelected());
   }
+
+	void availableModulesTable_doubleClickEvent() {
+		myModel.addModuleToActiveList((ReductionModule)myModel.getAvailableModuleList().get(availableModulesTable.getSelectedRow()));
+	}
+	void reductionModuleTable_doubleClickEvent() {
+		if (reductionModuleTable.getSelectedColumn() == 0)
+		myModel.removeModuleFromActiveList(reductionModuleTable.getSelectedRow());
+	}
+	void updateModuleTable_doubleClickEvent() {
+		int index = updateModuleTable.getSelectedRow();
+		updateDialog.setRemoveEnabled(true);
+		updateDialog.setIndex(index);
+		updateDialog.setModule((KeywordUpdateReductionModule) updateModuleTableModel.getData().get(index));
+		updateDialog.setVisible(true);
+	}
+	void updateModuleTableScrollPane_doubleClickEvent() {
+		int index = updateModuleTableModel.getData().size();
+		updateDialog.setRemoveEnabled(false);
+		updateDialog.setIndex(index);
+		updateDialog.setModule(new KeywordUpdateReductionModule());
+		updateDialog.setVisible(true);
+		
+	}
+	public void updateModelKeywordUpdateModuleList(int index, KeywordUpdateReductionModule module) {
+		myModel.updateUpdateKeywordModuleList(index, module);
+	}
+	public void updateModelRemoveKeywordUpdateModule(int index) {
+		myModel.removeModuleFromUpdateList(index);
+	}
   private void updateView() {
     updateViewFilter(myModel.getWorkingFilter());
     updateViewScale(myModel.getWorkingScale());
@@ -569,6 +691,15 @@ public class ODRFGUIFrame extends JFrame {
   }
   private void updateViewModuleList(ArrayList list) {
     reductionModuleTableModel.setData(list);
+  }
+  private void updateViewAvailableModuleList(ArrayList list) {
+    ((ArrayListTableModel)availableModulesTable.getModel()).setData(list);
+  }
+  private void updateViewUpdateKeywordModuleList(ArrayList list) {
+  	if (list.equals(updateModuleTableModel.getData()))
+  		updateModuleTableModel.fireTableDataChanged();
+  	else
+  		updateModuleTableModel.setData(list);
   }
   private void updateViewInputFileList(ArrayList list) {
     clearInputFilesButton.setEnabled(!list.isEmpty());

@@ -40,6 +40,9 @@ public class ODRFGUIParameters {
   public static Font FONT_MENU = new Font("Dailog", 0, 12);
   public static Font FONT_MENUITEM = new Font("Dailog", 0, 12);
 
+  public static int SPLIT_PANE_MODULE_LIST_DIVIDER_LOCATION = 200;
+  public static int SPLIT_PANE_UPDATE_LIST_DIVIDER_LOCATION = 350;
+  
   public static boolean DEFAULT_AUTOSET_DATASET_NAME = true;
 
   public static String REDUCTION_TYPE_ARP_SPEC = "ARP_SPEC";
@@ -90,7 +93,7 @@ public class ODRFGUIParameters {
   public static String REDUCTION_MODULE_TABLE_COLUMN_HEADER_NAME = "Module Name";
   public static String REDUCTION_MODULE_TABLE_COLUMN_HEADER_SKIP = "Skip";
   public static String REDUCTION_MODULE_TABLE_COLUMN_HEADER_FIND_FILE = "Find File";
-  public static String REDUCTION_MODULE_TABLE_COLUMN_HEADER_RESOLVED_FILE = "Resolved Filename";
+  public static String REDUCTION_MODULE_TABLE_COLUMN_HEADER_RESOLVED_FILE = " Resolved Filename";
   public static int REDUCTION_MODULE_TABLE_COLUMN_NAME = 0;
   public static int REDUCTION_MODULE_TABLE_COLUMN_SKIP = 1;
   public static int REDUCTION_MODULE_TABLE_COLUMN_FIND_FILE = 2;
@@ -104,7 +107,24 @@ public class ODRFGUIParameters {
   public static int REDUCTION_MODULE_TABLE_COLUMN_WIDTH_FIND_FILE = 125;
   public static int REDUCTION_MODULE_TABLE_COLUMN_WIDTH_RESOLVED_FILE = 600;
 
+  public static String UPDATE_MODULE_TABLE_COLUMN_HEADER_KEYWORD = "Keyword";
+  public static String UPDATE_MODULE_TABLE_COLUMN_HEADER_DATATYPE = "Datatype";
+  public static String UPDATE_MODULE_TABLE_COLUMN_HEADER_VALUE = "Value";
+  public static String UPDATE_MODULE_TABLE_COLUMN_HEADER_COMMENT = " Comment";
+  public static int UPDATE_MODULE_TABLE_COLUMN_KEYWORD = 0;
+  public static int UPDATE_MODULE_TABLE_COLUMN_DATATYPE = 1;
+  public static int UPDATE_MODULE_TABLE_COLUMN_VALUE = 2;
+  public static int UPDATE_MODULE_TABLE_COLUMN_COMMENT = 3;
+  public static String[] UPDATE_MODULE_TABLE_COLUMN_HEADERS = {UPDATE_MODULE_TABLE_COLUMN_HEADER_KEYWORD,
+								  UPDATE_MODULE_TABLE_COLUMN_HEADER_DATATYPE,
+								  UPDATE_MODULE_TABLE_COLUMN_HEADER_VALUE,
+								  UPDATE_MODULE_TABLE_COLUMN_HEADER_COMMENT};
+  public static int UPDATE_MODULE_TABLE_COLUMN_WIDTH_KEYWORD = 140;
+  public static int UPDATE_MODULE_TABLE_COLUMN_WIDTH_DATATYPE = 80;
+  public static int UPDATE_MODULE_TABLE_COLUMN_WIDTH_VALUE = 125;
+  public static int UPDATE_MODULE_TABLE_COLUMN_WIDTH_COMMENT = 600;
 
+  
   //. specify files that take calibration files
   public static String MODULE_CALIBRATE_WAVELENGTH = "Calibrate Wavelength";
   public static String MODULE_CORRECT_DISPERSION = "Correct Dispersion";
@@ -112,8 +132,10 @@ public class ODRFGUIParameters {
   public static String MODULE_INTERPOLATE_1D = "Interpolate 1d";
   public static String MODULE_INTERPOLATE_3D = "Interpolate 3d";
   public static String MODULE_SPATIALLY_RECTIFY = "Spatially Rectify Spectrum";
+  public static String MODULE_EXTRACT_SPECTRA = "Extract Spectra";
   public static String MODULE_SUBTRACT_DARK = "Subtract Dark Frame";
   public static String MODULE_SUBTRACT_SKY = "Subtract Sky";
+  public static String MODULE_SUBTRACT_FRAME = "Subtract Frame";
 
   //. only specify for files that can use a calibration file.
   //. if the file is optional, set to false, otherwise, set to true
@@ -123,8 +145,10 @@ public class ODRFGUIParameters {
   public static boolean MODULE_FILE_REQUIRED_INTERPOLATE_1D = false;
   public static boolean MODULE_FILE_REQUIRED_INTERPOLATE_3D = false;
   public static boolean MODULE_FILE_REQUIRED_SPATIALLY_RECTIFY = true;
+  public static boolean MODULE_FILE_REQUIRED_EXTRACT_SPECTRA = true;
   public static boolean MODULE_FILE_REQUIRED_SUBTRACT_DARK = true;
   public static boolean MODULE_FILE_REQUIRED_SUBTRACT_SKY = true;
+  public static boolean MODULE_FILE_REQUIRED_SUBTRACT_FRAME = true;
 
 
   //. file choices for modules that (can) take a calibration file
@@ -144,8 +168,11 @@ public class ODRFGUIParameters {
 							FIND_FILE_MENU_SPECIFY_FILE};
   public static String[] FIND_FILE_CHOICES_MODULE_SPATIALLY_RECTIFY = {FIND_FILE_MENU_MOST_RECENT,
 						       FIND_FILE_MENU_SPECIFY_FILE};
+  public static String[] FIND_FILE_CHOICES_MODULE_EXTRACT_SPECTRA = {FIND_FILE_MENU_MOST_RECENT,
+    FIND_FILE_MENU_SPECIFY_FILE};
   public static String[] FIND_FILE_CHOICES_MODULE_SUBTRACT_DARK = {FIND_FILE_MENU_SPECIFY_FILE};
   public static String[] FIND_FILE_CHOICES_MODULE_SUBTRACT_SKY = {FIND_FILE_MENU_SPECIFY_FILE};
+  public static String[] FIND_FILE_CHOICES_MODULE_SUBTRACT_FRAME = {FIND_FILE_MENU_SPECIFY_FILE};
   public static String[] FIND_FILE_CHOICES_NONE = {FIND_FILE_MENU_NONE};
 
   public static String MODULE_CALFILE_NOT_FOUND = "UNABLE TO FIND VALID FILE";
@@ -157,22 +184,22 @@ public class ODRFGUIParameters {
   public static String MODULE_DIR_CALIBRATE_WAVELENGTH = "wcal";
   public static String MODULE_DIR_DIVIDE_FLAT = "flats";
   public static String MODULE_DIR_SPATIALLY_RECTIFY = "rectification";
+  public static String MODULE_DIR_EXTRACT_SPECTRA = "rectification";
   public static String MODULE_FILEID_CALIBRATE_WAVELENGTH = "_wmap";
   public static String MODULE_FILEID_DIVIDE_FLAT = "__flat";
   public static String MODULE_FILEID_SPATIALLY_RECTIFY = "__infl";
+  public static String MODULE_FILEID_EXTRACT_SPECTRA = "__infl";
 
-
-
-
-  //. these can be deleted
-  public static String[] FIND_FILE_CHOICES_MODULE_REMOVE_CROSSTALK = {FIND_FILE_MENU_NONE};
-  public static String[] FIND_FILE_CHOICES_MODULE_ADJUST_CHANNEL_LEVELS = {FIND_FILE_MENU_NONE};
-  public static String[] FIND_FILE_CHOICES_MODULE_GLITCH_IDENTIFICATION = {FIND_FILE_MENU_NONE};
-  public static String[] FIND_FILE_CHOICES_MODULE_MAKE_DATA_CUBE = {FIND_FILE_MENU_NONE};
-  public static String[] FIND_FILE_CHOICES_MODULE_SAVE_DATASET_INFO = {FIND_FILE_MENU_NONE};
-
-
-
+  //. fits header datatype options
+  public static String HEADER_DATATYPE_BOOLEAN = "Boolean";
+  public static String HEADER_DATATYPE_INTEGER = "Integer";
+  public static String HEADER_DATATYPE_FLOAT = "Float";
+  public static String HEADER_DATATYPE_STRING = "String";
+  public static String[] HEADER_DATATYPE_OPTIONS = {HEADER_DATATYPE_STRING, 
+  	HEADER_DATATYPE_FLOAT, 
+  	HEADER_DATATYPE_INTEGER, 
+  	HEADER_DATATYPE_BOOLEAN};  	
+  
   private ODRFGUIParameters() {
   }
   public static ODRFGUIParameters getInstance() {
