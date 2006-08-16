@@ -77,6 +77,7 @@ FILES = \
 	CalibrationFileTimeComparator.class \
 	FileFilterByCalibrationType.class \
 	ReductionModule.class \
+	KeywordUpdateReductionModule.class \
 	OsirisDRPCellEditorsAndRenderers.class \
 	DataReductionDefinition.class \
 	DRF.class \
