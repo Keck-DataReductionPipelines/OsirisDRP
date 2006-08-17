@@ -6,7 +6,7 @@
     desc="Default Location for main frame" />
 
   <!-- Dimensions: must have xs and ys tags -->
-  <Dimension paramName="DIM_MAINFRAME" xs="400" ys="600" 
+  <Dimension paramName="DIM_MAINFRAME" xs="800" ys="800" 
     desc="Default Size for main frame" />
 
   <!-- Fonts: must have name(face), style, and size tags -->
