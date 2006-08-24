@@ -73,59 +73,69 @@ FUNCTION rmcrosstalk_000, DataSet, Modules, Backbone
         ;;; Value stores the median value of each channel (32) for
         ;;; every row (1024).
 	value = fltarr(1024, 32)
+	refer = fltarr(1024, 32)
         temparr = fltarr(128,4)
 
-        for i = 0, 1023 do begin
+        for i = 1, 1023 do begin
             for k=0, 7 do begin
-		value[i,k+16] = median(q1[(0+128*k):(127+128*k),i])*0.95
-		value[i,k+24] = median(q3[(0+128*k):(127+128*k),i])*0.95
-		value[i,k+8] = median(q2[(0+128*k):(127+128*k),i])*0.95
-		value[i,k] = median(q4[(0+128*k):(127+128*k),i])*0.95
+                value[i,k+16] = median(q1[(0+128*k):(127+128*k),i]-q1[(0+128*k):(127+128*k),i-1]) ;*0.95
+                value[i,k+24] = median(q3[(0+128*k):(127+128*k),i]-q3[(0+128*k):(127+128*k),i-1]) ;*0.95
+                value[i,k+8]  = median(q2[(0+128*k):(127+128*k),i]-q2[(0+128*k):(127+128*k),i-1]) ;*0.95
+                value[i,k]    = median(q4[(0+128*k):(127+128*k),i]-q4[(0+128*k):(127+128*k),i-1]) ;*0.95
+                refer[i,k+16] = median(q1[(0+128*k):(127+128*k),i]) ;*0.95
+                refer[i,k+24] = median(q3[(0+128*k):(127+128*k),i]) ;*0.95
+                refer[i,k+8]  = median(q2[(0+128*k):(127+128*k),i]) ;*0.95
+                refer[i,k]    = median(q4[(0+128*k):(127+128*k),i]) ;*0.95
             endfor
             ;;; For every row, calculate the lowest in an absolute
             ;;; sense of the median values.
             vls = value[i,0:15]
             srt = sort(abs(vls))
+            cross = (vls[srt[7]]+vls[srt[6]])/2.0
+;            cross = median(vls)
             ;;; Make sure there is a large value that is causing the
             ;;; crosstalk. It should be at least 50 times larger and
             ;;; of the same sign as the crosstalk.
-            cross = vls[srt[0]]
-            if ( cross gt 0.0 ) then begin  ; Positive crosstalk
-                mx = max(value[i,*])
-                value[i,0] = 0.0  ; Default is to subtract nothing.
+            if ( cross gt 0.0 ) then begin ; Positive crosstalk
+                mx = max(refer[i,*])
+                value[i,0] = 0.0 ; Default is to subtract nothing.
                 if (mx gt 50.0*cross) then begin
-                    value[i,0] = cross  ; Valid crosstalk.
+                    value[i,0] = cross ; Valid crosstalk.
                 end
-            endif else begin  ; Negative crosstalk
-                mx = min(value[i,*])
-                value[i,0] = 0.0  ; Default is to subtract nothing.
+            endif else begin    ; Negative crosstalk
+                mx = min(refer[i,*])
+                value[i,0] = 0.0 ; Default is to subtract nothing.
                 if (mx lt 50.0*cross) then begin
-                    value[i,0] = cross  ; Valid crosstalk.
+                    value[i,0] = cross ; Valid crosstalk.
                 end
             end
-       endfor
-
-; Now subtract the value[i,0] from every pixel in row i of all 32 channels.
-	for i=0, 1023 do begin
             q1[*,i]=q1[*,i]-value[i,0]
             q2[*,i]=q2[*,i]-value[i,0]
             q3[*,i]=q3[*,i]-value[i,0]
             q4[*,i]=q4[*,i]-value[i,0]
         endfor
-
-	;;; Rotate quadrants back to detector rotation
-	q2 = rotate(q2,1)
-	q3 = rotate(q3,2)
-	q4 = rotate(q4,3)
-
+        
+; Now subtract the value[i,0] from every pixel in row i of all 32 channels.
+;        for i=0, 1023 do begin
+;            q1[*,i]=q1[*,i]-value[i,0]
+;            q2[*,i]=q2[*,i]-value[i,0]
+;            q3[*,i]=q3[*,i]-value[i,0]
+;            q4[*,i]=q4[*,i]-value[i,0]
+;        endfor
+        
+        ;;; Rotate quadrants back to detector rotation
+        q2 = rotate(q2,1)
+        q3 = rotate(q3,2)
+        q4 = rotate(q4,3)
+        
         ;;; Set the original frame to the corrected values.
         (*DataSet.Frames[n])[0:1023,1024:2047]=q1
         (*DataSet.Frames[n])[0:1023,0:1023]=q2
         (*DataSet.Frames[n])[1024:2047,0:1023]=q3
-	(*DataSet.Frames[n])[1024:2047,1024:2047]=q4
-
+        (*DataSet.Frames[n])[1024:2047,1024:2047]=q4
+        
     endfor
-
+    
     ; it is not neccessary to change the dataset pointer
 
     report_success, functionName, T
