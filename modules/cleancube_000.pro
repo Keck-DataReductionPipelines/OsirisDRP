@@ -26,8 +26,6 @@ print, 'Cleaning the cube, printed by MWM'
 
 COMMON APP_CONSTANTS
 
-stop
-
 functionName = 'cleancube_000'
 T = systime(1)
 neigh = fltarr(5) ; A temporary array to hold the nearest neighbors of a pixel
