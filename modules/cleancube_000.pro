@@ -22,9 +22,14 @@
 ;-----------------------------------------------------------------------
 FUNCTION cleancube_000, DataSet, Modules, Backbone
 
+print, 'Cleaning the cube, printed by MWM'
+
 COMMON APP_CONSTANTS
 
+stop
+
 functionName = 'cleancube_000'
+T = systime(1)
 neigh = fltarr(5) ; A temporary array to hold the nearest neighbors of a pixel
 
 drpLog, 'Received data set: ' + DataSet.Name, /DRF, DEPTH = 1
@@ -66,75 +71,57 @@ for i = 0, nFrames-1 do begin
       return, error ( ['FAILURE (' + strtrim(functionName,2) + '):', $
                        '        In Set ' + strtrim(string(i+1),2) + $
                        ' Y-Spatial axis is smaller than 10 pixels.'] )
-    ; Setup an array that contains the boundaries for a measurement of the
-    ; noise in each slice of the frame
-    sarr=[4, (sz[2]-5), 4, (sz[3]-5)]
-    for lam = 0, (sz[1]-1) do begin
-        q = Frame[lam, sarr[0]:sarr[1], sarr[2]:sarr[3]]
-        iq = IntFrame[lam, sarr[0]:sarr[1], sarr[2]:sarr[3]]
-        iaq = IntAuxFrame[lam, sarr[0]:sarr[1], sarr[2]:sarr[3]]
-        nsz = size(q,/N_ELEMENTS)
-        if (nsz gt 50) then begin
-            ind = sort(q)
-            med = median(q[ind[24:nsz-24]])
-            stdev = stddev(q[ind[24:nsz-24]])
-            ; Write the gloabl stdev and med in the upper left corner.
-            for j = 0, sz[2]-1 do begin
-                for k = 0, sz[3]-1 do begin
-                                ; For each pixel, create an array
-                                ; containing its closest valid
-                                ; neighbors
-                    numb=0
-                    if ( (j-1) ge 0 ) then begin
-                        if ( IntAuxFrame[lam,j-1,k] ne 0 ) then begin
-                            neigh[numb]=Frame[lam,j-1,k]
-                            numb=numb+1
-                        end
-                    end
-                    if ( (j+1) lt sz[2] ) then begin
-                        if ( IntAuxFrame[lam,j+1,k] ne 0 ) then begin
-                            neigh[numb]=Frame[lam,j+1,k]
-                            numb=numb+1
-                        end
-                    end
-                    if ( (k-1) ge 0 ) then begin
-                        if ( IntAuxFrame[lam,j,k-1] ne 0 ) then begin
-                            neigh[numb]=Frame[lam,j,k-1]
-                            numb=numb+1
-                        end
-                    end
-                    if ( (k+1) lt sz[3] ) then begin
-                        if ( IntAuxFrame[lam,j,k+1] ne 0 ) then begin
-                            neigh[numb]=Frame[lam,j,k+1]
-                            numb=numb+1
-                        end
-                    end
-                    if ( IntAuxFrame[lam,j,k] ne 0 ) then begin
-                        neigh[numb]=Frame[lam,j,k]
-                        numb=numb+1
-                    end
-                    if ( numb gt 3 ) then begin
-                        m = median(neigh[0:(numb-1)])
-                        testm = 3.0*abs(m)
-                        if ( IntAuxFrame[lam,j,k] eq 0) then begin
-                            Frame[lam,j,k]=m
-                        endif else begin
-                            if ( abs(Frame[lam,j,k]) gt (testm>(3.0*stdev)) ) then begin
-                                Frame[lam,j,k]=m
-                            end
-                        end
-                    end
 
-                end
-            end
-            Frame[lam,sz[2]-2,0] = stdev
-            Frame[lam,sz[2]-1,0] = med
-        end
-    end
-    *DataSet.Frames[i] = Frame
+    ; assume this cube is not rotated
+    ; rotate the cube to have the spatial dimensions forward
+    axesorder=[2,1,0]
+    im=transpose(Frame, axesorder)
+    newim=im
+    cube_sz=size(im, /dimensions)    
+    for k=0,cube_sz[2]-1 do begin
+        ; clean each channel
+        for i=0,cube_sz[0]-1 do begin
+            for j=0,cube_sz[1]-1 do begin
+                ; see which pixels are valid around this point
+                inc=1
+                xstart=i-inc
+                if (xstart lt 0) then xstart=0
+                xend=i+inc
+                if (xend gt cube_sz[0]-1) then xend=cube_sz[0]-1
+                ystart=j-inc
+                if (ystart lt 0) then ystart=0
+                yend=j+inc
+                if (yend gt cube_sz[1]-1) then yend=cube_sz[1]-1
+                ; make a subaperture
+                subap_im=im[xstart:xend,ystart:yend,k]
+                ind=where((subap_im ne im[i,j,k]) and (subap_im ne 0.))
+                if ind[0] eq -1 then ind[0]=0
+                ; check for a minimum number of pixels
+                if (size(subap_im[ind], /n_elements) gt 6) then begin
+                    ; calc the stdev and mean
+                    im_stdev=stddev(subap_im[ind])
+                    im_mean=mean(subap_im[ind])
+                    ; fix bad pixels
+                    if ((im[i,j,k]-im_mean) gt (5*im_stdev)) then begin
+                        newim[i,j,k]=im_mean
+                    endif
+                    if ((im[i,j,k]-im_mean) lt ((-3.)*im_stdev)) then begin
+                        newim[i,j,k]=im_mean
+                    endif
+                endif                
+            endfor
+        endfor
+    endfor
 
-endfor                          ; repeat on nFrames
+    axesorder=[2,1,0]
+    tim=transpose(newim, axesorder)
 
+    *DataSet.Frames[i] = tim
+
+    writefits, '/net/hydrogen/data/projects/osiris/DRP/mcelwain/050626/test4/test.fits', tim    
+endfor
+
+report_success, functionName, T
 RETURN, OK
 
 END
