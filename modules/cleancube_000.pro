@@ -22,15 +22,18 @@
 ;-----------------------------------------------------------------------
 FUNCTION cleancube_000, DataSet, Modules, Backbone
 
-print, 'Cleaning the cube, printed by MWM'
-
 COMMON APP_CONSTANTS
 
 functionName = 'cleancube_000'
+thisModuleIndex = drpModuleIndexFromCallSequence(Modules, functionName)
 T = systime(1)
 neigh = fltarr(5) ; A temporary array to hold the nearest neighbors of a pixel
 
 drpLog, 'Received data set: ' + DataSet.Name, /DRF, DEPTH = 1
+
+; get the parameters
+upper_limit=float(Modules[thisModuleIndex].upper_limit)
+lower_limit=float(Modules[thisModuleIndex].lower_limit)
 
 nFrames = Backbone->getValidFrameCount(DataSet.Name)
 
@@ -78,13 +81,13 @@ for i = 0, nFrames-1 do begin
     cube_sz=size(im, /dimensions)    
     for k=0,cube_sz[2]-1 do begin
         ; clean each channel
-        for i=0,cube_sz[0]-1 do begin
+        for i2=0,cube_sz[0]-1 do begin
             for j=0,cube_sz[1]-1 do begin
                 ; see which pixels are valid around this point
                 inc=1
-                xstart=i-inc
+                xstart=i2-inc
                 if (xstart lt 0) then xstart=0
-                xend=i+inc
+                xend=i2+inc
                 if (xend gt cube_sz[0]-1) then xend=cube_sz[0]-1
                 ystart=j-inc
                 if (ystart lt 0) then ystart=0
@@ -92,7 +95,7 @@ for i = 0, nFrames-1 do begin
                 if (yend gt cube_sz[1]-1) then yend=cube_sz[1]-1
                 ; make a subaperture
                 subap_im=im[xstart:xend,ystart:yend,k]
-                ind=where((subap_im ne im[i,j,k]) and (subap_im ne 0.))
+                ind=where((subap_im ne im[i2,j,k]) and (subap_im ne 0.))
                 if ind[0] eq -1 then ind[0]=0
                 ; check for a minimum number of pixels
                 if (size(subap_im[ind], /n_elements) gt 6) then begin
@@ -100,23 +103,22 @@ for i = 0, nFrames-1 do begin
                     im_stdev=stddev(subap_im[ind])
                     im_mean=mean(subap_im[ind])
                     ; fix bad pixels
-                    if ((im[i,j,k]-im_mean) gt (5*im_stdev)) then begin
-                        newim[i,j,k]=im_mean
+                    if ((im[i2,j,k]-im_mean) gt (upper_limit*im_stdev)) then begin
+                        newim[i2,j,k]=im_mean
                     endif
-                    if ((im[i,j,k]-im_mean) lt ((-3.)*im_stdev)) then begin
-                        newim[i,j,k]=im_mean
+                    if ((im[i2,j,k]-im_mean) lt (lower_limit*im_stdev)) then begin
+                        newim[i2,j,k]=im_mean
                     endif
                 endif                
             endfor
         endfor
     endfor
 
+    print, '*** cleaning cube finished 2 ***'
+
     axesorder=[2,1,0]
     tim=transpose(newim, axesorder)
-
     *DataSet.Frames[i] = tim
-
-    writefits, '/net/hydrogen/data/projects/osiris/DRP/mcelwain/050626/test4/test.fits', tim    
 endfor
 
 report_success, functionName, T

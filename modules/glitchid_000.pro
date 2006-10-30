@@ -181,7 +181,6 @@ FUNCTION glitchid_000, DataSet, Modules, Backbone
     endfor
 
     ; it is not neccessary to change the dataset pointer
-
     report_success, functionName, T
 
     RETURN, OK
