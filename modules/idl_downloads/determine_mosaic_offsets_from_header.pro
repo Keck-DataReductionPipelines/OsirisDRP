@@ -8,8 +8,9 @@
 ;           s_Type    : string indicating the method:
 ;                       'TEL'  : determine offsets from telescope
 ;                                coordinates
-;                       'AO'   : determine offsets from AO mirror
-;                                coordinates
+;                      'NGS'   : determine offsets from AO (OBFM)
+;                      'LGS'  : determine offset from LGS (AOTS)
+;
 ;           d_Scale   : scale in arcsec per spatial element
 ;           d_PA      : position angle in degrees
 ;
@@ -25,10 +26,11 @@
 ; HISTORY : 25.8.2005, created
 ;
 ; AUTHOR : Christof Iserlohe (iserlohe@ph1.uni-koeln.de)
+;	Modified by Shelley Wright for AO offsets Dec 2006
 ;
 ;-----------------------------------------------------------------------
 
-function coord2det, md_Coords, s_Type, d_Scale, d_PA
+function coord2det, md_Coords, s_Type, d_Scale, d_PA, vd_InstAngl
 
    COMMON APP_CONSTANTS
 
@@ -38,6 +40,8 @@ function coord2det, md_Coords, s_Type, d_Scale, d_PA
 
    if ( n_Dims(0) ne 2 or n_Dims(1) ne 2 ) then $
       return, error('ERROR IN CALL (' + functionName + '): md_Coords must be a matrix (2,number of offsets).')
+
+;;;--------------------
 
    if ( s_Type eq 'TEL' ) then begin
 
@@ -49,14 +53,39 @@ function coord2det, md_Coords, s_Type, d_Scale, d_PA
       md_Offsets = transpose( [[[-1.*(vd_CoordsRA * sin(d_PA) + vd_CoordsDec * cos(d_PA))]], $
                                [[vd_CoordsRA * cos(d_PA) - vd_CoordsDec * sin(d_PA)]]] )
 
-   endif else begin
-      ; coordinates are AO mirror coordinate
-      for i=1, n_Dims(2)-1 do begin
-;         md_Offsets(0,i) =
-;         md_Offsets(1,i) =
-      end
+   endif
 
-   end   
+;;;--------------------
+
+  if ( s_Type eq 'NGS' ) then begin
+
+      ; coordinates are NGS 
+      ; need to find conversion to plate scale
+      vd_CoordsNX =   (md_Coords(0,0) - md_Coords(0,*)) * (35.6 * (0.0397/d_Scale))  
+      vd_CoordsNY  =  (md_Coords(1,0) - md_Coords(1,*)) * (35.6 * (0.0397/d_Scale))
+
+      vd_InstAngl = (vd_InstAngl* !pi/180)
+      md_Offsets = [vd_CoordsNX * cos(vd_InstAngl) + vd_CoordsNY * sin(vd_InstAngl), $
+                               (-1.)*vd_CoordsNX * cos(vd_InstAngl) + vd_CoordsNY * cos(vd_InstAngl)] 
+
+   endif
+
+;;;--------------------
+
+  if ( s_Type eq 'LGS' ) then begin
+
+      ; coordinates are LGS 
+      ; need to find conversion to plate scale 
+      vd_CoordsLX =   (md_Coords(0,0) - md_Coords(0,*)) * (1/d_Scale) * (1/0.727) 
+      vd_CoordsLY  =  (md_Coords(1,0) - md_Coords(1,*)) * (1/d_Scale) * (1/0.727) 
+
+      vd_InstAngl = !pi/2 - (vd_InstAngl*!pi/180)
+      md_Offsets = [(vd_CoordsLX * cos(vd_InstAngl) + vd_CoordsLY * sin(vd_InstAngl)), $
+                               ((-1.)*vd_CoordsLX * sin(vd_InstAngl) + vd_CoordsLY * cos(vd_InstAngl))] 
+   
+   endif
+
+;;;--------------------
 
    return, md_Offsets
 
@@ -72,8 +101,9 @@ end
 ;           s_Type   : string indicating the method:
 ;                      'TEL'  : determine offsets from telescope
 ;                               coordinates
-;                      'AO'   : determine offsets from AO mirror
-;                               coordinates
+;                      'NGS'   : determine offsets from AO (OBFM)
+;		       'LGS'  : determine offset from LGS (AOTS)
+;
 ;           n_Sets   : number of headers
 ;           NOPA = NOPA : ignore checking for the position angle
 ;
@@ -97,6 +127,7 @@ end
 ; HISTORY : 25.8.2005, created
 ;
 ; AUTHOR : Christof Iserlohe (iserlohe@ph1.uni-koeln.de)
+;	Modified by Shelley Wright to add AO offset 2006 dec 
 ;
 ;-----------------------------------------------------------------------
 
@@ -107,7 +138,7 @@ function determine_mosaic_offsets_from_header, p_H, b_Format, s_Type, n_Sets, NO
    functionName = 'determine_mosaic_offsets_from_header.pro'
 
    ; integrity checks
-   if ( s_Type ne 'TEL' and s_Type ne 'AO' ) then $
+   if ( s_Type ne 'TEL' and s_Type ne 'NGS' and s_Type ne 'LGS' ) then $
       return, error('ERROR IN CALL (' + functionName + '): Unknown Type ' + strg(s_Type) )
    if ( b_Format ne 1 and b_Format ne 0 ) then $
       return, error('ERROR IN CALL (' + functionName + '): Unknown Format ' + strg(b_Format) )
@@ -169,14 +200,36 @@ function determine_mosaic_offsets_from_header, p_H, b_Format, s_Type, n_Sets, NO
    endif else $
       d_PA = 0.
 
-   ; read the coordinates from the individual headers
+;;;--------------------
+
+   ; read the coordinates from the individual TEL headers
    if ( s_Type eq 'TEL' ) then begin
       vd_C0 = double(get_kwd (p_H, n_Sets, 'RA', /NOCONTINUE))
       vd_C1 = double(get_kwd (p_H, n_Sets, 'DEC', /NOCONTINUE))
-   endif else begin
-      vd_C0 = double(get_kwd (p_H, n_Sets, '', /NOCONTINUE))
-      vd_C1 = double(get_kwd (p_H, n_Sets, '', /NOCONTINUE))
+   end;if else begin
+      ;vd_C0 = double(get_kwd (p_H, n_Sets, '', /NOCONTINUE))
+      ;vd_C1 = double(get_kwd (p_H, n_Sets, '', /NOCONTINUE))
+   ;end
+
+;;;--------------------
+
+   ; read the coordinates from the individual NGS headers
+   if ( s_Type eq 'NGS' ) then begin
+      vd_C0 = double(get_kwd (p_H, n_Sets, 'OBFMXIM', /NOCONTINUE))
+      vd_C1 = double(get_kwd (p_H, n_Sets, 'OBFMYIM', /NOCONTINUE))
    end
+
+;;;--------------------
+
+
+  ; read the coordinates from the individual LGS headers
+   if ( s_Type eq 'LGS' ) then begin
+      vd_C0 = double(get_kwd (p_H, n_Sets, 'AOTSX', /NOCONTINUE))
+      vd_C1 = double(get_kwd (p_H, n_Sets, 'AOTSY', /NOCONTINUE))
+   end
+
+;;;--------------------
+
 
    if ( NOT bool_is_vector ( vd_C0 ) or NOT bool_is_vector ( vd_C1 ) ) then $
       return, error('FAILURE (' + strtrim(functionName) + '): Determination of instruments coordinates failed (1).')
@@ -185,14 +238,14 @@ function determine_mosaic_offsets_from_header, p_H, b_Format, s_Type, n_Sets, NO
         n_elements ( vd_C0 ) ne n_Sets ) then $
       return, error('FAILURE (' + strtrim(functionName) + '): Determination of instruments coordinates failed (2).')
 
-   md_Coords = transpose ( [[vd_C0], [vd_C1]] )
+   md_Coords =  transpose([[vd_C0], [vd_C1]]) 
 
    info, 'INFO : ('+functionName+'): Found coordinates to be :'
    for i=0, n_elements(vd_C1)-1 do $
       print, vd_C0(i), vd_C1(i)
 
    ; convert coordinates to offsets
-   md_Offsets = coord2det( md_Coords, s_Type, d_Scale, d_PA )
+   md_Offsets = coord2det( md_Coords, s_Type, d_Scale, d_PA, vd_InstAngl )
    if ( NOT bool_is_image( md_Offsets ) ) then $
       return, error('FAILURE (' + strtrim(functionName) + '): Determination of offsets failed.')
 

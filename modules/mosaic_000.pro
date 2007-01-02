@@ -1,4 +1,3 @@
-
 ;-----------------------------------------------------------------------
 ; THIS IS A DRP MODULE
 ;
@@ -9,9 +8,14 @@
 ; PARAMETERS IN RPBCONFIG.XML :
 ;
 ;    mosaic_COMMON___SumMethod    : The method to use for determining
-;                                    'AVERAGE'
-;                                    'MEDIAN'
-;                                    'SUM'
+;                                    'AVERAGE' - Average over good pixels 
+;						(uses bad pixel map)
+;
+;                                    'MEDIAN'  - Median over all pixels
+;
+;                                    'MEANCLIP' - Mean with a sigma clip 
+;						(sigma=3)
+;
 ;    mosaic_COMMON___OffsetMethod    : The method to use for determining
 ;                                    the mosaic offsets:
 ;                                    'FILE' : Read the offsets from a
@@ -20,15 +24,17 @@
 ;                                    'TEL'  : Calculate the offsets
 ;                                             from the telescope
 ;                                             coordinates
-;                                    'AO'   : Calculate offsets fro
-;                                             the AO mirror
+;     	                              'NGS'   : Calculate offsets from NGS-AO
+;						(OBSFMXIM, OBSFMYIM)
+;				      'LGS'   : Calculate offsets from LGS-AO
+;						(AOTSX,AOTSY)
 ;
 ; INPUT-FILES : None
 ;
 ; OUTPUT : Saves the 0th dataset pointer which contains after
 ;          mosaicing the result (primary and 1st and 2nd extension). The filename for this file is created
 ;          from the 0th header. The 3rd extension of the result saved
-;          is the offset list (float matrix with first index eq to 0 indexing the
+;          is the offset list (float matrix with first index taSet.IntAuxFrames[i]
 ;          x-offsets and eq to 1 indexing the y-offsets. 
 ;
 ; DATASET : the mosaiced result is put into the 0th pointer. All
@@ -48,7 +54,10 @@
 ; HISTORY : July.5.2006, created
 ;
 ; Based on mosaicdith by Christof Iserlohe
-; AUTHOR : James Larkin and Shelley Adams Wright
+;
+; AUTHORS : Shelley Wright and James Larkin
+;	Modified Nov 2006 - Shelley Wright
+;		added MEDIAN, MEANCLIP, and NGS, LGS offsets 
 ;
 ;-----------------------------------------------------------------------
 
@@ -69,19 +78,22 @@ FUNCTION mosaic_000, DataSet, Modules, Backbone
     s_SumMethod    = Modules[thisModuleIndex].combine_method
     s_OffsetMethod    = Modules[thisModuleIndex].offset_method
 
-;    if ( (s_SumMethod ne 'AVERAGE') and (s_SumMethod ne 'MEDIAN') ) then $
-;       return, error ('ERROR IN CALL (' + functionName + '): SumMethod must be AVERAGE or MEDIAN.')
-    if ( s_SumMethod ne 'AVERAGE' ) then $
-      return, error ('ERROR IN CALL (' + functionName + '): SumMethod must be AVERAGE.')
+    if ( (s_SumMethod ne 'AVERAGE') and (s_SumMethod ne 'MEDIAN') and (s_SumMethod ne 'MEANCLIP')) then $
+       return, error ('ERROR IN CALL (' + functionName + '): SumMethod must be AVERAGE or MEDIAN.')
+
+;    if ( s_SumMethod ne 'AVERAGE' ) then $
+;      return, error ('ERROR IN CALL (' + functionName + '): SumMethod must be AVERAGE.')
 
     case s_OffsetMethod of
        'FILE' : info, 'INFO (' + functionName + '): Reading offsets from file.'
        'TEL'  : info, 'INFO (' + functionName + '): Determining offsets from telescope coordinates.'
-       'AO'   : info, 'INFO (' + functionName + '): Determining offsets from AO coordinates.'
+       'NGS'  : info, 'INFO (' + functionName + '): Determining offsets from NGS-AO coordinates.'
+       'LGS'  : info, 'INFO (' + functionName + '): Determining offsets from LGS-AO coordinates.'
        else   : return, error ('ERROR IN CALL (' + strtrim(functionName) + '): Offset method unknown ' + strg(s_OffsetMethod) )
     endcase
 
-    print, s_SumMethod, s_OffsetMethod
+    print, 'Sum Method = ', s_SumMethod 
+    print, 'Shift Method = ', s_OffsetMethod
     
     n_Sets = Backbone->getValidFrameCount(DataSet.Name)
 
@@ -107,16 +119,6 @@ FUNCTION mosaic_000, DataSet, Modules, Backbone
     ; for mosaicing the datasets must all have the same size, so we resize them first 
     if ( resize_dataset( DataSet, n_Sets ) ne OK ) then $
        return, error ('FAILURE ('+strtrim(functionName)+'): Resizing of dataset failed.')
-
-    ; mosaic changes DataSet and returns the mosaiced cube
-;    s_Res
-;                    n_Sets, V_SHIFT = md_Shifts, $
-;                    AVERAGE  = (s_SumMethod eq 'AVERAGE'), $
-;                    CUBIC    = (s_ShiftMethod eq 'CUBIC' ? d_Cubic : 0 ), $
-;                    BILINEAR = (s_ShiftMethod eq 'BILINEAR' ? 1 : 0 ), $
-;                    ROUNDED  = (s_ShiftMethod eq 'ROUNDED' ? 1 : 0 ), $
-;                    EQUALIZE = b_Equalize, $
-;                    DEBUG    = b_Debug )
 
    n_Dims = size( *DataSet.Frames[0] )   ; all input cubes/images have the same size
 
@@ -184,6 +186,8 @@ FUNCTION mosaic_000, DataSet, Modules, Backbone
    ; allocate memory for final quality status frame
    NewStatus = make_array ( SIZE=n_Dims, /BYTE, VALUE = 0b )
 
+;;;-------------------------;
+
 
    if ( s_SumMethod eq 'AVERAGE' ) then begin
        ; averaging the data
@@ -199,20 +203,104 @@ FUNCTION mosaic_000, DataSet, Modules, Backbone
            Noise[loc] = Noise[loc] + (*DataSet.IntFrames(i))[loc] * (*DataSet.IntFrames(i))[loc]
        end
 
+	print, 'Average Complete'
+
        loc = where(Number gt 0)
        Sum[loc] = Sum[loc] / Number[loc]
        Noise[loc] = sqrt(Noise[loc]/Number[loc])
-   end
-
-   if ( s_SumMethod eq 'MEDIAN' ) then begin
-       info, 'INFO (' + functionName + '): Medianing shifted datasets.'
-       ; Not implemented yet.
-       
-   end
 
    (*DataSet.Frames[0]) = Sum
    (*DataSet.IntFrames[0]) = Noise
    (*DataSet.IntAuxFrames[0])[loc] = 9
+
+
+   end
+
+;;;-------------------------;
+
+
+   if ( s_SumMethod eq 'MEDIAN' ) then begin
+       ; median the data
+       info, 'INFO (' + functionName + '): Medianing shifted datasets.'
+       ; Creat arrays for median function
+       Stack = (*DataSet.Frames(0)) - (*DataSet.Frames(0))
+       Noise = Stack
+       Number = Stack + n_Sets
+       sz = size(Stack,/dimensions)
+       Frame = fltarr(sz[0],sz[1],sz[2],n_Sets)
+       IntAx = fltarr(sz[0],sz[1],sz[2],n_Sets)
+
+      for n=0, n_Sets-1 do begin
+           Frame[*,*,*,n] = (*DataSet.Frames(n))[*,*,*]
+           IntAx[*,*,*,n] = (*DataSet.IntAuxFrames(n))[*,*,*]
+      end
+
+       Stack[*,*,*] = median(Frame[*,*,*,*], dimension = 4)
+       Noise[*,*,*] = median(IntAx[*,*,*,*], dimension = 4)
+
+	print, 'Median Complete'
+
+   (*DataSet.Frames[0]) = Stack
+   (*DataSet.IntFrames[0]) = Noise
+
+    end
+
+;;;;-----------------------;
+
+   if ( s_SumMethod eq 'MEANCLIP' ) then begin
+       ; median the data
+       info, 'INFO (' + functionName + '): Mean-Clip shifted datasets.'
+       ; Creat arrays for median function
+       Med = (*DataSet.Frames(0)) - (*DataSet.Frames(0))
+       Noise = Med
+       Sum = Med
+       Number = Med 
+       sz = size(Med,/dimensions)
+       Frame = fltarr(sz[0],sz[1],sz[2],n_Sets)
+       Dev = fltarr(sz[0],sz[1],sz[2],n_Sets)
+       IntAx = fltarr(sz[0],sz[1],sz[2],n_Sets)
+
+       for n=0, n_Sets-1 do begin
+            Frame[*,*,*,n] = (*DataSet.Frames(n))[*,*,*]
+            IntAx[*,*,*,n] = (*DataSet.IntAuxFrames(n))[*,*,*] 
+       end          
+
+
+       ;; First calculate the median value at each location of the
+       ;; cube for the overlapping frames.
+       Med[*,*,*] = median(Frame[*,*,*,*], dimension = 4)
+       ;; Now for every location in every cube, calculate the square
+       ;; of the deviation from the median.
+       for i=0,n_Sets-1 do begin
+           Dev[*,*,*,i]=((Frame[*,*,*,i]-Med)*(Frame[*,*,*,i]-Med))
+       end
+       ;; Fake up the variance by taking the median of the 2nd central
+       ;; moments instead of the mean. This is faster because the
+       ;; median routine handles multiple dimensions without loops.
+       Variance = median(Dev[*,*,*,*], dimension=4)
+       ;; 
+       threshold = 3
+       for i=0, n_Sets-1 do begin
+           loc = where ( (IntAx[*,*,*,i] eq 9) and (Dev[*,*,*,i] lt threshold*threshold*Variance[*,*,*]) )
+           Sum[loc]= Sum[loc] + (*DataSet.Frames(i))[loc]
+           Number[loc]  = Number[loc] + 1
+           Noise[loc] = Noise[loc] + (*DataSet.IntFrames(i))[loc] * (*DataSet.IntFrames(i))[loc]
+       end
+
+       loc = where(Number gt 0)
+       Sum[loc] = Sum[loc] / Number[loc]
+       Noise[loc] = sqrt(Noise[loc]/Number[loc])
+
+       print, 'Meanclip complete'
+
+       (*DataSet.Frames[0]) = Sum
+       (*DataSet.IntFrames[0]) = Noise
+       (*DataSet.IntAuxFrames[0])[loc] = 9
+ 
+   end
+
+;;;;-----------------------;
+
 
    ; the result is stored in the 0th pointer, delete the others
    for i=1, n_Sets-1 do clear_frame, DataSet, i, /ALL
