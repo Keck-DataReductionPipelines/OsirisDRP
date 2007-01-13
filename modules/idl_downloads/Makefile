@@ -72,6 +72,7 @@ RELPRO   = add_fitskwd_to_header.pro \
 	   calculate_regular_wavelength_grid.pro \
 	   calculate_weight.pro \
 	   calibrwave.pro \
+	   check_bits.pro \
 	   check_fits.pro \
 	   check_median.pro \
 	   check_module.pro \
@@ -167,6 +168,7 @@ RELPRO   = add_fitskwd_to_header.pro \
 	   make_filename.pro \
 	   MakeFileName.pro \
 	   makestddrpdata.pro \
+           meanclipdrl.pro \
 	   median_filter_1d.pro \
 	   medianscheck.pro \
 	   minmax_2d.pro \
@@ -214,6 +216,7 @@ RELPRO   = add_fitskwd_to_header.pro \
 	   setfitparm.pro \
 	   set_header.pro \
 	   sfit_surface.pro \
+	   shift_image.pro \
 	   shift_object.pro \
 	   sigma_poly_fit.pro \
 	   smile.pro \
