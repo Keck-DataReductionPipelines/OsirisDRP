@@ -15,6 +15,9 @@ int errno;
 
 float blame[DATA][numspec][MAXSLICE];  // Kernal for applying blame to lenslets for the first portion of the iterations
 float weight[numspec][DATA];           // Weight normalization factor for distributing blame
+float good[numspec][DATA];             // Weighted version of quality to decide if a pixel is valid.
+float cmp[numspec][DATA];              // Weights for good
+
 float fblame[DATA][numspec][MAXSLICE]; // Kernal for applying blame during the final iterations
 float fbasisv[DATA][numspec][MAXSLICE];    // influence matrix
 float fweight[numspec][DATA];          // Weight factor for distributing final blame
@@ -326,15 +329,21 @@ int spatrectif_000(int argc, void* argv[])
       for (sp=0; sp<numspec; sp++)
 	{
 	  noise[sp][i]=0.0;
-	  quality[sp][i]=9;
+	  quality[sp][i]=0;
 	  j=bottom[sp];
+	  good[sp][i] = 0.0;
+	  cmp[sp][i] = 0.0;
 	  for (jj=0; jj<MAXSLICE; jj++)
 	    {
 	      if ( Quality[jj][i] == 9 )  // For valid pixels.
 		//	noise[sp][i] += basis_vectors[sp][jj][i]*Noise[j][i];
 		noise[sp][i] += fblame[i][sp][jj]*Noise[j][i];
+	      good[sp][i] += fblame[i][sp][jj]*Quality[jj][i];
+	      cmp[sp][i] += fblame[i][sp][jj];
 	      j++;
 	    }
+	  good[sp][i] = good[sp][i]/cmp[sp][i];  //Compare weights to valid weights
+	  if ( good[sp][i] > 4.5 ) quality[sp][i]=9;  // Implies over have of the weights have good pixels.
 	} // for each spectral channel sp ...
     }
   printf("\n");
