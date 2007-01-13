@@ -47,6 +47,7 @@ RELPRO   = adjchan_000.pro \
 	   corrdisper_000.pro \
 	   corrohline_000.pro \
 	   corrtellin_000.pro \
+	   corrtilt_000.pro \
 	   divblackbo_000.pro \
 	   divideflat_000.pro \
 	   divstarspe_000.pro \
