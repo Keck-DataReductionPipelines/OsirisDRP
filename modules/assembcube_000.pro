@@ -95,7 +95,7 @@ FUNCTION assembcube_000, DataSet, Modules, Backbone
    if ( minl lt 1450.0 ) then order = 5   ; J Band or shorter
    if ( minl lt 1160.0 ) then order = 6   ; Z band
 
-   ; Create a lookup table of wavelengths for each of the spectral slices.
+   ; Create a look-up table of wavelengths for each of the spectral slices.
    lambda = disp*findgen(npix)+minl
 
    ; Scale the wavelength to the 3rd order where the fit was determined
@@ -151,7 +151,7 @@ FUNCTION assembcube_000, DataSet, Modules, Backbone
        complete[33,0:32]=0
        complete[34,0:48]=0
    end
-; Filters where order overlap occurs are special.
+   ; Filters where order overlap occurs are special.
    if ( strcmp('Zn2',strmid(s_Filter,0,3)) eq 1) then begin
        first_col=16
        last_col=34
@@ -206,9 +206,11 @@ FUNCTION assembcube_000, DataSet, Modules, Backbone
    Frame       = make_array(npix,nrows,ncols,/FLOAT)
    IntFrame    = make_array(npix,nrows,ncols,/FLOAT)
    IntAuxFrame = make_array(npix,nrows,ncols,/BYTE)
-   abscissa = findgen(2048)  ; Look up table for interpolated values
 
    for q=0, nFrames-1 do begin
+       abscissa = findgen(2048) ; Look up table for interpolated values
+
+       print, "Assembling cube ", q
        if ( bb eq 1 ) then begin
            ; Broad band data.
            for sp = 0, nspec-1 do begin
@@ -218,14 +220,20 @@ FUNCTION assembcube_000, DataSet, Modules, Backbone
                i = col + first_col   ; Where to look in coeffs for solution
                if ( complete[i,j] eq 1 ) then begin ; Valid pixel
                    pixels = poly(lambda,coeffs[*,i,j]) ; Map the desired wavelengths into the original pixels
+                   ; Use valid pixels to interpolate pixel values
                    good = where( (*DataSet.IntAuxFrames[q])[*,sp] eq 9 )
-                   Frame[*,row,col]=interpol((*DataSet.Frames[q])[good,sp],abscissa[good],pixels)
-                   IntFrame[*,row,col]=interpol((*DataSet.IntFrames[q])[good,sp],abscissa[good],pixels)
-                   IntAuxFrame[*,row,col]=9
+                   if ( good[0] ne -1 ) then begin
+                       Frame[*,row,col]=interpol((*DataSet.Frames[q])[good,sp],abscissa[good],pixels)
+                       IntFrame[*,row,col]=interpol((*DataSet.IntFrames[q])[good,sp],abscissa[good],pixels)
+
+                       ; Initially interpolate bad pixel map
+                   endif
+                   IntAuxFrame[*,row,col]=interpol((*DataSet.IntAuxFrames[q])[*,sp],abscissa[*],pixels)
+;                   IntAuxFrame[*,row,col]=9
                end
            end
         endif else begin
-           ; Narrow band data.
+            ; Narrow band data.
             for sp = 0, nspec-1 do begin
                 ; Extract 1st block of 16x64 spectra
                 row = (sp mod (nrows-2))+2
@@ -235,9 +243,12 @@ FUNCTION assembcube_000, DataSet, Modules, Backbone
                 if ( complete[i,j] eq 1 ) then begin
                     pixels = poly(lambda,coeffs[*,i,j]) ; Map the desired wavelengths into the original pixels
                     good = where( (*DataSet.IntAuxFrames[q])[*,sp] eq 9 )
-                    Frame[*,row,col]=interpol((*DataSet.Frames[q])[good,sp],abscissa[good],pixels)
-                    IntFrame[*,row,col]=interpol((*DataSet.IntFrames[q])[good,sp],abscissa[good],pixels)
-                    IntAuxFrame[*,row,col]=9
+                    if ( good[0] ne -1 ) then begin
+                        Frame[*,row,col]=interpol((*DataSet.Frames[q])[good,sp],abscissa[good],pixels)
+                        IntFrame[*,row,col]=interpol((*DataSet.IntFrames[q])[good,sp],abscissa[good],pixels)
+                    endif
+                    IntAuxFrame[*,row,col]=interpol((*DataSet.IntAuxFrames[q])[*,sp],abscissa[*],pixels)
+;                    IntAuxFrame[*,row,col]=9
                 endif
                 ; Extract 2nd block of 16x64 spectra
                 row = (sp mod (nrows-2))+1
@@ -247,9 +258,12 @@ FUNCTION assembcube_000, DataSet, Modules, Backbone
                 if ( complete[i,j] eq 1 ) then begin
                     pixels = poly(lambda,coeffs[*,i,j]) ; Map the desired wavelengths into the original pixels
                     good = where( (*DataSet.IntAuxFrames[q])[*,sp] eq 9 )
-                    Frame[*,row,col]=interpol((*DataSet.Frames[q])[good,sp],abscissa[good],pixels)
-                    IntFrame[*,row,col]=interpol((*DataSet.IntFrames[q])[good,sp],abscissa[good],pixels)
-                    IntAuxFrame[*,row,col]=9
+                    if ( good[0] ne -1 ) then begin
+                        Frame[*,row,col]=interpol((*DataSet.Frames[q])[good,sp],abscissa[good],pixels)
+                        IntFrame[*,row,col]=interpol((*DataSet.IntFrames[q])[good,sp],abscissa[good],pixels)
+                    endif
+                    IntAuxFrame[*,row,col]=interpol((*DataSet.IntAuxFrames[q])[*,sp],abscissa[*],pixels)
+;                    IntAuxFrame[*,row,col]=9
                 endif
                 ; Extract 3rd block of 16x64 spectra
                 row = (sp mod (nrows-2))
@@ -259,9 +273,12 @@ FUNCTION assembcube_000, DataSet, Modules, Backbone
                 if ( complete[i,j] eq 1 ) then begin
                     pixels = poly(lambda,coeffs[*,i,j]) ; Map the desired wavelengths into the original pixels
                     good = where( (*DataSet.IntAuxFrames[q])[*,sp] eq 9 )
-                    Frame[*,row,col]=interpol((*DataSet.Frames[q])[good,sp],abscissa[good],pixels)
-                    IntFrame[*,row,col]=interpol((*DataSet.IntFrames[q])[good,sp],abscissa[good],pixels)
-                    IntAuxFrame[*,row,col]=9
+                    if ( good[0] ne -1 ) then begin
+                        Frame[*,row,col]=interpol((*DataSet.Frames[q])[good,sp],abscissa[good],pixels)
+                        IntFrame[*,row,col]=interpol((*DataSet.IntFrames[q])[good,sp],abscissa[good],pixels)
+                    endif
+                    IntAuxFrame[*,row,col]=interpol((*DataSet.IntAuxFrames[q])[*,sp],abscissa[*],pixels)
+;                    IntAuxFrame[*,row,col]=9
                 endif
                 ; Extract extract few spectra
                 if ( sp gt 831 ) then begin
@@ -272,13 +289,31 @@ FUNCTION assembcube_000, DataSet, Modules, Backbone
                     if ( complete[i,j] eq 1 ) then begin
                         pixels = poly(lambda,coeffs[*,i,j]) ; Map the desired wavelengths into the original pixels
                         good = where( (*DataSet.IntAuxFrames[q])[*,sp] eq 9 )
-                        Frame[*,row,col]=interpol((*DataSet.Frames[q])[good,sp],abscissa[good],pixels)
-                        IntFrame[*,row,col]=interpol((*DataSet.IntFrames[q])[good,sp],abscissa[good],pixels)
-                        IntAuxFrame[*,row,col]=9
+                        if ( good[0] ne -1 ) then begin
+                            Frame[*,row,col]=interpol((*DataSet.Frames[q])[good,sp],abscissa[good],pixels)
+                            IntFrame[*,row,col]=interpol((*DataSet.IntFrames[q])[good,sp],abscissa[good],pixels)
+                        endif
+                        IntAuxFrame[*,row,col]=interpol((*DataSet.IntAuxFrames[q])[*,sp],abscissa[*],pixels)
+;                        IntAuxFrame[*,row,col]=9
                     endif
                 endif
             end
         end
+
+        ; If a final pixel was next to a bad pixel, then it's
+        ; interpolated value will be less than  9. Set such a pixel to 0 to mark it
+        ; as bad. This means one bad pixel in the unstretched cubes will become at
+        ; least 2 bad pixels in the end.
+        bad = where( IntAuxFrame lt 9 )
+        if ( bad[0] ne -1 ) then begin
+            IntAuxFrame[bad] = 0
+;            Frame[bad]=0.0
+        endif
+
+        good = where(IntAuxFrame gt 0 )
+        if ( good[0] ne -1 ) then begin
+            IntAuxFrame[good] = 9
+        endif
 
         ; Make the new cubes the valid data frames.
         tempPtr = PTR_NEW(/ALLOCATE_HEAP) ; Create a temporary reference pointer
@@ -319,7 +354,6 @@ FUNCTION assembcube_000, DataSet, Modules, Backbone
         sxaddpar, *DataSet.Headers[q], 'CUNIT1', 'nm'
 
     end
-
 
    ; update the header
 ;   for i=0, nFrames-1 do begin
