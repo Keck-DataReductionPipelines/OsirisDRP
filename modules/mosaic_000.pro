@@ -12,9 +12,14 @@
 ;						(uses bad pixel map)
 ;
 ;                                    'MEDIAN'  - Median over all pixels
+;						(only works for a large
+;						number of overlapping frames.
+;						Large padded regions will
+;						introduce a bias)
 ;
 ;                                    'MEANCLIP' - Mean with a sigma clip 
-;						(sigma=3)
+;						(sigma=2)
+;						(uses bad pixel map)
 ;
 ;    mosaic_COMMON___OffsetMethod    : The method to use for determining
 ;                                    the mosaic offsets:
@@ -24,18 +29,19 @@
 ;                                    'TEL'  : Calculate the offsets
 ;                                             from the telescope
 ;                                             coordinates
-;     	                              'NGS'   : Calculate offsets from NGS-AO
+;     	                             'NGS'   : Calculate offsets from NGS-AO
 ;						(OBSFMXIM, OBSFMYIM)
-;				      'LGS'   : Calculate offsets from LGS-AO
+;				     'LGS'   : Calculate offsets from LGS-AO
 ;						(AOTSX,AOTSY)
 ;
 ; INPUT-FILES : None
 ;
 ; OUTPUT : Saves the 0th dataset pointer which contains after
 ;          mosaicing the result (primary and 1st and 2nd extension). The filename for this file is created
-;          from the 0th header. The 3rd extension of the result saved
-;          is the offset list (float matrix with first index taSet.IntAuxFrames[i]
-;          x-offsets and eq to 1 indexing the y-offsets. 
+;          from the 0th header. The 3rd extension contains the number of frames used to combine the mosaic 
+;	   for each pixel. The 4th extension of the result saved is the offset list 
+;	   (float matrix with first index DataSet.IntAuxFrames[i] x-offsets and eq to 1 
+;	   indexing the y-offsets.) 
 ;
 ; DATASET : the mosaiced result is put into the 0th pointer. All
 ;           others are deleted. The ValidFrameCounter is set to 1.
@@ -250,53 +256,76 @@ FUNCTION mosaic_000, DataSet, Modules, Backbone
    if ( s_SumMethod eq 'MEANCLIP' ) then begin
        ; median the data
        info, 'INFO (' + functionName + '): Mean-Clip shifted datasets.'
-       ; Creat arrays for median function
-       Med = (*DataSet.Frames(0)) - (*DataSet.Frames(0))
-       Noise = Med
-       Sum = Med
-       Number = Med 
-       sz = size(Med,/dimensions)
-       Frame = fltarr(sz[0],sz[1],sz[2],n_Sets)
-       Dev = fltarr(sz[0],sz[1],sz[2],n_Sets)
-       IntAx = fltarr(sz[0],sz[1],sz[2],n_Sets)
+       ; Create arrays for intermediate results
+       sz = size(*DataSet.Frames(0),/dimensions)
+       Noise = fltarr(sz[0],sz[1],sz[2])
+       Mn = fltarr(sz[0],sz[1],sz[2])
+       Var = fltarr(sz[0],sz[1],sz[2])
+       Number = fltarr(sz[0],sz[1],sz[2])
 
+       ; Create a pointer array to hold the
+       ; deviations in the same array format
+       ; as DataSet.Frames
+       Dev = PTRARR(n_Sets, /ALLOCATE_HEAP)
        for n=0, n_Sets-1 do begin
-            Frame[*,*,*,n] = (*DataSet.Frames(n))[*,*,*]
-            IntAx[*,*,*,n] = (*DataSet.IntAuxFrames(n))[*,*,*] 
-       end          
+            *Dev[n] = fltarr(sz[0],sz[1],sz[2])
+       end       
 
-
-       ;; First calculate the median value at each location of the
-       ;; cube for the overlapping frames.
-       Med[*,*,*] = median(Frame[*,*,*,*], dimension = 4)
-       ;; Now for every location in every cube, calculate the square
-       ;; of the deviation from the median.
-       for i=0,n_Sets-1 do begin
-           Dev[*,*,*,i]=((Frame[*,*,*,i]-Med)*(Frame[*,*,*,i]-Med))
-       end
-       ;; Fake up the variance by taking the median of the 2nd central
-       ;; moments instead of the mean. This is faster because the
-       ;; median routine handles multiple dimensions without loops.
-       Variance = median(Dev[*,*,*,*], dimension=4)
-       ;; 
-       threshold = 3
+       ; First calculate the average at good pixel locations ignoring deviations
        for i=0, n_Sets-1 do begin
-           loc = where ( (IntAx[*,*,*,i] eq 9) and (Dev[*,*,*,i] lt threshold*threshold*Variance[*,*,*]) )
-           Sum[loc]= Sum[loc] + (*DataSet.Frames(i))[loc]
+           loc = where(*DataSet.IntAuxFrames[i] eq 9)
+           Mn[loc]= Mn[loc] + (*DataSet.Frames[i])[loc]
            Number[loc]  = Number[loc] + 1
-           Noise[loc] = Noise[loc] + (*DataSet.IntFrames(i))[loc] * (*DataSet.IntFrames(i))[loc]
+           Noise[loc] = Noise[loc] + (*DataSet.IntFrames(i))[loc] * $
+					(*DataSet.IntFrames(i))[loc]
        end
-
+       ; Calculate an initial average at the valid pixels.
        loc = where(Number gt 0)
-       Sum[loc] = Sum[loc] / Number[loc]
+       Mn[loc] = Mn[loc] / Number[loc]
+       ; Calculate the noise based on the noise
+       ; in all valid frames
        Noise[loc] = sqrt(Noise[loc]/Number[loc])
 
-       print, 'Meanclip complete'
+       ; Zero out the accumlator array
+       Number = Number - Number
+       ; Now calculate the deviation and variance
+       for i=0, n_Sets-1 do begin
+           loc = where (*DataSet.IntAuxFrames[i] eq 9)
+           (*Dev[i])[loc] = (((*DataSet.Frames[i])[loc]-Mn[loc])*$
+				((*DataSet.Frames[i])[loc]-Mn[loc]))
+	   Var[loc] = Var[loc] + (*Dev[i])[loc]
+           Number[loc] = Number[loc]+1
+       end
+       ; Calculate the variance for the valid pixels
+       loc = where(Number gt 0)
+       Var[loc] = Var[loc] / Number[loc]
 
-       (*DataSet.Frames[0]) = Sum
+	; Now calculate the average again using a clip from the deviation
+       threshold = 1.7 ; threshold for stdev but used thresh*thresh for Var 
+       ; Zero out the accumulator arrays.
+       Number = Number - Number
+       Mn = Mn - Mn
+       for i=0, n_Sets-1 do begin
+	   loc = where( (*DataSet.IntAuxFrames[i] eq 9) and $
+			(*Dev[i] lt threshold*threshold*Var) )
+           Mn[loc] = Mn[loc] + (*DataSet.Frames[i])[loc]
+           Number[loc]  = Number[loc] + 1
+       end
+       ; Calculate the average at the valid pixels
+       loc = where(Number gt 0)
+       Mn[loc] = Mn[loc] / Number[loc]
+
+       ; Assign average and noise to the dataset arrays
+       (*DataSet.Frames[0]) = Mn
        (*DataSet.IntFrames[0]) = Noise
        (*DataSet.IntAuxFrames[0])[loc] = 9
- 
+
+       ; Free the memory for the deviation array
+       for i=0, n_Sets-1 do begin
+           PTR_FREE, Dev[i]
+       end          
+       
+       print, 'Meanclip complete' 
    end
 
 ;;;;-----------------------;
@@ -329,7 +358,7 @@ FUNCTION mosaic_000, DataSet, Modules, Backbone
    writefits, c_File, float(*DataSet.Frames[0]), *DataSet.Headers[0]
    writefits, c_File, float(*DataSet.IntFrames[0]), /APPEND
    writefits, c_File, byte(*DataSet.IntAuxFrames[0]), /APPEND
-   writefits, c_File, byte(Number), /APPEND
+   writefits, c_File, float(Number), /APPEND
    writefits, c_File, float(V_Shifts), /APPEND
 
 
