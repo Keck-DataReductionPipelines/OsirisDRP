@@ -31,7 +31,8 @@ FILES	=
 RELFILES = 
 
 RELDAT   = basicARP_drfTemplate.xml \
-	   basicORP_drfTemplate.xml
+	   basicORP_drfTemplate.xml \
+	   basicCRP_sky_drfTemplate.xml
 
 #override SYSNAM = kss/osiris/drs/gui/odrfgui
 #override VERNUM = 1.4
