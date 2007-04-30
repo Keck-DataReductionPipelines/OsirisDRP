@@ -61,10 +61,10 @@ public class ODRFGUIParameters {
 
   public static String DEFAULT_REDUCTION_TYPE = REDUCTION_TYPE_ARP_SPEC;
 
-  public static String REDUCTION_TEMPLATE_ARP_BASIC = "/kroot/rel/default/data/basicARP_drfTemplate.xml";
-  public static String REDUCTION_TEMPLATE_ORP_BASIC = "/kroot/rel/default/data/basicORP_drfTemplate.xml";
-  public static String[] DEFAULT_REDUCTION_TEMPLATE_LIST = {REDUCTION_TEMPLATE_ARP_BASIC,
-							  REDUCTION_TEMPLATE_ORP_BASIC};
+  public static String[] DEFAULT_REDUCTION_TEMPLATE_LIST = {
+  	"/kroot/rel/default/data/basicARP_drfTemplate.xml",
+  	"/kroot/rel/default/data/basicCRP_sky_drfTemplate.xml",
+  	"/kroot/rel/default/data/basicORP_drfTemplate.xml"};
 
   //. possible calibration file location strings
   public static String FIND_FILE_SPECIFY_FILE = "find_file_specify_file";
