@@ -50,6 +50,7 @@ if (drs_idl_root ne '') then $
 .compile sxpar.pro
 .compile readfits.pro
 .compile writefits.pro
+.compile meanclipdrl.pro
 .compile general_log_name.pro
 .compile drpMain.pro
 .compile drpBackbone__define.pro
@@ -58,6 +59,7 @@ if (drs_idl_root ne '') then $
 .compile drpDRFPipeline__define.pro
 .compile drpPipeline__define.pro
 .compile drpRun.pro
+
 
 ; Check to see if we need to use an alternate DRF queue
 alt_drf_queue = GETENV('OSIRIS_ALTERNATE_DRF_QUEUE_DIR')

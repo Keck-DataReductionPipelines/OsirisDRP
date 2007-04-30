@@ -137,7 +137,7 @@ FUNCTION mosaic_000, DataSet, Modules, Backbone
 
    ; determine spatial size of the mosaiced cube/image 
    maxx = max(x_shift)      &  maxy = max(y_shift)      &  minx = min(x_shift)      &  miny = min(y_shift)
-   max_x_shift = fix(maxx)  &  max_y_shift = fix(maxy)  &  min_x_shift = fix(minx)  &  min_y_shift = fix(miny)
+   max_x_shift = round(maxx)  &  max_y_shift = round(maxy)  &  min_x_shift = round(minx)  &  min_y_shift = round(miny)
    nn1 = n_Dims(2)+max_x_shift-min_x_shift ; x-size of the new combined cube
    nn2 = n_Dims(3)+max_y_shift-min_y_shift ; y-size of the new combined cube
 
@@ -161,13 +161,13 @@ FUNCTION mosaic_000, DataSet, Modules, Backbone
       for j=0, n_Dims(1)-1 do begin
 
          if ( ( j mod (n_Dims(1)/10) ) eq 0 ) then $
-           info, 'INFO (' + functionName + '): ' + strg(fix(100.*float(j)/float(n_Dims(1)))) + '% of set ' + $
+           info, 'INFO (' + functionName + '): ' + strg(round(100.*float(j)/float(n_Dims(1)))) + '% of set ' + $
                  strg(i) + ' shifted.' 
          
-         dx = x_shift(i)       - fix(x_shift(i)) ; the shift is slice independent (mosaicing)
-         dy = y_shift(i)       - fix(y_shift(i))
-         ix = abs(min_x_shift) + fix(x_shift(i))
-         iy = abs(min_y_shift) + fix(y_shift(i))
+         dx = x_shift(i)       - round(x_shift(i)) ; the shift is slice independent (mosaicing)
+         dy = y_shift(i)       - round(y_shift(i))
+         ix = abs(min_x_shift) + round(x_shift(i))
+         iy = abs(min_y_shift) + round(y_shift(i))
          
          ; extract slices for shifting
          mf_D = ( n_Dims(0) eq 3 ) ? reform((*DataSet.Frames(i))(j,*,*)) : *DataSet.Frames(i)

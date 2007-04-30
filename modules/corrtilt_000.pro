@@ -236,7 +236,7 @@ FUNCTION corrtilt_000, DataSet, Modules, Backbone
     d_Temperature = float ( strg(Backbone->getParameter('corrtilt_COMMON___Temperature')) )
 
     ; to initialize colors, when plotting colors can be accessed with color=1..8
-    if ( fix( Backbone->getParameter('ALL_COMMON___Colors') ) eq 1 ) then init_colors
+;    if ( fix( Backbone->getParameter('ALL_COMMON___Colors') ) eq 1 ) then init_colors
 
     if ( b_Atmo eq 0 and b_AOBench eq 0 ) then begin
        info, 'INFO (' + functionName + '): Nothing to be done.'
@@ -258,11 +258,23 @@ FUNCTION corrtilt_000, DataSet, Modules, Backbone
 
        ; only do cubes
        if ( (size(*DataSet.Frames(i)))(0) eq 3 ) then begin
-
           info, 'INFO (' + functionName + '): Working on set ' + strg(i) + ' now.'
 
           ; get the wavelengths in microns
-          vd_L = get_wave_axis ( DataSet.Headers(i), s_Parameters, DEBUG=b_Debug ) * 1.E6
+; Don't have get_wave_axis routine. Quick work around. Jan 9,2007:  JEL.
+;          vd_L = get_wave_axis ( DataSet.Headers(i), s_Parameters, DEBUG=b_Debug ) * 1.E6
+          sz = size(*DataSet.Frames(i))
+          disp = float( sxpar( *DataSet.Headers(i), 'CDELT1', count= n_disp))/1.E3   ; Raw value is in nm.
+          if ( n_disp ne 1) then $
+            warning, ' WARNING (' + functionName + '): CDELT1 not found or not unique in set ' + strg(i) + '.' 
+          info, 'INFO (' + functionName + '): Found CDELT1 of ' + strg ( disp ) + ' microns.'
+
+          initial = float( sxpar( *DataSet.Headers(i), 'CRVAL1', count= n_val))/1.E3   ; Raw value is in nm.
+          if ( n_val ne 1) then $
+            warning, ' WARNING (' + functionName + '): CRVAL1 not found or not unique in set ' + strg(i) + '.' 
+          info, 'INFO (' + functionName + '): Found initial wavelength of ' + strg ( initial ) + ' microns.'
+          vd_L = findgen(sz[1])*disp + initial
+; End work around.
 
           ; arrays for the calculated offsets in pixel
           vd_DeltaX = fltarr ( n_elements(vd_L) )  &  vd_DeltaY = fltarr ( n_elements(vd_L) )
@@ -294,7 +306,10 @@ FUNCTION corrtilt_000, DataSet, Modules, Backbone
                 strg ( d_Pa_Spec ) + ' degrees.'
 
           ; the real scale is not exactly the keyword
-          d_Scale = get_real_scale(float( sxpar ( *DataSet.Headers(i), 'SSCALE', count = n_Scale ) ), 1 )
+; Not sure why get_real_scale is needed.
+; Trying just raw parameter. JEL Jan 9, 2007
+;          d_Scale = get_real_scale(float( sxpar ( *DataSet.Headers(i), 'SSCALE', count = n_Scale ) ), 1 )
+          d_Scale = (float( sxpar ( *DataSet.Headers(i), 'SSCALE', count = n_Scale ) ))
           if ( n_Scale ne 1 ) then $
              warning, 'WARNING (' + functionName + '): Scale of the spectrograph not found or not unique in set ' + strg(i) + '.' 
           if ( d_Scale lt 0. ) then $
@@ -411,8 +426,21 @@ FUNCTION corrtilt_000, DataSet, Modules, Backbone
              if ( n ne 1 ) then $
                 return, error ('FAILURE (' + functionName + '): DEC keyword not found in set ' + strg(i) + '.')
              vd_Coords = det2coord(float([-i_MinX, -i_MinY]), d_RA, d_Dec, d_Scale, d_Pa_Spec/!RADEG)
-             sxaddpar, *Dataset.Headers(i), 'CRRA', vd_Coords(0)
-             sxaddpar, *Dataset.Headers(i), 'CRDEC', vd_Coords(1)
+             ; sxaddpar, *Dataset.Headers(i), 'CRRA', vd_Coords(0)
+             ; sxaddpar, *Dataset.Headers(i), 'CRDEC', vd_Coords(1)
+            
+             radec, vd_Coords(0), vd_Coords(1), ihr, imin, xsec, ideg, imn, xsc
+
+             ra_hr=strtrim(ihr,2)
+             ra_min=strtrim(imin,2)
+             ra_sec=strtrim(string(Format='(F5.2)',xsec),2)
+
+             dec_hr=strtrim(ideg,2)
+             dec_min=strtrim(imn,2)
+             dec_sec=strtrim(string(Format='(F4.1)',xsc),2)
+
+             sxaddpar, *Dataset.Headers(i), 'RA', vd_Coords(0), 'telescope right ascension ('+ra_hr+':'+ra_min+':'+ra_sec+' deg)' 
+             sxaddpar, *Dataset.Headers(i), 'DEC', vd_Coords(1), 'telescope declination ('+dec_hr+':'+dec_min+':'+dec_sec+' hr)'
 
              print,format='("INFO (",A,"): RA and DEC shifted from ")',functionName
              print,format='("     ",D15.10,",",D15.10)',d_RA,d_Dec
@@ -508,34 +536,34 @@ FUNCTION corrtilt_000, DataSet, Modules, Backbone
             if ( nmask gt 0 ) then begin
                minp = min( [reform(mi_CenterPos[0,mask]), reform(mi_CenterPosS[0,mask])])
                maxp = max( [reform(mi_CenterPos[0,mask]), reform(mi_CenterPosS[0,mask])])
-               plot, reform(mi_CenterPos[0,mask]),charsize=1,title='X Pos (black/before, green/after)',$
-                     /yst,/xst,yrange=[minp,maxp],xtitle='Channel',ytitle='X Pos [px]'
-               oplot, reform(mi_CenterPosS[0,mask]), color=2
+               ;plot, reform(mi_CenterPos[0,mask]),charsize=1,title='X Pos (black/before, green/after)',$
+                ;     /yst,/xst,yrange=[minp,maxp],xtitle='Channel',ytitle='X Pos [px]'
+               ;oplot, reform(mi_CenterPosS[0,mask]), color=2
             end
 
             mask = where ( mi_CenterPos[1,*] gt 0., nmask )
             if ( nmask gt 0 ) then begin
                minp = min( [reform(mi_CenterPos[1,mask]), reform(mi_CenterPosS[1,mask])])
                maxp = max( [reform(mi_CenterPos[1,mask]), reform(mi_CenterPosS[1,mask])])
-               plot, reform(mi_CenterPos[1,mask]),charsize=1,title='Y Pos (black/before, green/after)',$
-                     /yst,/xst,yrange=[minp,maxp],xtitle='Channel',ytitle='Y Pos [px]'
-               oplot, reform(mi_CenterPosS[1,mask]), color=2
+               ;plot, reform(mi_CenterPos[1,mask]),charsize=1,title='Y Pos (black/before, green/after)',$
+                     ;/yst,/xst,yrange=[minp,maxp],xtitle='Channel',ytitle='Y Pos [px]'
+               ;oplot, reform(mi_CenterPosS[1,mask]), color=2
             end
 
-            plot, vd_xshift, /yst, /xst, title='X Shift (total:white, integer:red, fractional:green)', $
-                  xtitle='Channel', ytitle='Shift [px]', yrange=[min([vi_x,vd_x,vd_xshift]), max([vi_x,vd_x,vd_xshift])]
-            oplot, vi_x, color=1, linestyle=2
-            oplot, vd_x,color=2, linestyle=2
-            oplot, vd_x+vi_x,color=3, linestyle=1
+            ;plot, vd_xshift, /yst, /xst, title='X Shift (total:white, integer:red, fractional:green)', $
+                 ; xtitle='Channel', ytitle='Shift [px]', yrange=[min([vi_x,vd_x,vd_xshift]), max([vi_x,vd_x,vd_xshift])]
+            ;oplot, vi_x,color=255,  linestyle=2
+            ;oplot, vd_x,color=255*256, linestyle=2
+            ;oplot, vd_x+vi_x,color=255*256+255, linestyle=1
 
-            plot, vd_yshift, /yst, /xst, title='Y Shift (check:blue(=red+green))', $
-                  xtitle='Channel', ytitle='Shift [px]', yrange=[min([vi_y,vd_y,vd_yshift]), max([vi_y,vd_y,vd_yshift])]
-            oplot, vi_y, color=1, linestyle=2
-            oplot, vd_y,color=2, linestyle=2
-            oplot, vd_y+vi_y,color=3, linestyle=2
+           ; plot, vd_yshift, /yst, /xst, title='Y Shift (check:blue(=red+green))', $
+           ;       xtitle='Channel', ytitle='Shift [px]', yrange=[min([vi_y,vd_y,vd_yshift]), max([vi_y,vd_y,vd_yshift])]
+           ; oplot, vi_y, color=255, linestyle=2
+           ; oplot, vd_y,color=255*256, linestyle=2
+           ; oplot, vd_y+vi_y,color=255*256+255, linestyle=2
 
 
-            !p.multi=[0,1,0]
+           ; !p.multi=[0,1,0]
 
             ;device,/close
             ;set_plot,'x'
@@ -548,18 +576,18 @@ FUNCTION corrtilt_000, DataSet, Modules, Backbone
              c_File = make_filename ( DataSet.Headers[i], Modules[thisModuleIndex].OutputDir, '__ctlt' )
              if ( NOT bool_is_string(c_File) ) then $
                 return, error('FAILURE (' + functionName + '): Output filename creation failed.')
-          
+         
              writefits, c_File, transpose([[vd_xshift],[vd_yshift]])
- 
+
           endif
 
           if ( Modules[thisModuleIndex].Save eq 1 ) then begin
 
-             ; Now, save the data
+            ; Now, save the data
              c_File = make_filename ( DataSet.Headers[i], Modules[thisModuleIndex].OutputDir, '_cctlt' )
              if ( NOT bool_is_string(c_File) ) then $
                 return, error('FAILURE (' + functionName + '): Output filename creation failed.')
-          
+         
              writefits, c_File, *DataSet.Frames(i), *DataSet.Headers(i)
              writefits, c_File, *DataSet.IntFrames(i), /append
              writefits, c_File, *DataSet.IntAuxFrames(i), /append

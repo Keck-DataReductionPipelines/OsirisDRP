@@ -1,6 +1,7 @@
 <Config DirName="/Users/tgasaway/OSIRIS/backbone/code/backbone"
 
     adjchan_COMMON___Debug="1"
+    ALL_COMMON___Colors="1"
 
     assembcube_COMMON___CoeffFile         ='$OSIRIS_DRP_DATA_PATH/osiris_wave_coeffs.fits'
     assembcube_COMMON___OldCoeffFile      ='$OSIRIS_DRP_DATA_PATH/old_wave_coeffs.fits'
@@ -14,6 +15,8 @@
     badpixnois_COMMON___llyf="0.2"
     badpixnois_COMMON___urxf="0.8"
     badpixnois_COMMON___uryf="0.8"
+
+    caelum_mosaic_COMMON___Debug          = '0'
 
     calibrwave_COMMON___Debug             = '0'
     calibrwave_COMMON___BadMultiplier     = '10.'
@@ -50,6 +53,13 @@
     computspec_COMMON___OptClipSigma = "0"
     computspec_COMMON___Debug = "0"        
 
+    corrtilt_COMMON___Debug      ="0"
+    corrtilt_COMMON___MinShift   ="0"
+    corrtilt_COMMON___Atmo       ="1"
+    corrtilt_COMMON___AOBench    ="1"
+    corrtilt_COMMON___Pressure   ="640."
+    corrtilt_COMMON___Temperature="273."
+
     detspecres_COMMON___Linefile         = '$OSIRIS_DRP_DATA_PATH/osiris_cal_line.list'
     detspecres_COMMON___FitHalfWindow    ='12'
     detspecres_COMMON___FitFunction      ='GAUSSIAN'
@@ -57,15 +67,15 @@
     detspecres_COMMON___FitOrder         ='2'
     detspecres_COMMON___Debug            ='1'
 
+    divblackbo_COMMON___Temperature = "9600."
+    divblackbo_COMMON___Debug = "1"
+    divblackbo_COMMON___Multiplicate = "1"
+
     divideflat_COMMON___Debug="1"
     divideflat_COMMON___Limit="1.d-10"
 
     divstarspe_COMMON___Debug = "1"
     divstarspe_COMMON___Limit = "1.d-20"
-
-    divblackbo_COMMON___Temperature = "9600."
-    divblackbo_COMMON___Debug = "1"
-    divblackbo_COMMON___Multiplicate = "1"
 
     fitdispers_COMMON___Debug="1"
 
@@ -79,11 +89,7 @@
 
     glitchid_COMMON___SlopeThresh ="10."
     glitchid_COMMON___ChanThresh ="5."  
-   
-    tellcor_COMMON___BinSize="3"
-    tellcor_COMMON___BoxSize="5"
-    tellcor_COMMON___ApRadius="3."
- 
+    
     interponed_COMMON___Debug ='0'
     interponed_COMMON___BadMult  = '10.'
     interponed_COMMON___GoodMult = '4.'
@@ -155,6 +161,10 @@
     subtracsky_COMMON___Debug="1"
     subtradark_COMMON___Debug="1"
 
+    tellcor_COMMON___BinSize="3"
+    tellcor_COMMON___BoxSize="5"
+    tellcor_COMMON___ApRadius="3."
+
     mkdetrespo_COMMON___Debug="0">
 
 	<!-- Module Names to IDL functions map -->
@@ -173,6 +183,7 @@
     <Module Name="Find Bad Pixels from Noise" IDLFunc="badpixnois_000"></Module>
     <Module Name="Clean Noise Frame" IDLFunc="cleannoise_000"></Module>
     <Module Name="Clean Cube" IDLFunc="cleancube_000"></Module>
+    <Module Name="Correct Dispersion" IDLFunc="corrtilt_000"></Module>
     <Module Name="Clean Cosmic Rays" IDLFunc="cleancosmic_000"></Module>
     <Module Name="Save Master Flat Field" IDLFunc="saveflatfi_000"></Module>
   </TEST_DRP>
@@ -182,6 +193,7 @@
     <Module Name="Linearize and Correct Pixel" IDLFunc="lineapixel_000" Order="1"></Module>
     <Module Name="Combine Frames" IDLFunc="combframes_000"></Module>
     <Module Name="Clean Cube" IDLFunc="cleancube_000"></Module>
+    <Module Name="Correct Dispersion" IDLFunc="corrtilt_000"></Module>
     <Module Name="Clean Cosmic Rays" IDLFunc="cleancosmic_000"></Module>
     <Module Name="Extract Signal SPEC" IDLFunc="extracsigs_000" Order="2"></Module>
   </TRP_SPEC>
@@ -193,29 +205,30 @@
   </TRP_IMAG>
   <CRP_SPEC>
     <Module Name="Setup Dark Frame from Scan" IDLFunc="mkrectdark_000"></Module>
-    <Module Name="Make Dark Frame" IDLFunc="makedarkfr_000" Order="0"></Module>
+    <Module Name="Make Dark Frame" IDLFunc="makedarkfr_000" Order="0" HideInGUI="1"></Module>
     <Module Name="Setup Rectification Matrix Frames from Scan" IDLFunc="srtrectdat_000"></Module>
-    <Module Name="Subtract Dark Frame" IDLFunc="subtradark_000"></Module>
+    <Module Name="Subtract Dark Frame" IDLFunc="subtradark_000" HideInGUI="1"></Module>
     <Module Name="Subtract Frame" IDLFunc="subtradark_000"></Module>
-    <Module Name="Remove Crosstalk" IDLFunc="rmcrosstalk_000"></Module> 
+    <Module Name="Remove Crosstalk" IDLFunc="rmcrosstalk_000" ></Module> 
     <Module Name="Adjust Channel Levels" IDLFunc="adjchan_000"></Module>
-    <Module Name="Extract Line Emission" IDLFunc="linext_000"></Module>
+    <Module Name="Extract Line Emission" IDLFunc="linext_000" HideInGUI="1"></Module>
     <Module Name="Glitch Identification" IDLFunc="glitchid_000"></Module> 
     <Module Name="Clean Cube" IDLFunc="cleancube_000"></Module>
+    <Module Name="Correct Dispersion" IDLFunc="corrtilt_000"></Module>
     <Module Name="Clean Cosmic Rays" IDLFunc="cleancosmic_000"></Module>
     <Module Name="Combine Frames" IDLFunc="combframes_000"></Module>
     <Module Name="Make Rectification Matrix" IDLFunc="mkrecmatrx_000"></Module>
-    <Module Name="Make Flat Field" IDLFunc="makeflatfi_000"></Module>
+    <Module Name="Make Flat Field" IDLFunc="makeflatfi_000" HideInGUI="1"></Module>
     <Module Name="Make Wave Calib Frame" IDLFunc="mkwavcalfr_000"></Module>
     <Module Name="Make Detector Response" IDLFunc="mkdetrespo_000"></Module>
-    <Module Name="Pack NB Frames" IDLFunc="packnbfrms_000"></Module>
-    <Module Name="Find Bad Pixels from Noise" IDLFunc="badpixnois_000"></Module>
-    <Module Name="Determine Mosaic Positions" IDLFunc="mosaicdpos_000"></Module>
-    <Module Name="Swap Channels for Test" IDLFunc="swapchan_000"></Module>
-    <Module Name="Clean Noise Frame" IDLFunc="cleannoise_000"></Module>
-    <Module Name="Telluric Correction" IDLFunc="tellcor_000"></Module> 
-    <Module Name="Save Master Flat Field" IDLFunc="saveflatfi_000"></Module>
-    <Module Name='Determine Spectral Resolution' IDLFunc='detspecres_000'></Module>
+    <Module Name="Pack NB Frames" IDLFunc="packnbfrms_000" HideInGUI="1"></Module>
+    <Module Name="Find Bad Pixels from Noise" IDLFunc="badpixnois_000" HideInGUI="1"></Module>
+    <Module Name="Determine Mosaic Positions" IDLFunc="mosaicdpos_000" HideInGUI="1"></Module>
+    <Module Name="Swap Channels for Test" IDLFunc="swapchan_000" HideInGUI="1"></Module>
+    <Module Name="Clean Noise Frame" IDLFunc="cleannoise_000" HideInGUI="1"></Module>
+    <Module Name="Telluric Correction" IDLFunc="tellcor_000" HideInGUI="1"></Module> 
+    <Module Name="Save Master Flat Field" IDLFunc="saveflatfi_000" HideInGUI="1"></Module>
+    <Module Name='Determine Spectral Resolution' IDLFunc='detspecres_000' HideInGUI="1"></Module>
     <Module Name="Save DataSet Information" IDLFunc="savedatset_000"></Module>
   </CRP_SPEC>
   <CRP_IMAG>
@@ -231,46 +244,47 @@
     <Module Name="Save Master Flat Field" IDLFunc="saveflatfi_000"></Module>
   </CRP_IMAG>
   <ARP_SPEC>
-    <Module Name="Determine Mosaic Positions" IDLFunc="mosaicdpos_000"></Module>
-    <Module Name="Subtract Dark Frame" IDLFunc="subtradark_000"></Module>
+    <Module Name="Determine Mosaic Positions" IDLFunc="mosaicdpos_000" HideInGUI="1"></Module>
+    <Module Name="Subtract Dark Frame" IDLFunc="subtradark_000" HideInGUI="1"></Module>
     <Module Name="Subtract Frame" IDLFunc="subtradark_000"></Module>
-    <Module Name="Subtract Sky" IDLFunc="subtracsky_000" Order="0"></Module>
-    <Module Name="Remove Crosstalk" IDLFunc="rmcrosstalk_000"></Module> 
+    <Module Name="Subtract Sky" IDLFunc="subtracsky_000" HideInGUI="1" Order="0"></Module>
+    <Module Name="Remove Crosstalk" IDLFunc="rmcrosstalk_000" HideInGUI="1"></Module> 
     <Module Name="Adjust Channel Levels" IDLFunc="adjchan_000"></Module>
     <Module Name="Glitch Identification" IDLFunc="glitchid_000"></Module>
     <Module Name="Clean Cube" IDLFunc="cleancube_000"></Module>
+    <Module Name="Correct Dispersion" IDLFunc="corrtilt_000"></Module>
     <Module Name="Clean Cosmic Rays" IDLFunc="cleancosmic_000"></Module>
     <Module Name="Combine Frames" IDLFunc="combframes_000"></Module>
-    <Module Name="Extract Line Emission" IDLFunc="linext_000"></Module>
+    <Module Name="Extract Line Emission" IDLFunc="linext_000" HideInGUI="1" ></Module>
     <Module Name="Extract Spectra" IDLFunc="spatrectif_000" Order="1"></Module>
-    <Module Name="Spatially Rectify Spectrum" IDLFunc="spatrectif_000" Order="1"></Module>
+    <Module Name="Spatially Rectify Spectrum" IDLFunc="spatrectif_000" Order="1" HideInGUI="1"></Module>
     <Module Name="Assemble Data Cube" IDLFunc="assembcube_000"></Module>
-    <Module Name="Divide by Flat Field" IDLFunc="divideflat_000" Order="3"></Module>
-    <Module Name="Clean Noise Frame" IDLFunc="cleannoise_000"></Module>
-    <Module Name="Subtract Background" IDLFunc="subbackgrd_000"></Module>
-    <Module Name="Make Sky Frame" IDLFunc="makekskyfr_000"></Module>
-    <Module Name="Correct Dispersion" IDLFunc="corrdisper_000" Order="7"></Module>
-    <Module Name="Correct Telluric Lines" IDLFunc="corrtellin_000" Order="8"></Module>
-    <Module Name="Divide by Star Spectrum" IDLFunc="divstarspe_000" Order="12"></Module>
-    <Module Name="Compute Telluric Spectrum" IDLFunc="comtellspe_000" Order="13"></Module>
-    <Module Name="Correct OH Lines" IDLFunc="corrohline_000" Order="9"></Module>
-    <Module Name="Calibrate Flux" IDLFunc="calibrflux_000" Order="10"></Module>
-    <Module Name="Clean PSF" IDLFunc="cleanpsf___000" Order="11"></Module>
-    <Module Name="Telluric Correction" IDLFunc="tellcor_000"></Module>  
-    <Module Name="Divide by Star Spectrum" IDLFunc="divstarspe_000" Order="12"></Module>
-    <Module Name="Determine Mosaic Positions" IDLFunc="mosaicdpos_000"></Module>
-    <Module Name="Mosaic Dithered Frames" IDLFunc="mosaicdith_000" Order="12"></Module>
+    <Module Name="Divide by Flat Field" IDLFunc="divideflat_000" Order="3" HideInGUI="1"></Module>
+    <Module Name="Clean Noise Frame" IDLFunc="cleannoise_000" HideInGUI="1"></Module>
+    <Module Name="Subtract Background" IDLFunc="subbackgrd_000" HideInGUI="1"></Module>
+    <Module Name="Make Sky Frame" IDLFunc="makekskyfr_000" HideInGUI="1"></Module>
+    <Module Name="Correct Telluric Lines" IDLFunc="corrtellin_000" Order="8" HideInGUI="1"></Module>
+    <Module Name="Divide by Star Spectrum" IDLFunc="divstarspe_000" Order="12" HideInGUI="1"></Module>
+    <Module Name="Compute Telluric Spectrum" IDLFunc="comtellspe_000" Order="13" HideInGUI="1"></Module>
+    <Module Name="Correct OH Lines" IDLFunc="corrohline_000" Order="9" HideInGUI="1"></Module>
+    <Module Name="Calibrate Flux" IDLFunc="calibrflux_000" Order="10" HideInGUI="1"></Module>
+    <Module Name="Clean PSF" IDLFunc="cleanpsf___000" Order="11" HideInGUI="1"></Module>
+    <Module Name="Telluric Correction" IDLFunc="tellcor_000" HideInGUI="1"></Module>  
+    <Module Name="Divide by Star Spectrum" IDLFunc="divstarspe_000" Order="12" HideInGUI="1"></Module>
+    <Module Name="Determine Mosaic Positions" IDLFunc="mosaicdpos_000" HideInGUI="1"></Module>
+    <Module Name="Mosaic Dithered Frames" IDLFunc="mosaicdith_000" Order="12" HideInGUI="1"></Module>
     <Module Name="Mosaic Frames" IDLFunc="mosaic_000" Order="12"></Module>
+    <Module Name="Caelum Mosaic Frames" IDLFunc="caelum_mosaic_000" Order="12" HideInGUI="1"></Module>
     <Module Name="Save DataSet Information" IDLFunc="savedatset_000"></Module>
-    <Module Name="Make Data Cube" IDLFunc="mkdatacube_000" Order="2"></Module>
-    <Module Name="Calibrate Wavelength" IDLFunc="calibrwave_000" Order="5"></Module>
-    <Module Name="Swap Channels for Test" IDLFunc="swapchan_000"></Module>
-    <Module Name="Interpolate 1d" IDLFunc="interponed_000" Order="4"></Module>
-    <Module Name="Interpolate 3d" IDLFunc="intpthreed_000" Order="6"></Module>
-    <Module Name="Save Master Flat Field" IDLFunc="saveflatfi_000"></Module>
-    <Module Name="Debug Three" IDLFunc="debugtest3_000"></Module>
-    <Module Name="Find Bad Pixels from Noise" IDLFunc="badpixnois_000"></Module>
-    <Module Name='Determine Spectral Resolution' IDLFunc='detspecres_000'></Module>
+    <Module Name="Make Data Cube" IDLFunc="mkdatacube_000" Order="2" HideInGUI="1"></Module>
+    <Module Name="Calibrate Wavelength" IDLFunc="calibrwave_000" Order="5" HideInGUI="1"></Module>
+    <Module Name="Swap Channels for Test" IDLFunc="swapchan_000" HideInGUI="1"></Module>
+    <Module Name="Interpolate 1d" IDLFunc="interponed_000" Order="4" HideInGUI="1"></Module>
+    <Module Name="Interpolate 3d" IDLFunc="intpthreed_000" Order="6" HideInGUI="1"></Module>
+    <Module Name="Save Master Flat Field" IDLFunc="saveflatfi_000" HideInGUI="1"></Module>
+    <Module Name="Debug Three" IDLFunc="debugtest3_000" HideInGUI="1"></Module>
+    <Module Name="Find Bad Pixels from Noise" IDLFunc="badpixnois_000" HideInGUI="1"></Module>
+    <Module Name='Determine Spectral Resolution' IDLFunc='detspecres_000' HideInGUI="1"></Module>
   </ARP_SPEC>
   <SRP_SPEC>
     <Module Name="Determine Mosaic Positions" IDLFunc="mosaicdpos_000"></Module>
@@ -281,6 +295,7 @@
     <Module Name="Adjust Channel Levels" IDLFunc="adjchan_000"></Module>
     <Module Name="Glitch Identification" IDLFunc="glitchid_000"></Module>
     <Module Name="Clean Cube" IDLFunc="cleancube_000"></Module>
+    <Module Name="Correct Dispersion" IDLFunc="corrtilt_000"></Module>
     <Module Name="Clean Cosmic Rays" IDLFunc="cleancosmic_000"></Module>
     <Module Name="Combine Frames" IDLFunc="combframes_000"></Module>
     <Module Name="Extract Line Emission" IDLFunc="linext_000"></Module>
@@ -291,7 +306,6 @@
     <Module Name="Clean Noise Frame" IDLFunc="cleannoise_000"></Module>
     <Module Name="Subtract Background" IDLFunc="subbackgrd_000"></Module>
     <Module Name="Make Sky Frame" IDLFunc="makekskyfr_000"></Module>
-    <Module Name="Correct Dispersion" IDLFunc="corrdisper_000" Order="7"></Module>
     <Module Name="Correct Telluric Lines" IDLFunc="corrtellin_000" Order="8"></Module>
     <Module Name="Divide by Star Spectrum" IDLFunc="divstarspe_000" Order="12"></Module>
     <Module Name="Compute Telluric Spectrum" IDLFunc="comtellspe_000" Order="13"></Module>
@@ -303,6 +317,7 @@
     <Module Name="Determine Mosaic Positions" IDLFunc="mosaicdpos_000"></Module>
     <Module Name="Mosaic Dithered Frames" IDLFunc="mosaicdith_000" Order="12"></Module>
     <Module Name="Mosaic Frames" IDLFunc="mosaic_000" Order="12"></Module>
+    <Module Name="Caelum Mosaic Frames" IDLFunc="caelum_mosaic_000" Order="12"></Module>
     <Module Name="Save DataSet Information" IDLFunc="savedatset_000"></Module>
     <Module Name="Make Data Cube" IDLFunc="mkdatacube_000" Order="2"></Module>
     <Module Name="Calibrate Wavelength" IDLFunc="calibrwave_000" Order="5"></Module>
@@ -333,43 +348,44 @@
     <Module Name="Save Master Flat Field" IDLFunc="saveflatfi_000"></Module>
   </SRP_IMAG>
   <ORP_SPEC>
-    <Module Name="Determine Mosaic Positions" IDLFunc="mosaicdpos_000"></Module>
-    <Module Name="Subtract Dark Frame" IDLFunc="subtradark_000"></Module>
+    <Module Name="Determine Mosaic Positions" IDLFunc="mosaicdpos_000" HideInGUI="1"></Module>
+    <Module Name="Subtract Dark Frame" IDLFunc="subtradark_000" HideInGUI="1"></Module>
     <Module Name="Subtract Frame" IDLFunc="subtradark_000"></Module>
-    <Module Name="Subtract Sky" IDLFunc="subtracsky_000" Order="0"></Module>
+    <Module Name="Subtract Sky" IDLFunc="subtracsky_000" Order="0" HideInGUI="1"></Module>
     <Module Name="Remove Crosstalk" IDLFunc="rmcrosstalk_000"></Module> 
     <Module Name="Adjust Channel Levels" IDLFunc="adjchan_000"></Module>
     <Module Name="Glitch Identification" IDLFunc="glitchid_000"></Module>
-    <Module Name="Clean Cube" IDLFunc="cleancube_000"></Module>
+    <Module Name="Clean Cube" IDLFunc="cleancube_000" HideInGUI="1"></Module>
+    <Module Name="Correct Dispersion" IDLFunc="corrtilt_000"></Module>
     <Module Name="Clean Cosmic Rays" IDLFunc="cleancosmic_000"></Module>
-    <Module Name="Combine Frames" IDLFunc="combframes_000"></Module>
-    <Module Name="Extract Line Emission" IDLFunc="linext_000"></Module>
+    <Module Name="Combine Frames" IDLFunc="combframes_000" HideInGUI="1"></Module>
+    <Module Name="Extract Line Emission" IDLFunc="linext_000" HideInGUI="1"></Module>
     <Module Name="Extract Spectra" IDLFunc="spatrectif_000" Order="1"></Module>
-    <Module Name="Spatially Rectify Spectrum" IDLFunc="spatrectif_000" Order="1"></Module>
+    <Module Name="Spatially Rectify Spectrum" IDLFunc="spatrectif_000" Order="1" HideInGUI="1"></Module>
     <Module Name="Assemble Data Cube" IDLFunc="assembcube_000"></Module>
-    <Module Name="Divide by Flat Field" IDLFunc="divideflat_000" Order="3"></Module>
-    <Module Name="Clean Noise Frame" IDLFunc="cleannoise_000"></Module>
-    <Module Name="Subtract Background" IDLFunc="subbackgrd_000"></Module>
-    <Module Name="Make Sky Frame" IDLFunc="makekskyfr_000"></Module>
-    <Module Name="Correct Dispersion" IDLFunc="corrdisper_000" Order="7"></Module>
-    <Module Name="Correct Telluric Lines" IDLFunc="corrtellin_000" Order="8"></Module>
-    <Module Name="Correct OH Lines" IDLFunc="corrohline_000" Order="9"></Module>
-    <Module Name="Calibrate Flux" IDLFunc="calibrflux_000" Order="10"></Module>
-    <Module Name="Clean PSF" IDLFunc="cleanpsf___000" Order="11"></Module>
-    <Module Name="Telluric Correction" IDLFunc="tellcor_000"></Module>  
-    <Module Name="Determine Mosaic Positions" IDLFunc="mosaicdpos_000"></Module>
-    <Module Name="Mosaic Dithered Frames" IDLFunc="mosaicdith_000" Order="12"></Module>
-    <Module Name="Mosaic Frames" IDLFunc="mosaicdith_000" Order="12"></Module>
+    <Module Name="Divide by Flat Field" IDLFunc="divideflat_000" Order="3" HideInGUI="1"></Module>
+    <Module Name="Clean Noise Frame" IDLFunc="cleannoise_000" HideInGUI="1"></Module>
+    <Module Name="Subtract Background" IDLFunc="subbackgrd_000" HideInGUI="1"></Module>
+    <Module Name="Make Sky Frame" IDLFunc="makekskyfr_000" HideInGUI="1"></Module>
+    <Module Name="Correct Telluric Lines" IDLFunc="corrtellin_000" Order="8" HideInGUI="1"></Module>
+    <Module Name="Correct OH Lines" IDLFunc="corrohline_000" Order="9" HideInGUI="1"></Module>
+    <Module Name="Calibrate Flux" IDLFunc="calibrflux_000" Order="10" HideInGUI="1"></Module>
+    <Module Name="Clean PSF" IDLFunc="cleanpsf___000" Order="11" HideInGUI="1"></Module>
+    <Module Name="Telluric Correction" IDLFunc="tellcor_000" HideInGUI="1"></Module>  
+    <Module Name="Determine Mosaic Positions" IDLFunc="mosaicdpos_000" HideInGUI="1"></Module>
+    <Module Name="Mosaic Dithered Frames" IDLFunc="mosaicdith_000" Order="12" HideInGUI="1"></Module>
+    <Module Name="Mosaic Frames" IDLFunc="mosaic_000" Order="12"></Module>
+    <Module Name="Caelum Mosaic Frames" IDLFunc="caelum_mosaic_000" Order="12" HideInGUI="1"></Module>
     <Module Name="Save DataSet Information" IDLFunc="savedatset_000"></Module>
-    <Module Name="Make Data Cube" IDLFunc="mkdatacube_000" Order="2"></Module>
-    <Module Name="Calibrate Wavelength" IDLFunc="calibrwave_000" Order="5"></Module>
-    <Module Name="Swap Channels for Test" IDLFunc="swapchan_000"></Module>
-    <Module Name="Interpolate 1d" IDLFunc="interponed_000" Order="4"></Module>
-    <Module Name="Interpolate 3d" IDLFunc="intpthreed_000" Order="6"></Module>
-    <Module Name="Save Master Flat Field" IDLFunc="saveflatfi_000"></Module>
-    <Module Name="Debug Three" IDLFunc="debugtest3_000"></Module>
-    <Module Name="Find Bad Pixels from Noise" IDLFunc="badpixnois_000"></Module>
-    <Module Name='Determine Spectral Resolution' IDLFunc='detspecres_000'></Module>
+    <Module Name="Make Data Cube" IDLFunc="mkdatacube_000" Order="2" HideInGUI="1"></Module>
+    <Module Name="Calibrate Wavelength" IDLFunc="calibrwave_000" Order="5" HideInGUI="1"></Module>
+    <Module Name="Swap Channels for Test" IDLFunc="swapchan_000" HideInGUI="1"></Module>
+    <Module Name="Interpolate 1d" IDLFunc="interponed_000" Order="4" HideInGUI="1"></Module>
+    <Module Name="Interpolate 3d" IDLFunc="intpthreed_000" Order="6" HideInGUI="1"></Module>
+    <Module Name="Save Master Flat Field" IDLFunc="saveflatfi_000" HideInGUI="1"></Module>
+    <Module Name="Debug Three" IDLFunc="debugtest3_000" HideInGUI="1"></Module>
+    <Module Name="Find Bad Pixels from Noise" IDLFunc="badpixnois_000" HideInGUI="1"></Module>
+    <Module Name='Determine Spectral Resolution' IDLFunc='detspecres_000' HideInGUI="1"></Module>
   </ORP_SPEC>
   <ORP_IMAG>
     <Module Name="Subtract Frame" IDLFunc="subtradark_000"></Module>
@@ -377,7 +393,7 @@
     <Module Name="Divide by Flat Field" IDLFunc="divideflat_000" Order="1"></Module>
     <Module Name="Interpolate 1d" IDLFunc="interponed_000" Order="2"></Module>
     <Module Name="Mosaic Dithered Frames" IDLFunc="mosaicdith_000" Order="3"></Module>
-    <Module Name="Mosaic Frames" IDLFunc="mosaicdith_000" Order="3"></Module>
+    <Module Name="Mosaic Frames" IDLFunc="mosaic_000" Order="3"></Module>
     <Module Name="Find Bad Pixels from Noise" IDLFunc="badpixnois_000"></Module>
     <Module Name="Determine Mosaic Positions" IDLFunc="mosaicdpos_000"></Module>
     <Module Name="Clean Noise Frame" IDLFunc="cleannoise_000"></Module>

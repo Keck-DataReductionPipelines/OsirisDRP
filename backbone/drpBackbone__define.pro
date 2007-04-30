@@ -104,7 +104,8 @@ PRO drpBackbone::Run, QueueDir
 			FileNameArray = FILE_SEARCH(queueDirName)
 			CurrentDRF = drpGetNextWaitingFile(FileNameArray)
 			IF CurrentDRF.Name NE '' THEN BEGIN
-				drpLog, 'Found file:' + CurrentDRF.Name, /GENERAL	
+				drpLog, 'Found file:' + CurrentDRF.Name, /GENERAL
+                                wait, 1.0   ; Wait 1 seconds to make sure file is fully written.
 				drpSetStatus, CurrentDRF, QueueDir, 'working'
 				DRFFileName = drpFileNameFromStruct(QueueDir, CurrentDRF)
 				; Re-parse the configuration file, in case it has been changed.

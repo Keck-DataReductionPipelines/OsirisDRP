@@ -55,9 +55,12 @@ FOR i=0, (nFrames-1) DO BEGIN
             end
             weight = 0.0
             for q = 0, (numpix-1) do begin
-                image[j,k]=image[j,k] + (*DataSet.Frames[i])[j,offset+indx[q]]
-                weight = weight + basis[indx[q]]
+                if ( (*DataSet.IntAuxFrames[i])[j,offset+indx[q]] eq 9 ) then begin
+                    image[j,k]=image[j,k] + (*DataSet.Frames[i])[j,offset+indx[q]]
+                    weight = weight + basis[indx[q]]
+                end
             end
+            (*quality)[j,k]=0
             if ( weight ne 0.0 ) then begin
                 image[j,k] = image[j,k] / weight
                 (*quality)[j,k]=9

@@ -510,6 +510,8 @@ PRO drpDRFParser::NewModule, AttNames, AttValues
 ;	Module = {Name: ''}
 
 	
+;        indx = where(tag_names(module) eq strupcase("outputdir"))
+        module.outputdir=(*self.data)[0].outputdir
 	FOR i = 0, N_ELEMENTS(AttNames) - 1 DO BEGIN		; Enter attribute values 
 		; if this attribute is already a tag in the structure, just add the value to
 		; that tag.
