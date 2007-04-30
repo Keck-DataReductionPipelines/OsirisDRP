@@ -690,8 +690,8 @@ public class ODRFGUIFrame extends JFrame {
   //Help | About action performed
   public void jMenuHelpAbout_actionPerformed(ActionEvent e) {
     OsirisAboutBox dlg = new OsirisAboutBox(this, "OSIRIS Data Reduction File GUI");
-    dlg.setVersion("Version 0.1");
-    dlg.setReleased("Released: 11 August 2006");
+    dlg.setVersion("Version 0.02");
+    dlg.setReleased("Released: 30 April 2007");
     dlg.setLocationAtCenter(this);
     dlg.setModal(true);
     dlg.show();
