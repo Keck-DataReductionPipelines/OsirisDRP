@@ -196,9 +196,15 @@ public class DRF {
   }
 
   public void writeDRF(File xmlFile, DataReductionDefinition drd) throws IOException, JDOMException {
-    writeDRF(xmlFile, drd, defaultVersion);
+    writeDRF(xmlFile, drd, true);
+  }
+  public void writeDRF(File xmlFile, DataReductionDefinition drd, boolean verbose) throws IOException, JDOMException {
+    writeDRF(xmlFile, drd, defaultVersion, verbose);
   }
   public void writeDRF(File xmlFile, DataReductionDefinition drd, double version) throws IOException, JDOMException {
+    writeDRF(xmlFile, drd, version, true);
+  }  
+  public void writeDRF(File xmlFile, DataReductionDefinition drd, double version, boolean verbose) throws IOException, JDOMException {
     Element currentElement;
 
     //. write name of drf in comment first
@@ -233,13 +239,25 @@ public class DRF {
       for (Iterator im = moduleList.iterator(); im.hasNext();) {
       	ReductionModule currentModule = (ReductionModule)im.next();
       	currentElement = new Element("module");
-      	currentElement.setAttribute("CalibrationFile", currentModule.getCalibrationFile());
       	currentElement.setAttribute("Name", currentModule.getName());
-      	currentElement.setAttribute("OutputDir", currentModule.getOutputDir());
-      	currentElement.setAttribute("Save", currentModule.doSaveOutput() ? "1" : "0");
-      	currentElement.setAttribute("SaveOnErr", currentModule.doSaveOnError() ? "1" : "0");
-      	currentElement.setAttribute("Skip", currentModule.doSkip() ? "1" : "0");
-
+      	if (verbose) {
+	      	currentElement.setAttribute("CalibrationFile", currentModule.getCalibrationFile());
+	      	currentElement.setAttribute("OutputDir", currentModule.getOutputDir());
+	      	currentElement.setAttribute("Save", currentModule.doSaveOutput() ? "1" : "0");
+	      	currentElement.setAttribute("SaveOnErr", currentModule.doSaveOnError() ? "1" : "0");
+	      	currentElement.setAttribute("Skip", currentModule.doSkip() ? "1" : "0");
+      	} else {
+      		if ((currentModule.getCalibrationFile().compareTo("") != 0)  && (currentModule.getCalibrationFile().compareTo("NOT USED") != 0))
+  	      	currentElement.setAttribute("CalibrationFile", currentModule.getCalibrationFile());
+	      	if (currentModule.getOutputDir().compareTo(drd.getDatasetOutputDir()) != 0)
+	      		currentElement.setAttribute("OutputDir", currentModule.getOutputDir());
+	      	if (currentModule.doSaveOutput())
+	      		currentElement.setAttribute("Save", currentModule.doSaveOutput() ? "1" : "0");
+	      	if (currentModule.doSaveOnError())
+	      		currentElement.setAttribute("SaveOnErr", currentModule.doSaveOnError() ? "1" : "0");
+	      	if (currentModule.doSkip())
+	      		currentElement.setAttribute("Skip", currentModule.doSkip() ? "1" : "0");      		
+      	}
       	root.addContent(currentElement);
       }
       
