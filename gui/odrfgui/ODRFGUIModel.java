@@ -17,7 +17,6 @@ public class ODRFGUIModel extends GenericModel {
   DRF myDRF = new DRF();
   private ArrayList inputFileList = new ArrayList();
   private ArrayList arpReductionModuleList = new ArrayList();
-  private ArrayList srpReductionModuleList = new ArrayList();
   private ArrayList crpReductionModuleList = new ArrayList();
   private ArrayList orpReductionModuleList = new ArrayList();
   private ArrayList activeModuleList;
@@ -36,6 +35,7 @@ public class ODRFGUIModel extends GenericModel {
   private File queueDir;
   private int queueNumber;
   private ArrayList updateKeywordModuleList = new ArrayList();
+  private boolean writeDRFVerbose;
   
   public ODRFGUIModel() throws java.io.IOException, org.jdom.JDOMException {
     inputDir = ODRFGUIParameters.DEFAULT_INPUT_DIR;
@@ -43,6 +43,7 @@ public class ODRFGUIModel extends GenericModel {
     logPath = ODRFGUIParameters.DEFAULT_LOG_DIR;
     calibDir = ODRFGUIParameters.OSIRIS_CALIB_ARCHIVE_DIR;
     automaticallyGenerateDatasetName = ODRFGUIParameters.DEFAULT_AUTOSET_DATASET_NAME;
+    writeDRFVerbose = ODRFGUIParameters.DEFAULT_WRITE_DRF_VERBOSE;
 
     queueNumber=0;
 
@@ -51,7 +52,6 @@ public class ODRFGUIModel extends GenericModel {
     //. complete module definitions
     initializeModuleList(arpReductionModuleList);
     initializeModuleList(orpReductionModuleList);
-    initializeModuleList(srpReductionModuleList);
     initializeModuleList(crpReductionModuleList);
 
     //. set default reduction type
@@ -78,8 +78,6 @@ public class ODRFGUIModel extends GenericModel {
       list = crpReductionModuleList;
     else if (reductionType.equals(ODRFGUIParameters.REDUCTION_TYPE_ORP_SPEC))
       list = orpReductionModuleList;
-    else if (reductionType.equals(ODRFGUIParameters.REDUCTION_TYPE_SRP_SPEC))
-      list = srpReductionModuleList;
     else
       list = arpReductionModuleList;
 
@@ -130,8 +128,6 @@ public class ODRFGUIModel extends GenericModel {
       	list = crpReductionModuleList;
       } else if ("ARP_SPEC".equals(rootChildName)) {
         list = arpReductionModuleList;
-      } else if ("SRP_SPEC".equals(rootChildName)) {
-        list = srpReductionModuleList;
       } else if ("ORP_SPEC".equals(rootChildName)) {
         list = orpReductionModuleList;
       } else {
@@ -144,6 +140,10 @@ public class ODRFGUIModel extends GenericModel {
       	Element module = (Element)i2.next();
       	//. only worry about module elements
       	if (module.getName().equals("Module")) {
+      		workingAtt=module.getAttribute("HideInGUI");
+      		if (workingAtt != null)
+      			if (workingAtt.getValue().compareTo("1") == 0)
+      				continue;
       		workingAtt=module.getAttribute("Name");
       		if (workingAtt != null) {
       			ReductionModule newModule = new ReductionModule();
@@ -264,7 +264,7 @@ public class ODRFGUIModel extends GenericModel {
 
     resolveFindFiles();
   }
-  public void writeDRFToQueue() throws java.io.IOException, org.jdom.JDOMException {
+  public String writeDRFToQueue() throws java.io.IOException, org.jdom.JDOMException {
     java.text.DecimalFormat threeDigitFormatter = new java.text.DecimalFormat("000");
     String fileroot = queueDir+File.separator+threeDigitFormatter.format((long)queueNumber)+"."+datasetName+"_drf.";
     String writtenDRFFilename = fileroot+ODRFGUIParameters.DRF_EXTENSION_WRITING;
@@ -288,6 +288,7 @@ public class ODRFGUIModel extends GenericModel {
     System.out.println("Deleting temporary DRF: "+writtenDRFFilename);
     writtenDRF.delete();
     queueNumber++;
+    return queuedDRFFilename;
   }
   public void writeDRF(File drfFile) throws java.io.IOException, org.jdom.JDOMException {
     //. construct workingDRD
@@ -307,14 +308,15 @@ public class ODRFGUIModel extends GenericModel {
 
     for (Iterator ii = activeModuleList.iterator(); ii.hasNext();) {
     	ReductionModule module = (ReductionModule)(ii.next());
-    	module.setOutputDir(outputDir.getAbsolutePath());
+    	if (module.getOutputDir().compareTo("") == 0)
+    		module.setOutputDir(outputDir.getAbsolutePath());
     }
     
     workingDRD.setModuleList(activeModuleList);
 
     workingDRD.setKeywordUpdateModuleList(updateKeywordModuleList);
     
-    myDRF.writeDRF(drfFile, workingDRD);
+    myDRF.writeDRF(drfFile, workingDRD, writeDRFVerbose);
   }
 
  
@@ -339,6 +341,8 @@ public class ODRFGUIModel extends GenericModel {
     //. set Active List with template and resolve find files
     setActiveModuleList(drd.getModuleList());
 
+    setUpdateKeywordModuleList(drd.getKeywordUpdateModuleList());
+    
     resolveFindFiles();
  
     
@@ -675,5 +679,13 @@ public class ODRFGUIModel extends GenericModel {
       return myDRD;
     }
   }
+
+	public boolean doWriteDRFVerbose() {
+		return writeDRFVerbose;
+	}
+	public void setWriteDRFVerbose(boolean writeDRFVerbose) {
+		this.writeDRFVerbose = writeDRFVerbose;
+	}
+
 
 }
