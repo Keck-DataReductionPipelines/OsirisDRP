@@ -38,7 +38,8 @@ public class ODRFGUIFrame extends JFrame {
   JMenuItem jMenuFileSaveDRF = new JMenuItem();
   JMenuItem jMenuFileQueueDRF = new JMenuItem();
   JMenuItem jMenuFileExit = new JMenuItem();
-  JMenu jMenuEngineering = new JMenu();
+  JMenu jMenuTools = new JMenu();
+  JMenuItem jMenuToolsOptions = new JMenuItem();
   JMenu jMenuHelp = new JMenu();
   JMenuItem jMenuHelpAbout = new JMenuItem();
 
@@ -97,15 +98,25 @@ public class ODRFGUIFrame extends JFrame {
   JTable updateModuleTable = new JTable();
   UpdateModuleListTableModel updateModuleTableModel = new UpdateModuleListTableModel();
   
-
+  JPanel executePanel = new JPanel();
+  JButton saveDRFButton = new JButton();
+  JButton dropDRFButton = new JButton();
+  
   JLabel statusBar = new JLabel();
 
   private KeywordUpdateModuleDefinitionDialog updateDialog;
+	JCheckBox confirmBox = new JCheckBox("Don't show this dialog again.");
+  
+  private JCheckBox confirmSaveInvalidDRFCheckBox = new JCheckBox("Confirm saving invalid DRFs?");
+  private JCheckBox confirmDropDRFCheckBox = new JCheckBox("Confirm dropping DRFs to queue?");
+  private JCheckBox confirmDropInvalidDRFCheckBox = new JCheckBox("Confirm dropping invalid DRFs to queue?");
+  private JCheckBox showKeywordUpdateCheckBox = new JCheckBox("Show keyword update panel (Advanced)?");
+  private JCheckBox writeDRFVerboseCheckBox = new JCheckBox("Be verbose when writing DRFs?");
   
   private File currentDRFReadPath = ODRFGUIParameters.DRF_READ_PATH;
   private File currentDRFWritePath = ODRFGUIParameters.DRF_WRITE_PATH;
   private File defaultSaveFile;
-
+  
   //Construct the frame
   public ODRFGUIFrame(ODRFGUIModel model) throws Exception {
     myModel=model;
@@ -157,6 +168,13 @@ public class ODRFGUIFrame extends JFrame {
   private void jbInit() throws Exception  {
   	updateDialog = new KeywordUpdateModuleDefinitionDialog(this);
   	
+  	confirmSaveInvalidDRFCheckBox.setSelected(ODRFGUIParameters.DEFAULT_CONFIRM_SAVE_INVALID_DRF);
+  	confirmDropInvalidDRFCheckBox.setSelected(ODRFGUIParameters.DEFAULT_CONFIRM_DROP_INVALID_DRF);
+  	confirmDropDRFCheckBox.setSelected(ODRFGUIParameters.DEFAULT_CONFIRM_DROP_DRF);
+  	showKeywordUpdateCheckBox.setSelected(ODRFGUIParameters.DEFAULT_SHOW_KEYWORD_UPDATE_PANEL);
+  	writeDRFVerboseCheckBox.setSelected(myModel.doWriteDRFVerbose());
+  	
+  	
   	//setIconImage(Toolkit.getDefaultToolkit().createImage(ODRFGUIFrame.class.getResource("[Your Icon]")));
     this.setSize(ODRFGUIParameters.DIM_MAINFRAME);
     this.setTitle("OSIRIS Data Reduction File GUI");
@@ -199,7 +217,13 @@ public class ODRFGUIFrame extends JFrame {
         jMenuFileExit_actionPerformed(e);
       }
     });
-    jMenuEngineering.setText("Engineering");
+    jMenuTools.setText("Tools");
+    jMenuToolsOptions.setText("Options...");
+    jMenuToolsOptions.addActionListener(new ActionListener()  {
+      public void actionPerformed(ActionEvent e) {
+        jMenuToolsOptions_actionPerformed(e);
+      }
+    });
     jMenuHelp.setText("Help");
     jMenuHelpAbout.setText("About");
     jMenuHelpAbout.addActionListener(new ActionListener()  {
@@ -208,8 +232,19 @@ public class ODRFGUIFrame extends JFrame {
       }
     });
 
-    jMenuFileQueueDRF.setEnabled(false);
-
+    //jMenuFileQueueDRF.setEnabled(false);
+    saveDRFButton.setText("Save DRF As...");
+    saveDRFButton.addActionListener(new java.awt.event.ActionListener() {
+    	public void actionPerformed(ActionEvent e) {
+    		saveDRFButton_actionPerformed(e);
+    	}
+    });
+    dropDRFButton.setText("Drop DRF In Queue");
+    dropDRFButton.addActionListener(new java.awt.event.ActionListener() {
+    	public void actionPerformed(ActionEvent e) {
+    		dropDRFButton_actionPerformed(e);
+    	}
+    });
 
     statusBar.setText(" ");
 
@@ -342,6 +377,7 @@ public class ODRFGUIFrame extends JFrame {
     updateSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
     updateSplitPane.setDividerLocation(ODRFGUIParameters.SPLIT_PANE_UPDATE_LIST_DIVIDER_LOCATION);
     
+    updateModuleTableScrollPane.setVisible(ODRFGUIParameters.DEFAULT_SHOW_KEYWORD_UPDATE_PANEL);
     updateModuleTableScrollPane.addMouseListener(new MouseAdapter() {
     	public void mouseClicked(MouseEvent e) {
     		if (e.getClickCount() == 2) {
@@ -359,9 +395,10 @@ public class ODRFGUIFrame extends JFrame {
     jMenuFile.add(jMenuFileQueueDRF);
     jMenuFile.addSeparator();
     jMenuFile.add(jMenuFileExit);
+    jMenuTools.add(jMenuToolsOptions);
     jMenuHelp.add(jMenuHelpAbout);
     mainMenuBar.add(jMenuFile);
-//    mainMenuBar.add(jMenuEngineering);
+    mainMenuBar.add(jMenuTools);
     mainMenuBar.add(jMenuHelp);
     this.setJMenuBar(mainMenuBar);
 
@@ -445,14 +482,20 @@ public class ODRFGUIFrame extends JFrame {
     moduleSplitPane.add(availableModulesTableScrollPane, JSplitPane.LEFT);
     moduleSplitPane.add(updateSplitPane, JSplitPane.RIGHT);
     
+    executePanel.setLayout(new GridLayout(1,0,50,5));
+    executePanel.add(saveDRFButton);
+    executePanel.add(dropDRFButton);
+    
     
     mainPanel.setLayout(new GridBagLayout());
     mainPanel.add(topPanel, new GridBagConstraints(0, 0, 2, 1, 1.0, 2.0
             ,GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
     mainPanel.add(moduleSplitPane, new GridBagConstraints(0, 1, 1, 1, 1.0, 10.0
             ,GridBagConstraints.SOUTH, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
+    mainPanel.add(executePanel, new GridBagConstraints(0, 2, 1, 1, 1.0, 0.0
+        ,GridBagConstraints.SOUTH, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
 
-  	updateDialog.setLocationRelativeTo(updateModuleTableScrollPane);
+    updateDialog.setLocationRelativeTo(updateModuleTableScrollPane);
 
   }
   //Overridden so we can exit when window is closed
@@ -497,19 +540,86 @@ public class ODRFGUIFrame extends JFrame {
   }
  //File | Send DRF to Queue action performed
   public void jMenuFileQueueDRF_actionPerformed(ActionEvent e) {
+    dropDRF();
+  }
+  
+  public void dropDRF() {
+  	if (myModel.getQueueDir() == null) {
+  		String[] message = {"Error: Queue directory not set."};
+  		JOptionPane.showMessageDialog(this, message, "ODRFGUI: Invalid Queue", JOptionPane.ERROR_MESSAGE);
+  		return;
+  	}
+
+   	if (confirmDropInvalidDRFCheckBox.isSelected()) {
+  		if (!myModel.areActiveCalFilesValiated()) {
+			  confirmBox.setSelected(false);
+	      Object[] message = {"WARNING: Not all calibration files have been validated.",
+				  "The DRF may not be successfully completed by the DRP.",
+				  "Do you wish to create a DRF anyway?", " ", confirmBox};
+		  	if (JOptionPane.showConfirmDialog(this, message, "ODRFGUI: Invalid DRF", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE) == JOptionPane.OK_OPTION) {	  			
+	  			if (confirmBox.isSelected()) {
+	  				confirmDropInvalidDRFCheckBox.setSelected(false);
+	  			}
+		  	} else {
+		  		return;
+		  	};
+  		}
+    }
+    
+    if (confirmDropDRFCheckBox.isSelected()) {
+    	confirmBox.setSelected(false);
+	    Object[] message = {"Drop DRF to queue?  Queue Dir is", myModel.getQueueDir().getPath(), " ", confirmBox};
+	  	if (JOptionPane.showConfirmDialog(this, message, "ODRFGUI: Confirm Drop", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.OK_OPTION) {	  			
+  			if (confirmBox.isSelected()) {
+  				confirmDropDRFCheckBox.setSelected(false);
+  			}
+	  	} else {
+	  		return;
+	  	};
+    }
+  	try {
+  		String filename = myModel.writeDRFToQueue();
+      statusBar.setText("DRF <"+OsirisFileUtils.getNameOfFile(filename)+"> dropped to queue <"+myModel.getQueueDir().getPath()+">.");
+      
+  	} catch (java.io.IOException ioE) {
+	    statusBar.setText("Error saving DRF.");
+	    JOptionPane.showMessageDialog(this, "Error writing DRF: "+ioE.getMessage(), "ODRFGUI: Error Writing DRF", JOptionPane.ERROR_MESSAGE);
+	  } catch (java.lang.SecurityException sE) {
+	    statusBar.setText("Error saving DRF.");
+	    JOptionPane.showMessageDialog(this, "Error writing DRF: "+sE.getMessage(), "ODRFGUI: Error Writing DRF", JOptionPane.ERROR_MESSAGE);
+	  } catch (org.jdom.JDOMException jdE) {
+	    statusBar.setText("Error saving DRF.");
+	    JOptionPane.showMessageDialog(this, "DRF error: "+jdE.getMessage(), "ODRFGUI: Error Writing DRF", JOptionPane.ERROR_MESSAGE);
+	  }
+
   }
  //File | Save Current Settings to DRF action performed
   public void jMenuFileSaveDRF_actionPerformed(ActionEvent e) {
     saveDRF();
   }
+  public void saveDRFButton_actionPerformed(ActionEvent e) {
+  	saveDRF();
+  }
+  public void dropDRFButton_actionPerformed(ActionEvent e) {
+  	dropDRF();
+  }
   public void saveDRF() {
-    if (!myModel.areActiveCalFilesValiated()) {
-      String[] message = {"WARNING: Not all calibration files have been validated.",
-			  "The DRF may not be successfully completed by the DRP.",
-			  "Do you wish to create a DRF anyway?"};
-      if (JOptionPane.showConfirmDialog(this, message, "ODRFGUI: Invalid DRF", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE) == JOptionPane.CANCEL_OPTION)
-	return;
+   	if (confirmSaveInvalidDRFCheckBox.isSelected()) {
+  		if (!myModel.areActiveCalFilesValiated()) {
+			  confirmBox.setSelected(false);
+	      Object[] message = {"WARNING: Not all calibration files have been validated.",
+				  "The DRF may not be successfully completed by the DRP.",
+				  "Do you wish to create a DRF anyway?", " ", confirmBox};
+		  	if (JOptionPane.showConfirmDialog(this, message, "ODRFGUI: Invalid DRF", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE) == JOptionPane.OK_OPTION) {	  			
+		  			if (confirmBox.isSelected()) {
+		  				confirmSaveInvalidDRFCheckBox.setSelected(false);
+		  			}
+		  	} else {
+		  		return;		  		
+		  	}
+  		}
     }
+  	
     //. launch dialog for writing file
     JFileChooser fc = new JFileChooser(currentDRFWritePath);
     fc.setFileFilter(new OsirisFileFilters.DRFFileFilter());
@@ -557,6 +667,25 @@ public class ODRFGUIFrame extends JFrame {
   //File | Exit action performed
   public void jMenuFileExit_actionPerformed(ActionEvent e) {
     System.exit(0);
+  }
+  //Tools | Options action performed
+  public void jMenuToolsOptions_actionPerformed(ActionEvent e) {
+    //. construct dialog
+  	
+  	writeDRFVerboseCheckBox.setSelected(myModel.doWriteDRFVerbose());
+  	
+  	Object[] message = {confirmSaveInvalidDRFCheckBox, " ", confirmDropInvalidDRFCheckBox, " ", 
+  			confirmDropDRFCheckBox, " ", showKeywordUpdateCheckBox, " ", writeDRFVerboseCheckBox};
+  	
+  	if (JOptionPane.showConfirmDialog(this, message, "ODRFGUI: Options", JOptionPane.OK_CANCEL_OPTION) == JOptionPane.OK_OPTION) {  			
+			boolean showUpdate = showKeywordUpdateCheckBox.isSelected();
+			updateModuleTableScrollPane.setVisible(showUpdate);
+			if (showUpdate)
+				updateSplitPane.setDividerLocation(0.8);
+			else
+				updateSplitPane.setDividerLocation(1.0);	
+			myModel.setWriteDRFVerbose(writeDRFVerboseCheckBox.isSelected());
+		}
   }
   //Help | About action performed
   public void jMenuHelpAbout_actionPerformed(ActionEvent e) {
