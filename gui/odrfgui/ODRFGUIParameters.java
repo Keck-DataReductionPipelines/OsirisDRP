@@ -44,16 +44,20 @@ public class ODRFGUIParameters {
   public static int SPLIT_PANE_UPDATE_LIST_DIVIDER_LOCATION = 350;
   
   public static boolean DEFAULT_AUTOSET_DATASET_NAME = true;
+  public static boolean DEFAULT_CONFIRM_DROP_DRF = true;
+  public static boolean DEFAULT_CONFIRM_DROP_INVALID_DRF = true;
+  public static boolean DEFAULT_CONFIRM_SAVE_INVALID_DRF = true;
+  public static boolean DEFAULT_SHOW_KEYWORD_UPDATE_PANEL = false;
+  public static boolean DEFAULT_WRITE_DRF_VERBOSE = false;
+  
 
   public static String REDUCTION_TYPE_ARP_SPEC = "ARP_SPEC";
   public static String REDUCTION_TYPE_CRP_SPEC = "CRP_SPEC";
   public static String REDUCTION_TYPE_ORP_SPEC = "ORP_SPEC";
-  public static String REDUCTION_TYPE_SRP_SPEC = "SRP_SPEC";
 
   public static String[] REDUCTION_TYPE_LIST = {REDUCTION_TYPE_ARP_SPEC,
 						REDUCTION_TYPE_CRP_SPEC,
-						REDUCTION_TYPE_ORP_SPEC,
-						REDUCTION_TYPE_SRP_SPEC};
+						REDUCTION_TYPE_ORP_SPEC};
 
   public static String DEFAULT_REDUCTION_TYPE = REDUCTION_TYPE_ARP_SPEC;
 
