@@ -14,6 +14,10 @@
      CalibrationFile="find_file_specify_file"
   />
   <module 
+     Name="Remove Crosstalk" 
+     CalibrationFile="find_file_none"
+  />
+  <module 
      Name="Adjust Channel Levels" 
      CalibrationFile="find_file_none"
   />
@@ -31,8 +35,10 @@
   <module Name="Assemble Data Cube" 
      CalibrationFile="find_file_none"
   />
+  <module Name="Correct Dispersion" 
+     CalibrationFile="find_file_none"
+  />
   <module 
      Name="Save DataSet Information"
   />
 </DRF>
-

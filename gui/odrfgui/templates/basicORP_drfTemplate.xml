@@ -1,75 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- find_file_current -->
-<DRF
-    version="1.0"
-    LogPath="find_file_construct_from_filename"
-    ReductionType="ORP_SPEC">
-  <dataset
-      InputDir="find_file_construct_from_filename"
-      Name="find_file_current"
-      OutputDir="find_file_construct_from_filename">
-    <fits
-        FileName="find_file_current"></fits>
+<DRF 
+  LogPath="find_file_construct_from_filename" 
+  ReductionType="ORP_SPEC">
+  <dataset 
+     Name="find_file_current"
+     InputDir="find_file_construct_from_filename"
+     OutputDir="find_file_specify_file" >
+    <fits FileName="find_file_current" />
   </dataset>
   <module
-      CalibrationFile="find_file_next_raw"
-      Name="Subtract Dark Frame"
-      OutputDir="find_file_construct_from_filename"
-      Save="0"
-      SaveOnErr="0"
-      Skip="0"></module>
-  <module CalibrationFile="find_file_most_recent"
-      Name="Remove Crosstalk"
-      OutputDir="find_file_construct_from_filename"
-      Save="0"
-      SaveOnErr="0"
-      Skip="1"></module>
-  <module CalibrationFile="find_file_most_recent"
-      Name="Adjust Channel Levels"
-      OutputDir="find_file_construct_from_filename"
-      Save="0"
-      SaveOnErr="0"
-      Skip="0"></module>
-  <module CalibrationFile="find_file_most_recent"
-      Name="Glitch Identification"
-      OutputDir="find_file_construct_from_filename"
-      Save="0"
-      SaveOnErr="0" 
-      Skip="0"></module>
+     Name="Subtract Frame"
+     CalibrationFile="find_file_specify_file"
+  />
+  <module 
+     Name="Adjust Channel Levels" 
+     CalibrationFile="find_file_none"
+  />
+  <module 
+     Name="Glitch Identification" 
+     CalibrationFile="find_file_none"
+  />
+  <module Name="Clean Cosmic Rays" 
+     CalibrationFile="find_file_none"
+  />
   <module
-      CalibrationFile="find_file_most_recent"
-      Name="Spatially Rectify Spectrum"
-      OutputDir="find_file_construct_from_filename"
-      Save="0"
-      SaveOnErr="0"
-      Skip="0"></module>
-  <module
-      CalibrationFile="find_file_most_recent"
-      Name="Assemble Data Cube"
-      OutputDir="find_file_construct_from_filename"
-      Save="0"
-      SaveOnErr="0"
-      Skip="0"></module>
-  <module
-      CalibrationFile="find_file_most_recent"
-      Name="Divide by Flat Field"
-      OutputDir="find_file_construct_from_filename"
-      Save="0"
-      SaveOnErr="0"
-      Skip="1"></module>
-  <module
-      CalibrationFile="find_file_most_recent"
-      Name="Interpolate 1d"
-      OutputDir="find_file_construct_from_filename"
-      Save="0"
-      SaveOnErr="0"
-      Skip="1"></module>
-  <module
-      CalibrationFile="find_file_most_recent"
-      Name="Save DataSet Information"
-      OutputDir="find_file_construct_from_filename"
-      Save="0"
-      SaveOnErr="0"
-      Skip="0"></module>
+     Name="Extract Spectra"
+     CalibrationFile="find_file_most_recent"
+  />
+  <module Name="Assemble Data Cube" 
+     CalibrationFile="find_file_none"
+  />
+  <module 
+     Name="Save DataSet Information"
+  />
 </DRF>
-

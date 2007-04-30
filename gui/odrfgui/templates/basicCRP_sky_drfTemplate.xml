@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Combine Sky or Dark Frames -->
+<DRF
+    LogPath="find_file_construct_from_filenamE"
+    ReductionType="CRP_SPEC">
+  <dataset
+     Name="find_file_current"
+     InputDir="find_file_construct_from_filename"
+     OutputDir="find_file_specify_file" >
+     <fits FileName="find_file_current" />
+ </dataset>
+ <module
+     Name="Glitch Identification"
+     CalibrationFile="find_file_none"
+  />
+   <module
+     Name="Clean Cosmic Rays"
+     CalibrationFile="find_file_none"
+  />
+  <module
+      Name="Combine Frames"
+     CalibrationFile="find_file_none"
+  />
+  <update
+     DataSetNumber="0"
+     HeaderNumber="-1">
+     <updateParameter
+       Keyword="DATAFILE"
+       KeywordValue="CombFrame_"
+       KeywordComment="Output Filename"
+       KeywordType="string">
+     </updateParameter>
+  </update>
+</DRF>
