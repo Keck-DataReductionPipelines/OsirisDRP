@@ -176,6 +176,56 @@ public class ODRFGUIModel extends GenericModel {
     setWorkingScale("None");
     propertyChangeListeners.firePropertyChange("inputFileList", null, inputFileList);
   }
+
+  public void addInputFile(DRDInputFile file) throws DRDException {
+  	String newInputDir="";
+  	String newFilter="";
+  	String newScale="";
+  	if (inputFileList.isEmpty()) {
+  		newInputDir = file.getDirectory();
+  	} else {
+    	if (inputDir.getPath().compareTo(file.getDirectory()) != 0) {
+    		throw new DRDException("Input file directory <"+file.getDirectory()+"> does not match current input directory.");
+    	}  		
+  	}
+  	if (workingFilter.compareTo("None") == 0) {
+  		newFilter = file.getFilter();
+  	} else {
+    	if (workingFilter.compareTo(file.getFilter()) != 0) {
+    		if (file.getFilter().compareTo("None") != 0) {
+    			
+    			throw new DRDException("Input file filter <"+file.getFilter()+"> does not match working filter <"+workingFilter+">.");
+    		}
+    	}
+  	}
+  	if (workingScale.compareTo("None") == 0) {
+  		newScale = file.getScale();
+  	} else {
+	  	if (workingScale.compareTo(file.getScale()) != 0) {
+	  		if (file.getScale().compareTo("None") != 0) {
+	  			throw new DRDException("Input file scale <"+file.getScale()+"> does not match working scale <"+workingScale+">.");
+	  		}
+	  	}
+  	}  	
+  	
+  	if (newInputDir.length() > 0) {
+  		setInputDir(new File(newInputDir));
+  	}
+  	if (newFilter.length() > 0) {
+  		setWorkingFilter(newFilter);
+  	}
+  	if (newScale.length() > 0) {
+  		setWorkingScale(newScale);
+  	}
+  	inputFileList.add(file);
+  	
+    propertyChangeListeners.firePropertyChange("inputFileList", null, inputFileList);
+    
+    if (automaticallyGenerateDatasetName)
+    	generateDatasetName();
+
+    resolveFindFiles();
+  }
   public void addInputFiles(File[] fileList) throws DRDException {
     //. only allow opening of osiris spec frames with same filter and scale
     //. must be from same directory, which is set to inputDir
@@ -186,6 +236,8 @@ public class ODRFGUIModel extends GenericModel {
       	//.  - validate file
       	//.  - extract filter, scale, etc.
       	DRDInputFile drdFile = new DRDInputFile(fileList[ii]);
+      	drdFile.validateFilter();
+      	drdFile.validateScale();
       	tempInputFileList.add(drdFile);
       } catch (DRDException drdE) {
       	drdE.printStackTrace();

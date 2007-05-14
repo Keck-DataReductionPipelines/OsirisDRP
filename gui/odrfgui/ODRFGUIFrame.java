@@ -743,10 +743,96 @@ public class ODRFGUIFrame extends JFrame {
     int retval = chooser.showOpenDialog(this);
     if (retval == JFileChooser.APPROVE_OPTION) {
       File[] files = chooser.getSelectedFiles();
-      try {
-        myModel.addInputFiles(files);
-      } catch (DRDException drdE) {
-	JOptionPane.showMessageDialog(this, "Error opening file list: "+drdE.getMessage(), "ODRFGUI: Error Opening Files", JOptionPane.ERROR_MESSAGE);
+      for (int ii=0; ii<files.length; ii++) {
+      	try {
+      		DRDInputFile inputFile = new DRDInputFile(files[ii]);
+          try {
+          	inputFile.validateFilter();
+          } catch (DRDException drdE) {
+          	ArrayList messageList = new ArrayList();
+          	messageList.add("Error opening file "+files[ii].getName()+".");
+          	messageList.add(drdE.getMessage());
+          	messageList.add("");
+          	messageList.add("You can either:"); 
+          	messageList.add("  - Ignore the error, and use the file anyway.");
+          	messageList.add("  - Drop the file from the input file list.");     
+          	messageList.add("  - Use the current working filter: "+myModel.getWorkingFilter()+".");
+		        
+	          ArrayList optionsList = new ArrayList();
+	          optionsList.add("Ignore Error");
+	          optionsList.add("Drop File");
+	          optionsList.add("Use Working Filter");
+	          String defaultOption = "Ignore Error";
+	 	        if (inputFile.getSFWName() != null) {
+	 	        	messageList.add("  - Use SFWNAME keyword: "+inputFile.getSFWName());
+	 	        	optionsList.add("Use SFWName");
+	 	        	defaultOption = "User SFWName";
+	          }
+	          int selection = JOptionPane.showOptionDialog(this, messageList.toArray(), "ODRFGUI: Error opening file", JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null, optionsList.toArray(), defaultOption);
+	          if (selection == JOptionPane.CLOSED_OPTION) {
+	          	continue;
+	          } else {
+	          	if (optionsList.get(selection).toString().compareTo("Ignore Error") == 0) {
+	          		inputFile.overrideFilter("None");
+	          	} else if (optionsList.get(selection).toString().compareTo("Drop File") == 0) {
+	          		continue;
+	          	} else if (optionsList.get(selection).toString().compareTo("Use Working Filter") == 0) {
+	          		inputFile.overrideFilter(myModel.getWorkingFilter());
+	          	} else if (optionsList.get(selection).toString().compareTo("Use SFWName") == 0) {
+	          		inputFile.overrideFilter(inputFile.getSFWName());
+	          	}
+	          }
+	          
+          }
+	        try {
+		        inputFile.validateScale();
+		      } catch (DRDException drdE) {
+          	ArrayList messageList = new ArrayList();
+          	messageList.add("Error opening file "+files[ii].getName()+".");
+          	messageList.add(drdE.getMessage());
+          	messageList.add("");
+          	messageList.add("You can either:"); 
+          	messageList.add("  - Ignore the error, and use the file anyway.");
+          	messageList.add("  - Drop the file from the input file list.");     
+          	messageList.add("  - Use the current working Scale: "+myModel.getWorkingScale()+".");
+		        
+	          ArrayList optionsList = new ArrayList();
+	          optionsList.add("Ignore Error");
+	          optionsList.add("Drop File");
+	          optionsList.add("Use Working Scale");
+	          String defaultOption = "Ignore Error";
+	 	        if (inputFile.getSS1Name() != null) {
+	 	        	messageList.add("  - Use SS1NAME keyword: "+inputFile.getSS1Name());
+	 	        	optionsList.add("Use SS1Name");
+	 	        	defaultOption = "Use SS1Name";
+	          }
+	 	        if (inputFile.getSS2Name() != null) {
+	 	        	messageList.add("  - Use SS2NAME keyword: "+inputFile.getSS2Name());
+	 	        	optionsList.add("Use SS2Name");
+	 	        	if (defaultOption.compareTo("Use SS1Name") != 0)
+	 	        		defaultOption = "Use SS2Name";
+	          }
+	          int selection = JOptionPane.showOptionDialog(this, messageList.toArray(), "ODRFGUI: Error opening file", JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null, optionsList.toArray(), defaultOption);
+	          if (selection == JOptionPane.CLOSED_OPTION) {
+	          	continue;
+	          } else {
+	          	if (optionsList.get(selection).toString().compareTo("Ignore Error") == 0) {
+	          		inputFile.overrideScale("None");
+	          	} else if (optionsList.get(selection).toString().compareTo("Drop File") == 0) {
+	          		continue;
+	          	} else if (optionsList.get(selection).toString().compareTo("Use Working Scale") == 0) {
+	          		inputFile.overrideScale(myModel.getWorkingScale());
+	          	} else if (optionsList.get(selection).toString().compareTo("Use SS1Name") == 0) {
+	          		inputFile.overrideScale(inputFile.getSS1Name());
+	          	} else if (optionsList.get(selection).toString().compareTo("Use SS2Name") == 0) {
+	          		inputFile.overrideScale(inputFile.getSS2Name());
+	          	}
+	          }
+          }
+		      myModel.addInputFile(inputFile);
+      	} catch (Exception ex) {
+	      	JOptionPane.showMessageDialog(this, "Error opening file "+files[ii].getName()+": "+ex.getMessage(), "ODRFGUI: Error Opening Files", JOptionPane.ERROR_MESSAGE);
+	      }
       }
     }
   }
@@ -866,6 +952,8 @@ public class ODRFGUIFrame extends JFrame {
   private void updateViewCalibDir(String calibDir) {
     //. reductionModuleTable.repaint();
   }
+  
+  
   //. BEGIN INNER CLASSES
   public class ReductionModuleTableFindFileCellEditor extends DefaultCellEditor {
     public ReductionModuleTableFindFileCellEditor() {
