@@ -20,33 +20,59 @@ public class DRDInputFile {
   private String scale;
   private File myFile;
   private Header header;
+  private String ss1name;
+  private String ss2name;
+  private String sfwname;
   
-  public DRDInputFile(File file) throws DRDException, IOException, TruncatedFileException {
+  public DRDInputFile(File file) throws IOException, TruncatedFileException {
     myFile=file;
-    validateFile();
+		BufferedFile bf = new BufferedFile(myFile.getAbsolutePath());
+		header = Header.readHeader(bf);
   }
-  private void validateFile() throws DRDException, IOException, TruncatedFileException {
-    //. make sure file is OSIRIS spec file
-    //. get filter and scale
-    BufferedFile bf = new BufferedFile(myFile.getAbsolutePath());
-    header = Header.readHeader(bf);
+  public void validateFilter() throws DRDException {
     filter = header.getStringValue("SFILTER");
-    if (filter == null)
-      throw new DRDException("Error opening FITS file.  SFILTER keyword not found.");
-   String sv = header.getStringValue("SSCALE");
-    if (sv == null)
-      throw new DRDException("Error opening FITS file.  SSCALE keyword not found.");
-    // This value may have the form "0.nXX"  where there may or may not be
+    if (filter == null) {
+    	sfwname = header.getStringValue("SFWNAME");
+    	
+      throw new DRDException("SFILTER keyword not found.");
+    }
+  }
+  public void validateScale() throws DRDException {
+    // Scale position values may have the form "0.nXX"  where there may or may not be
     // trailing 0's in place of the XX's.  For example, we could have "0.1"
     // or "0.10" or "0.100" but only "0.035" will occur.
-    DecimalFormat scaleFormatter = new DecimalFormat("0.000");
-    scale = scaleFormatter.format(Double.parseDouble(sv));
+  	DecimalFormat scaleFormatter = new DecimalFormat("0.000");
+
+  	String sv = header.getStringValue("SSCALE");
+    if (sv == null) {
+    	//. SSCALE is missing, get each scale mech position
+    	String sstemp;
+    	sstemp = header.getStringValue("SS1NAME");
+    	if (sstemp != null) {
+      	ss1name = scaleFormatter.format(Double.parseDouble(sstemp));
+    	}
+    	sstemp = header.getStringValue("SS2NAME");
+    	if (sstemp != null) {
+      	ss2name= scaleFormatter.format(Double.parseDouble(sstemp));
+    	}
+    	
+      throw new DRDException("SSCALE keyword not found.");
+    } else {
+    	scale = scaleFormatter.format(Double.parseDouble(sv));
+    }
+
   }
   public String getScale() {
     return scale;
   }
   public String getFilter() {
     return filter;
+  }
+  public void overrideScale(String newScale) {
+  	scale = newScale;
+  }
+  public void overrideFilter(String newFilter) {
+  	filter = newFilter;
   }
   public String getName() {
     return myFile.getName();
@@ -59,5 +85,14 @@ public class DRDInputFile {
   }
   public Header getHeader() {
   	return header;
+  }
+  public String getSS1Name() {
+    return ss1name;
+  }
+  public String getSS2Name() {
+    return ss2name;
+  }
+  public String getSFWName() {
+    return sfwname;
   }
 }
