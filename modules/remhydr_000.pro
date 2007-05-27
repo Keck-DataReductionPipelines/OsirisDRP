@@ -63,31 +63,31 @@ FUNCTION remhydr_000, DataSet, Modules, Backbone
    lines = [901.2,922.6,954.3,1004.6,1093.5, 1281.4, 1874.5, $                       ; Paschen series
             1570.7, 1588.7, 1611.5, 1641.3, 1681.3, 1736.9, 1818.1, 1945.1, 2166.1]  ; Brackett series
    numlines=size(lines,/dimensions)
-   startpix=intarr(numlines)
-   endpix = intarr(numlines)
+   startpix=intarr(numlines[0])
+   endpix = intarr(numlines[0])
 
    for q=0, nFrames-1 do begin
        sz = size(*DataSet.Frames[q])
        if ( sz[0] ne 1 ) then return, error('ERROR IN CALL ('+strtrim(functionName)+'): Data must be 1-d spectra.')
        x = findgen(sz[1]) ; location of data
-       startlam=sxpar(*DataSet.Headers[q],'CRVAL1',count=n)
+       firstlam=sxpar(*DataSet.Headers[q],'CRVAL1',count=n)
        if ( n ne 1 ) then return, error('ERROR IN CALL ('+strtrim(functionName)+'): CRVAL1 keyword not uniquely defined.')
-       startpix=sxpar(*DataSet.Headers[q],'CRPIX1', count=n)
+       firstpix=sxpar(*DataSet.Headers[q],'CRPIX1', count=n)
        if ( n ne 1 ) then return, error('ERROR IN CALL ('+strtrim(functionName)+'): CRPIX1 keyword not uniquely defined.')
        units = sxpar(*DataSet.Headers[q],'CUNIT1',n)
        if ( n ne 1 ) then return, error('ERROR IN CALL ('+strtrim(functionName)+'): CUNIT1 keyword not uniquely defined.')
-       if ( units ne 'nm' ) then return, error('ERROR IN CALL ('+strtrim(functionName)+'): units must be nm.')
+       if ( strtrim(units) ne 'nm' ) then return, error('ERROR IN CALL ('+strtrim(functionName)+'): units must be nm.')
        dlam = sxpar(*DataSet.Headers[q],'CDELT1',n)
        if ( n ne 1 ) then return, error('ERROR IN CALL ('+strtrim(functionName)+'): CDELT1 keyword not uniquely defined.')
        
        ; Loop through each line location
-       for line = 0, numlines-1 do begin
+       for line = 0, numlines[0]-1 do begin
                                 ; Calculate pixel locations for all of
                                 ; the hydrogen lines within the
-                                ; spectrum. Fit between lam/1.0035 and
-                                ; lam*1.0035.
-           startpix[line] = fix( (((lines/1.0035)-startlam)/dlam) + startpix )
-           endpix[line]   = fix( (((lines*1.0035)-startlam)/dlam) + startpix )
+                                ; spectrum. Fit between lam/1.007 and
+                                ; lam*1.007.
+           startpix[line] = fix( (((lines[line]/1.007)-firstlam)/dlam) + firstpix )
+           endpix[line]   = fix( (((lines[line]*1.007)-firstlam)/dlam) + firstpix )
            if ( (startpix[line] ge 0) and (endpix[line] lt sz[1]) ) then begin ; Line is in the spectrum
                data = (*DataSet.Frames[q])[startpix[line]:endpix[line]]
                model = gaussfit(x[startpix[line]:endpix[line]],data,A)
