@@ -12,7 +12,6 @@ import java.util.*;
 
 /** @todo no template */
 /** @todo load new templates */
-/** @todo write drf to queue */
 public class ODRFGUIModel extends GenericModel {
   DRF myDRF = new DRF();
   private ArrayList inputFileList = new ArrayList();
@@ -22,6 +21,7 @@ public class ODRFGUIModel extends GenericModel {
   private ArrayList activeModuleList;
   private ArrayList availableModuleList;
   private ArrayList reductionTemplates;
+  private ReductionModule activeModule;
   private String reductionType;
   private String workingFilter = "None";
   private String workingScale = "None";
@@ -37,7 +37,7 @@ public class ODRFGUIModel extends GenericModel {
   private ArrayList updateKeywordModuleList = new ArrayList();
   private boolean writeDRFVerbose;
   
-  public ODRFGUIModel() throws java.io.IOException, org.jdom.JDOMException {
+  public ODRFGUIModel() throws java.io.IOException, org.jdom.JDOMException, DRDException {
     inputDir = ODRFGUIParameters.DEFAULT_INPUT_DIR;
     outputDir = ODRFGUIParameters.DEFAULT_OUTPUT_DIR;
     logPath = ODRFGUIParameters.DEFAULT_LOG_DIR;
@@ -64,12 +64,9 @@ public class ODRFGUIModel extends GenericModel {
     //. populate default template list
     setDefaultTemplateList();
 
-    //. for testing:
-    try {
-      setActiveReductionTemplate((ReductionTemplate)reductionTemplates.get(0));
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
+    //. use first template as default
+    if (!reductionTemplates.isEmpty())
+    	setActiveReductionTemplate((ReductionTemplate)reductionTemplates.get(0));
   }
   private void resetAvailableModuleList() {
     ArrayList list;
@@ -83,97 +80,255 @@ public class ODRFGUIModel extends GenericModel {
 
     setAvailableModuleList(list);
   }
-  public void setDefaultTemplateList() {
+  private void setDefaultTemplateList() throws JDOMException, IOException, DRDException {
     ArrayList workingTemplateList = new ArrayList();
-    ArrayList errorMessages = new ArrayList();
+    //. go through list set in ODRFGUIParameters
     for (int ii=0; ii<ODRFGUIParameters.DEFAULT_REDUCTION_TEMPLATE_LIST.length; ii++) {
       try {
-        workingTemplateList.add(new ReductionTemplate(ODRFGUIParameters.DEFAULT_REDUCTION_TEMPLATE_LIST[ii]));
-      } catch (Exception e) {
-	errorMessages.add(e);
+      	//. create the template object
+      	ReductionTemplate template = new ReductionTemplate(ODRFGUIParameters.DEFAULT_REDUCTION_TEMPLATE_LIST[ii]);
+      	//. make sure format of modules match what is in RPBCOnfig
+      	correlateDRDWithRPBConfig(template.getDRD());
+      	//. if ok, add to list
+      	workingTemplateList.add(template);
+      } catch (JDOMException jdEx) {
+      	throw new JDOMException("Error parsing template <"+ODRFGUIParameters.DEFAULT_REDUCTION_TEMPLATE_LIST[ii]+">: "+jdEx.getMessage());
+      } catch (IOException ioEx) {
+      	throw new IOException("Error parsing template <"+ODRFGUIParameters.DEFAULT_REDUCTION_TEMPLATE_LIST[ii]+">: "+ioEx.getMessage());
+      } catch (DRDException drdEx) {
+      	throw new DRDException("Error parsing template <"+ODRFGUIParameters.DEFAULT_REDUCTION_TEMPLATE_LIST[ii]+">: "+drdEx.getMessage());
       }
     }
-    reductionTemplates = workingTemplateList;
-    if (!errorMessages.isEmpty()) {
-      //. report all errors to gui.  following is temporary
-      System.out.println("==== setDefaultTemplateList errors ====");
-      for (Iterator jj=errorMessages.iterator(); jj.hasNext();) {
-	((Exception)jj.next()).printStackTrace();
-      }
-    }
+    //. set list
+    reductionTemplates = workingTemplateList;    
   }
-  public void openRPBConfig(File xmlFile) throws java.io.IOException, org.jdom.JDOMException {
+  public void openRPBConfig(File xmlFile) throws java.io.IOException, org.jdom.JDOMException, DRDException {
     Attribute workingAtt;
     ArrayList list;
-    //. open file and build local document model.  throws IOException or JDOMException on errors.
-    org.jdom.input.SAXBuilder builder = new org.jdom.input.SAXBuilder();
-    org.jdom.Document myDoc = builder.build(xmlFile);
 
-    //. get root element.  Must be DRF.
-    Element root=myDoc.getRootElement();
-    //. check to see if DRF
-    if (!"Config".equals(root.getName())) {
-      throw new JDOMException("File is not a RPB Config File!");
-    }
-    //. get children elements
-    List rootElements=root.getChildren();
-    //. loop through them
-    for (Iterator i1 = rootElements.iterator(); i1.hasNext(); ) {
-      //. get current element
-      Element currentRootChild=(Element)i1.next();
-      //. get name of element
-      String rootChildName=currentRootChild.getName();
-      //. check what kind of reduction definition
-      if ("CRP_SPEC".equals(rootChildName)) {
-      	list = crpReductionModuleList;
-      } else if ("ARP_SPEC".equals(rootChildName)) {
-        list = arpReductionModuleList;
-      } else if ("ORP_SPEC".equals(rootChildName)) {
-        list = orpReductionModuleList;
-      } else {
-      	//. if not one of these, skip it
-        continue;
-      }
-      //. get children. should be modules
-      List moduleList = currentRootChild.getChildren();
-      for (Iterator i2 = moduleList.iterator(); i2.hasNext();) {
-      	Element module = (Element)i2.next();
-      	//. only worry about module elements
-      	if (module.getName().equals("Module")) {
-      		workingAtt=module.getAttribute("HideInGUI");
-      		if (workingAtt != null)
-      			if (workingAtt.getValue().compareTo("1") == 0)
-      				continue;
-      		workingAtt=module.getAttribute("Name");
-      		if (workingAtt != null) {
-      			ReductionModule newModule = new ReductionModule();
-      			newModule.setName(workingAtt.getValue());
-            list.add(newModule);
-      		}
-        }
-      }
+    try {
+	    //. open file and build local document model.  throws IOException or JDOMException on errors.
+	    org.jdom.input.SAXBuilder builder = new org.jdom.input.SAXBuilder();
+	    org.jdom.Document myDoc = builder.build(xmlFile);
+	
+	    //. get root element.  Must be DRF.
+	    Element root=myDoc.getRootElement();
+	    //. check to see if DRF
+	    if (!"Config".equals(root.getName())) {
+	      throw new JDOMException("File is not a RPB Config File!");
+	    }
+	    //. get children elements
+	    List rootElements=root.getChildren();
+	    //. loop through them
+	    for (Iterator i1 = rootElements.iterator(); i1.hasNext(); ) {
+	      //. get current element
+	      Element currentRootChild=(Element)i1.next();
+	      //. get name of element
+	      String rootChildName=currentRootChild.getName();
+	      //. check what kind of reduction definition
+	      if ("CRP_SPEC".equals(rootChildName)) {
+	      	list = crpReductionModuleList;
+	      } else if ("ARP_SPEC".equals(rootChildName)) {
+	        list = arpReductionModuleList;
+	      } else if ("ORP_SPEC".equals(rootChildName)) {
+	        list = orpReductionModuleList;
+	      } else {
+	      	//. if not one of these, skip it
+	        continue;
+	      }
+	      //. get children. should be modules
+	      List moduleList = currentRootChild.getChildren();
+	      for (Iterator i2 = moduleList.iterator(); i2.hasNext();) {
+	      	Element module = (Element)i2.next();
+	      	//. only worry about module elements
+	      	if (module.getName().equals("Module")) {
+	      		workingAtt=module.getAttribute("HideInGUI");
+	      		if (workingAtt != null)
+	      			if (workingAtt.getValue().compareTo("1") == 0)
+	      				continue;
+	      		workingAtt=module.getAttribute("Name");
+	      		if (workingAtt != null) {
+	      			ReductionModule newModule = new ReductionModule();
+	      			newModule.setName(workingAtt.getValue());
+	      			
+	      			//. get module description, if available
+	      			workingAtt = module.getAttribute("Comment");
+	      			if (workingAtt != null) 
+	      				newModule.setDescription(workingAtt.getValue());
+	      			
+	      			//. check for children argument tags
+	      			List arguments = module.getChildren();
+	    				ArrayList moduleArguments = new ArrayList();
+	      			for (Iterator i3 = arguments.iterator(); i3.hasNext();) {
+	      				Element arg = (Element)i3.next();
+	      				//. make sure it is an argument tag
+	      				if (arg.getName().equals("Argument")) {
+	      					//. get name of arg
+	      					workingAtt = arg.getAttribute("Name");
+	      					if (workingAtt != null) {
+	      						//. if name is given, create new arg with that name
+	      						ReductionModuleArgument newArg = new ReductionModuleArgument(workingAtt.getValue());
+	      						workingAtt = arg.getAttribute("Type");
+	      						if (workingAtt != null) {
+	      							//. if a type is given, set it.
+	      							newArg.setType(workingAtt.getValue());
+	      						}
+	      						workingAtt = arg.getAttribute("Range");
+	      						if (workingAtt != null) {
+	      							//. if a range is given, add it.
+	      							newArg.setRange(workingAtt.getValue());
+	      						} else if (newArg.getType().compareTo(ReductionModuleArgument.TYPE_ENUM) == 0) {
+	      							throw new DRDException("Module <"+newModule.getName()+">, argument <"+newArg.getName()+">:  Enum arguments must specify a range.");			
+	      						}
+	      						workingAtt = arg.getAttribute("Default");
+	      						if (workingAtt != null) {
+	      							//. if a default value is given, set it.
+	      							newArg.setValue(workingAtt.getValue());
+	      						}
+	      						//. add new Argument to list
+	      						moduleArguments.add(newArg);
+	      					}
+	      				}
+	      			}
+	      			//. if there are arguments, add it to the module
+	      			if (moduleArguments.size() > 0)
+	      				newModule.setArguments(moduleArguments);
+	      			
+	      			//. if all good, add module
+	            list.add(newModule);
+	      		}
+	        }
+	      }
+	    }
+    } catch (JDOMException jdEx) {
+    	throw new JDOMException("Error parsing RPBConfig. "+jdEx.getMessage());
+    } catch (IOException ioEx) {
+    	throw new IOException("Error parsing RPBConfig. "+ioEx.getMessage());
+    } catch (DRDException drdEx) {
+    	throw new DRDException("Error parsing RPBConfig. "+drdEx.getMessage());
     }
   }
+  
+  private void correlateDRDWithRPBConfig(DataReductionDefinition drd) throws DRDException {
+    correlateDRDWithRPBConfig(drd.getReductionType(), drd.getModuleList());
+  }
+  
+  private void correlateDRDWithRPBConfig(String reductionType, ArrayList moduleList) throws DRDException {
+    ArrayList list;
+    //. set active module list
+    if (reductionType.equals(ODRFGUIParameters.REDUCTION_TYPE_CRP_SPEC))
+      list = crpReductionModuleList;
+    else if (reductionType.equals(ODRFGUIParameters.REDUCTION_TYPE_ORP_SPEC))
+      list = orpReductionModuleList;
+    else
+      list = arpReductionModuleList;
+  
+    ReductionModule module;
+    ReductionModule listModule;
+    ArrayList moduleArgs;
+    ArrayList listModuleArgs;
+		ReductionModuleArgument arg;
+		ReductionModuleArgument listArg;
+    boolean moduleExists;
+		boolean argExistsInRPBConfig;
+		boolean argExistsInModule;
+		
+		//. go through modules
+    for (Iterator iModule = moduleList.iterator(); iModule.hasNext();) {
+  		module = (ReductionModule)iModule.next();
+  		
+  		moduleExists = false;
+  		//. make sure module is in RPBconfig
+  		for (Iterator iList = list.iterator(); iList.hasNext();) {
+  			listModule = (ReductionModule)iList.next();
+  			
+  			if (module.getName().compareTo(listModule.getName()) == 0) {
+  				moduleExists = true;
+  	  		
+  				//. verify arguments match.  if missing from module, add with defaults
+  				moduleArgs = module.getArguments();
+  				listModuleArgs = listModule.getArguments();
+  				
+  				
+  				//. first, go through module args and look for agruments that are not in rpbconfig
+  				for (Iterator iModuleArgs = moduleArgs.iterator(); iModuleArgs.hasNext();) {
+  					arg = (ReductionModuleArgument)iModuleArgs.next();
+  					
+  					argExistsInRPBConfig = false;
+  					for (Iterator iListArgs = listModuleArgs.iterator(); iListArgs.hasNext();) {
+  						listArg = (ReductionModuleArgument)iListArgs.next();
+  						if (listArg.getName().compareTo(arg.getName()) == 0) {
+  							argExistsInRPBConfig = true;
+  							//. use type and range from RPBConfig
+  							arg.setType(listArg.getType());
+  							arg.setRange(listArg.getRange());
+  							//. check if value is valid
+  							arg.setValue(arg.getValue());
+  							
+  							continue;
+  						}
+  					}
+  					//. if argument isn't in RPBConfig, throw an error
+  					if (!argExistsInRPBConfig) 
+  						throw new DRDException("Argument <"+arg.getName()+"> not listed as valid argument for module <"+module.getName()+"> in RPBConfig.");
+  				}
+  				
+  				//. now go through rpbconfig, and add to module any missing tags
+ 					for (Iterator iListArgs = listModuleArgs.iterator(); iListArgs.hasNext();) {
+						listArg = (ReductionModuleArgument)iListArgs.next();
+
+						argExistsInModule = false;
+						//. if module has args, go through them
+						for (Iterator iModuleArgs = moduleArgs.iterator(); iModuleArgs.hasNext();) {
+ 	  					arg = (ReductionModuleArgument)iModuleArgs.next();
+ 	  					//. if arg is in there, it's all good, move on
+ 	  					if (listArg.getName().compareTo(arg.getName()) == 0) {
+  							argExistsInModule = true;
+  							continue;
+  						}
+ 						}
+ 						//. if argument not there, add it!
+ 						if (!argExistsInModule) {
+ 							module.getArguments().add(new ReductionModuleArgument(listArg));
+ 						}
+ 					}
+  			}
+  		}
+  		//. if module is not found in RPBConfig, throw error
+  		if (!moduleExists) 
+  			throw new DRDException("Module <"+module.getName()+"> not found in RPBconfig for reduction type <"+reductionType+">.");
+  	}
+  }
+  
   public ArrayList getInputFileList() {
     return inputFileList;
   }
   public void removeInputFiles(int[] indices) {
   	int ii=0;
+  	//. make sure files are selected
   	if (indices.length > 0) {
+  		//. make sure first one is positive (should be sorted)
 			if (indices[0] >= 0) {
+				//. make sure list isn't empty already (shouldn't be)
 				if (!inputFileList.isEmpty()) {
+					//. go through indices
 					for (ii=0; ii<indices.length;ii++) {
+						//. remove the file (remember index is decremented when a file is removed)
 						inputFileList.remove(indices[ii]-ii);
-					}					
+					}
+					//. broadcast change
 					propertyChangeListeners.firePropertyChange("inputFileList", null, inputFileList);
 				}
 			}
   	}
   }
   public void clearInputFileList() {
+  	//. clear list
     inputFileList = new ArrayList();
+    //. reset working filter and scale
     setWorkingFilter("None");
     setWorkingScale("None");
+    //. broadcast change
     propertyChangeListeners.firePropertyChange("inputFileList", null, inputFileList);
   }
 
@@ -181,13 +336,18 @@ public class ODRFGUIModel extends GenericModel {
   	String newInputDir="";
   	String newFilter="";
   	String newScale="";
+  	
+  	//. make sure input dir is same as what's there
   	if (inputFileList.isEmpty()) {
+  		//. no files, use new input dir then
   		newInputDir = file.getDirectory();
   	} else {
+  		//. otherwise, make sure input dir is same
     	if (inputDir.getPath().compareTo(file.getDirectory()) != 0) {
     		throw new DRDException("Input file directory <"+file.getDirectory()+"> does not match current input directory.");
     	}  		
   	}
+  	//. make sure filter is the same
   	if (workingFilter.compareTo("None") == 0) {
   		newFilter = file.getFilter();
   	} else {
@@ -198,6 +358,7 @@ public class ODRFGUIModel extends GenericModel {
     		}
     	}
   	}
+  	//. make sure scale is the same
   	if (workingScale.compareTo("None") == 0) {
   		newScale = file.getScale();
   	} else {
@@ -207,20 +368,24 @@ public class ODRFGUIModel extends GenericModel {
 	  		}
 	  	}
   	}  	
-  	
+  	//. if inputdir is new, set it
   	if (newInputDir.length() > 0) {
   		setInputDir(new File(newInputDir));
   	}
+  	//. if filter is new, set it
   	if (newFilter.length() > 0) {
   		setWorkingFilter(newFilter);
   	}
+  	//. if scale is new, set it
   	if (newScale.length() > 0) {
   		setWorkingScale(newScale);
   	}
+  	//. add file
   	inputFileList.add(file);
-  	
+  	//. broadcast change
     propertyChangeListeners.firePropertyChange("inputFileList", null, inputFileList);
     
+    //. if dataset name is automatically generated, do it
     if (automaticallyGenerateDatasetName)
     	generateDatasetName();
 
@@ -229,75 +394,158 @@ public class ODRFGUIModel extends GenericModel {
   public void addInputFiles(File[] fileList) throws DRDException {
     //. only allow opening of osiris spec frames with same filter and scale
     //. must be from same directory, which is set to inputDir
+  	String currentFilter = "";
+  	String currentScale = "";
+  	String currentInputDir = "";
+  	String listFilter = "";
+  	String listScale = "";
+  	String listInputDir = "";
   	ArrayList tempInputFileList = (ArrayList)inputFileList.clone();
-    for (int ii=0; ii<fileList.length; ii++) {
+    DRDInputFile drdFile;
+  	for (int ii=0; ii<fileList.length; ii++) {
       try {
-        //. create DRFInputFile object which should
-      	//.  - validate file
-      	//.  - extract filter, scale, etc.
-      	DRDInputFile drdFile = new DRDInputFile(fileList[ii]);
-      	drdFile.validateFilter();
-      	drdFile.validateScale();
-      	tempInputFileList.add(drdFile);
-      } catch (DRDException drdE) {
-      	drdE.printStackTrace();
+      	//. create DRDInputFile object
+      	drdFile = new DRDInputFile(fileList[ii]);
       } catch (TruncatedFileException tfE) {
       	tfE.printStackTrace();
+      	throw new DRDException("Error opening <"+fileList[ii].toString()+">: "+tfE.getMessage());
       } catch (IOException ioE) {
       	ioE.printStackTrace();
-      	throw new DRDException(ioE.getMessage());
+      	throw new DRDException("Error opening <"+fileList[ii].toString()+">: "+ioE.getMessage());
       }
+      
+      //. check filter
+      try {
+      	drdFile.validateFilter();
+      	currentFilter = drdFile.getFilter();
+      } catch (DRDException drdE) {
+      	//. if validate fails, sfwname may have valid filter name
+      	drdE.printStackTrace();
+      	if (drdFile.getSFWName() != null)
+      		currentFilter=drdFile.getSFWName();
+      	else
+      		currentFilter = "";
+      }
+      
+      //. if no filter at all, assume it is ok
+      if (currentFilter.length() > 0)  {
+      	//. if list filter hasn't been set, set it
+      	if (listFilter.length() == 0)
+      		listFilter = currentFilter;
+      	else {
+        	//. otherwise, make sure it matches what has been previously set
+      		if (currentFilter.compareToIgnoreCase(listFilter) != 0)
+      			throw new DRDException("Error opening <"+fileList[ii].toString()+">: Filter <"+currentFilter+"> does not match working filter <"+listFilter+">.");
+      	}
+      }
+      //. check scale
+      try {
+      	drdFile.validateScale();
+      	currentScale = drdFile.getScale();
+      } catch (DRDException drdE) {
+      	//. if validate fails, ss1name may have valid scale name
+      	drdE.printStackTrace();
+      	String ss1Name = drdFile.getSS1Name();
+      	String ss2Name = drdFile.getSS2Name();
+      	//. if ss1Name and ss2Name are both null, currentScale is ""
+      	//. if only one of them is null, then use the other
+      	//. if both are not null, and are the same, use that value
+      	//. if both are not null, but differ, throw an exception
+      	if (ss1Name != null) {
+      		if (ss2Name != null) {
+      			if (ss1Name.compareToIgnoreCase(ss2Name) != 0) 
+      				throw new DRDException("Error opening <"+fileList[ii].toString()+">: SSCALE keyword missing, and SS1NAME <"+ss1Name+"> and SS2NAME <"+ss2Name+"> keywords don't match.");
+      		}  
+       		currentScale=ss1Name;
+      	}	else {
+      		//. if ss1name isn't there, try ss2name
+      		if (ss2Name != null)
+      			currentScale=ss2Name;
+      		else
+      			currentScale = "";
+      	}
+      }
+      
+      //. if no scale at all, assume it is ok
+      if (currentScale.length() > 0)  {
+      	//. if list scale hasn't been set, set it
+      	if (listScale.length() == 0)
+      		listScale = currentScale;
+      	else {
+        	//. otherwise, make sure it matches what has been previously set
+      		if (currentScale.compareToIgnoreCase(listScale) != 0)
+      			throw new DRDException("Error opening <"+fileList[ii].toString()+">: Scale <"+currentScale+"> does not match working scale <"+listScale+">.");
+      	}
+      }
+      
+      //. check inputdir
+      currentInputDir = drdFile.getDirectory();
+      //. if no input dir at all, assume it is ok
+      if (currentInputDir.length() > 0)  {
+      	//. if list input dir hasn't been set, set it
+      	if (listInputDir.length() == 0)
+      		listInputDir = currentInputDir;
+      	else {
+        	//. otherwise, make sure it matches what has been previously set
+      		if (currentInputDir.compareTo(listInputDir) != 0)
+      			throw new DRDException("Error opening <"+fileList[ii].toString()+">: Input dir <"+currentInputDir+"> does not match working input dir <"+listInputDir+">.");
+      	}
+      }
+      
+      //. if it passes all these checks (matching filter, scale, and output dir), add it to the list.
+    	tempInputFileList.add(drdFile);
+
     }
     
+  	//. if there are valid files
     if (!tempInputFileList.isEmpty()) {
-      DRDInputFile tempFile = (DRDInputFile)tempInputFileList.get(0);
-      String tempInputDir = tempFile.getDirectory();
-      String tempScale = tempFile.getScale();
-      String tempFilter = tempFile.getFilter();
-
-      //. confirm same filter and scale
-      for (Iterator jj=tempInputFileList.iterator(); jj.hasNext();) {
-        tempFile = (DRDInputFile)jj.next();
-        if (tempInputDir.compareToIgnoreCase(tempFile.getDirectory()) != 0) {
-        	throw new DRDException("All input files must be from same directory!");
-        } 
-        if (tempScale.compareToIgnoreCase(tempFile.getScale()) != 0) {
-        	throw new DRDException("All input files must have same scale!");
-        }
-        if (tempFilter.compareToIgnoreCase(tempFile.getFilter()) != 0) {
-        	throw new DRDException("All input files must have same filter!");
-        }        
-      }
-      setWorkingFilter(tempFilter);
-      setWorkingScale(tempScale);
-      setInputDir(new File(tempInputDir));
+    	//. set the working filter, scale, and inputdir
+      setWorkingFilter(listFilter);
+      setWorkingScale(listScale);
+      setInputDir(new File(listInputDir));
+      
+      //. set list
       inputFileList = tempInputFileList;
       
+      //. generate dataset name is needed
       if (automaticallyGenerateDatasetName)
       	generateDatasetName();
       
+      //. broadcast change
       propertyChangeListeners.firePropertyChange("inputFileList", null, inputFileList);
       
+      //. updated find files
       resolveFindFiles();
     }
   }
   public boolean areActiveCalFilesValiated() {
+  	//. go though active list
     for (Iterator ii = activeModuleList.iterator(); ii.hasNext();) {
       ReductionModule module = (ReductionModule)ii.next();
+      //. only care about modules that are not skipped
       if (!module.doSkip())
+      	//. check if cal file is validated
       	if (!module.isCalibrationFileValidated())
       		return false;
     }
     return true;
   }
   public void openDRF(File drf) throws org.jdom.JDOMException, java.io.IOException, DRDException {
-    DataReductionDefinition drd = myDRF.openDRF(drf);
+  	//. open file
+  	DataReductionDefinition drd = myDRF.openDRF(drf);
+  	//. check format of modules with RPBConfig
+  	correlateDRDWithRPBConfig(drd);
+
+  	//. set basic drd settings
     setInputDir(new File(drd.getDatasetInputDir()));
     setDatasetName(drd.getDatasetName());
     setOutputDir(new File(drd.getDatasetOutputDir()));
     setLogPath(new File(drd.getLogPath()));
     setReductionType(drd.getReductionType());
+    //. reset input file list
     clearInputFileList();
+    
+    //. create input file list
     ArrayList inputFiles = drd.getDatasetFitsFileList();
     File[] fileList = new File[inputFiles.size()];
     int index=0;
@@ -305,26 +553,39 @@ public class ODRFGUIModel extends GenericModel {
       fileList[index]=new File(inputDir+File.separator+(String)ii.next());
       index++;
     }
-
+    //. add files to list
     addInputFiles(fileList);
-
+    //. init modules
     initializeModuleList(drd.getModuleList());
-    
+    //. set active list
     setActiveModuleList(drd.getModuleList());
-    
+    //. set fits header updates
     setUpdateKeywordModuleList(drd.getKeywordUpdateModuleList());
-
+    //. resolve find files
     resolveFindFiles();
   }
   public String writeDRFToQueue() throws java.io.IOException, org.jdom.JDOMException {
+  	//. create formatter for queue number.  always three digits
     java.text.DecimalFormat threeDigitFormatter = new java.text.DecimalFormat("000");
+    //. construct file root
     String fileroot = queueDir+File.separator+threeDigitFormatter.format((long)queueNumber)+"."+datasetName+"_drf.";
+    //. write first drf with .writing extension
     String writtenDRFFilename = fileroot+ODRFGUIParameters.DRF_EXTENSION_WRITING;
+    //. when queued, it will have .waiting extension
     String queuedDRFFilename = fileroot+ODRFGUIParameters.DRF_EXTENSION_QUEUED;
+
+    //. create file
     File writtenDRF = new File(writtenDRFFilename);
+    //. write it to disk
     writeDRF(writtenDRF);
+
+    //. copy file to queue.  can't write directly to queue because backbone will try to open 
+    //. before the drf is finished writing.
     System.out.println("Copying file from temporary DRF to: "+queuedDRFFilename);
 
+    //. the following algorithm is from the Java Developers Almanac 1.4 item e1071
+    
+    //. init streams
     InputStream in = new FileInputStream(writtenDRF);
     OutputStream out = new FileOutputStream(queuedDRFFilename);
 
@@ -337,37 +598,46 @@ public class ODRFGUIModel extends GenericModel {
     in.close();
     out.close();
 
+    //. delete temp drf
     System.out.println("Deleting temporary DRF: "+writtenDRFFilename);
     writtenDRF.delete();
+    //. increment queue number
     queueNumber++;
+    //. return final drf name
     return queuedDRFFilename;
   }
   public void writeDRF(File drfFile) throws java.io.IOException, org.jdom.JDOMException {
     //. construct workingDRD
     DataReductionDefinition workingDRD = new DataReductionDefinition();
 
+    //. get input dir
     workingDRD.setDatasetInputDir(inputDir.getAbsolutePath());
     //. populate fits file list in DRD with just the names of files
     ArrayList inputFileNames = new ArrayList();
     for (Iterator ii=inputFileList.iterator(); ii.hasNext();) {
       inputFileNames.add(((DRDInputFile)ii.next()).getName());
     }
+    //. set DRD params
     workingDRD.setDatasetFitsFileList(inputFileNames);
     workingDRD.setDatasetName(datasetName);
     workingDRD.setDatasetOutputDir(outputDir.getAbsolutePath());
     workingDRD.setReductionType(reductionType);
     workingDRD.setLogPath(logPath.getAbsolutePath());
 
+    //. go through modules and set output dir to the same as the dataset dir
     for (Iterator ii = activeModuleList.iterator(); ii.hasNext();) {
     	ReductionModule module = (ReductionModule)(ii.next());
     	if (module.getOutputDir().compareTo("") == 0)
     		module.setOutputDir(outputDir.getAbsolutePath());
     }
     
+    //. set module list
     workingDRD.setModuleList(activeModuleList);
 
+    //. set fits header stuff
     workingDRD.setKeywordUpdateModuleList(updateKeywordModuleList);
     
+    //. write drf
     myDRF.writeDRF(drfFile, workingDRD, writeDRFVerbose);
   }
 
@@ -386,7 +656,8 @@ public class ODRFGUIModel extends GenericModel {
   	DataReductionDefinition drd = new DataReductionDefinition(activeReductionTemplate.getDRD());
     //. drd type of template must match active reduction type.
     if (!drd.getReductionType().equals(reductionType)) {
-      throw new DRDException("DRF Template reduction type <"+drd.getReductionType()+"> does not match current reduction type <"+reductionType+">.");
+      //throw new DRDException("DRF Template reduction type <"+drd.getReductionType()+"> does not match current reduction type <"+reductionType+">.");
+    	setReductionType(drd.getReductionType());
     }
     
     initializeModuleList(drd.getModuleList());
@@ -418,6 +689,8 @@ public class ODRFGUIModel extends GenericModel {
         module.setAllowedFindFileMethods(ODRFGUIParameters.FIND_FILE_CHOICES_MODULE_SPATIALLY_RECTIFY);
       } else if (module.getName().equals(ODRFGUIParameters.MODULE_EXTRACT_SPECTRA)) {
         module.setAllowedFindFileMethods(ODRFGUIParameters.FIND_FILE_CHOICES_MODULE_EXTRACT_SPECTRA);
+      } else if (module.getName().equals(ODRFGUIParameters.MODULE_DIVIDE_BY_STAR_SPECTRUM)) {
+        module.setAllowedFindFileMethods(ODRFGUIParameters.FIND_FILE_CHOICES_MODULE_DIVIDE_BY_STAR_SPECTRUM);
       } else if (module.getName().equals(ODRFGUIParameters.MODULE_SUBTRACT_DARK)) {
         module.setAllowedFindFileMethods(ODRFGUIParameters.FIND_FILE_CHOICES_MODULE_SUBTRACT_DARK);
       } else if (module.getName().equals(ODRFGUIParameters.MODULE_SUBTRACT_SKY)) {
@@ -455,25 +728,41 @@ public class ODRFGUIModel extends GenericModel {
       }
     }	
   }
+
   private int getIndexForNewModule(ReductionModule newModule) {
   	int activeIndex=0;
+  	int availableIndex = availableModuleList.indexOf(newModule);
+  	boolean indexFound = false;
   	ReductionModule currentAvailModule, currentActiveModule;
   	if (activeModuleList.isEmpty())
   		return 0;
-  	for (Iterator iModule = availableModuleList.iterator(); iModule.hasNext();) {
-  		currentAvailModule = (ReductionModule)iModule.next();
-  		currentActiveModule = (ReductionModule)activeModuleList.get(activeIndex);
-  		if (newModule.getName().compareTo(currentActiveModule.getName()) == 0) {
-  			return -1;
-  		} else if (currentActiveModule.getName().compareTo(currentAvailModule.getName()) == 0) {
-  			activeIndex++;
-  		} else if (newModule.getName().compareTo(currentAvailModule.getName()) == 0) {
-  			return activeIndex;
+  	for (ListIterator iModule = availableModuleList.listIterator(availableIndex+1); iModule.hasPrevious();) {
+  		//. get module above
+  		currentAvailModule = (ReductionModule)iModule.previous();
+
+  		activeIndex = 0;
+  		//. go through active list and look for this module
+  		for (Iterator iActive = activeModuleList.iterator(); iActive.hasNext();) {
+    		//. get module from active list
+    		currentActiveModule = (ReductionModule)iActive.next();
+    		
+    		//. check to see if module already exists
+    		if (currentActiveModule.getName().compareTo(newModule.getName()) == 0) {
+    			return -1;
+    		}
+    		//. if index already found, don't check anymore for where it should go, 
+    		//. but keep iterating of active list to see if module already in the list
+    		if (!indexFound) {
+	    		activeIndex++;
+	    		if (currentActiveModule.getName().compareTo(currentAvailModule.getName()) == 0) {
+	    			indexFound = true;
+	    		}
+    		}
   		}
-  		if (activeIndex >= activeModuleList.size()) {
+  		if (indexFound)
   			return activeIndex;
-  		}
   	}
+  	//. if not found, return 0 (put at beginning)
   	return 0;
   }
   
@@ -640,6 +929,15 @@ public class ODRFGUIModel extends GenericModel {
   public ReductionModule getModule(int row) throws IndexOutOfBoundsException {
     return (ReductionModule)activeModuleList.get(row);
   }
+  
+  public void setActiveModule(ReductionModule activeModule) {
+    ReductionModule  oldActiveModule = this.activeModule;
+    this.activeModule = activeModule;
+    propertyChangeListeners.firePropertyChange("activeModule", null, activeModule);
+  }
+  public ReductionModule getActiveModule() {
+    return activeModule;
+  }
   public void setActiveModuleList(ArrayList activeModuleList) {
     ArrayList  oldActiveModuleList = this.activeModuleList;
     this.activeModuleList = activeModuleList;
@@ -712,7 +1010,9 @@ public class ODRFGUIModel extends GenericModel {
   public File getQueueDir() {
     return queueDir;
   }
-
+  public ArrayList getReductionTemplates() {
+  	return reductionTemplates;
+  }
   public class ReductionTemplate {
     File drfFile;
     DataReductionDefinition myDRD = new DataReductionDefinition();
@@ -729,6 +1029,9 @@ public class ODRFGUIModel extends GenericModel {
     }
     public DataReductionDefinition getDRD() {
       return myDRD;
+    }
+    public String toString() {
+    	return getDrfFilename();
     }
   }
 
