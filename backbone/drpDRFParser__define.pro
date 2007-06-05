@@ -497,7 +497,7 @@ END
 ;
 ; HISTORY:
 ; 	2006-04-20	Modified to allow arbitrary additional attributes in modules.
-; 				Requires struct_merge.pro  and struct_trimtags.pro
+; 				Requires struct_merge.pro and struct_trimtags.pro
 ; 				 - Marshall Perrin
 ;-----------------------------------------------------------------------------------------------------
 PRO drpDRFParser::NewModule, AttNames, AttValues

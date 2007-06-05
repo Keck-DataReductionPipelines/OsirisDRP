@@ -808,58 +808,58 @@ END
 ;-----------------------------------------------------------------------------------------------------
 PRO drpFITSToDataSet, DataSet, ValidFrameCount, FileName, FileControl
 
-	COMMON APP_CONSTANTS
+COMMON APP_CONSTANTS
 
-	drpPushCallStack, 'drpFITSToDataSet'
+drpPushCallStack, 'drpFITSToDataSet'
 
-  IF continueAfterDRFParsing EQ 1 THEN BEGIN
-    IF ValidFrameCount EQ 0 THEN BEGIN  ; Reset current running total on first file of a DRF
-      CumulativeMemoryUsedByFITSData = 0L
+IF continueAfterDRFParsing EQ 1 THEN BEGIN
+    IF ValidFrameCount EQ 0 THEN BEGIN ; Reset current running total on first file of a DRF
+        CumulativeMemoryUsedByFITSData = 0L
     ENDIF
-    MemoryBeforeReadingFITSFile = MEMORY(/CURRENT)  ; Memory before reading all or part of file
+    MemoryBeforeReadingFITSFile = MEMORY(/CURRENT) ; Memory before reading all or part of file
     IF CumulativeMemoryUsedByFITSData LT MaxMemorySizeOfFITSData THEN BEGIN
-      drpLog, 'Reading data file: ' + drpXlateFileName(DataSet.InputDir + '/' + FileName), /GENERAL, DEPTH = 1
-      drpIOLock
-      CATCH, readfitsError
-      IF readfitsError EQ 0 THEN BEGIN
-        IF (FileControl AND READDATA) EQ READDATA THEN BEGIN
-          *DataSet.Frames[ValidFrameCount] = FLOAT(READFITS(drpXlateFileName(DataSet.InputDir + '/' + FileName), Header, /SILENT)) 
-          *DataSet.Headers[ValidFrameCount] = Header
-        ENDIF
-        IF (FileControl AND READNOISE) EQ READNOISE THEN BEGIN
-          *DataSet.IntFrames[ValidFrameCount] = FLOAT(READFITS(drpXlateFileName(DataSet.InputDir + '/' + FileName), Header, EXTEN_NO=1, /SILENT))
-          IF (FileControl AND READDATA) EQ 0 THEN BEGIN
-            *DataSet.Headers[ValidFrameCount] = Header
-          ENDIF
-        ENDIF
-        IF (FileControl AND READQUALITY) EQ READQUALITY THEN BEGIN
-          *DataSet.IntAuxFrames[ValidFrameCount] = BYTE(READFITS(drpXlateFileName(DataSet.InputDir + '/' + FileName), Header, EXTEN_NO=2, /SILENT))
-          IF (FileControl AND READDATA) EQ 0 THEN BEGIN
-            IF (FileControl AND READNOISE) EQ 0 THEN BEGIN
-              *DataSet.Headers[ValidFrameCount] = Header
+        drpLog, 'Reading data file: ' + drpXlateFileName(DataSet.InputDir + '/' + FileName), /GENERAL, DEPTH = 1
+        drpIOLock
+        CATCH, readfitsError
+        IF readfitsError EQ 0 THEN BEGIN
+            IF (FileControl AND READDATA) EQ READDATA THEN BEGIN
+                *DataSet.Frames[ValidFrameCount] = FLOAT(READFITS(drpXlateFileName(DataSet.InputDir + '/' + FileName), Header, /SILENT)) 
+                *DataSet.Headers[ValidFrameCount] = Header
             ENDIF
-          ENDIF
-        ENDIF
-        MemoryAfterReadingFITSFile = MEMORY(/CURRENT)  ; Memory after reading all or part of file
-        ; Add memory used by this file to current running total
-        CumulativeMemoryUsedByFITSData = CumulativeMemoryUsedByFITSData + (MemoryAfterReadingFITSFile - MemoryBeforeReadingFITSFile)
-        drpLog, 'Memory used by FITS files: ' + STRTRIM(STRING(CumulativeMemoryUsedByFITSData), 2), /GENERAL, DEPTH = 1
-      ENDIF ELSE BEGIN
-        drpLog, 'READFITS() Error on file ' + drpXlateFileName(DataSet.InputDir + '/' + FileName), /GENERAL, DEPTH = 1
+            IF (FileControl AND READNOISE) EQ READNOISE THEN BEGIN
+                *DataSet.IntFrames[ValidFrameCount] = FLOAT(READFITS(drpXlateFileName(DataSet.InputDir + '/' + FileName), Header, EXTEN_NO=1, /SILENT))
+                IF (FileControl AND READDATA) EQ 0 THEN BEGIN
+                    *DataSet.Headers[ValidFrameCount] = Header
+                ENDIF
+            ENDIF
+            IF (FileControl AND READQUALITY) EQ READQUALITY THEN BEGIN
+                *DataSet.IntAuxFrames[ValidFrameCount] = BYTE(READFITS(drpXlateFileName(DataSet.InputDir + '/' + FileName), Header, EXTEN_NO=2, /SILENT))
+                IF (FileControl AND READDATA) EQ 0 THEN BEGIN
+                    IF (FileControl AND READNOISE) EQ 0 THEN BEGIN
+                        *DataSet.Headers[ValidFrameCount] = Header
+                    ENDIF
+                ENDIF
+            ENDIF
+            MemoryAfterReadingFITSFile = MEMORY(/CURRENT) ; Memory after reading all or part of file
+            ; Add memory used by this file to current running total
+            CumulativeMemoryUsedByFITSData = CumulativeMemoryUsedByFITSData + (MemoryAfterReadingFITSFile - MemoryBeforeReadingFITSFile)
+            drpLog, 'Memory used by FITS files: ' + STRTRIM(STRING(CumulativeMemoryUsedByFITSData), 2), /GENERAL, DEPTH = 1
+        ENDIF ELSE BEGIN
+            drpLog, 'READFITS() Error on file ' + drpXlateFileName(DataSet.InputDir + '/' + FileName), /GENERAL, DEPTH = 1
+            drpLog, 'DRF will be aborted', /GENERAL, DEPTH = 1
+            continueAfterDRFParsing = 0
+        ENDELSE
+        CATCH, /CANCEL
+        drpIOUnlock
+    ENDIF ELSE BEGIN
+        drpLog, 'Already allocated too much memory for this DRF.  ' + STRTRIM(STRING(CumulativeMemoryUsedByFITSData), 2) + ' is currently allocated', /GENERAL, DEPTH = 1
         drpLog, 'DRF will be aborted', /GENERAL, DEPTH = 1
         continueAfterDRFParsing = 0
-      ENDELSE
-      CATCH, /CANCEL
-      drpIOUnlock
-    ENDIF ELSE BEGIN
-      drpLog, 'Already allocated too much memory for this DRF.  ' + STRTRIM(STRING(CumulativeMemoryUsedByFITSData), 2) + ' is currently allocated', /GENERAL, DEPTH = 1
-      drpLog, 'DRF will be aborted', /GENERAL, DEPTH = 1
-      continueAfterDRFParsing = 0
     ENDELSE
     PRINT, FORMAT='(".",$)'
-  ENDIF
+ENDIF
 
-	void = drpPopCallStack()
+void = drpPopCallStack()
 
 END
 

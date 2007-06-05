@@ -181,9 +181,12 @@ drpMemoryMarkSimple, 'xh'
 			FREE_LUN, LOG_DRF
 		ENDELSE
 		drpCheckMessages  ; Check to see if we told ourselves to stop via the GUI
+                                ; Delay added to keep CPU usage
+                                ; down. Suggested by Marshall Perrin
+                                ; Feb 18, 2006
+                ; Moved to the correct place JEL, May 30, 2007
+                wait, 1
 	ENDWHILE
-        ; Delay added to keep CPU usage down. Suggested by Marshall Perrin Feb 18, 2006
-	wait, 1
 	CLOSE, LOG_GENERAL
 	FREE_LUN, LOG_GENERAL
 END

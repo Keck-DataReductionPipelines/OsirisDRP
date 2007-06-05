@@ -7,6 +7,19 @@ PRO drpRun, QUEUE_DIR=queue_dir
 		initialQueueDir = GETENV('DRF_QUEUE_DIR')
 	ENDELSE
 	initialQueueDir = initialQueueDir + '/'
+        print, "                                                    "
+        PRINT, "*****************************************************"
+        print, "*                                                   *"
+        PRINT, "*          OSIRIS DATA REDUCTION PIPELINE           *"
+        print, "*                                                   *"
+        print, "*                   VERSION 2.0                     *"
+        print, "*                                                   *"
+        print, "*           James Larkin, Shelley Wright,           *"
+        print, "*            Jason Weiss, Mike McElwain,            *"
+        print, "*         Christof Iserlohe, Alfred Krabbe,         *"
+        print, "*           Tom Gasaway, Tommer Wizanski            *"
+        print, "*                                                   *"
+        print, "*****************************************************"
 	PRINT, "DRF Queue directory = " + initialQueueDir
 	x->Run, initialQueueDir
 	OBJ_DESTROY, x
