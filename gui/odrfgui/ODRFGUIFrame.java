@@ -5,6 +5,7 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.table.*;
+
 import java.beans.*;
 import java.util.*;
 import java.io.*;
@@ -21,9 +22,6 @@ import edu.ucla.astro.osiris.util.*;
  */
 
 
-/** @todo check box for don't write skipped modules */
-/** @todo set calibration dir */
-/** @todo set queue dir */
 public class ODRFGUIFrame extends JFrame {
   ODRFGUIModel myModel;
   ODRFGUIController myController;
@@ -46,7 +44,10 @@ public class ODRFGUIFrame extends JFrame {
   JPanel mainPanel = new JPanel();
   JPanel topPanel = new JPanel();
   JPanel filterScalePanel = new JPanel();
+
   JSplitPane moduleSplitPane = new JSplitPane();
+  JSplitPane availableModulesSplitPane = new JSplitPane();
+  JSplitPane argumentSplitPane = new JSplitPane();
   JSplitPane updateSplitPane = new JSplitPane();
 
   //. input file list
@@ -83,9 +84,11 @@ public class ODRFGUIFrame extends JFrame {
 
   //. basic reduction type list
   JLabel reductionTemplateLabel = new JLabel();
-  JComboBox reductionTemplateComboBox = new JComboBox(ODRFGUIParameters.DEFAULT_REDUCTION_TEMPLATE_LIST);
+  JComboBox reductionTemplateComboBox;
 
   //. module list
+  JScrollPane moduleDescriptionScrollPane = new JScrollPane(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+  JTextArea moduleDescriptionTextArea = new JTextArea();
   JScrollPane availableModulesTableScrollPane = new JScrollPane();
   JTable availableModulesTable = new JTable();
   DefaultArrayListTableModel availableModulesTableModel = new DefaultArrayListTableModel();
@@ -94,6 +97,10 @@ public class ODRFGUIFrame extends JFrame {
   JTable reductionModuleTable = new JTable();
   ReductionModuleListTableModel reductionModuleTableModel = new ReductionModuleListTableModel();
 
+  JScrollPane moduleArgumentTableScrollPane = new JScrollPane();
+  JTable moduleArgumentTable = new JTable();
+  ReductionModuleArgumentListTableModel argumentTableModel = new ReductionModuleArgumentListTableModel();
+  
   JScrollPane updateModuleTableScrollPane = new JScrollPane();
   JTable updateModuleTable = new JTable();
   UpdateModuleListTableModel updateModuleTableModel = new UpdateModuleListTableModel();
@@ -110,7 +117,7 @@ public class ODRFGUIFrame extends JFrame {
   private JCheckBox confirmSaveInvalidDRFCheckBox = new JCheckBox("Confirm saving invalid DRFs?");
   private JCheckBox confirmDropDRFCheckBox = new JCheckBox("Confirm dropping DRFs to queue?");
   private JCheckBox confirmDropInvalidDRFCheckBox = new JCheckBox("Confirm dropping invalid DRFs to queue?");
-  private JCheckBox showKeywordUpdateCheckBox = new JCheckBox("Show keyword update panel (Advanced)?");
+  private JCheckBox showKeywordUpdateCheckBox = new JCheckBox("Show keyword update panel? (Advanced)");
   private JCheckBox writeDRFVerboseCheckBox = new JCheckBox("Be verbose when writing DRFs?");
   
   private File currentDRFReadPath = ODRFGUIParameters.DRF_READ_PATH;
@@ -135,29 +142,33 @@ public class ODRFGUIFrame extends JFrame {
       String propertyName = e.getPropertyName();
 
       if ("activeModuleList".equals(propertyName)) {
-	updateViewModuleList((ArrayList)e.getNewValue());
+      	updateViewModuleList((ArrayList)e.getNewValue());
+      } else if ("activeModule".equals(propertyName)) {
+      	updateViewActiveModule((ReductionModule)e.getNewValue());
       } else if ("availableModuleList".equals(propertyName)) {
-  	updateViewAvailableModuleList((ArrayList)e.getNewValue());
+      	updateViewAvailableModuleList((ArrayList)e.getNewValue());
       } else if ("updateKeywordModuleList".equals(propertyName)) {
       	updateViewUpdateKeywordModuleList((ArrayList)e.getNewValue());
       } else if ("inputFileList".equals(propertyName)) {
-	updateViewInputFileList((ArrayList)e.getNewValue());
+      	updateViewInputFileList((ArrayList)e.getNewValue());
       } else if ("activeReductionTemplate".equals(propertyName)) {
-	updateViewActiveReductionTemplate(e.getNewValue());
+      	updateViewActiveReductionTemplate(e.getNewValue());
       } else if ("workingFilter".equals(propertyName)) {
         updateViewFilter(e.getNewValue().toString());
       } else if ("workingScale".equals(propertyName)) {
-	updateViewScale(e.getNewValue().toString());
+      	updateViewScale(e.getNewValue().toString());
       } else if ("logPath".equals(propertyName)) {
-	updateViewLogPath(((File)e.getNewValue()).getAbsolutePath());
+      	updateViewLogPath(((File)e.getNewValue()).getAbsolutePath());
       } else if ("outputDir".equals(propertyName)) {
-	updateViewOutputPath(((File)e.getNewValue()).getAbsolutePath());
+      	updateViewOutputPath(((File)e.getNewValue()).getAbsolutePath());
       } else if ("calibDir".equals(propertyName)) {
-	updateViewCalibDir(e.getNewValue().toString());
+      	updateViewCalibDir(e.getNewValue().toString());
       } else if ("datasetName".equals(propertyName)) {
-	updateViewDatasetName(e.getNewValue().toString());
+      	updateViewDatasetName(e.getNewValue().toString());
       } else if ("automaticallyGenerateDatasetName".equals(propertyName)) {
-	updateViewAutosetDatasetName(((Boolean)e.getNewValue()).booleanValue());
+      	updateViewAutosetDatasetName(((Boolean)e.getNewValue()).booleanValue());
+      } else if ("reductionType".equals(propertyName)) {
+      	updateViewReductionType(e.getNewValue().toString());
       } else
         return;
     }
@@ -275,7 +286,7 @@ public class ODRFGUIFrame extends JFrame {
     autosetDatasetNameCheckBox.setText("Automatically create dataset name from input files");
     autosetDatasetNameCheckBox.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
-	autosetDatasetNameCheckBox_actionPerformed(e);
+      	autosetDatasetNameCheckBox_actionPerformed(e);
       }
     });
     logPathTitleLabel.setText("Log Path:");
@@ -283,13 +294,14 @@ public class ODRFGUIFrame extends JFrame {
     reductionTypeLabel.setText("Reduction Type:");
     reductionTypeComboBox.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
-	reductionTypeComboBox_actionPerformed(e);
+      	reductionTypeComboBox_actionPerformed(e);
       }
     });
     reductionTemplateLabel.setText("Reduction Templates:");
+    reductionTemplateComboBox = new JComboBox(new Vector(myModel.getReductionTemplates()));
     reductionTemplateComboBox.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
-	reductionTemplateComboBox_actionPerformed(e);
+      	reductionTemplateComboBox_actionPerformed(e);
       }
     });
     logPathLabel.setText(" ");
@@ -300,13 +312,13 @@ public class ODRFGUIFrame extends JFrame {
     logPathBrowseButton.setText("Browse");
     logPathBrowseButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
-	logPathBrowseButton_actionPerformed(e);
+      	logPathBrowseButton_actionPerformed(e);
       }
     });
     outputPathBrowseButton.setText("Browse");
     outputPathBrowseButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
-	outputPathBrowseButton_actionPerformed(e);
+      	outputPathBrowseButton_actionPerformed(e);
       }
     });
 
@@ -315,11 +327,19 @@ public class ODRFGUIFrame extends JFrame {
     availableModulesTable.setModel(availableModulesTableModel);
     availableModulesTable.addMouseListener(new MouseAdapter() {
     	public void mouseClicked(MouseEvent e) {
-    		if (e.getClickCount() == 2) {
+    		if (e.getClickCount() == 1) {
+    			availableModulesTable_clickEvent();
+    		} else if (e.getClickCount() == 2) {
     			availableModulesTable_doubleClickEvent();
     		}
     	}
     });
+    
+    moduleDescriptionTextArea.setEditable(false);
+    moduleDescriptionTextArea.setLineWrap(true);
+    moduleDescriptionTextArea.setWrapStyleWord(true);
+    moduleDescriptionTextArea.setText("Module Description");
+    moduleDescriptionTextArea.setBackground(UIManager.getColor(new JPanel()));
     
     reductionModuleTableModel.setData(myModel.getActiveModuleList());
     reductionModuleTable.setModel(reductionModuleTableModel);
@@ -348,8 +368,24 @@ public class ODRFGUIFrame extends JFrame {
     		}
     	}
     });
+    reductionModuleTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+    reductionModuleTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+    	public void valueChanged(ListSelectionEvent ev) {
+    		reductionModuleTable_selectionChanged(ev);
+    	}
+    });
     reductionModuleTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
+    
+    moduleArgumentTable.setModel(argumentTableModel);
+    TableColumn tColArgName = moduleArgumentTable.getColumn(ODRFGUIParameters.MODULE_ARGUMENT_TABLE_COLUMN_HEADER_NAME);
+    TableColumn tColArgValue = moduleArgumentTable.getColumn(ODRFGUIParameters.MODULE_ARGUMENT_TABLE_COLUMN_HEADER_VALUE);
+    tColArgName.setPreferredWidth(ODRFGUIParameters.MODULE_ARGUMENT_TABLE_COLUMN_WIDTH_NAME);
+    tColArgValue.setPreferredWidth(ODRFGUIParameters.MODULE_ARGUMENT_TABLE_COLUMN_WIDTH_VALUE);
+    tColArgName.setCellRenderer(new OsirisCellEditorsAndRenderers.CenteredTextTableCellRenderer());
+    tColArgValue.setCellRenderer(new OsirisCellEditorsAndRenderers.CenteredTextTableCellRenderer());
+    tColArgValue.setCellEditor(new ReductionModuleArgumentTableValueCellEditor());
+    
     updateModuleTableModel.setData(myModel.getUpdateKeywordModuleList());
     updateModuleTable.setModel(updateModuleTableModel);
     TableColumn tColKeyword = updateModuleTable.getColumn(ODRFGUIParameters.UPDATE_MODULE_TABLE_COLUMN_HEADER_KEYWORD);
@@ -373,9 +409,15 @@ public class ODRFGUIFrame extends JFrame {
     	}
     });
     
+    availableModulesSplitPane.setDividerLocation(ODRFGUIParameters.SPLIT_PANE_AVAILABLE_MODULE_LIST_DIVIDER_LOCATION);
+    availableModulesSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
+    availableModulesSplitPane.setDividerSize(2);
     moduleSplitPane.setDividerLocation(ODRFGUIParameters.SPLIT_PANE_MODULE_LIST_DIVIDER_LOCATION);
     updateSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
     updateSplitPane.setDividerLocation(ODRFGUIParameters.SPLIT_PANE_UPDATE_LIST_DIVIDER_LOCATION);
+    argumentSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
+    argumentSplitPane.setDividerLocation(ODRFGUIParameters.SPLIT_PANE_ARGUMENT_LIST_DIVIDER_LOCATION);
+    
     
     updateModuleTableScrollPane.setVisible(ODRFGUIParameters.DEFAULT_SHOW_KEYWORD_UPDATE_PANEL);
     updateModuleTableScrollPane.addMouseListener(new MouseAdapter() {
@@ -408,10 +450,12 @@ public class ODRFGUIFrame extends JFrame {
     contentPane.add(statusBar, BorderLayout.SOUTH);
 
     reductionModuleTableScrollPane.getViewport().add(reductionModuleTable);
+    moduleArgumentTableScrollPane.getViewport().add(moduleArgumentTable);
     availableModulesTableScrollPane.getViewport().add(availableModulesTable);
     updateModuleTableScrollPane.getViewport().add(updateModuleTable);
     inputFileListScrollPane.getViewport().add(inputFileList);
-
+    moduleDescriptionScrollPane.getViewport().add(moduleDescriptionTextArea);
+    
     filterScalePanel.setLayout(new GridLayout(1,0));
     filterScalePanel.add(filterTitleLabel);
     filterScalePanel.add(filterLabel);
@@ -476,11 +520,17 @@ public class ODRFGUIFrame extends JFrame {
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
 
 
-    updateSplitPane.add(reductionModuleTableScrollPane, JSplitPane.TOP);
+    updateSplitPane.add(argumentSplitPane, JSplitPane.TOP);
     updateSplitPane.add(updateModuleTableScrollPane, JSplitPane.BOTTOM);
     
-    moduleSplitPane.add(availableModulesTableScrollPane, JSplitPane.LEFT);
+    moduleSplitPane.add(availableModulesSplitPane, JSplitPane.LEFT);
     moduleSplitPane.add(updateSplitPane, JSplitPane.RIGHT);
+
+    argumentSplitPane.add(reductionModuleTableScrollPane, JSplitPane.TOP);
+    argumentSplitPane.add(moduleArgumentTableScrollPane, JSplitPane.BOTTOM);
+    
+    availableModulesSplitPane.add(availableModulesTableScrollPane, JSplitPane.TOP);
+    availableModulesSplitPane.add(moduleDescriptionScrollPane, JSplitPane.BOTTOM);
     
     executePanel.setLayout(new GridLayout(1,0,50,5));
     executePanel.add(saveDRFButton);
@@ -578,6 +628,7 @@ public class ODRFGUIFrame extends JFrame {
 	  	};
     }
   	try {
+  		myModel.setDatasetName(datasetNameField.getText());
   		String filename = myModel.writeDRFToQueue();
       statusBar.setText("DRF <"+OsirisFileUtils.getNameOfFile(filename)+"> dropped to queue <"+myModel.getQueueDir().getPath()+">.");
       
@@ -690,8 +741,8 @@ public class ODRFGUIFrame extends JFrame {
   //Help | About action performed
   public void jMenuHelpAbout_actionPerformed(ActionEvent e) {
     OsirisAboutBox dlg = new OsirisAboutBox(this, "OSIRIS Data Reduction File GUI");
-    dlg.setVersion("Version 0.02");
-    dlg.setReleased("Released: 30 April 2007");
+    dlg.setVersion("Version 2.000");
+    dlg.setReleased("Released: 6 June 2007");
     dlg.setLocationAtCenter(this);
     dlg.setModal(true);
     dlg.show();
@@ -712,16 +763,35 @@ public class ODRFGUIFrame extends JFrame {
     fc.setDialogTitle("Choose Logging Directory");
     fc.setApproveButtonText("Select");
     fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-    if (fc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION)
-      myModel.setLogPath(fc.getSelectedFile());
+    browseForLogPath(fc);
   }
+  private void browseForLogPath(JFileChooser fc) {
+    if (fc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+    	if (fc.getSelectedFile().canWrite())
+    		 myModel.setLogPath(fc.getSelectedFile());
+    	else {
+    		JOptionPane.showMessageDialog(this, "Cannot write to log dir <"+fc.getSelectedFile().getAbsolutePath()+">.", "Error setting logging directory.", JOptionPane.ERROR_MESSAGE);
+    		browseForLogPath(fc);
+    	}
+    }
+  }
+
   public void outputPathBrowseButton_actionPerformed(ActionEvent e) {
     JFileChooser fc = new JFileChooser(myModel.getOutputDir());
     fc.setDialogTitle("Choose Reduced File Output Directory");
     fc.setApproveButtonText("Select");
     fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-    if (fc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION)
-      myModel.setOutputDir(fc.getSelectedFile());
+    browseForOutputPath(fc);
+  }
+  private void browseForOutputPath(JFileChooser fc) {
+    if (fc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+    	if (fc.getSelectedFile().canWrite())
+    		myModel.setOutputDir(fc.getSelectedFile());
+    	else {
+    		JOptionPane.showMessageDialog(this, "Cannot write to output dir <"+fc.getSelectedFile().getAbsolutePath()+">.", "Error setting output directory.", JOptionPane.ERROR_MESSAGE);
+    		browseForOutputPath(fc);
+    	}
+    }
   }
   void clearInputFilesButton_actionPerformed(ActionEvent e) {
     int answer = JOptionPane.showConfirmDialog(this, "Remove all files from Input File list?", "Confirm Clear Input File List", JOptionPane.OK_CANCEL_OPTION);
@@ -840,38 +910,65 @@ public class ODRFGUIFrame extends JFrame {
     if (e.getColumn() == ODRFGUIParameters.REDUCTION_MODULE_TABLE_COLUMN_FIND_FILE) {
       ReductionModule module = myModel.getModule(e.getFirstRow());
       if (module.getFindFileMethod().equals(ODRFGUIParameters.FIND_FILE_MENU_SPECIFY_FILE)) {
-      	//. launch a file browser
-      	JFileChooser fc = new JFileChooser();
-      	File calFile = new File(module.getCalibrationFile());
-      	if (calFile.exists())
-      		fc.setSelectedFile(calFile);
-      	else if ((module.getName().equals(ODRFGUIParameters.MODULE_SUBTRACT_DARK)) ||
-      			(module.getName().equals(ODRFGUIParameters.MODULE_SUBTRACT_SKY)) ||
-      			(module.getName().equals(ODRFGUIParameters.MODULE_SUBTRACT_FRAME)))
-      		fc.setCurrentDirectory(myModel.getInputDir());
-      	fc.setDialogTitle("Select Calibration File");
-      	int retval = fc.showOpenDialog(this);
-      	if (retval == JFileChooser.APPROVE_OPTION) {
-      		calFile = fc.getSelectedFile();
-      		module.setCalibrationFileValidated(true);
-      		module.setCalibrationFile(calFile.getAbsolutePath());
-      	} 
+      	browseForCalFile(module);
       } else {
       	myModel.resolveFindFile(module);
       }
     }
     reductionModuleTable.repaint();
   }
+  private void browseForCalFile(ReductionModule module) {
+  	//. launch a file browser
+  	JFileChooser fc = new JFileChooser();
+  	File calFile = new File(module.getCalibrationFile());
+  	if (calFile.exists())
+  		fc.setSelectedFile(calFile);
+  	else if ((module.getName().equals(ODRFGUIParameters.MODULE_SUBTRACT_DARK)) ||
+  			(module.getName().equals(ODRFGUIParameters.MODULE_SUBTRACT_SKY)) ||
+  			(module.getName().equals(ODRFGUIParameters.MODULE_SUBTRACT_FRAME)))
+  		fc.setCurrentDirectory(myModel.getInputDir());
+  	fc.setDialogTitle("Select Calibration File");
+  	int retval = fc.showOpenDialog(this);
+  	if (retval == JFileChooser.APPROVE_OPTION) {
+  		calFile = fc.getSelectedFile();
+  		module.setCalibrationFileValidated(true);
+  		module.setCalibrationFile(calFile.getAbsolutePath());
+  	} 
+  }
   void autosetDatasetNameCheckBox_actionPerformed(ActionEvent e) {
     myModel.setAutomaticallyGenerateDatasetName(autosetDatasetNameCheckBox.isSelected());
   }
-
+	void availableModulesTable_clickEvent() {
+		//. get module description and fill text area
+		moduleDescriptionTextArea.setText(((ReductionModule)myModel.getAvailableModuleList().get(availableModulesTable.getSelectedRow())).getDescription());
+		//. position cursor at top
+		moduleDescriptionTextArea.setCaretPosition(0);
+	}
 	void availableModulesTable_doubleClickEvent() {
 		myModel.addModuleToActiveList((ReductionModule)myModel.getAvailableModuleList().get(availableModulesTable.getSelectedRow()));
 	}
+
+  void reductionModuleTable_selectionChanged(ListSelectionEvent ev) {
+  	//. should be a single row
+  	int row = reductionModuleTable.getSelectedRow();
+		moduleArgumentTable.repaint();
+  	if (row < 0)
+  		myModel.setActiveModule(null);
+  	else
+  		myModel.setActiveModule(myModel.getModule(row));
+  		
+  }
 	void reductionModuleTable_doubleClickEvent() {
-		if (reductionModuleTable.getSelectedColumn() == 0)
-		myModel.removeModuleFromActiveList(reductionModuleTable.getSelectedRow());
+		if (reductionModuleTable.getSelectedColumn() == ODRFGUIParameters.REDUCTION_MODULE_TABLE_COLUMN_NAME) {
+			myModel.removeModuleFromActiveList(reductionModuleTable.getSelectedRow());
+			myModel.setActiveModule(null);
+		} else if (reductionModuleTable.getSelectedColumn() == ODRFGUIParameters.REDUCTION_MODULE_TABLE_COLUMN_RESOLVED_FILE) {
+			//. if module is using specify a file, bring up file browser
+      ReductionModule module = myModel.getModule(reductionModuleTable.getSelectedRow());
+      if (module.getFindFileMethod().equals(ODRFGUIParameters.FIND_FILE_MENU_SPECIFY_FILE)) {
+      	browseForCalFile(module);
+      }
+ 		}
 	}
 	void updateModuleTable_doubleClickEvent() {
 		int index = updateModuleTable.getSelectedRow();
@@ -906,6 +1003,14 @@ public class ODRFGUIFrame extends JFrame {
   }
   private void updateViewModuleList(ArrayList list) {
     reductionModuleTableModel.setData(list);
+  }
+  private void updateViewActiveModule(ReductionModule module) {
+  	if (module == null)
+  		argumentTableModel.setData(new ArrayList());
+  	else
+  		argumentTableModel.setData(module.getArguments());
+  	
+  	
   }
   private void updateViewAvailableModuleList(ArrayList list) {
     ((ArrayListTableModel)availableModulesTable.getModel()).setData(list);
@@ -1022,27 +1127,104 @@ public class ODRFGUIFrame extends JFrame {
     }
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean cellHasFocus, int row, int column) {
       try {
-	setText(value.toString());
+      	setText(value.toString());
         if (isSelected) {
-  	  setBackground(selectedBGColor);
+        	setBackground(selectedBGColor);
         } else {
-	  setBackground(notSelectedBGColor);
+        	setBackground(notSelectedBGColor);
         }
         Font curFont = this.getFont();
-	if (myModel.isModuleSkipped(row)) {
-	  setFont(new Font(curFont.getName(), (curFont.getStyle() | Font.ITALIC), curFont.getSize()));
-	  setForeground(skipModuleFGColor);
-	} else {
-	  setFont(new Font(curFont.getName(), (curFont.getStyle() & ~Font.ITALIC), curFont.getSize()));
-	  setForeground(doModuleFGColor);
-	}
+        if (myModel.isModuleSkipped(row)) {
+        	setFont(new Font(curFont.getName(), (curFont.getStyle() | Font.ITALIC), curFont.getSize()));
+        	setForeground(skipModuleFGColor);
+        } else {
+        	setFont(new Font(curFont.getName(), (curFont.getStyle() & ~Font.ITALIC), curFont.getSize()));
+        	setForeground(doModuleFGColor);
+        }
       } catch (IndexOutOfBoundsException iobE) {
-	setText("Error rendering cell.");
-      } finally {
-        return this;
+      	setText("Error rendering cell.");
+      } 
+      return this;
+    }
+  }
+  public class ReductionModuleArgumentTableEnumCellEditor extends DefaultCellEditor {
+    public ReductionModuleArgumentTableEnumCellEditor() {
+      super(new JComboBox());
+    }
+    public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+      ReductionModuleArgument arg = (ReductionModuleArgument)(((ReductionModuleArgumentListTableModel)table.getModel()).getData()).get(row);
+      JComboBox combo = (JComboBox)getComponent();
+    	//. break down range to get combo box options      	
+      DefaultComboBoxModel model = new DefaultComboBoxModel(arg.getRange().split("\\|"));
+      combo.setModel(model);
+      return combo;      	
+    }  	
+  }
+  
+  public class ReductionModuleArgumentTableValueCellEditor implements TableCellEditor {
+    DefaultCellEditor comboEditor = new DefaultCellEditor(new JComboBox());   
+    DefaultCellEditor fieldEditor = new DefaultCellEditor(new JTextField());
+    DefaultCellEditor editor;
+    public ReductionModuleArgumentTableValueCellEditor() {
+    	editor = fieldEditor;
+    	FocusListener focusL = new FocusListener() {
+    		public void focusLost(FocusEvent ev) {
+    			componentFocusLost(ev);
+    		}
+    		public void focusGained(FocusEvent ev) {
+    			componentFocusGained(ev);
+    		}
+    	};
+    	comboEditor.getComponent().addFocusListener(focusL);
+    	fieldEditor.getComponent().addFocusListener(focusL);
+    }
+    public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+    	ReductionModuleArgument arg = (ReductionModuleArgument)(((ReductionModuleArgumentListTableModel)table.getModel()).getData()).get(row);
+      if (arg.getType().compareTo(ReductionModuleArgument.TYPE_ENUM) == 0) {
+      	editor = comboEditor;
+      	//. break down range to get combo box options      	
+        DefaultComboBoxModel model = new DefaultComboBoxModel(arg.getRange().split("\\|"));
+        ((JComboBox)comboEditor.getComponent()).setModel(model);
+        return comboEditor.getTableCellEditorComponent(table, value, isSelected, row, column);      	
+      } else {
+      	editor= fieldEditor;
+      	return fieldEditor.getTableCellEditorComponent(table, value, isSelected, row, column);
       }
     }
-
+    public Object getCellEditorValue() {
+    	Component comp = editor.getComponent();
+    	if (comp instanceof JComboBox) {
+    		return ((JComboBox)comp).getSelectedItem();
+    	} else {
+    		return ((JTextField)comp).getText();
+    	}
+    }
+    public void addCellEditorListener(CellEditorListener l) {
+    	editor.addCellEditorListener(l);
+    }
+    public void cancelCellEditing() {
+    	editor.cancelCellEditing();
+    }
+    public boolean isCellEditable(EventObject anEvent) {
+    	return editor.isCellEditable(anEvent);
+    }
+    public void removeCellEditorListener(CellEditorListener l) {
+    	editor.removeCellEditorListener(l);
+    }
+    public boolean shouldSelectCell(EventObject anEvent) {
+    	return editor.shouldSelectCell(anEvent);
+    }
+    public boolean stopCellEditing() {
+    	return editor.stopCellEditing();
+    }
+    
+    public void componentFocusLost(FocusEvent ev) {
+    	//System.out.println("focuslost");
+    	cancelCellEditing();
+    }
+    public void componentFocusGained(FocusEvent ev) {
+    	//System.out.println("focusgained");
+    	
+    }
   }
-
 }
