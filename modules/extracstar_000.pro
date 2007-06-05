@@ -49,8 +49,7 @@
 ; @HISTORY 05.25.2007, created
 ;
 ; @AUTHOR  James Larkin
-;          Based on Extract Telluric Spectrum by Shelley Wright which
-;          in turn borrowed from Conor Laver
+;          Based on Extract Telluric Spectrum by Shelley Wright
 ;
 ; @END
 ;
