@@ -31,7 +31,7 @@ FILES	=
 RELFILES  = 
 
 override SYSNAM = kss/osiris/drs/gui/
-override VERNUM = 1.4
+override VERNUM = 2.0
 
 #  Include general make rules (use /etc if no environment variable).
 
