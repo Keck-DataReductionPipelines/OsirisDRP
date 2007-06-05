@@ -76,6 +76,7 @@ FILES = \
 	DRDInputFile.class \
 	CalibrationFileTimeComparator.class \
 	FileFilterByCalibrationType.class \
+	ReductionModuleArgument.class \
 	ReductionModule.class \
 	KeywordUpdateReductionModule.class \
 	OsirisDRPCellEditorsAndRenderers.class \
@@ -100,7 +101,7 @@ CLEAN =
 
 # If this is a release point, override ancestor makefile's values.
 override SYSNAM = kss/osiris/drs/gui/drpUtil/
-override VERNUM = 1.4
+override VERNUM = 2.0
 
 
 
