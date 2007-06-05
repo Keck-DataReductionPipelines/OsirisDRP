@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Telluric Extraction on Cubes -->
+<!-- find_file_current -->
+<DRF 
+  LogPath="find_file_construct_from_filename" 
+  ReductionType="ARP_SPEC">
+  <dataset 
+     Name="find_file_current"
+     InputDir="find_file_construct_from_filename"
+     OutputDir="find_file_specify_file" >
+    <fits FileName="find_file_current" />
+  </dataset>
+  <module Name="Extract Star" 
+    CalibrationFile="find_file_none"
+  />
+  <module Name="Remove Hydrogen Lines" 
+    CalibrationFile="find_file_none"
+  />
+  <module Name="Divide Blackbody" 
+     CalibrationFile="find_file_none"
+     Temperature='10000.0'
+  />
+  <module 
+     Name="Save DataSet Information"
+  />
+</DRF>
