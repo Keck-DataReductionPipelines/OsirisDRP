@@ -113,30 +113,31 @@ public class DRF {
 	  else if ("module".equals(rootChildName)) {
 	    //. create ReductionModule
 	    ReductionModule workingModule = new ReductionModule();
-	    //. get CalibrationFile
-	    workingAtt =  currentRootChild.getAttribute("CalibrationFile");
-	    if (workingAtt != null)
-	      workingModule.setCalibrationFile(workingAtt.getValue());
-	    //. get Name
-	    workingAtt =  currentRootChild.getAttribute("Name");
-	    if (workingAtt != null)
-	      workingModule.setName(workingAtt.getValue());
-	    //. get OutputDir
-	    workingAtt =  currentRootChild.getAttribute("OutputDir");
-	    if (workingAtt != null)
-	      workingModule.setOutputDir(workingAtt.getValue());
-	    //. get Save
-	    workingAtt =  currentRootChild.getAttribute("Save");
-	    if (workingAtt != null)
-	      workingModule.setSaveOutput(workingAtt.getIntValue() != 0);
-	    //. get SaveOnErr
-	    workingAtt =  currentRootChild.getAttribute("SaveOnErr");
-	    if (workingAtt != null)
-	      workingModule.setSaveOnError(workingAtt.getIntValue() != 0);
-	    //. get Skip
-	    workingAtt =  currentRootChild.getAttribute("Skip");
-	    if (workingAtt != null)
-	      workingModule.setSkip(workingAtt.getIntValue() != 0);
+
+	    List attrList = currentRootChild.getAttributes();
+	    
+	    for (Iterator i3 = attrList.iterator(); i3.hasNext(); ) {
+	      workingAtt  = (Attribute)i3.next();
+	      
+	      if (workingAtt.getName().compareTo("CalibrationFile") == 0) {
+	      	workingModule.setCalibrationFile(workingAtt.getValue());
+	      } else if (workingAtt.getName().compareTo("Name") == 0) {
+		      workingModule.setName(workingAtt.getValue());
+	      } else if (workingAtt.getName().compareTo("OutputDir") == 0) {
+	      	workingModule.setOutputDir(workingAtt.getValue());
+	      } else if (workingAtt.getName().compareTo("Save") == 0) {
+	      	workingModule.setSaveOutput(workingAtt.getIntValue() != 0);
+	      } else if (workingAtt.getName().compareTo("SaveOnErr") == 0) {
+	      	workingModule.setSaveOnError(workingAtt.getIntValue() != 0);
+	      } else if (workingAtt.getName().compareTo("Skip") == 0) {
+	      	workingModule.setSkip(workingAtt.getIntValue() != 0);
+	      } else {
+	      	//. arguments
+	      	ReductionModuleArgument newArg = new ReductionModuleArgument(workingAtt.getName());
+	      	newArg.setValue(workingAtt.getValue());
+	      	workingModule.getArguments().add(newArg);
+	      }
+	    }
 
 	    //. add module to list
 	    workingDRD.getModuleList().add(workingModule);
@@ -154,9 +155,9 @@ public class DRF {
 	    //. get update children elements
       List updateElements = currentRootChild.getChildren();
       //. loop through them
-      for (Iterator i3 = updateElements.iterator(); i3.hasNext(); ) {
+      for (Iterator i4 = updateElements.iterator(); i4.hasNext(); ) {
       	//. get current update child element
-        Element currentUpdateChild = (Element)i3.next();
+        Element currentUpdateChild = (Element)i4.next();
 
         //. make sure it is a updateParameters tag
         if ("updateParameter".equals(currentUpdateChild.getName())) {
@@ -240,21 +241,42 @@ public class DRF {
       	ReductionModule currentModule = (ReductionModule)im.next();
       	currentElement = new Element("module");
       	currentElement.setAttribute("Name", currentModule.getName());
+      	
+      	//. write arguments
+      	ArrayList arguments = currentModule.getArguments();
+      	if (arguments.size() > 0) {
+      		for (Iterator ia = arguments.iterator(); ia.hasNext();) {
+      			ReductionModuleArgument arg = (ReductionModuleArgument)(ia.next());
+      			currentElement.setAttribute(arg.getName(), arg.getValue());
+      		}
+      	}
       	if (verbose) {
+      		//. if verbose, write all of these to each module
 	      	currentElement.setAttribute("CalibrationFile", currentModule.getCalibrationFile());
 	      	currentElement.setAttribute("OutputDir", currentModule.getOutputDir());
 	      	currentElement.setAttribute("Save", currentModule.doSaveOutput() ? "1" : "0");
 	      	currentElement.setAttribute("SaveOnErr", currentModule.doSaveOnError() ? "1" : "0");
 	      	currentElement.setAttribute("Skip", currentModule.doSkip() ? "1" : "0");
       	} else {
+      		//. if not verbose
+      	
+      		//. only write cal file if isn't not used
       		if ((currentModule.getCalibrationFile().compareTo("") != 0)  && (currentModule.getCalibrationFile().compareTo("NOT USED") != 0))
   	      	currentElement.setAttribute("CalibrationFile", currentModule.getCalibrationFile());
-	      	if (currentModule.getOutputDir().compareTo(drd.getDatasetOutputDir()) != 0)
-	      		currentElement.setAttribute("OutputDir", currentModule.getOutputDir());
+      		/*  never write output dir for non-verbose mode 070604  
+	      	//. only write output dir if it is not empty, and its different than dataset output dir
+      		if (currentModule.getOutputDir().length() > 0) {
+      			if (currentModule.getOutputDir().compareTo(drd.getDatasetOutputDir()) != 0) 
+	      		  currentElement.setAttribute("OutputDir", currentModule.getOutputDir());
+      		}
+      		*/
+      		//. only write save output if it is true
 	      	if (currentModule.doSaveOutput())
 	      		currentElement.setAttribute("Save", currentModule.doSaveOutput() ? "1" : "0");
+	      	//. only write save on error if it is true
 	      	if (currentModule.doSaveOnError())
 	      		currentElement.setAttribute("SaveOnErr", currentModule.doSaveOnError() ? "1" : "0");
+	      	//. only write skip if it is true
 	      	if (currentModule.doSkip())
 	      		currentElement.setAttribute("Skip", currentModule.doSkip() ? "1" : "0");      		
       	}
