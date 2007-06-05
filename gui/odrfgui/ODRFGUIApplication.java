@@ -1,5 +1,6 @@
 package edu.ucla.astro.osiris.drp.odrfgui;
 
+
 /**
  * <p>Title: </p>
  * <p>Description: </p>
@@ -13,7 +14,7 @@ public class ODRFGUIApplication {
   boolean packFrame = false;
 
   //Construct the application
-  public ODRFGUIApplication() throws org.jdom.JDOMException, java.io.IOException, Exception {
+  public ODRFGUIApplication() throws org.jdom.JDOMException, java.io.IOException, edu.ucla.astro.osiris.drp.util.DRDException, Exception {
     ODRFGUIModel model = new ODRFGUIModel();
     ODRFGUIFrame frame = new ODRFGUIFrame(model);
     //Validate frames that have preset sizes
