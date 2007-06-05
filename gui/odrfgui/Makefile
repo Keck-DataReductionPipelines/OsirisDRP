@@ -73,6 +73,7 @@ DIRS = templates
 FILES = \
 	ODRFGUIParameters.class \
 	ReductionModuleListTableModel.class \
+	ReductionModuleArgumentListTableModel.class \
         UpdateModuleListTableModel.class \
         KeywordUpdateModuleDefinitionDialog.class \
 	ODRFGUIModel.class \
@@ -98,7 +99,7 @@ CLEAN =
 
 # If this is a release point, override ancestor makefile's values.
 override SYSNAM = kss/osiris/drs/gui/odrfgui/
-override VERNUM = 1.4
+override VERNUM = 2.0
 
 
 
