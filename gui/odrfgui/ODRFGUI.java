@@ -16,13 +16,7 @@ import edu.ucla.astro.osiris.util.XmlToParams;
 public class ODRFGUI {
 
   public ODRFGUI() throws Exception {
-    try {
-      new ODRFGUIApplication();
-    } catch (org.jdom.JDOMException jdE) {
-      JOptionPane.showMessageDialog(null, jdE.getMessage(), "ODRFGUI: Error Reading Default DRF", JOptionPane.WARNING_MESSAGE);
-    } catch (java.io.IOException ioE) {
-      JOptionPane.showMessageDialog(null, ioE.getMessage(), "ODRFGUI: Error Reading Default DRF", JOptionPane.WARNING_MESSAGE);
-    }
+    new ODRFGUIApplication();
  }
   public static void main(String[] args) {
     String cfgFilename=new String("");
