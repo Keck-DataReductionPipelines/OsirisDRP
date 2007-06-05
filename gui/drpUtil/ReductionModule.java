@@ -1,6 +1,7 @@
 package edu.ucla.astro.osiris.drp.util;
 
 import java.beans.*;
+import java.util.ArrayList;
 
 /**
  * <p>Title: OSIRIS Software Package</p>
@@ -23,16 +24,20 @@ public class ReductionModule {
   private String findFileMethod;
   private String[] allowedFindFileMethods;
   private boolean calibrationFileValidated;
+  private ArrayList arguments;
+  private String description;
 
-  public ReductionModule() {
+	public ReductionModule() {
     name="";
     findFileMethod="";
     allowedFindFileMethods=new String[]{""};
     calibrationFile="";
     outputDir="";
+    description="";
     saveOutput=false;
     saveOnError=false;
     skip=false;
+    arguments=new ArrayList(0);
   }
   public ReductionModule(ReductionModule m) {
     name=m.getName();
@@ -43,6 +48,7 @@ public class ReductionModule {
     saveOutput=m.doSaveOutput();
     saveOnError=m.doSaveOnError();
     skip=m.doSkip();
+    arguments=m.getArguments();
   }
 
   public synchronized void removePropertyChangeListener(PropertyChangeListener l) {
@@ -126,4 +132,20 @@ public class ReductionModule {
   public String toString() {
     return name;
   }
+	public ArrayList getArguments() {
+		return arguments;
+	}
+	public void setArguments(ArrayList arguments) {
+		this.arguments = arguments;
+		propertyChangeListeners.firePropertyChange("arguments", null, arguments);
+	}
+  public String getDescription() {
+		return description;
+	}
+	public void setDescription(String description) {
+		String oldDescription = this.description;
+		this.description = description;
+		propertyChangeListeners.firePropertyChange("description", oldDescription, description);
+	}
+	
 }
