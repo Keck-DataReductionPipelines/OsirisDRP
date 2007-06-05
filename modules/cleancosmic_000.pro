@@ -4,7 +4,7 @@
 ; NAME:  cleancosmic_000
 ;
 ; PURPOSE: Attempts to identify and remove pixele that are damaged by
-; cosmic rays. It only works on 3-d cubes.
+; cosmic rays. It only works on 2-d cubes.
 ;
 ; STATUS : prototype
 ;
