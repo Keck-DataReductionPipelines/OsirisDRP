@@ -59,6 +59,7 @@ int mkrecmatrx_000(int argc, void* argv[]) {
   long int naxes_hilo[2] = { 2, numspec };    // Indices go "backwards", like FORTRAN
   long int naxes_effective[1] = { numspec };  //
   long int naxes_basis_vectors[3] = { DATA, MAXSLICE, numspec };    // Indices go "backwards", like FORTRAN
+  float total, pretotal, posttotal;  // Temporary variables when looking for bad pixels.
 
   // These parameters should be set in the same order as theay are passed
   // from the IDL code.  This is not yet automated, and I'm not sure how to
@@ -110,13 +111,7 @@ int mkrecmatrx_000(int argc, void* argv[]) {
     Headers[i]      = (IDL_STRING **  )argv[ptrsOffset+4*i+1];
     IntFrames[i]    = (float *        )argv[ptrsOffset+4*i+2];
     IntAuxFrames[i] = (unsigned char *)argv[ptrsOffset+4*i+3];
-    // (void)printf("%08x\n", (unsigned int)(Frames[i]));
-    // (void)printf("%08x\n", (unsigned int)(Headers[i]));
-    // (void)printf("%s\n", Headers[i][3].s);
-    // (void)printf("%08x\n", (unsigned int)(IntFrames[i]));
-    // (void)printf("%08x\n", (unsigned int)(IntAuxFrames[i]));
   }
-  //(void)printf("Executing mkrecmatrx_000... Got DataSet info\n");
 
   /*
    * Start placing items from the original rectification code here.
@@ -200,11 +195,6 @@ int mkrecmatrx_000(int argc, void* argv[]) {
   sp = 0;
   for (col=0; col<numcolumn; col++ ) {
     for (row=0; row<specpercol; row++ ) {
-    //   if (NB) {
-    //  if (col>=16)
-    //    trueCol = col-16;
-    //  else
-    //    trueCol = col+3;
       hilo[sp][0]=2054+OFFSET-(31.9*row)-(2*col)-((basesize-1)/2);  // y-pixel lower limit for calibration frame of spectrum no.=sp
       hilo[sp][1]=2054+OFFSET-(31.9*row)-(2*col)+((basesize-1)/2);  // y-pixel upper limit for calibration frame of spectrum no.=sp
       // Checking for top and bottom edges added 10/7/04 (JEL)
@@ -222,60 +212,15 @@ int mkrecmatrx_000(int argc, void* argv[]) {
   //(void)printf("Executing mkrecmatrx_000... hilo set\n");
 
 
-  // a loop for setting basis_vectors == a.k.a., influence function
-  //      ... using the raw_data[][] array to temporary space
-  // Currently, this routine needs to be changed every time for different filters.
-  //   eventually, this routine will choose an appropriate filter
-  //   automatically based on the FITS header keyword.
-  //   simosiris output files do not have necessary FITS keywords.
-  //if (NB) {
-    //(void)printf("Executing mkrecmatrx_000... mode is NB\n");
-  //} else {
-    //(void)printf("Executing mkrecmatrx_000... mode is BB\n");
-  //}
-  for (col=0; col<numcolumn; col++ )  // col is the index of the proper frame in DataSet.Frames[]
-  {
-    //   if (NB) {
-    //  if (col>=16)
-    //    trueCol = col-16;
-    //  else
-    //    trueCol = col+3;
-    //} else {
-      trueCol = col;  // else BB
-      //  }
-
-
-    raw_data = (float (*) [DATA])(Frames[trueCol]);
-    // Added assignments for noise and quality frames 10/7/2004 (JEL)
-    raw_int = (float (*) [DATA])(IntFrames[trueCol]);
-    raw_aux = (unsigned char (*) [DATA])(IntAuxFrames[trueCol]);
-    //(void)printf("Executing mkrecmatrx_000... raw_data = %08x\n", raw_data);
-    //(void)printf("Executing mkrecmatrx_000... raw_int  = %08x\n", raw_int);
-    //(void)printf("Executing mkrecmatrx_000... raw_aux  = %08x\n", raw_aux);
-  }
   sp = 0;
   for (col=0; col<numcolumn; col++ )  // col is the index of the proper frame in DataSet.Frames[]
   {
-    //    if (NB) {
-    //  if (col>=16)
-    //    trueCol = col-16;
-    //  else
-    //    trueCol = col+3;
-    //} else {
-      trueCol = col;  // else BB
-      //}
-    //(void)printf("Executing mkrecmatrx_000... trueCol set for column = %d\n", col);
+    trueCol = col;
 
     raw_data = (float (*) [DATA])(Frames[trueCol]);
     // Added assignments for noise and quality frames 10/7/2004 (JEL)
     raw_int = (float (*) [DATA])(IntFrames[trueCol]);
     raw_aux = (unsigned char (*) [DATA])(IntAuxFrames[trueCol]);
-    //(void)printf("Executing mkrecmatrx_000... raw_data = %08x\n", raw_data);
-    //(void)printf("Executing mkrecmatrx_000... raw_int  = %08x\n", raw_int);
-    //(void)printf("Executing mkrecmatrx_000... raw_aux  = %08x\n", raw_aux);
-    //(void)printf("Executing mkrecmatrx_000... pointers set for column = %d\n", col);
-    //(void)printf("Executing mkrecmatrx_000... raw_aux[2032][0] = %d\n", (int)raw_aux[2032][0]);
-    //(void)printf("Executing mkrecmatrx_000... raw_data[1024][1024] = %f\n", (int)raw_data[1024][1024]);
 
     for (row=0; row<specpercol; row++ ) {
       for (j=hilo[sp][0]; j<hilo[sp][1]; j++ ) {
@@ -335,7 +280,24 @@ int mkrecmatrx_000(int argc, void* argv[]) {
         if (basis_vectors[sp][j][i] < weight_limit)
           basis_vectors[sp][j][i] = 0.0;
       }
-  //(void)printf("Executing mkrecmatrx_000... normalize the basis vectors\n");
+ 
+ // Now look for bad elements in matrix. Bad is 2x both neighbors in spectral direction.
+  for ( sp=0; sp<numspec; sp++ ) {
+    pretotal = 0.0;
+    for ( j = 0; j < basesize; j++ ) pretotal += basis_vectors[sp][j][0];
+    total = 0.0;
+    for ( j = 0; j < basesize; j++ ) total += basis_vectors[sp][j][1];
+
+    for (i = 1; i<(DATA-1); i++ ) {
+      posttotal = 0.0;
+      for ( j = 0; j < basesize; j++ ) posttotal += basis_vectors[sp][j][i+1];
+      if ( (total > 2.0*pretotal) && (total > 2.0*posttotal) ) {
+	for (j = 0; j < basesize; j++ ) basis_vectors[sp][j][i]=0.0;
+      }
+      pretotal = total;
+      total=posttotal;
+    }
+  }
 
 
   // Write a FITS file containing the hilo, effective and "normalized basis vectors" arrays

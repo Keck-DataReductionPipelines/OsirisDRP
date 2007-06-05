@@ -82,17 +82,14 @@ FUNCTION remhydr_000, DataSet, Modules, Backbone
        
        ; Loop through each line location
        for line = 0, numlines[0]-1 do begin
-                                ; Calculate pixel locations for all of
-                                ; the hydrogen lines within the
-                                ; spectrum. Fit between lam/1.007 and
-                                ; lam*1.007.
+           ; Calculate pixel locations for all of the hydrogen lines within the
+           ; spectrum. Fit between lam/1.007 and lam*1.007.
            startpix[line] = fix( (((lines[line]/1.007)-firstlam)/dlam) + firstpix )
            endpix[line]   = fix( (((lines[line]*1.007)-firstlam)/dlam) + firstpix )
            if ( (startpix[line] ge 0) and (endpix[line] lt sz[1]) ) then begin ; Line is in the spectrum
                data = (*DataSet.Frames[q])[startpix[line]:endpix[line]]
                model = gaussfit(x[startpix[line]:endpix[line]],data,A)
-                                ; Now set the baseline parabolic fit
-                                ; to 0, but preserve the line fit.
+               ; Now set the baseline parabolic fit to 0, but preserve the line fit.
                model = A[0]*exp(-0.5*((x-A[1])/A[2])^2)
                ; Remove Gaussian from spectrum.
                (*DataSet.Frames[q]) = (*DataSet.Frames[q])-model

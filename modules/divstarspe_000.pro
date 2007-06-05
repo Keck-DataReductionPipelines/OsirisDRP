@@ -3,7 +3,8 @@
 ;
 ; NAME:   divstarspe_000
 ;
-; PURPOSE:  divide by stellar spectrum
+; PURPOSE:  divide by stellar spectrum; It first normalizes the
+; stellar spectrum to a median value of 1.0
 ;
 ; PARAMETERS IN RPBCONFIG.XML :
 ;    divstarspe_COMMON___Debug : initializes the debugging mode
@@ -41,6 +42,10 @@
 ; HISTORY : 13.5.2004, created
 ;
 ; AUTHOR : Christof Iserlohe (iserlohe@ph1.uni-koeln.de)
+;          Significantly modified to normalize the stellar spectrum
+;          and ignore bad pixels in stellar spectrum. Also does not
+;          replicate the spectrum but instead cycles through cube
+;          dividing each lenslet by spectrum - James Larkin May 29, 2007
 ;
 ;-----------------------------------------------------------------------
 
@@ -54,20 +59,7 @@ FUNCTION divstarspe_000, DataSet, Modules, Backbone
 
     drpLog, 'Received data set: ' + DataSet.Name, /DRF, DEPTH = 1
 
-    ; check integrity
-    stModule =  check_module( DataSet, Modules, Backbone, functionName )
-    if ( NOT bool_is_struct ( stModule ) ) then $
-       return, error ('ERROR IN CALL ('+strtrim(functionName)+'): Integrity check failed.')
-
-    ; get the parameters
-    b_Debug = fix(Backbone->getParameter('divstarspe_COMMON___Debug')) eq 1
-    d_Limit = 1.d-20
-    d_Limit = double(Backbone->getParameter('divstarspe_COMMON___Limit'))
-    if ( d_Limit lt 1.d-60 ) then begin
-       warning, ['ERROR IN CALL ('+strtrim(functionName)+'): divstarspe_COMMON__Limit in RPBconfig.xml must be greater', $
-                 '              than 1.d-60. Setting divideflat_Limit internally (only for this module) to 1.d-60']
-       d_Limit = 1.d-60
-    end    
+    nFrames = Backbone->getValidFrameCount(DataSet.Name)
 
     ; get the input stellar spectrum which is already EURO3D compliant
     thisModuleIndex = drpModuleIndexFromCallSequence(Modules, functionName)
@@ -75,51 +67,33 @@ FUNCTION divstarspe_000, DataSet, Modules, Backbone
     if ( NOT file_test ( c_File ) ) then $
        return, error('ERROR In CALL ('+strtrim(functionName)+'): File '+strtrim(string(c_File),2)+$
                      ' with stellar spectrum not found.')
-    pvd_StarFrame       = ptr_new(readfits(c_File, h_Header ))
-    pvd_StarIntFrame    = ptr_new(readfits(c_File, h_Header, EXTEN_NO=1 ))
-    pvb_StarIntAuxFrame = ptr_new(readfits(c_File, h_Header, EXTEN_NO=2 ))
-
-    if ( b_Debug ) then $
-       debug_info, 'DEBUG INFO ('+strtrim(functionName)+'): Stellar spectrum loaded from '+ c_File
-
-    if ( bool_pointer_integrity( pvd_StarFrame, pvd_StarIntFrame, pvb_StarIntAuxFrame, 1, $
-                                 functionName, /VECTOR ) ne OK ) then $
-       return, error('ERROR IN CALL ('+strtrim(functionName)+'): Integrity check of stellar spectrum failed.')
+    pvd_StarFrame       = readfits(c_File, h_Header )
 
     ; all frames, intframes and intauxframes have the same dims
     n_Dims = size ( *DataSet.Frames(0) )
+    length = size( pvd_StarFrame )
+    if ( n_Dims[0] ne 3 ) then return, error('ERROR IN CALL ('+strtrim(functionName)+'): Dataset must be 3-d for divide star spectrum')
+    if ( length[0] ne 1 ) then return, error('ERROR IN CALL ('+strtrim(functionName)+'): Stellar Spectrum must be 1-d for divide star spectrum')
+    if ( n_Dims[1] ne length[1] ) then return, error('ERROR IN CALL ('+strtrim(functionName)+'): Stellar Spectrum must be same length as data set.')
 
-    ; replicate the stellar data to fit the input data
-    p_Frame = ptr_new( replicate_vector( *pvd_StarFrame, n_Dims(2), n_Dims(3) ) )
-    if ( NOT bool_is_cube ( *p_Frame ) ) then $
-       return, error('FAILURE ('+strtrim(functionName)+'): Could not replicate stellar spectrum vector.')
-
-    p_IntFrame = ptr_new( replicate_vector( *pvd_StarIntFrame, n_Dims(2), n_Dims(3) ) )
-    if ( NOT bool_is_cube ( *p_IntFrame ) ) then $
-       return, error('FAILURE ('+strtrim(functionName)+'): Could not replicate stellar noise vector.')
-
-    p_IntAuxFrame = ptr_new( replicate_vector( *pvb_StarIntAuxFrame, n_Dims(2), n_Dims(3) ) )
-    if ( NOT bool_is_cube ( *p_IntAuxFrame ) ) then $
-       return, error('FAILURE ('+strtrim(functionName)+'): Could not replicate stellar quality vector.')
-
-    if ( NOT bool_dim_match ( *DataSet.Frames(0), *p_Frame ) ) then $
-       return, error ('ERROR IN CALL ('+strtrim(functionName)+'): Stellar spectrum does not fit in length with input cube.')
-
-    nFrames = Backbone->getValidFrameCount(DataSet.Name)
+    ; Normalize stellar spectrum
+    pvd_StarFrame = pvd_StarFrame / median(pvd_StarFrame)
 
     ; now loop over the input data sets
     for i=0, nFrames-1 do begin
-
-       ; divide it
-       vb_Status = frame_op( DataSet.Frames[i], DataSet.IntFrames[i], DataSet.IntAuxFrames[i], '/', $
-                             p_Frame, p_IntFrame, p_IntAuxFrame, 1, MinDiv = d_Limit )
-
-       if ( NOT bool_is_vector ( vb_Status ) ) then $
-          warning, 'WARNING ('+strtrim(functionName)+'): Operation failed in set '+strtrim(string(i),2)+'.'
-
+        for j = 0, n_Dims[2]-1 do begin
+            for k = 0, n_Dims[3]-1 do begin
+                (*DataSet.Frames[i])[*,j,k] = (*DataSet.Frames[i])[*,j,k] / pvd_StarFrame
+            end
+        end
+        ; Edit file name in header to replace datset with calstar
+        fname = sxpar(*DataSet.Headers[i],'DATAFILE')
+        fname = fname + '_tlc'
+        print, fname
+        SXADDPAR, *DataSet.Headers[i], "DATAFILE", fname
     end
 
-    thisModuleIndex = drpModuleIndexFromCallSequence(Modules, functionName)
+
     if ( Modules[thisModuleIndex].Save eq 1 ) then begin
 
        b_Stat = save_dataset ( DataSet, nFrames, Modules[thisModuleIndex].OutputDir, stModule.Save, DEBUG=b_Debug )

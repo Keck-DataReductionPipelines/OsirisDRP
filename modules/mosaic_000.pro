@@ -63,7 +63,9 @@
 ;
 ; AUTHORS : Shelley Wright and James Larkin
 ;	Modified Nov 2006 - Shelley Wright
-;		added MEDIAN, MEANCLIP, and NGS, LGS offsets 
+;		added MEDIAN, MEANCLIP, and NGS, LGS offsets
+;	Modified May 2007 - Shelley Wright
+;		added RA and DEC header for mosaiced frame 
 ;
 ;-----------------------------------------------------------------------
 
@@ -78,7 +80,6 @@ FUNCTION mosaic_000, DataSet, Modules, Backbone
     thisModuleIndex = drpModuleIndexFromCallSequence(Modules, functionName)
 
     drpLog, 'Received data set: ' + DataSet.Name, /DRF, DEPTH = 1
-
 
     ; get the parameters
     s_SumMethod    = Modules[thisModuleIndex].combine_method
@@ -191,6 +192,68 @@ FUNCTION mosaic_000, DataSet, Modules, Backbone
 
    ; allocate memory for final quality status frame
    NewStatus = make_array ( SIZE=n_Dims, /BYTE, VALUE = 0b )
+
+
+;;;-------------------------;
+
+   ;;; Update RA and DEC header information to be for the [0,0] pixel in mosaiced cube
+
+   ; Retrieve header information (1st frame)
+   RA_old = double(sxpar(*DataSet.Headers[0], 'RA'))
+   DEC_old = double(sxpar(*DataSet.Headers[0], 'DEC'))
+   d_Scale = float(sxpar(*DataSet.Headers[0], 'SSCALE'))
+   naxis1 = sxpar(*DataSet.Headers[0],'NAXIS1')
+   d_PA  = float(sxpar(*DataSet.Headers[0], 'PA_SPEC'))
+   d_PA = d_PA * !pi / 180d
+   s_filter = sxpar(*DataSet.Headers[0],'SFILTER',count=n_sf)
+
+   ; Make default center the broad band values
+   pnt_cen=[32.0,9.0]
+   if ( n_sf eq 1 ) then begin
+       bb = strcmp('bb',strmid(s_filter,1,2))
+       if ( strcmp('Zn2',strmid(s_filter,0,2)) eq 1 ) then pnt_cen=[32.0,25.0]
+       if ( strcmp('Zn3',strmid(s_filter,0,2)) eq 1 ) then pnt_cen=[32.0,25.0]
+       if ( strcmp('Zn4',strmid(s_filter,0,2)) eq 1 ) then pnt_cen=[32.0,33.0]
+       if ( strcmp('Zn5',strmid(s_filter,0,2)) eq 1 ) then pnt_cen=[32.0,33.0]
+       if ( strcmp('Jn1',strmid(s_filter,0,2)) eq 1 ) then pnt_cen=[32.0,17.0]
+       if ( strcmp('Jn2',strmid(s_filter,0,2)) eq 1 ) then pnt_cen=[32.0,22.0]
+       if ( strcmp('Jn3',strmid(s_filter,0,2)) eq 1 ) then pnt_cen=[32.0,25.0]
+       if ( strcmp('Jn4',strmid(s_filter,0,2)) eq 1 ) then pnt_cen=[32.0,28.0]
+       if ( strcmp('Hn1',strmid(s_filter,0,2)) eq 1 ) then pnt_cen=[32.0,19.0]
+       if ( strcmp('Hn2',strmid(s_filter,0,2)) eq 1 ) then pnt_cen=[32.0,23.0]
+       if ( strcmp('Hn3',strmid(s_filter,0,2)) eq 1 ) then pnt_cen=[32.0,25.0]
+       if ( strcmp('Hn4',strmid(s_filter,0,2)) eq 1 ) then pnt_cen=[32.0,28.0]
+       if ( strcmp('Hn5',strmid(s_filter,0,2)) eq 1 ) then pnt_cen=[32.0,33.0]
+       if ( strcmp('Kn1',strmid(s_filter,0,2)) eq 1 ) then pnt_cen=[32.0,19.0]
+       if ( strcmp('Kn2',strmid(s_filter,0,2)) eq 1 ) then pnt_cen=[32.0,23.0]
+       if ( strcmp('Kn3',strmid(s_filter,0,2)) eq 1 ) then pnt_cen=[32.0,25.0]
+       if ( strcmp('Kn4',strmid(s_filter,0,2)) eq 1 ) then pnt_cen=[32.0,28.0]
+       if ( strcmp('Kn5',strmid(s_filter,0,2)) eq 1 ) then pnt_cen=[32.0,33.0]
+   end
+   print, "Pointing center is", pnt_cen
+   
+   ; Find offsets from frame1 to padded mosaic frame in arcseconds
+        hdx = (abs(min_x_shift) + round(x_shift(0)) + pnt_cen[0]) * d_Scale
+	hdy = (abs(min_y_shift) + round(y_shift(0)) + pnt_cen[1]) * d_Scale
+
+   ; Rotate offsets using lenslet PA (arcseconds)
+	hdx_rot = hdx * cos(d_PA) - hdy * sin(d_PA)
+        hdy_rot = -1* hdx * sin(d_PA) - hdy * cos(d_PA) 
+
+   ; Convert offsets from arcsecs to RA and DEC
+   ; Add RA Dec offsets to original RA, Dec from 1st file.
+	hdec_offset  =  double(hdx_rot / 3600.) 	
+	DEC_new = DEC_old - hdec_offset
+	
+	hra_offset =  double(hdy_rot / (3600. * cos ( DEC_new * !pi/180. )))	
+	RA_new = RA_old - hra_offset
+
+	print,'New RA and DEC = ', RA_new,' ',DEC_new
+	print,' '
+
+   ; Update RA and DEC header keywords
+	sxaddpar, *DataSet.Headers[0], 'RA', RA_new,' RA at spatial [0,0] in mosaic'
+	sxaddpar, *DataSet.Headers[0], 'DEC', DEC_new,' DEC at spatial [0,0] in mosaic'
 
 ;;;-------------------------;
 
@@ -347,19 +410,29 @@ FUNCTION mosaic_000, DataSet, Modules, Backbone
 ;   if ( NOT bool_is_struct ( stModule ) ) then $
 ;      return, error ('ERROR IN CALL ('+strtrim(functionName)+'): Post Integrity check failed.')
 
-   ; save the result
-   c_File = make_filename ( DataSet.Headers[0], Modules[thisModuleIndex].OutputDir, $
-                            '_mosaic_', IMAG = bool_is_image(*DataSet.Frames(0)) )
+   fname = sxpar(*DataSet.Headers[0],'DATAFILE')
+   fname = fname + '_mosaic'
+   print, fname
+   SXADDPAR, *DataSet.Headers[0], "DATAFILE", fname
+
+   if ( Modules[thisModuleIndex].Save eq 1 ) then begin
+                                ; save the result
+
+       c_File = make_filename ( DataSet.Headers[0], Modules[thisModuleIndex].OutputDir, $
+                            '_mosaic', IMAG = bool_is_image(*DataSet.Frames(0)) )
 ;   if ( NOT bool_is_string(c_File) ) then $
 ;      return, error('FAILURE ('+strtrim(functionName)+'): Output filename creation failed.')
 ;   c_File = '/net/hydrogen/data/projects/osiris/DRP/saw/051123/reduce_v1/test.fits'
-   print, 'writing file:', c_File
+       print, 'writing file:', c_File
 
-   writefits, c_File, float(*DataSet.Frames[0]), *DataSet.Headers[0]
-   writefits, c_File, float(*DataSet.IntFrames[0]), /APPEND
-   writefits, c_File, byte(*DataSet.IntAuxFrames[0]), /APPEND
-   writefits, c_File, float(Number), /APPEND
-   writefits, c_File, float(V_Shifts), /APPEND
+                                ; Update DATAFILE keyword with _mosaic
+                                ; so output file is distinct from original
+       writefits, c_File, float(*DataSet.Frames[0]), *DataSet.Headers[0]
+       writefits, c_File, float(*DataSet.IntFrames[0]), /APPEND
+       writefits, c_File, byte(*DataSet.IntAuxFrames[0]), /APPEND
+       writefits, c_File, float(Number), /APPEND
+       writefits, c_File, float(V_Shifts), /APPEND
+   endif
 
 
    report_success, functionName, T

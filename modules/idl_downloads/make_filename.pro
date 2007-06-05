@@ -77,13 +77,19 @@ function make_filename, p_DataHeader, s_OutputDir, s_Type, IMAG=IMAG
 
     ; translate environment variables into readable paths
     if ( stat eq OK ) then BEGIN
-       IF s_Type EQ 'datset' THEN BEGIN
-          filename = strtrim(drpXlateFileName(s_OutputDir),2)+'/'+ strg(s_file_full) + '_' + $
-                     s_Type + '_' + strg(s_filter) + '_' + strg(s_scale) + '.fits'
-       ENDIF ELSE BEGIN
-          filename = strtrim(drpXlateFileName(s_OutputDir),2)+'/'+ strg(s_file) + '_' + $
-                     s_Type + '_' + strg(s_filter) + '_' + strg(s_scale) + '.fits'
-       ENDELSE
+        IF s_Type EQ 'datset' THEN BEGIN
+            filename = strtrim(drpXlateFileName(s_OutputDir),2)+'/'+ strg(s_file_full) + '_' + $
+                       strg(s_filter) + '_' + strg(s_scale) + '.fits'
+            if ( strg(s_filter) EQ 'Drk' ) then $
+              filename = strtrim(drpXlateFileName(s_OutputDir),2)+'/'+ strg(s_file_full) + '_' + $
+                         strg(s_filter) + '.fits'
+        ENDIF ELSE BEGIN
+            filename = strtrim(drpXlateFileName(s_OutputDir),2)+'/'+ strg(s_file) + $
+                       s_Type + '_' + strg(s_filter) + '_' + strg(s_scale) + '.fits'
+            if ( strg(s_filter) EQ 'Drk' ) then $
+              filename = strtrim(drpXlateFileName(s_OutputDir),2)+'/'+ strg(s_file) + $
+                         s_Type + '_' + strg(s_filter) + '.fits'
+        ENDELSE
     ENDIF else filename = ERR_UNKNOWN
 
     if ( file_test ( filename ) ) then begin

@@ -156,6 +156,15 @@ FUNCTION combframes_000, DataSet, Modules, Backbone
     for i = 1, (nFrames-1) do clear_frame, DataSet, i, /ALL
     dummy = Backbone->setValidFrameCount(DataSet.Name, 1)
 
+    itime = string(sxpar(*DataSet.Headers[0], 'ITIME'))
+
+
+    fname = sxpar(*DataSet.Headers[0],'DATAFILE')
+    fname = strtrim(fname,2) + '_combo_'+strtrim(itime,2)
+    fname = strtrim(fname,2)
+    print, fname
+    SXADDPAR, *DataSet.Headers[0], "DATAFILE", fname
+
 
     report_success, functionName, T
 

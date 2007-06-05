@@ -62,6 +62,8 @@ FOR i=0, (nFrames-1) DO BEGIN
             end
             (*quality)[j,k]=0
             if ( weight ne 0.0 ) then begin
+; Added division of weight by integral of spatial psf. JEL May 16, 2007
+;                weight = weight / total(basis)
                 image[j,k] = image[j,k] / weight
                 (*quality)[j,k]=9
             endif
