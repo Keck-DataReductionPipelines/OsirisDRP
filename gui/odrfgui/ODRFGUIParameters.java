@@ -23,7 +23,8 @@ public class ODRFGUIParameters {
   public static String DRF_EXTENSION_QUEUED = "waiting";
 
   public static File OSIRIS_DRP_BACKBONE_CONFIG_FILE = new File("/kroot/rel/default/data/RPBconfig.xml");
-
+  
+  
   public static File DEFAULT_INPUT_DIR = new File("/u/osrsdev/osiris/spec_raw/");
   public static File DEFAULT_OUTPUT_DIR = new File("/u/osrsdev/osiris/spec_orp/");
   public static File DEFAULT_LOG_DIR = new File("/u/osrsdev/osiris/spec_orp/DRFs/");
@@ -42,6 +43,8 @@ public class ODRFGUIParameters {
 
   public static int SPLIT_PANE_MODULE_LIST_DIVIDER_LOCATION = 200;
   public static int SPLIT_PANE_UPDATE_LIST_DIVIDER_LOCATION = 350;
+  public static int SPLIT_PANE_ARGUMENT_LIST_DIVIDER_LOCATION = 250;
+  public static int SPLIT_PANE_AVAILABLE_MODULE_LIST_DIVIDER_LOCATION = 300;
   
   public static boolean DEFAULT_AUTOSET_DATASET_NAME = true;
   public static boolean DEFAULT_CONFIRM_DROP_DRF = true;
@@ -111,6 +114,15 @@ public class ODRFGUIParameters {
   public static int REDUCTION_MODULE_TABLE_COLUMN_WIDTH_FIND_FILE = 125;
   public static int REDUCTION_MODULE_TABLE_COLUMN_WIDTH_RESOLVED_FILE = 600;
 
+  public static String MODULE_ARGUMENT_TABLE_COLUMN_HEADER_NAME = "Argument";
+  public static String MODULE_ARGUMENT_TABLE_COLUMN_HEADER_VALUE = "Value";
+  public static int MODULE_ARGUMENT_TABLE_COLUMN_NAME = 0;
+  public static int MODULE_ARGUMENT_TABLE_COLUMN_VALUE = 1;
+  public static String[] MODULE_ARGUMENT_TABLE_COLUMN_HEADERS = {MODULE_ARGUMENT_TABLE_COLUMN_HEADER_NAME,
+  	 MODULE_ARGUMENT_TABLE_COLUMN_HEADER_VALUE};
+  public static int MODULE_ARGUMENT_TABLE_COLUMN_WIDTH_NAME = 250;
+  public static int MODULE_ARGUMENT_TABLE_COLUMN_WIDTH_VALUE = 250;
+  
   public static String UPDATE_MODULE_TABLE_COLUMN_HEADER_KEYWORD = "Keyword";
   public static String UPDATE_MODULE_TABLE_COLUMN_HEADER_DATATYPE = "Datatype";
   public static String UPDATE_MODULE_TABLE_COLUMN_HEADER_VALUE = "Value";
@@ -140,6 +152,7 @@ public class ODRFGUIParameters {
   public static String MODULE_SUBTRACT_DARK = "Subtract Dark Frame";
   public static String MODULE_SUBTRACT_SKY = "Subtract Sky";
   public static String MODULE_SUBTRACT_FRAME = "Subtract Frame";
+  public static String MODULE_DIVIDE_BY_STAR_SPECTRUM = "Divide by Star Spectrum";
 
   //. only specify for files that can use a calibration file.
   //. if the file is optional, set to false, otherwise, set to true
@@ -153,7 +166,7 @@ public class ODRFGUIParameters {
   public static boolean MODULE_FILE_REQUIRED_SUBTRACT_DARK = true;
   public static boolean MODULE_FILE_REQUIRED_SUBTRACT_SKY = true;
   public static boolean MODULE_FILE_REQUIRED_SUBTRACT_FRAME = true;
-
+  public static boolean MODULE_FILE_REQUIRED_DIVIDE_BY_STAR_SPECTRUM = true;
 
   //. file choices for modules that (can) take a calibration file
   public static String[] FIND_FILE_CHOICES_LOG_PATH = {FIND_FILE_MENU_CONSTRUCT_FROM_FILENAME,
@@ -174,6 +187,7 @@ public class ODRFGUIParameters {
 						       FIND_FILE_MENU_SPECIFY_FILE};
   public static String[] FIND_FILE_CHOICES_MODULE_EXTRACT_SPECTRA = {FIND_FILE_MENU_MOST_RECENT,
     FIND_FILE_MENU_SPECIFY_FILE};
+  public static String[] FIND_FILE_CHOICES_MODULE_DIVIDE_BY_STAR_SPECTRUM = {FIND_FILE_MENU_SPECIFY_FILE};
   public static String[] FIND_FILE_CHOICES_MODULE_SUBTRACT_DARK = {FIND_FILE_MENU_SPECIFY_FILE};
   public static String[] FIND_FILE_CHOICES_MODULE_SUBTRACT_SKY = {FIND_FILE_MENU_SPECIFY_FILE};
   public static String[] FIND_FILE_CHOICES_MODULE_SUBTRACT_FRAME = {FIND_FILE_MENU_SPECIFY_FILE};
