@@ -242,7 +242,12 @@ public class ODRFGUIFrame extends JFrame {
         jMenuHelpAbout_actionPerformed(e);
       }
     });
-
+    
+    filterTitleLabel.setFont(ODRFGUIParameters.FONT_FILTER_LABEL);
+    filterLabel.setFont(ODRFGUIParameters.FONT_FILTER_VALUE);
+    scaleTitleLabel.setFont(ODRFGUIParameters.FONT_SCALE_LABEL);
+    scaleLabel.setFont(ODRFGUIParameters.FONT_SCALE_VALUE);
+    
     //jMenuFileQueueDRF.setEnabled(false);
     saveDRFButton.setText("Save DRF As...");
     saveDRFButton.addActionListener(new java.awt.event.ActionListener() {
@@ -1031,9 +1036,17 @@ public class ODRFGUIFrame extends JFrame {
   }
   private void updateViewFilter(String filter) {
     filterLabel.setText(filter);
+  	if (filter.compareTo("None") == 0)
+  		filterLabel.setForeground(ODRFGUIParameters.COLOR_FILTER_INVALID);
+  	else
+  		filterLabel.setForeground(ODRFGUIParameters.COLOR_FILTER_VALID);
   }
   private void updateViewScale(String scale) {
     scaleLabel.setText(scale);
+  	if (scale.compareTo("None") == 0)
+  		scaleLabel.setForeground(ODRFGUIParameters.COLOR_SCALE_INVALID);
+  	else
+  		scaleLabel.setForeground(ODRFGUIParameters.COLOR_SCALE_VALID);
   }
   private void updateViewOutputPath(String outputPath) {
     outputPathLabel.setText(outputPath);
