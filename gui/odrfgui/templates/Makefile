@@ -32,7 +32,12 @@ RELFILES =
 
 RELDAT   = basicARP_drfTemplate.xml \
 	   basicORP_drfTemplate.xml \
-	   basicCRP_sky_drfTemplate.xml
+	   fullARP_drfTemplate.xml \
+	   telluricARP_drfTemplate.xml \
+	   combine_skies_darks_drfTemplate.xml \
+	   cubes_mosaic_drfTemplate.xml \
+	   cubes_telluric_extract_drfTemplate.xml \
+ 	   cubes_telluric_correct_drfTemplate.xml 
 
 #override SYSNAM = kss/osiris/drs/gui/odrfgui
 #override VERNUM = 1.4
