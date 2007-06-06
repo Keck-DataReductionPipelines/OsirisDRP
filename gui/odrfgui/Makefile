@@ -16,7 +16,21 @@
 #         KSD-31a (/kroot Programming Manual), and KSD-201 (How to Set Up a
 #         config.mk Build).
 
-
+# NOTE: (JLW - 2007-06-06)
+#
+#  Build using gmake will fail if building cleanly (i.e. from scratch)
+#  This is because of the interdependencies of 
+#     KeywordUpdateModuleDefinitionDialog.java 
+#     ODRFGUIModel.java 
+#     ODRFGUIFrame.java
+#
+#  The Make system compiles files one at a time, but files with 
+#  interdependencies like this must be compiled at the same time.
+#  Therefore, use the following command (at Keck) to compile these
+#  classes first.  Once this command has been run, a normal gmake
+#  install will work.
+#
+#   /usr/bin/javac -d /home/osrsbld/kroot/kss/osiris/drs/gui/classes/ -classpath /u/osrsbld/kroot/rel/default/classes/:/u/osrsbld/kroot/rel/default/classes/osirisUtil.jar:/home/osrsbld/kroot/kss/osiris/drs/gui/classes/:/u/osrsbld/kroot/rel/default/classes/kjava.jar:/u/osrsbld/kroot/rel/default/classes/jdom.jar:/u/osrsbld/kroot/rel/default/classes/NomTamUtil.jar:/u/osrsbld/kroot/rel/default/classes/NomTamFits.jar KeywordUpdateModuleDefinitionDialog.java ODRFGUIModel.java ODRFGUIFrame.java
 
 ######  C and C++ related macros ##########################################
 
