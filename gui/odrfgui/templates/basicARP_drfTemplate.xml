@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- Reduce Frames with ARP -->
 <!-- find_file_current -->
 <DRF 
   LogPath="find_file_construct_from_filename" 
@@ -14,11 +15,11 @@
      CalibrationFile="find_file_specify_file"
   />
   <module 
-     Name="Remove Crosstalk" 
+     Name="Adjust Channel Levels" 
      CalibrationFile="find_file_none"
   />
   <module 
-     Name="Adjust Channel Levels" 
+     Name="Remove Crosstalk" 
      CalibrationFile="find_file_none"
   />
   <module 
