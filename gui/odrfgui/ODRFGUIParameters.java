@@ -40,7 +40,18 @@ public class ODRFGUIParameters {
 
   public static Font FONT_MENU = new Font("Dailog", 0, 12);
   public static Font FONT_MENUITEM = new Font("Dailog", 0, 12);
-
+  
+  public static Font FONT_FILTER_LABEL = new Font("Dialog", Font.BOLD, 14);
+  public static Font FONT_FILTER_VALUE = new Font("Dialog", Font.BOLD, 14);
+  public static Font FONT_SCALE_LABEL = new Font("Dialog", Font.BOLD, 14);
+  public static Font FONT_SCALE_VALUE = new Font("Dialog", Font.BOLD, 14);
+  
+  public static Color COLOR_FILTER_VALID = Color.BLUE;
+  public static Color COLOR_SCALE_VALID = Color.BLUE;
+  public static Color COLOR_FILTER_INVALID = Color.RED;
+  public static Color COLOR_SCALE_INVALID = Color.RED;
+  
+  
   public static int SPLIT_PANE_MODULE_LIST_DIVIDER_LOCATION = 200;
   public static int SPLIT_PANE_UPDATE_LIST_DIVIDER_LOCATION = 350;
   public static int SPLIT_PANE_ARGUMENT_LIST_DIVIDER_LOCATION = 250;
@@ -66,8 +77,14 @@ public class ODRFGUIParameters {
 
   public static String[] DEFAULT_REDUCTION_TEMPLATE_LIST = {
   	"/kroot/rel/default/data/basicARP_drfTemplate.xml",
-  	"/kroot/rel/default/data/basicCRP_sky_drfTemplate.xml",
-  	"/kroot/rel/default/data/basicORP_drfTemplate.xml"};
+  	"/kroot/rel/default/data/basicORP_drfTemplate.xml",
+  	"/kroot/rel/default/data/fullARP_drfTemplate.xml",
+  	"/kroot/rel/default/data/telluricARP_drfTemplate.xml",
+  	"/kroot/rel/default/data/combine_skies_darks_drfTemplate.xml",
+  	"/kroot/rel/default/data/cubes_mosaic_drfTemplate.xml",
+  	"/kroot/rel/default/data/cubes_telluric_correct_drfTemplate.xml",
+  	"/kroot/rel/default/data/cubes_telluric_extract_drfTemplate.xml"
+};
 
   //. possible calibration file location strings
   public static String FIND_FILE_SPECIFY_FILE = "find_file_specify_file";
