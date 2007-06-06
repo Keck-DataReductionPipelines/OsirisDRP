@@ -10,7 +10,6 @@ import java.io.*;
 import java.beans.*;
 import java.util.*;
 
-/** @todo no template */
 /** @todo load new templates */
 public class ODRFGUIModel extends GenericModel {
   DRF myDRF = new DRF();
@@ -18,7 +17,7 @@ public class ODRFGUIModel extends GenericModel {
   private ArrayList arpReductionModuleList = new ArrayList();
   private ArrayList crpReductionModuleList = new ArrayList();
   private ArrayList orpReductionModuleList = new ArrayList();
-  private ArrayList activeModuleList;
+  private ArrayList activeModuleList = new ArrayList();
   private ArrayList availableModuleList;
   private ArrayList reductionTemplates;
   private ReductionModule activeModule;
@@ -1031,7 +1030,7 @@ public class ODRFGUIModel extends GenericModel {
       return myDRD;
     }
     public String toString() {
-    	return getDrfFilename();
+    	return drfFile.getName();
     }
   }
 
