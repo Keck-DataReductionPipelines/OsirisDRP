@@ -64,8 +64,8 @@ pro check_bits, pcf_Frame, pcf_IntFrame, pcb_IntAuxFrame, n_Sets, DEBUG=DEBUG
          (*pcb_IntAuxFrame(i))( v_Mask ) = setbit ( (*pcb_IntAuxFrame(i))( v_Mask ), 2, 0 )
 
          ; set data and noise of invalid pixel to 0.
-         (*pcf_Frame(i))( v_Mask ) = 0.
-         (*pcf_IntFrame(i))( v_Mask ) = 0.
+;         (*pcf_Frame(i))( v_Mask ) = 0.
+;         (*pcf_IntFrame(i))( v_Mask ) = 0.
 
       endif 
       
@@ -87,8 +87,8 @@ pro check_bits, pcf_Frame, pcf_IntFrame, pcb_IntAuxFrame, n_Sets, DEBUG=DEBUG
             debug_info, 'DEBUG INFO (' + functionName + '): ' + strg(n) + ' pixels ' + $
                   ' in set ' + strg(i) + ' have outside status but are valid. Correcting.'
          (*pcb_IntAuxFrame(i))( v_Mask ) = setbit ( (*pcb_IntAuxFrame(i))( v_Mask ), 0, 0 )
-         (*pcf_Frame(i))( v_Mask )       = 0.
-         (*pcf_IntFrame(i))( v_Mask )    = 0.
+ ;        (*pcf_Frame(i))( v_Mask )       = 0.
+ ;        (*pcf_IntFrame(i))( v_Mask )    = 0.
       end
 
    end
