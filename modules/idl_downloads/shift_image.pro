@@ -79,16 +79,16 @@ function shift_image, mf_D, mf_N, mb_Q, d_x, d_y
       v = where ( finite(mi_VS,/NAN) or mi_VS ne 1., n ) ; these ones are not valid for sure
       if ( n gt 0 ) then begin
          mb_QS(v) = setbit(mb_QS(v),0,0)
-         mf_DS(v) = 0.
-         mf_NS(v) = 0.
+;         mf_DS(v) = 0.
+;         mf_NS(v) = 0.
       end
       ; determine the inside bit
       mi_Out = interpolate ( float(extbit(mb_Q,3)), vd_X, vd_Y, /grid, MISSING = !VALUES.F_NAN  )
       v = where ( finite(mi_Out,/NAN) or mi_Out ne 1., n ) ; these ones are definitely outside
       if ( n gt 0 ) then begin
          mb_QS(v) = setbit(mb_QS(v),3,0)
-         mf_DS(v) = 0.
-         mf_NS(v) = 0.
+;         mf_DS(v) = 0.
+;         mf_NS(v) = 0.
       end
 
       vi_Valid = where ( extbit ( mb_QS, 0 ), n_Valid )
@@ -146,11 +146,11 @@ function shift_image, mf_D, mf_N, mb_Q, d_x, d_y
 
    v = where ( finite(mf_DS,/NAN) or finite(mf_NS,/NAN), n )
    if ( n gt 0 ) then begin
-      warning, 'WARNING (' + functionName + '): Whoopsie daisy, ' + strg(n) + $
-               ' data or noise values are not finite. Correcting.'
+;      warning, 'WARNING (' + functionName + '): Whoopsie daisy, ' + strg(n) + $
+ ;              ' data or noise values are not finite. Correcting.'
       mb_QS(v) = setbit ( mb_QS(v), 0, 0)
-      mf_DS(v) = 0.
-      mf_NS(v) = 0.
+ ;     mf_DS(v) = 0.
+ ;     mf_NS(v) = 0.
    end
 
    ; all done
