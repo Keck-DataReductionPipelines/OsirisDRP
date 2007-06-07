@@ -41,6 +41,8 @@ public class ODRFGUIModel extends GenericModel {
     outputDir = ODRFGUIParameters.DEFAULT_OUTPUT_DIR;
     logPath = ODRFGUIParameters.DEFAULT_LOG_DIR;
     calibDir = ODRFGUIParameters.OSIRIS_CALIB_ARCHIVE_DIR;
+    queueDir = ODRFGUIParameters.DRF_QUEUE_DIR;
+    
     automaticallyGenerateDatasetName = ODRFGUIParameters.DEFAULT_AUTOSET_DATASET_NAME;
     writeDRFVerbose = ODRFGUIParameters.DEFAULT_WRITE_DRF_VERBOSE;
 
