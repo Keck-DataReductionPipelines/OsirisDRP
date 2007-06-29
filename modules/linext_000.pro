@@ -55,12 +55,13 @@ FOR i=0, (nFrames-1) DO BEGIN
             end
             weight = 0.0
             for q = 0, (numpix-1) do begin
-                if ( (*DataSet.IntAuxFrames[i])[j,offset+indx[q]] eq 9 ) then begin
+;                if ( (*DataSet.IntAuxFrames[i])[j,offset+indx[q]] eq 9 ) then begin
                     image[j,k]=image[j,k] + (*DataSet.Frames[i])[j,offset+indx[q]]
                     weight = weight + basis[indx[q]]
-                end
+                    if ( (j eq 500) and (k eq 500) ) then print, basis[indx[q]]
+;                end
             end
-            (*quality)[j,k]=0
+;            (*quality)[j,k]=0
             if ( weight ne 0.0 ) then begin
 ; Added division of weight by integral of spatial psf. JEL May 16, 2007
 ;                weight = weight / total(basis)

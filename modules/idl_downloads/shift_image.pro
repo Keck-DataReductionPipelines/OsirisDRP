@@ -71,11 +71,11 @@ function shift_image, mf_D, mf_N, mb_Q, d_x, d_y
 
       ; shift both frames bilinearly
       ; The MISSING value is the value to return for elements outside the bounds of the input
-      mf_DS = interpolate ( mf_D, vd_X, vd_Y, /grid, MISSING=!VALUES.F_NAN )
-      mf_NS = interpolate ( mf_N, vd_X, vd_Y, /grid, MISSING=!VALUES.F_NAN  )
+      mf_DS = interpolate ( mf_D, vd_X, vd_Y, /grid, MISSING=0.0 )
+      mf_NS = interpolate ( mf_N, vd_X, vd_Y, /grid, MISSING=0.0  )
 
       ; determine the valid bit
-      mi_VS = interpolate ( float(mi_Valid), vd_X, vd_Y, /grid, MISSING = !VALUES.F_NAN  )
+      mi_VS = interpolate ( float(mi_Valid), vd_X, vd_Y, /grid, MISSING = 0  )
       v = where ( finite(mi_VS,/NAN) or mi_VS ne 1., n ) ; these ones are not valid for sure
       if ( n gt 0 ) then begin
          mb_QS(v) = setbit(mb_QS(v),0,0)
@@ -83,7 +83,7 @@ function shift_image, mf_D, mf_N, mb_Q, d_x, d_y
 ;         mf_NS(v) = 0.
       end
       ; determine the inside bit
-      mi_Out = interpolate ( float(extbit(mb_Q,3)), vd_X, vd_Y, /grid, MISSING = !VALUES.F_NAN  )
+      mi_Out = interpolate ( float(extbit(mb_Q,3)), vd_X, vd_Y, /grid, MISSING = 0  )
       v = where ( finite(mi_Out,/NAN) or mi_Out ne 1., n ) ; these ones are definitely outside
       if ( n gt 0 ) then begin
          mb_QS(v) = setbit(mb_QS(v),3,0)

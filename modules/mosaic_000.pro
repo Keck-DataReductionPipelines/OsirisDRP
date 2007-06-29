@@ -410,11 +410,6 @@ FUNCTION mosaic_000, DataSet, Modules, Backbone
 ;   if ( NOT bool_is_struct ( stModule ) ) then $
 ;      return, error ('ERROR IN CALL ('+strtrim(functionName)+'): Post Integrity check failed.')
 
-   fname = sxpar(*DataSet.Headers[0],'DATAFILE')
-   fname = fname + '_mosaic'
-   print, fname
-   SXADDPAR, *DataSet.Headers[0], "DATAFILE", fname
-
    if ( Modules[thisModuleIndex].Save eq 1 ) then begin
                                 ; save the result
 
@@ -434,6 +429,11 @@ FUNCTION mosaic_000, DataSet, Modules, Backbone
        writefits, c_File, float(V_Shifts), /APPEND
    endif
 
+
+   fname = sxpar(*DataSet.Headers[0],'DATAFILE')
+   fname = fname + '_mosaic'
+   print, fname
+   SXADDPAR, *DataSet.Headers[0], "DATAFILE", fname
 
    report_success, functionName, T
 

@@ -29,7 +29,7 @@ public class ODRFGUIModel extends GenericModel {
   private File outputDir;
   private File logPath;
   private String datasetName = "";
-  private String calibDir;
+  private File calibDir;
   private boolean automaticallyGenerateDatasetName;
   private File queueDir;
   private int queueNumber;
@@ -71,6 +71,7 @@ public class ODRFGUIModel extends GenericModel {
   }
   private void resetAvailableModuleList() {
     ArrayList list;
+    ArrayList workingActiveList;
     //. set active module list
     if (reductionType.equals(ODRFGUIParameters.REDUCTION_TYPE_CRP_SPEC))
       list = crpReductionModuleList;
@@ -79,7 +80,34 @@ public class ODRFGUIModel extends GenericModel {
     else
       list = arpReductionModuleList;
 
+    //. trim unavailable modules from active list
+    boolean listChanged = false;
+    boolean[] errantModules = new boolean[activeModuleList.size()];
+    int index=0;
+    //. go through active list and mark errant modules
+    for (Iterator ii = activeModuleList.iterator(); ii.hasNext(); ) {
+    	ReductionModule module = (ReductionModule)ii.next();
+ 
+    	//. module is not in list, getReductionModule returns null
+    	if (getReductionModule(list, module.getName()) == null) {
+    		errantModules[index] = true;
+    		listChanged=true;
+    	}
+    	index++;
+    }
+    //. if there was a change
+    if (listChanged) {
+    	//. work backwards, so as we remove, indices don't change
+	    for (index--; index>=0; index--) {
+	    	if (errantModules[index])
+	    		activeModuleList.remove(index);
+	    }
+	    //. broadcast chagne
+      propertyChangeListeners.firePropertyChange("activeModuleList", null, activeModuleList); 
+    }
+    //. set new available list
     setAvailableModuleList(list);
+   
   }
   private void setDefaultTemplateList() throws JDOMException, IOException, DRDException {
     ArrayList workingTemplateList = new ArrayList();
@@ -816,26 +844,20 @@ public class ODRFGUIModel extends GenericModel {
     if (findFile.equals(ODRFGUIParameters.FIND_FILE_MENU_MOST_RECENT)) {
       module.setCalibrationFile(ODRFGUIParameters.MODULE_CALFILE_NOT_FOUND);
       //. make sure dir exists
-      String calFileSubdir = "";
       String calFileID = "";
       if (moduleName.equals(ODRFGUIParameters.MODULE_SPATIALLY_RECTIFY)) {
-        calFileSubdir=ODRFGUIParameters.MODULE_DIR_SPATIALLY_RECTIFY;
         calFileID = ODRFGUIParameters.MODULE_FILEID_SPATIALLY_RECTIFY;
       } else  if (moduleName.equals(ODRFGUIParameters.MODULE_EXTRACT_SPECTRA)) {
-          calFileSubdir=ODRFGUIParameters.MODULE_DIR_EXTRACT_SPECTRA;
           calFileID = ODRFGUIParameters.MODULE_FILEID_EXTRACT_SPECTRA;
       } else if (moduleName.equals(ODRFGUIParameters.MODULE_DIVIDE_FLAT)) {
-        calFileSubdir=ODRFGUIParameters.MODULE_DIR_DIVIDE_FLAT;
         calFileID=ODRFGUIParameters.MODULE_FILEID_DIVIDE_FLAT;
       } else if (moduleName.equals(ODRFGUIParameters.MODULE_CALIBRATE_WAVELENGTH)) {
-        calFileSubdir=ODRFGUIParameters.MODULE_DIR_CALIBRATE_WAVELENGTH;
         calFileID=ODRFGUIParameters.MODULE_FILEID_CALIBRATE_WAVELENGTH;
       }
-      File caldir = new File(calibDir+File.separator+calFileSubdir);
-      if (caldir.isDirectory()) {
+      if (calibDir.isDirectory()) {
 	//. get list of files matching filter
 	String scaleID = workingScale.substring(workingScale.indexOf(".")+1, workingScale.length());
-	File[] fileList = caldir.listFiles(new FileFilterByCalibrationType(calFileID+"_"+workingFilter+"_"+scaleID));
+	File[] fileList = calibDir.listFiles(new FileFilterByCalibrationType(calFileID+"_"+workingFilter+"_"+scaleID));
 	if (fileList.length > 0) {
 	  Arrays.sort(fileList, new CalibrationFileTimeComparator());
 	  module.setCalibrationFileValidated(true);
@@ -889,11 +911,11 @@ public class ODRFGUIModel extends GenericModel {
   public File getLogPath() {
     return logPath;
   }
-  public String getCalibDir() {
+  public File getCalibDir() {
     return calibDir;
   }
-  public void setCalibDir(String calibDir) {
-    String oldCalibDir = this.calibDir;
+  public void setCalibDir(File calibDir) {
+    File oldCalibDir = this.calibDir;
     this.calibDir = calibDir;
     propertyChangeListeners.firePropertyChange("calibDir", oldCalibDir, calibDir);
 

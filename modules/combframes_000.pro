@@ -1,4 +1,3 @@
-
 ;-----------------------------------------------------------------------
 ; THIS IS A DRP MODULE
 ;
@@ -68,6 +67,10 @@ FUNCTION combframes_000, DataSet, Modules, Backbone
     if ( n_Dims(2) ne 2048 ) then $
       return, error ('Error, y-dim must be 2048')
 
+    itime = float(SXPAR(*DataSet.Headers[0],'ITIME'))
+    if ( itime lt 1.0 ) then itime = 2.0
+    print, 'itime=', itime
+
     if ( nFrames lt 2 ) then $
       return, error ('Combframes requires at least 2 frames.')
 
@@ -82,6 +85,13 @@ FUNCTION combframes_000, DataSet, Modules, Backbone
     loc = where (num gt 0.0 )
     avg[loc] = avg[loc] / num[loc]
 
+    ; Define range to bin data for finding mode of distribution.
+    range = 10.0
+    bsize = range/(itime*100.0)
+    bmin = -range/itime
+    nbin = 200
+    shifts = bsize*findgen(nbin)+bmin
+
     ; Match levels of each frame one channel at a time.
     ; Lower left quadrant
     x1=0
@@ -90,7 +100,13 @@ FUNCTION combframes_000, DataSet, Modules, Backbone
     y2=127
     for i = 0, 7 do begin
         for n = 0, (nFrames-1) do begin
-            delta = median(avg[x1:x2,(y1+128*i):(y2+128*i)] - (*DataSet.Frames[n])[x1:x2,(y1+128*i):(y2+128*i)])
+;            delta = median(avg[x1:x2,(y1+128*i):(y2+128*i)] -
+;            (*DataSet.Frames[n])[x1:x2,(y1+128*i):(y2+128*i)])
+            ; Switch to using the mode of the distribution.
+            temp = avg[x1:x2,(y1+128*i):(y2+128*i)] - (*DataSet.Frames[n])[x1:x2,(y1+128*i):(y2+128*i)]
+            hist = histogram(temp,binsize=bsize,min=bmin,nbins=nbin)
+            m = max(hist,loc)
+            delta = shifts[loc] ; This will be the mode of the histogram.
             (*DataSet.Frames[n])[x1:x2,(y1+128*i):(y2+128*i)]=(*DataSet.Frames[n])[x1:x2,(y1+128*i):(y2+128*i)]+delta
         end
     end
@@ -102,7 +118,11 @@ FUNCTION combframes_000, DataSet, Modules, Backbone
     y2=1151
     for i = 0, 7 do begin
         for n = 0, (nFrames-1) do begin
-            delta = median(avg[x1:x2,(y1+128*i):(y2+128*i)] - (*DataSet.Frames[n])[x1:x2,(y1+128*i):(y2+128*i)])
+;            delta = median(avg[x1:x2,(y1+128*i):(y2+128*i)] - (*DataSet.Frames[n])[x1:x2,(y1+128*i):(y2+128*i)])
+            temp = avg[x1:x2,(y1+128*i):(y2+128*i)] - (*DataSet.Frames[n])[x1:x2,(y1+128*i):(y2+128*i)]
+            hist = histogram(temp,binsize=bsize,min=bmin,nbins=nbin)
+            m = max(hist,loc)
+            delta = shifts[loc] ; This will be the mode of the histogram.
             (*DataSet.Frames[n])[x1:x2,(y1+128*i):(y2+128*i)]=(*DataSet.Frames[n])[x1:x2,(y1+128*i):(y2+128*i)]+delta
         end
     end
@@ -114,7 +134,11 @@ FUNCTION combframes_000, DataSet, Modules, Backbone
     y2=2047
     for i = 0, 7 do begin
         for n = 0, (nFrames-1) do begin
-            delta = median(avg[(x1+128*i):(x2+128*i),y1:y2] - (*DataSet.Frames[n])[(x1+128*i):(x2+128*i),y1:y2])
+;            delta = median(avg[(x1+128*i):(x2+128*i),y1:y2] - (*DataSet.Frames[n])[(x1+128*i):(x2+128*i),y1:y2])
+            temp = avg[(x1+128*i):(x2+128*i),y1:y2] - (*DataSet.Frames[n])[(x1+128*i):(x2+128*i),y1:y2]
+            hist = histogram(temp,binsize=bsize,min=bmin,nbins=nbin)
+            m = max(hist,loc)
+            delta = shifts[loc] ; This will be the mode of the histogram.
             (*DataSet.Frames[n])[(x1+128*i):(x2+128*i),y1:y2]=(*DataSet.Frames[n])[(x1+128*i):(x2+128*i),y1:y2]+delta
         end
     end
@@ -126,7 +150,11 @@ FUNCTION combframes_000, DataSet, Modules, Backbone
     y2=1023
     for i = 0, 7 do begin
         for n = 0, (nFrames-1) do begin
-            delta = median(avg[(x1+128*i):(x2+128*i),y1:y2] - (*DataSet.Frames[n])[(x1+128*i):(x2+128*i),y1:y2])
+;            delta = median(avg[(x1+128*i):(x2+128*i),y1:y2] - (*DataSet.Frames[n])[(x1+128*i):(x2+128*i),y1:y2])
+            temp = avg[(x1+128*i):(x2+128*i),y1:y2] - (*DataSet.Frames[n])[(x1+128*i):(x2+128*i),y1:y2]
+            hist = histogram(temp,binsize=bsize,min=bmin,nbins=nbin)
+            m = max(hist,loc)
+            delta = shifts[loc] ; This will be the mode of the histogram.
             (*DataSet.Frames[n])[(x1+128*i):(x2+128*i),y1:y2]=(*DataSet.Frames[n])[(x1+128*i):(x2+128*i),y1:y2]+delta
         end
     end
@@ -147,7 +175,8 @@ FUNCTION combframes_000, DataSet, Modules, Backbone
             loc = where( valid eq 9, cnt)
             (*DataSet.IntAuxFrames[0])[i,j] = 0
             if ( cnt gt 0 ) then begin
-                (*DataSet.Frames[0])[i,j] = median( data[loc] )
+;                (*DataSet.Frames[0])[i,j] = median( data[loc] )
+                (*DataSet.Frames[0])[i,j] = mean( data[loc] )
                 (*DataSet.IntAuxFrames[0])[i,j] = 9
             end
         end

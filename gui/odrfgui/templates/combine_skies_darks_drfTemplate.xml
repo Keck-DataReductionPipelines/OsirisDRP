@@ -14,10 +14,6 @@
      Name="Glitch Identification"
      CalibrationFile="find_file_none"
   />
-   <module
-     Name="Clean Cosmic Rays"
-     CalibrationFile="find_file_none"
-  />
   <module
       Name="Combine Frames"
      CalibrationFile="find_file_none"

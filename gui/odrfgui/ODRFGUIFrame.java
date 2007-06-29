@@ -582,7 +582,7 @@ public class ODRFGUIFrame extends JFrame {
     fc.setApproveButtonText("Select");
     fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
     if (fc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION)
-      myModel.setCalibDir(fc.getSelectedFile().getAbsolutePath());
+      myModel.setCalibDir(fc.getSelectedFile());
   }
  //File | Set Queue Directory action performed
   public void jMenuFileSetQueueDir_actionPerformed(ActionEvent e) {
@@ -746,8 +746,8 @@ public class ODRFGUIFrame extends JFrame {
   //Help | About action performed
   public void jMenuHelpAbout_actionPerformed(ActionEvent e) {
     OsirisAboutBox dlg = new OsirisAboutBox(this, "OSIRIS Data Reduction File GUI");
-    dlg.setVersion("Version 2.000");
-    dlg.setReleased("Released: 6 June 2007");
+    dlg.setVersion("Version 2.01");
+    dlg.setReleased("Released: 7 June 2007");
     dlg.setLocationAtCenter(this);
     dlg.setModal(true);
     dlg.show();
@@ -932,6 +932,8 @@ public class ODRFGUIFrame extends JFrame {
   			(module.getName().equals(ODRFGUIParameters.MODULE_SUBTRACT_SKY)) ||
   			(module.getName().equals(ODRFGUIParameters.MODULE_SUBTRACT_FRAME)))
   		fc.setCurrentDirectory(myModel.getInputDir());
+  	else 
+  		fc.setCurrentDirectory(myModel.getCalibDir());
   	fc.setDialogTitle("Select Calibration File");
   	int retval = fc.showOpenDialog(this);
   	if (retval == JFileChooser.APPROVE_OPTION) {

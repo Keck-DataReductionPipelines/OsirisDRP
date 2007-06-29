@@ -410,6 +410,8 @@ FUNCTION corrtilt_000, DataSet, Modules, Backbone
           ; determine spatial size of the shifted cube
           nn1 = n_Dims(2) + max(vi_xi) ; x-size of the old cube + the greatest array index shift
           nn2 = n_Dims(3) + max(vi_yi) ; y-size of the old cube + the greatest array index shift
+          sxaddpar, *Dataset.Headers(i), 'NAXIS2', nn1
+          sxaddpar, *Dataset.Headers(i), 'NAXIS3', nn2
 
           info, 'INFO (' + functionName + '): Size of unshifted cube ' + strg(n_Dims(2)) + ' ' + strg(n_Dims(3))
           info, 'INFO (' + functionName + '): Size of shifted cube ' + strg(nn1) + ' ' + strg(nn2)
@@ -493,6 +495,7 @@ FUNCTION corrtilt_000, DataSet, Modules, Backbone
                warning, ' WARNING (' + functionName + '): ' + strg(n_Bad) + ' detected in slice ' + $
                         strg(i) + '. You should better interpolate first.' 
 
+; Fractional pixel shifts
             s_Res = shift_image ( mf_D, mf_N, mb_Q, vd_x(j), vd_y(j) )
 
             if ( bool_is_struct ( s_Res ) ) then begin

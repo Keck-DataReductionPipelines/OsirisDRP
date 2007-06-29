@@ -138,7 +138,6 @@ FUNCTION extracstar_000, DataSet, Modules, Backbone
        report_success, functionName, T
    end
 
-
    return, OK
 
 end

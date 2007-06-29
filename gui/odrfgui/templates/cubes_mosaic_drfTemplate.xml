@@ -14,6 +14,4 @@
           Combine_Method='AVERAGE' 
           Offset_Method='TEL' 
   />
-  <module Name="Save DataSet Information" 
-  />
 </DRF>

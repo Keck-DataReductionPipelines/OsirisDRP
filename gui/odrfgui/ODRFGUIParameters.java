@@ -28,7 +28,7 @@ public class ODRFGUIParameters {
   public static File DEFAULT_INPUT_DIR = new File("/u/osrsdev/osiris/spec_raw/");
   public static File DEFAULT_OUTPUT_DIR = new File("/u/osrsdev/osiris/spec_orp/");
   public static File DEFAULT_LOG_DIR = new File("/u/osrsdev/osiris/spec_orp/DRFs/");
-  public static String OSIRIS_CALIB_ARCHIVE_DIR = "/osiris-calib/SPEC";
+  public static File OSIRIS_CALIB_ARCHIVE_DIR = new File("/osiris-calib/SPEC");
   public static File DRF_QUEUE_DIR = new File("/u/osrsdev/osiris/drf_queue");
   public static File DRF_READ_PATH = new File("/u/osrsdev/osiris/");
   public static File DRF_WRITE_PATH = new File("/u/osrsdev/osiris/");
@@ -215,10 +215,6 @@ public class ODRFGUIParameters {
 
   //. list the following only for modules that have an auto file finding method,
   //. e.g. MOST_RECENT
-  public static String MODULE_DIR_CALIBRATE_WAVELENGTH = "wcal";
-  public static String MODULE_DIR_DIVIDE_FLAT = "flats";
-  public static String MODULE_DIR_SPATIALLY_RECTIFY = "rectification";
-  public static String MODULE_DIR_EXTRACT_SPECTRA = "rectification";
   public static String MODULE_FILEID_CALIBRATE_WAVELENGTH = "_wmap";
   public static String MODULE_FILEID_DIVIDE_FLAT = "__flat";
   public static String MODULE_FILEID_SPATIALLY_RECTIFY = "__infl";
