@@ -13,5 +13,6 @@
   <module Name="Mosaic Frames" 
           Combine_Method='AVERAGE' 
           Offset_Method='TEL' 
+	  Save="1"
   />
 </DRF>

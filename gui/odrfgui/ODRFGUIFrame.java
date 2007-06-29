@@ -743,11 +743,11 @@ public class ODRFGUIFrame extends JFrame {
 			myModel.setWriteDRFVerbose(writeDRFVerboseCheckBox.isSelected());
 		}
   }
-  //Help | About action performed
+  //Help | Aboutaction performed
   public void jMenuHelpAbout_actionPerformed(ActionEvent e) {
     OsirisAboutBox dlg = new OsirisAboutBox(this, "OSIRIS Data Reduction File GUI");
-    dlg.setVersion("Version 2.01");
-    dlg.setReleased("Released: 7 June 2007");
+    dlg.setVersion("Version 2.1");
+    dlg.setReleased("Released: 28 June 2007");
     dlg.setLocationAtCenter(this);
     dlg.setModal(true);
     dlg.show();
