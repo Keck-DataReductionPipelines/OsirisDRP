@@ -32,6 +32,7 @@
 ; @STATUS not tested
 ;
 ; @HISTORY 11.12.2005, created
+;          21 march, 2008 modified by saw and jel for kc filters
 ;
 ; @AUTHOR  James Larkin
 ;
@@ -74,8 +75,10 @@ FUNCTION assembcube_000, DataSet, Modules, Backbone
    ; This must match what is in the routine that fits raw spectra: plot_fwhm
    midwave = 2200
 
-   ; Determine if this is broad band or narrow band data.
-   bb = strcmp('bb',strmid(s_Filter,1,2))
+                                ; Determine if this is broad band or
+                                ; narrow band data. Modified by Saw
+                                ; and JEL to include Kcb on March 21, 2008
+   bb = strcmp('b',strmid(s_Filter,2,1))
    print, s_Filter, bb
 
    ; Call the routine to extract the parameters for this filter from the
@@ -347,13 +350,95 @@ FUNCTION assembcube_000, DataSet, Modules, Backbone
         sxdelpar, *DataSet.Headers[q], 'CRPIX1'
         sxdelpar, *DataSet.Headers[q], 'CUNIT1'
         
-        ; Set the wavelength keywords.
-        sxaddpar, *DataSet.Headers[q], 'CDELT1', disp
-        sxaddpar, *DataSet.Headers[q], 'CRVAL1', minl
-        sxaddpar, *DataSet.Headers[q], 'CRPIX1', 1
-        sxaddpar, *DataSet.Headers[q], 'CUNIT1', 'nm'
+    
+		; Now actually update with a full WCS-compliant header for all axes
+		;  Code by M. Perrin from addwcs_000.pro
+	   RA = double(sxpar(*DataSet.Headers[q], 'RA', count=ra_count))
+	   DEC = double(sxpar(*DataSet.Headers[q], 'DEC', count=dec_count))
+	   pixelScale = float(sxpar(*DataSet.Headers[q], 'SSCALE',count=found_pixelscale))
+	   if (not found_pixelscale) then pixelscale = float(sxpar(*DataSet.Headers[q],'SSSCALE'))
+	   pixelscale_str =  strcompress(pixelscale,/remove_all)
+	   naxis1 = sxpar(*DataSet.Headers[q],'NAXIS1')
+	   d_PA  = float(sxpar(*DataSet.Headers[q], 'PA_SPEC', count=pa_count))
+	   PA_str  = strcompress(d_PA,/remove_all)
+	   d_PA = d_PA * !pi / 180d
+	   s_filter = sxpar(*DataSet.Headers[q],'SFILTER',count=n_sf)
 
-    end
+	   if (ra_count eq 0 or dec_count eq 0 or pa_count eq 0 or n_sf eq 0) then begin
+    		warning, 'WARNING (' + functionName + '): Some crucial keywords missing from header! '
+    		warning, 'WARNING (' + functionName + '): Therefore the resulting WCS information will surely be wrong. '
+			sxaddhist, 'WARNING (' + functionName + '): Some crucial keywords missing from header! ', *DataSet.Headers[q]
+    		sxaddhist, 'WARNING (' + functionName + '): Therefore the resulting WCS information will surely be wrong. ', *DataSet.Headers[q]
+		endif
+	   ; the following is from mosaic_000.pro:
+	   ; Make default center the broad band values
+	   pnt_cen=[32.0,9.0]
+	   if ( n_sf eq 1 ) then begin
+		   bb = strcmp('b',strmid(s_filter,2,1))
+		   if ( strcmp('Zn2',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,25.0]
+		   if ( strcmp('Zn3',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,25.0]
+		   if ( strcmp('Zn4',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,33.0]
+		   if ( strcmp('Zn5',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,33.0]
+		   if ( strcmp('Jn1',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,17.0]
+		   if ( strcmp('Jn2',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,22.0]
+		   if ( strcmp('Jn3',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,25.0]
+		   if ( strcmp('Jn4',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,28.0]
+		   if ( strcmp('Hn1',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,19.0]
+		   if ( strcmp('Hn2',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,23.0]
+		   if ( strcmp('Hn3',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,25.0]
+		   if ( strcmp('Hn4',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,28.0]
+		   if ( strcmp('Hn5',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,33.0]
+		   if ( strcmp('Kn1',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,19.0]
+		   if ( strcmp('Kn2',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,23.0]
+		   if ( strcmp('Kn3',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,25.0]
+		   if ( strcmp('Kn4',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,28.0]
+		   if ( strcmp('Kn5',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,33.0]
+		   if ( strcmp('Kc3',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,25.0]
+		   if ( strcmp('Kc4',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,28.0]
+		   if ( strcmp('Kc5',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,33.0]
+	   end
+	   print, "Pointing center is", pnt_cen
+ 	
+   ; Update RA and DEC header keywords
+	sxaddhist, functionName+":  Updating FITS header WCS keywords.", *DataSet.Headers[q]
+    sxaddpar, *DataSet.Headers[q], "INSTRUME", "OSIRIS", "Instrument: OSIRIS on Keck II" ; FITS-compliant instrument name, too
+    sxaddpar, *DataSet.Headers[q], "WCSAXES", 3, "Number of axes in WCS system"
+	sxaddpar, *DataSet.Headers[q], "CTYPE1", "WAVE", "Vacuum wavelength."
+	sxaddpar, *DataSet.Headers[q], "CTYPE2", "RA---TAN", "Right Ascension."
+	sxaddpar, *DataSet.Headers[q], "CTYPE3", "DEC--TAN", "Declination."
+	sxaddpar, *DataSet.Headers[q], "CUNIT1", "nm", "Vacuum wavelength unit is nanometers"
+	sxaddpar, *DataSet.Headers[q], "CUNIT2", "deg", "R.A. unit is degrees, always"
+	sxaddpar, *DataSet.Headers[q], "CUNIT3", "deg", "Declination unit is degrees, always"
+    sxaddpar, *DataSet.Headers[q], 'CRVAL1', minl, " [nm] Wavelength at reference pixel"
+	sxaddpar, *DataSet.Headers[q], "CRVAL2", sxpar(*DataSet.Headers[q],"RA"), " [deg] R.A. at reference pixel"
+	sxaddpar, *DataSet.Headers[q], "CRVAL3", sxpar(*DataSet.Headers[q],"DEC"), " [deg] Declination at reference pixel"
+    sxaddpar, *DataSet.Headers[q], 'CRPIX1', 1, "Reference pixel location"
+	sxaddpar, *DataSet.Headers[q], "CRPIX2", pnt_cen[0],     	"Reference pixel location"
+	sxaddpar, *DataSet.Headers[q], "CRPIX3", pnt_cen[1],     	"Reference pixel location"
+    sxaddpar, *DataSet.Headers[q], 'CDELT1', disp , "Wavelength scale is "+string(disp)+" nm/channel "
+	sxaddpar, *DataSet.Headers[q], "CDELT2", pixelscale/3600., "Pixel scale is "+pixelscale_str+" arcsec/pixel"
+	sxaddpar, *DataSet.Headers[q], "CDELT3", pixelscale/3600., "Pixel scale is "+pixelscale_str+" arcsec/pixel"
+
+	; rotation matrix.
+	pc = [[cos(d_PA), -sin(d_PA)], $
+		  [sin(d_PA), cos(d_PA)]]
+
+	sxaddpar, *DataSet.Headers[q], "PC1_1", 1, "Spectral axis is unrotated"
+	sxaddpar, *DataSet.Headers[q], "PC2_2", pc[0,0], "RA, Dec axes rotated by "+PA_str+" degr."
+	sxaddpar, *DataSet.Headers[q], "PC2_3", pc[0,1], "RA, Dec axes rotated by "+PA_str+" degr."
+	sxaddpar, *DataSet.Headers[q], "PC3_2", pc[1,0], "RA, Dec axes rotated by "+PA_str+" degr."
+	sxaddpar, *DataSet.Headers[q], "PC3_3", pc[1,1], "RA, Dec axes rotated by "+PA_str+" degr."
+	sxaddpar, *DataSet.Headers[q], "SPECSYS1", "TOPOCENT", "Axis 1 is in topocentric coordinates."
+	; TODO I don't fully understand the WCS paper explanation of SSYSOBS... ???!?!
+	sxaddpar, *DataSet.Headers[q], "SSYSOBS1", "TOPOCENT", "Axis 1 is in topocentric coordinates."
+	; TODO WCS paper III suggests adding MJD-AVG to specify midpoint of
+	; observations for conversions to barycentric.
+	sxaddpar, *DataSet.Headers[q], "RADESYS", "FK5", "RA and Dec are in FK5"
+	sxaddpar, *DataSet.Headers[q], "EQUINOX", 2000.0, "RA, Dec equinox is J2000 (I think)"
+
+
+;stop
+    endfor
 
    ; update the header
 ;   for i=0, nFrames-1 do begin
@@ -361,7 +446,16 @@ FUNCTION assembcube_000, DataSet, Modules, Backbone
 ;           return, error('FAILURE ('+strtrim(functionName)+'): Update of header failed.')
 ;       end
 ;   end
-  
+ 
+
+
+
+
+
+
+
+
+
    report_success, functionName, T
 
    return, OK

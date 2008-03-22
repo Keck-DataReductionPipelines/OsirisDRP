@@ -247,7 +247,8 @@ RELPRO   = add_fitskwd_to_header.pro \
 	   zerointframeaux.pro \
 	   zerointframeauxsmall.pro \
 	   zerointframe.pro \
-	   zerointframesmall.pro
+	   zerointframesmall.pro \
+	   imdisp.pro 
 
 PROSUB = odrs/modules/idl_downloads
 

@@ -30,6 +30,7 @@
 ; @STATUS Tested 2005-01-25
 ;
 ; @HISTORY 2005-01-11, created
+;        21 march 2008 - Modified to support Kc filters by SAW and JEL
 ;
 ; @AUTHOR T. Gasaway (tgasaway@ucsd.edu)
 ;
@@ -54,8 +55,8 @@ FUNCTION srtrectdat_000, DataSet, Modules, Backbone
   
 ; Each filter actually needs its own first and last pixel. The ones in
 ; the RPBconfig file are only used if no valid filter is found.
-  filters=["ZN2","ZN3","ZN4","ZN5","JN1","JN2","JN3","JN4","HN1","HN2","HN3","HN4","HN5","KN1","KN2","KN3","KN4","KN5"]
-  fpix=[1766,1461,1141,814,2074,1737,1441,1145,2069,1742,1470,1141,805,2068,1763,1450,1126,814]
+  filters=["ZN2","ZN3","ZN4","ZN5","JN1","JN2","JN3","JN4","HN1","HN2","HN3","HN4","HN5","KN1","KN2","KN3","KN4","KN5","KC3","KC4","KC5"]
+  fpix=[1766,1461,1141,814,2074,1737,1441,1145,2069,1742,1470,1141,805,2068,1763,1450,1126,814,1450,1126,814]
 ;  fpix=[1450,1450,1450,1450,1450,1450,1450,1450,1450,1450,1450,1450,1450,2023,1750,1450,1150,860]
   BranchID = Backbone->getType()
   CASE BranchID OF
@@ -67,7 +68,7 @@ FUNCTION srtrectdat_000, DataSet, Modules, Backbone
       firstFrameNum = FIX(STRMID(filename, STRLEN(filename)-3))
       fileNameThruDSN = STRMID(filename, 0, STRLEN(filename)-3)
       rectType = 'nb'  ; Assume Narrowband
-      IF STRPOS( sfilter, 'bb') GT -1 THEN rectType = 'bb'  ; Reset if we are doing a Broadband case
+      IF STRPOS( sfilter, 'b') GT -1 THEN rectType = 'bb'  ; Reset if we are doing a Broadband case
       CASE rectType OF
         ; Broadband
         'bb': BEGIN
@@ -90,7 +91,7 @@ FUNCTION srtrectdat_000, DataSet, Modules, Backbone
         ; Narrowband
         'nb': BEGIN
             sf = STRUPCASE(sfilter)
-            for i = 0, 17 do begin
+            for i = 0, 20 do begin
                 if STRCMP(sf,filters[i]) eq 1 then begin
                     first_pix=fpix[i]
                     print, 'Filter = ', filters[i], 'First_pix = ',first_pix

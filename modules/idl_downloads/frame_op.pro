@@ -49,6 +49,8 @@
 ;
 ; HISTORY : 10.8.2004, created
 ;           18.8.2004, implemented full set of quality bits
+;           2008-03-18	Enforce consistency by masking out any invalid pixels
+;           			after the operation is completed. 
 ;
 ; AUTHOR : Christof Iserlohe (iserlohe@ph1.uni-koeln.de)
 ;
@@ -166,6 +168,17 @@ function frame_op, p_Frames, p_IntFrames, p_IntAuxFrames, s_Op, p_Frame, p_IntFr
           mb_Inside         = (mb_B3s and mb_B3)
 
           (*p_IntAuxFrames[i]) = byte(mb_Masks + 2b*mb_Valid_Int + 4b*mb_Valid_Good_Int + 8b*mb_Inside)
+
+		  ; enforce consistency:
+		  ;   apply updated quality frame to mask out any bad pixels in the image
+		  ;   This is necessary because if the two frames' masks do not match,
+		  ;   above, then the pixels which are not valid in both are simply left
+		  ;   untouched in the p_Frames. They really should be zeroed out as
+		  ;   invalid. - MDP, JEL, & SAW 2008-03-18
+		  wbad = where(*p_IntAuxFrames[i] eq 0, badcount  ) 
+		  if badcount gt 0 then begin
+		  		(*p_Frames[i])[wbad] = 0
+		  endif
 
        end
 

@@ -60,7 +60,10 @@ RELPRO   = adjchan_000.pro \
 	   spatrectif_000.pro \
 	   srtrectdat_000.pro \
 	   subtradark_000.pro \
-           swapchan_000.pro
+           swapchan_000.pro \
+	   scaledskysub_000.pro \
+	   addwcs_000.pro \
+	   rename_000.pro
 
 PROSUB = odrs/modules
 

@@ -66,6 +66,8 @@
 ;		added MEDIAN, MEANCLIP, and NGS, LGS offsets
 ;	Modified May 2007 - Shelley Wright
 ;		added RA and DEC header for mosaiced frame 
+;       Modified 21 March 2008 - SAW and JEL
+;               modified to include Kc filters
 ;
 ;-----------------------------------------------------------------------
 
@@ -210,25 +212,28 @@ FUNCTION mosaic_000, DataSet, Modules, Backbone
    ; Make default center the broad band values
    pnt_cen=[32.0,9.0]
    if ( n_sf eq 1 ) then begin
-       bb = strcmp('bb',strmid(s_filter,1,2))
-       if ( strcmp('Zn2',strmid(s_filter,0,2)) eq 1 ) then pnt_cen=[32.0,25.0]
-       if ( strcmp('Zn3',strmid(s_filter,0,2)) eq 1 ) then pnt_cen=[32.0,25.0]
-       if ( strcmp('Zn4',strmid(s_filter,0,2)) eq 1 ) then pnt_cen=[32.0,33.0]
-       if ( strcmp('Zn5',strmid(s_filter,0,2)) eq 1 ) then pnt_cen=[32.0,33.0]
-       if ( strcmp('Jn1',strmid(s_filter,0,2)) eq 1 ) then pnt_cen=[32.0,17.0]
-       if ( strcmp('Jn2',strmid(s_filter,0,2)) eq 1 ) then pnt_cen=[32.0,22.0]
-       if ( strcmp('Jn3',strmid(s_filter,0,2)) eq 1 ) then pnt_cen=[32.0,25.0]
-       if ( strcmp('Jn4',strmid(s_filter,0,2)) eq 1 ) then pnt_cen=[32.0,28.0]
-       if ( strcmp('Hn1',strmid(s_filter,0,2)) eq 1 ) then pnt_cen=[32.0,19.0]
-       if ( strcmp('Hn2',strmid(s_filter,0,2)) eq 1 ) then pnt_cen=[32.0,23.0]
-       if ( strcmp('Hn3',strmid(s_filter,0,2)) eq 1 ) then pnt_cen=[32.0,25.0]
-       if ( strcmp('Hn4',strmid(s_filter,0,2)) eq 1 ) then pnt_cen=[32.0,28.0]
-       if ( strcmp('Hn5',strmid(s_filter,0,2)) eq 1 ) then pnt_cen=[32.0,33.0]
-       if ( strcmp('Kn1',strmid(s_filter,0,2)) eq 1 ) then pnt_cen=[32.0,19.0]
-       if ( strcmp('Kn2',strmid(s_filter,0,2)) eq 1 ) then pnt_cen=[32.0,23.0]
-       if ( strcmp('Kn3',strmid(s_filter,0,2)) eq 1 ) then pnt_cen=[32.0,25.0]
-       if ( strcmp('Kn4',strmid(s_filter,0,2)) eq 1 ) then pnt_cen=[32.0,28.0]
-       if ( strcmp('Kn5',strmid(s_filter,0,2)) eq 1 ) then pnt_cen=[32.0,33.0]
+       bb = strcmp('b',strmid(s_filter,2,1))
+       if ( strcmp('Zn2',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,25.0]
+       if ( strcmp('Zn3',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,25.0]
+       if ( strcmp('Zn4',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,33.0]
+       if ( strcmp('Zn5',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,33.0]
+       if ( strcmp('Jn1',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,17.0]
+       if ( strcmp('Jn2',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,22.0]
+       if ( strcmp('Jn3',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,25.0]
+       if ( strcmp('Jn4',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,28.0]
+       if ( strcmp('Hn1',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,19.0]
+       if ( strcmp('Hn2',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,23.0]
+       if ( strcmp('Hn3',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,25.0]
+       if ( strcmp('Hn4',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,28.0]
+       if ( strcmp('Hn5',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,33.0]
+       if ( strcmp('Kn1',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,19.0]
+       if ( strcmp('Kn2',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,23.0]
+       if ( strcmp('Kn3',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,25.0]
+       if ( strcmp('Kn4',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,28.0]
+       if ( strcmp('Kn5',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,33.0]
+       if ( strcmp('Kc3',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,25.0]
+       if ( strcmp('Kc4',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,28.0]
+       if ( strcmp('Kc5',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,33.0]
    end
    print, "Pointing center is", pnt_cen
    

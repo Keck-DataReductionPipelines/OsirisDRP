@@ -1,10 +1,13 @@
-function strnumber, st, val, hex = hexflg
+function strnumber, st, val, hex = hexflg, NaN = nan
 ;+
 ; NAME:
-;      STRNUMBER
+;      STRNUMBER()
 ; PURPOSE:
 ;      Function to determine if a string is a valid numeric value.
 ;
+; EXPLANATION:
+;      A string is considered a valid numeric value if IDL can convert it
+;      to a numeric variable without error.    
 ; CALLING SEQUENCE:
 ;      result = strnumber( st, [val, /HEX] )
 ;
@@ -21,19 +24,19 @@ function strnumber, st, val, hex = hexflg
 ; OPTIONAL INPUT KEYWORD:
 ;       /HEX - If present and nonzero, the string is treated as a hexadecimal
 ;             longword integer.
+;       /NAN - if set, then the value of an empty string is returned as NaN,
+;              by default the returned value is 0.0d.     In either case,
+;              an empty string is considered a valid numeric value.
 ;
 ; EXAMPLES:
-;      IDL> res = strnumber(' ',val)
-;           returns res=0 (not a number) and val is undefined
-;
 ;      IDL> res = strnumber('0.2d', val)
 ;           returns res=1 (a valid number), and val = 0.2000d
 ;              
 ; NOTES:
-;      (1) STRNUMBER was modified in February 1993 to include a special test for 
-;      empty or null strings, which now returns a 0 (not a number).    Without
-;      this special test, it was found that a empty string (' ') could corrupt
-;      the stack.
+;      (1) STRNUMBER was modified in August 2006 so that an empty string is 
+;      considered a valid number.   Earlier versions of strnumber.pro did not 
+;      do this because in very early (pre-V4.0) versions of IDL
+;      this could corrupt the IDL session.
 ;
 ;       (2) STRNUMBER will return a string such as '23.45uyrg' as a valid 
 ;      number (=23.45) since this is how IDL performs the type conversion.  If
@@ -44,15 +47,19 @@ function strnumber, st, val, hex = hexflg
 ;      test for empty string, W. Landsman          February, 1993
 ;      Converted to IDL V5.0   W. Landsman   September 1997
 ;      Hex keyword added.  MRG, RITSS, 15 March 2000.
+;      An empty string is a valid number   W. Landsman    August 2006
+;      Added /NAN keyword  W. Landsman August 2006
 ;-
  if N_params() EQ 0 then begin
-      print,'Syntax - result = strnumber( st, [val, /HEX] )'
+      print,'Syntax - result = strnumber( st, [val, /HEX, /NAN] )'
       return, 0
  endif
 
  newstr = strtrim( st )
-
- if ( newstr EQ '' ) then return, 0    ;Empty string is a special case
+ if keyword_set(NAN) then if newstr EQ '' then begin
+        val = !VALUES.D_NAN
+	return, 1
+  endif 	
 
  On_IOerror, L1                 ;Go to L1 if conversion error occurs
 
@@ -68,3 +75,4 @@ function strnumber, st, val, hex = hexflg
  L1: return, 0                  ;Conversion error occured
 
  end
+ 

@@ -185,20 +185,31 @@
     </Module>
     <Module Name="Assemble Data Cube" IDLFunc="assembcube_000" Comment="Assemble Data Cube takes the raw extracted spectra from the Extract Spectra routine and places each spectrum in its correct x,y location in the data cube, and applies a wavelength solution to each lenslet. No parameters or file needed."></Module>
     <Module Name="Correct Dispersion" IDLFunc="corrtilt_000" Comment="This module corrects for spatial shifts along the spectral axis in the datacube due to atmospheric differential dispersion and instrumental effects. This should always be run before using Extract Star module. No parameters or file needed."></Module>
+    <Module Name='Scaled Sky Subtraction' IDLFunc='scaledskysub_000' Comment="Remove OH lines via scaled subtraction algorithm of R. Davies"> 
+      <Argument Name="Min_Sky_Fraction" Type="float" Range="(0.01, 0.99)" Default="0.1" />
+      <Argument Name="Max_Sky_Fraction" Type="float" Range="(0.01, 0.99)" Default="0.25" />
+      <Argument Name="Line_Halfwidth" Type="float" Range="(1,20)" Default="4" />
+      <Argument Name="Show_Plots" Type="enum" Range="YES|NO" Default="YES" />
+    </Module> <!-- M. Perrin addition -->
+
     <Module Name="Mosaic Frames" IDLFunc="mosaic_000" Comment="Mosaic Frames combines multiple OSIRIS cubes with the same PA using header keywords from TEL (default), NGS, and LGS. Combining frames may be performed with either AVERAGE (default), MEDIAN, or MEANCLIP.">
       <Argument Name="Combine_Method" Type="enum" Range="AVERAGE|MEDIAN|MEANCLIP" Default="AVERAGE" />
       <Argument Name="Offset_Method" Type="enum" Range="TEL|NGS|LGS" Default="TEL" />
     </Module>
-    <Module Name="Extract Star" IDLFunc="extracstar_000" Comment="Extract Star takes a reduced data cube and finds the brightest object in the field and then uses aperture photometry to extract a 1-d spectrum. The most common use is to extract a telluric spectrum to divide into data cubes.">
+    <Module Name='Add WCS' IDLFunc='addwcs_000' Comment="Add WCS-standard-compliant keywords to FITS header."> </Module> <!-- M. Perrin addition -->
+    <Module Name="Extract Star" IDLFunc="extracstar_000" Comment="Extract Star takes a reduced data cube and finds the brightest object in the field and then uses aperture photometry to extract a 1D spectrum. The most common use is to extract a telluric spectrum to divide into data cubes.">
     </Module>
-    <Module Name="Remove Hydrogen Lines" IDLFunc="remhydr_000" Comment="Remove Hydrogen Lines takes a 1-D spectrum and attempts to remove absorption lines due to hydrogen. The primary purpose is to remove hydrogen absorption lines from telluric standard stars.">
+    <Module Name="Remove Hydrogen Lines" IDLFunc="remhydr_000" Comment="Remove Hydrogen Lines takes a 1D spectrum and attempts to remove absorption lines due to hydrogen. The primary purpose is to remove hydrogen absorption lines from telluric standard stars.">
     </Module>
-    <Module Name="Divide Blackbody" IDLFunc="divblackbo_000" Comment=" This module divides a 1-d, 2-d or 3-d spectra by a blackbody of a specified effective temperature (Kelvin). The default effective temperature is 10,000 K. This is primarily useful to fix telluric spectra, and accepts different wavelength ranges.">
-      <Argument Name="Temperature" Type="float" Range="(3000.0,30000.0]" Default="10000.0" />
+    <Module Name="Divide Blackbody" IDLFunc="divblackbo_000" Comment=" This module divides a 1D, 2D or 3D spectra by a blackbody of a specified effective temperature (Kelvin). The default effective temperature is 9,480 K (A0V). This is primarily useful to fix telluric spectra, and accepts different wavelength ranges.">
+      <Argument Name="Temperature" Type="float" Range="(3000.0,30000.0]" Default="9480.0" />
       </Module>
-    <Module Name="Divide by Star Spectrum" IDLFunc="divstarspe_000" Comment="Divides Cube by 1-d stellar spectrum. User specified file needed." ></Module>
+    <Module Name="Divide by Star Spectrum" IDLFunc="divstarspe_000" Comment="Divides Cube by 1D stellar spectrum. User specified file needed." ></Module>
     <Module Name="Save DataSet Information" IDLFunc="savedatset_000" Comment="Saves reductions and outputs to fits file with all extensions and header.">
     </Module>
+    <Module Name='Rename File' IDLFunc='rename_000' Comment="Rename File"> 
+      <Argument Name="OutputFilename" Type="string" Default="newfile.fits" />
+    </Module> <!-- M. Perrin addition -->
     <Module Name="Subtract Dark Frame" IDLFunc="subtradark_000" HideInGUI="1"></Module>
     <Module Name="Combine Frames" IDLFunc="combframes_000" HideInGUI="1" Comment="Used to combine multiple frames of the same type into a lower noise version. The most common applications are to make a dark frame out of many identical darks, or a sky frame out of many identical skies.">
     </Module>

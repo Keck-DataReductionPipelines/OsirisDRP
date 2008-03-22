@@ -59,7 +59,7 @@ FUNCTION mkrectdark_000, DataSet, Modules, Backbone
       firstFrameNum = FIX(STRMID(filename, STRLEN(filename)-3))
       fileNameThruDSN = STRMID(filename, 0, STRLEN(filename)-3)
       rectType = 'nb'  ; Assume Narrowband
-      IF STRPOS( sfilter, 'bb') GT -1 THEN rectType = 'bb'  ; Reset if we are doing a Broadband case
+      IF STRPOS( sfilter, 'b') GT -1 THEN rectType = 'bb'  ; Reset if we are doing a Broadband case
       CASE rectType OF
         ; Broadband
         'bb': BEGIN
