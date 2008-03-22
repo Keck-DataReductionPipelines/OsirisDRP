@@ -61,6 +61,8 @@ public class ODRFGUIParameters {
   public static boolean DEFAULT_CONFIRM_DROP_DRF = true;
   public static boolean DEFAULT_CONFIRM_DROP_INVALID_DRF = true;
   public static boolean DEFAULT_CONFIRM_SAVE_INVALID_DRF = true;
+  public static boolean DEFAULT_CONFIRM_RESET_DRF = true;
+  public static boolean DEFAULT_CONFIRM_CLEAR_INPUT_FILES = true;
   public static boolean DEFAULT_SHOW_KEYWORD_UPDATE_PANEL = false;
   public static boolean DEFAULT_WRITE_DRF_VERBOSE = false;
   
@@ -169,6 +171,7 @@ public class ODRFGUIParameters {
   public static String MODULE_SUBTRACT_DARK = "Subtract Dark Frame";
   public static String MODULE_SUBTRACT_SKY = "Subtract Sky";
   public static String MODULE_SUBTRACT_FRAME = "Subtract Frame";
+  public static String MODULE_SCALED_SKY_SUBTRACTION = "Scaled Sky Subtraction";
   public static String MODULE_DIVIDE_BY_STAR_SPECTRUM = "Divide by Star Spectrum";
 
   //. only specify for files that can use a calibration file.
@@ -183,6 +186,7 @@ public class ODRFGUIParameters {
   public static boolean MODULE_FILE_REQUIRED_SUBTRACT_DARK = true;
   public static boolean MODULE_FILE_REQUIRED_SUBTRACT_SKY = true;
   public static boolean MODULE_FILE_REQUIRED_SUBTRACT_FRAME = true;
+  public static boolean MODULE_FILE_REQUIRED_MODULE_SCALED_SKY_SUBTRACTION = true;
   public static boolean MODULE_FILE_REQUIRED_DIVIDE_BY_STAR_SPECTRUM = true;
 
   //. file choices for modules that (can) take a calibration file
@@ -207,6 +211,7 @@ public class ODRFGUIParameters {
   public static String[] FIND_FILE_CHOICES_MODULE_SUBTRACT_DARK = {FIND_FILE_MENU_SPECIFY_FILE};
   public static String[] FIND_FILE_CHOICES_MODULE_SUBTRACT_SKY = {FIND_FILE_MENU_SPECIFY_FILE};
   public static String[] FIND_FILE_CHOICES_MODULE_SUBTRACT_FRAME = {FIND_FILE_MENU_SPECIFY_FILE};
+  public static String[] FIND_FILE_CHOICES_MODULE_SCALED_SKY_SUBTRACTION = {FIND_FILE_MENU_SPECIFY_FILE};
   public static String[] FIND_FILE_CHOICES_NONE = {FIND_FILE_MENU_NONE};
 
   public static String MODULE_CALFILE_NOT_FOUND = "UNABLE TO FIND VALID FILE";

@@ -22,7 +22,7 @@ CFLAGS  =
 SOURCE	= 
 OBJECT	= 
 
-DIRS	= drpUtil odrfgui classes
+DIRS	= odrfgui classes #drpUtil odrfgui classes
 
 #  Files to make are ...
 FILES	= 
@@ -31,7 +31,7 @@ FILES	=
 RELFILES  = 
 
 override SYSNAM = kss/osiris/drs/gui/
-override VERNUM = 2.1
+override VERNUM = 2.2
 
 #  Include general make rules (use /etc if no environment variable).
 

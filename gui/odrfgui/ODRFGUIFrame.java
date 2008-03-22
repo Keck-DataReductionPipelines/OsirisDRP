@@ -32,6 +32,7 @@ public class ODRFGUIFrame extends JFrame {
   JMenu jMenuFile = new JMenu();
   JMenuItem jMenuFileSetCalibDir = new JMenuItem();
   JMenuItem jMenuFileSetQueueDir = new JMenuItem();
+  JMenuItem jMenuFileNewDRF = new JMenuItem();
   JMenuItem jMenuFileOpenDRF = new JMenuItem();
   JMenuItem jMenuFileSaveDRF = new JMenuItem();
   JMenuItem jMenuFileQueueDRF = new JMenuItem();
@@ -117,6 +118,8 @@ public class ODRFGUIFrame extends JFrame {
   private JCheckBox confirmSaveInvalidDRFCheckBox = new JCheckBox("Confirm saving invalid DRFs?");
   private JCheckBox confirmDropDRFCheckBox = new JCheckBox("Confirm dropping DRFs to queue?");
   private JCheckBox confirmDropInvalidDRFCheckBox = new JCheckBox("Confirm dropping invalid DRFs to queue?");
+  private JCheckBox confirmResetDRFCheckBox = new JCheckBox("Confirm when creating a new DRF?");
+  private JCheckBox confirmClearInputFilesCheckBox = new JCheckBox("Confirm clearing of all input files?");
   private JCheckBox showKeywordUpdateCheckBox = new JCheckBox("Show keyword update panel? (Advanced)");
   private JCheckBox writeDRFVerboseCheckBox = new JCheckBox("Be verbose when writing DRFs?");
   
@@ -182,6 +185,8 @@ public class ODRFGUIFrame extends JFrame {
   	confirmSaveInvalidDRFCheckBox.setSelected(ODRFGUIParameters.DEFAULT_CONFIRM_SAVE_INVALID_DRF);
   	confirmDropInvalidDRFCheckBox.setSelected(ODRFGUIParameters.DEFAULT_CONFIRM_DROP_INVALID_DRF);
   	confirmDropDRFCheckBox.setSelected(ODRFGUIParameters.DEFAULT_CONFIRM_DROP_DRF);
+  	confirmResetDRFCheckBox.setSelected(ODRFGUIParameters.DEFAULT_CONFIRM_RESET_DRF);
+  	confirmClearInputFilesCheckBox.setSelected(ODRFGUIParameters.DEFAULT_CONFIRM_CLEAR_INPUT_FILES);
   	showKeywordUpdateCheckBox.setSelected(ODRFGUIParameters.DEFAULT_SHOW_KEYWORD_UPDATE_PANEL);
   	writeDRFVerboseCheckBox.setSelected(myModel.doWriteDRFVerbose());
   	
@@ -202,6 +207,12 @@ public class ODRFGUIFrame extends JFrame {
     jMenuFileSetQueueDir.addActionListener(new ActionListener()  {
       public void actionPerformed(ActionEvent e) {
         jMenuFileSetQueueDir_actionPerformed(e);
+      }
+    });
+    jMenuFileNewDRF.setText("New DRF");
+    jMenuFileNewDRF.addActionListener(new ActionListener()  {
+      public void actionPerformed(ActionEvent e) {
+        jMenuFileNewDRF_actionPerformed(e);
       }
     });
     jMenuFileOpenDRF.setText("Open DRF...");
@@ -434,12 +445,14 @@ public class ODRFGUIFrame extends JFrame {
     });
     
     //. assemble gui
-    jMenuFile.add(jMenuFileSetCalibDir);
-    jMenuFile.add(jMenuFileSetQueueDir);
+    jMenuFile.add(jMenuFileNewDRF);
     jMenuFile.add(jMenuFileOpenDRF);
     jMenuFile.addSeparator();
     jMenuFile.add(jMenuFileSaveDRF);
     jMenuFile.add(jMenuFileQueueDRF);
+    jMenuFile.addSeparator();
+    jMenuFile.add(jMenuFileSetCalibDir);
+    jMenuFile.add(jMenuFileSetQueueDir);
     jMenuFile.addSeparator();
     jMenuFile.add(jMenuFileExit);
     jMenuTools.add(jMenuToolsOptions);
@@ -560,7 +573,26 @@ public class ODRFGUIFrame extends JFrame {
       jMenuFileExit_actionPerformed(null);
     }
   }
- //File | Open DRF action performed
+  //File | New DRF action performed
+  public void jMenuFileNewDRF_actionPerformed(ActionEvent e) {
+   	if (confirmResetDRFCheckBox.isSelected()) {
+			confirmBox.setSelected(false);
+	    Object[] message = {"Clear all fields and create new DRF?", "This will discard all changes.", " ", confirmBox};
+		  if (JOptionPane.showConfirmDialog(this, message, "Confirm New DRF", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE) == JOptionPane.OK_OPTION) {	  			
+	  		if (confirmBox.isSelected()) {
+	  			confirmResetDRFCheckBox.setSelected(false);
+	  		}
+		  } else {
+		  	return;
+		  }
+   	}
+   	try {
+   		myModel.resetDRF();
+   	} catch (DRDException drdEx) {
+   		
+   	}
+  }
+  //File | Open DRF action performed
   public void jMenuFileOpenDRF_actionPerformed(ActionEvent e) {
     XMLFileChooser fc = new XMLFileChooser(currentDRFReadPath);
     fc.setFileFilter(new OsirisFileFilters.DRFFileFilter());
@@ -686,25 +718,25 @@ public class ODRFGUIFrame extends JFrame {
     if (retVal == JFileChooser.APPROVE_OPTION) {
       try {
         java.io.File file = fc.getSelectedFile();
-	//. if file has no extension, add .ddf to it
-	if (OsirisFileUtils.getExtension(file) == null) {
-	  file=OsirisFileUtils.addExtension(file, "drf");
-	}
-	/* check to see if file exists */
-	if (file.exists()) {
-	  int overwriteOption=JOptionPane.showConfirmDialog(this, "File "+file.getName()+" exists.  Do you wish to overwrite?", "ODRFGUI: File Exists", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
-	  if (overwriteOption == JOptionPane.CANCEL_OPTION) {
-	    statusBar.setText("Save DRF cancelled.  DRF not written.");
-	    return;
-	  } else {
-	    defaultSaveFile=file;
-	    if (overwriteOption == JOptionPane.NO_OPTION) {
-	      saveDRF();
-	      return;
-	    }
-	  }
-	}
-	myModel.setDatasetName(datasetNameField.getText());
+        //. if file has no extension, add .ddf to it
+        if (OsirisFileUtils.getExtension(file) == null) {
+        	file=OsirisFileUtils.addExtension(file, "drf");
+        }
+        /* check to see if file exists */
+        if (file.exists()) {
+        	int overwriteOption=JOptionPane.showConfirmDialog(this, "File "+file.getName()+" exists.  Do you wish to overwrite?", "ODRFGUI: File Exists", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+        	if (overwriteOption == JOptionPane.CANCEL_OPTION) {
+        		statusBar.setText("Save DRF cancelled.  DRF not written.");
+        		return;
+        	} else {
+        		defaultSaveFile=file;
+        		if (overwriteOption == JOptionPane.NO_OPTION) {
+        			saveDRF();
+        			return;
+        		}
+        	}
+        }
+        myModel.setDatasetName(datasetNameField.getText());
         currentDRFWritePath = file;
         myModel.writeDRF(file);
         statusBar.setText("DRF saved to file "+file.getPath());
@@ -731,7 +763,8 @@ public class ODRFGUIFrame extends JFrame {
   	writeDRFVerboseCheckBox.setSelected(myModel.doWriteDRFVerbose());
   	
   	Object[] message = {confirmSaveInvalidDRFCheckBox, " ", confirmDropInvalidDRFCheckBox, " ", 
-  			confirmDropDRFCheckBox, " ", showKeywordUpdateCheckBox, " ", writeDRFVerboseCheckBox};
+  			confirmDropDRFCheckBox, " ", confirmResetDRFCheckBox, " ", confirmClearInputFilesCheckBox, " ", 
+  			showKeywordUpdateCheckBox, " ", writeDRFVerboseCheckBox};
   	
   	if (JOptionPane.showConfirmDialog(this, message, "ODRFGUI: Options", JOptionPane.OK_CANCEL_OPTION) == JOptionPane.OK_OPTION) {  			
 			boolean showUpdate = showKeywordUpdateCheckBox.isSelected();
@@ -746,8 +779,8 @@ public class ODRFGUIFrame extends JFrame {
   //Help | Aboutaction performed
   public void jMenuHelpAbout_actionPerformed(ActionEvent e) {
     OsirisAboutBox dlg = new OsirisAboutBox(this, "OSIRIS Data Reduction File GUI");
-    dlg.setVersion("Version 2.1");
-    dlg.setReleased("Released: 28 June 2007");
+    dlg.setVersion("Version 2.2a");
+    dlg.setReleased("Released: 14 January 2008");
     dlg.setLocationAtCenter(this);
     dlg.setModal(true);
     dlg.show();
@@ -799,16 +832,48 @@ public class ODRFGUIFrame extends JFrame {
     }
   }
   void clearInputFilesButton_actionPerformed(ActionEvent e) {
-    int answer = JOptionPane.showConfirmDialog(this, "Remove all files from Input File list?", "Confirm Clear Input File List", JOptionPane.OK_CANCEL_OPTION);
-    if (answer == JOptionPane.OK_OPTION) {
-      myModel.clearInputFileList();
-    }
+   	if (confirmClearInputFilesCheckBox.isSelected()) {
+			confirmBox.setSelected(false);
+	    Object[] message = {"Remove all files from Input File list?", " ", confirmBox};
+		  if (JOptionPane.showConfirmDialog(this, message, "Confirm Clear Input File List", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE) == JOptionPane.OK_OPTION) {	  			
+	  		if (confirmBox.isSelected()) {
+	  			confirmClearInputFilesCheckBox.setSelected(false);
+	  		}
+		  } else {
+		  	return;
+		  }
+   	}
+    myModel.clearInputFileList();
   }
   void addInputFilesButton_actionPerformed(ActionEvent e) {
-    openInputFiles();
-  }
-  void removeInputFilesButton_actionPerformed(ActionEvent e) {	
-  	myModel.removeInputFiles(inputFileList.getSelectedIndices());
+  	//. save selection
+  	int[] selectedRows = inputFileList.getSelectedIndices();  	
+  	//. open files
+  	openInputFiles();
+  	//. if there was a selectrion, 
+    if (selectedRows.length > 0) {
+    	//. restore selection
+    	inputFileList.setSelectedIndices(selectedRows);
+    } else {
+    	//. otherwise, if files were opened, select the first row 
+    	if (myModel.getInputFileList().size() > 0) {
+    		inputFileList.setSelectedIndex(0);
+    	}
+    }
+   }
+  void removeInputFilesButton_actionPerformed(ActionEvent e) {
+  	int[] selectedRows = inputFileList.getSelectedIndices();
+		if (selectedRows.length > 0) {
+			myModel.removeInputFiles(selectedRows);
+			//. reset selected row is list isn't empty
+			if (!myModel.getInputFileList().isEmpty()) {
+				if (selectedRows[0] == myModel.getInputFileList().size()) {
+					inputFileList.setSelectedIndex(selectedRows[0]-1);
+				} else {
+					inputFileList.setSelectedIndex(selectedRows[0]);
+				}
+			}
+		}
   }
   private void openInputFiles() {
     JFileChooser chooser = new JFileChooser(myModel.getInputDir());
@@ -930,7 +995,9 @@ public class ODRFGUIFrame extends JFrame {
   		fc.setSelectedFile(calFile);
   	else if ((module.getName().equals(ODRFGUIParameters.MODULE_SUBTRACT_DARK)) ||
   			(module.getName().equals(ODRFGUIParameters.MODULE_SUBTRACT_SKY)) ||
-  			(module.getName().equals(ODRFGUIParameters.MODULE_SUBTRACT_FRAME)))
+  			(module.getName().equals(ODRFGUIParameters.MODULE_SCALED_SKY_SUBTRACTION)) ||
+  			(module.getName().equals(ODRFGUIParameters.MODULE_SUBTRACT_FRAME)) ||
+  			(module.getName().equals(ODRFGUIParameters.MODULE_DIVIDE_BY_STAR_SPECTRUM)))
   		fc.setCurrentDirectory(myModel.getInputDir());
   	else 
   		fc.setCurrentDirectory(myModel.getCalibDir());

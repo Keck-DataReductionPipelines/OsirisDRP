@@ -113,7 +113,7 @@ CLEAN =
 
 # If this is a release point, override ancestor makefile's values.
 override SYSNAM = kss/osiris/drs/gui/odrfgui/
-override VERNUM = 2.1
+override VERNUM = 2.2
 
 
 

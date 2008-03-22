@@ -47,7 +47,6 @@
   />
   <module Name="Divide Blackbody" 
      CalibrationFile="find_file_none"
-     Temperature='10000.0'
   />
   <module 
      Name="Save DataSet Information"

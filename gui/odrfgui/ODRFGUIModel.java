@@ -69,6 +69,20 @@ public class ODRFGUIModel extends GenericModel {
     if (!reductionTemplates.isEmpty())
     	setActiveReductionTemplate((ReductionTemplate)reductionTemplates.get(0));
   }
+  public void resetDRF() throws DRDException {
+  	//. clear input files
+  	clearInputFileList();
+  	  	
+    //. set default reduction type
+    reductionType = ODRFGUIParameters.DEFAULT_REDUCTION_TYPE;
+    
+    //. set availableModuleList to default
+    resetAvailableModuleList();
+
+    //. use first template as default
+    if (!reductionTemplates.isEmpty())
+    	setActiveReductionTemplate((ReductionTemplate)reductionTemplates.get(0));
+  }
   private void resetAvailableModuleList() {
     ArrayList list;
     ArrayList workingActiveList;
@@ -345,6 +359,16 @@ public class ODRFGUIModel extends GenericModel {
 						//. remove the file (remember index is decremented when a file is removed)
 						inputFileList.remove(indices[ii]-ii);
 					}
+					//. if list is empty, reset working filter and scale
+					if (inputFileList.isEmpty()) {
+				    setWorkingFilter("None");
+				    setWorkingScale("None");
+
+				    //. clear dataset name if auto generated
+				    if (automaticallyGenerateDatasetName) {
+				    	setDatasetName("");
+				    }
+					}
 					//. broadcast change
 					propertyChangeListeners.firePropertyChange("inputFileList", null, inputFileList);
 				}
@@ -357,6 +381,12 @@ public class ODRFGUIModel extends GenericModel {
     //. reset working filter and scale
     setWorkingFilter("None");
     setWorkingScale("None");
+    
+    //. clear dataset name if auto generated
+    if (automaticallyGenerateDatasetName) {
+    	setDatasetName("");
+    }
+    
     //. broadcast change
     propertyChangeListeners.firePropertyChange("inputFileList", null, inputFileList);
   }
@@ -392,8 +422,10 @@ public class ODRFGUIModel extends GenericModel {
   		newScale = file.getScale();
   	} else {
 	  	if (workingScale.compareTo(file.getScale()) != 0) {
-	  		if (file.getScale().compareTo("None") != 0) {
-	  			throw new DRDException("Input file scale <"+file.getScale()+"> does not match working scale <"+workingScale+">.");
+	  		if (workingFilter.compareToIgnoreCase(OsirisParameters.FILTER_NAME_DARK) != 0) {
+	  			if (file.getScale().compareTo("None") != 0) {
+	  				throw new DRDException("Input file scale <"+file.getScale()+"> does not match working scale <"+workingScale+">.");
+	  			}
 	  		}
 	  	}
   	}  	
@@ -502,8 +534,12 @@ public class ODRFGUIModel extends GenericModel {
       		listScale = currentScale;
       	else {
         	//. otherwise, make sure it matches what has been previously set
-      		if (currentScale.compareToIgnoreCase(listScale) != 0)
-      			throw new DRDException("Error opening <"+fileList[ii].toString()+">: Scale <"+currentScale+"> does not match working scale <"+listScale+">.");
+      		if (currentScale.compareToIgnoreCase(listScale) != 0) {
+      			//. if filter is Drk, allow different scales
+      			if (currentFilter.compareToIgnoreCase(OsirisParameters.FILTER_NAME_DARK) != 0) {
+      				throw new DRDException("Error opening <"+fileList[ii].toString()+">: Scale <"+currentScale+"> does not match working scale <"+listScale+">.");
+      			}
+      		}
       	}
       }
       
@@ -726,6 +762,8 @@ public class ODRFGUIModel extends GenericModel {
         module.setAllowedFindFileMethods(ODRFGUIParameters.FIND_FILE_CHOICES_MODULE_SUBTRACT_SKY);
       } else if (module.getName().equals(ODRFGUIParameters.MODULE_SUBTRACT_FRAME)) {
         module.setAllowedFindFileMethods(ODRFGUIParameters.FIND_FILE_CHOICES_MODULE_SUBTRACT_FRAME);
+      } else if (module.getName().equals(ODRFGUIParameters.MODULE_SCALED_SKY_SUBTRACTION)) {
+        module.setAllowedFindFileMethods(ODRFGUIParameters.FIND_FILE_CHOICES_MODULE_SCALED_SKY_SUBTRACTION);
       } else
         module.setAllowedFindFileMethods(ODRFGUIParameters.FIND_FILE_CHOICES_NONE);
 

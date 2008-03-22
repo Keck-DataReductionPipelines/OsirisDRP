@@ -39,6 +39,11 @@
   <module Name="Correct Dispersion" 
      CalibrationFile="find_file_none"
   />
+  <module Name="Scaled Sky Subtraction" 
+
+     CalibrationFile="find_file_specify_file"
+
+  />
   <module  Name="Divide by Star Spectrum"
        CalibrationFile="find_file_specify_file"
   />

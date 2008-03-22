@@ -29,6 +29,24 @@
   <File paramName="DRF_WRITE_PATH" value="~/osiris/"
     desc="Default path for writing drfs" />
 
+  <!-- Options in Tools - Options -->
+  <boolean paramName="DEFAULT_AUTOSET_DATASET_NAME" value="true"
+    desc="Default value for whether or not dataset name is automatically generated" />
+  <boolean paramName="DEFAULT_CONFIRM_DROP_DRF" value="true"
+    desc="Default value for whether to confirm dropping DRFs" />
+  <boolean paramName="DEFAULT_CONFIRM_DROP_INVALID_DRF" value="true"
+    desc="Default value for whether to confirm dropping invalid DRFs" />
+  <boolean paramName="DEFAULT_CONFIRM_SAVE_INVALID_DRF" value="true"
+    desc="Default value for whether to confirm saving invalid DRFs" />
+  <boolean paramName="DEFAULT_CONFIRM_RESET_DRF" value="true"
+    desc="Default value for whether to confirm resetting DRF" />
+  <boolean paramName="DEFAULT_CONFIRM_CLEAR_INPUT_FILES" value="true"
+    desc="Default value for whether to confirm clearing of input file list" />
+  <boolean paramName="DEFAULT_SHOW_KEYWORD_UPDATE_PANEL" value="false"
+    desc="Default value for whether to show the keyword update panel" />
+  <boolean paramName="DEFAULT_WRITE_DRF_VERBOSE" value="false"
+    desc="Default value for whether to write DRFs verbosely" />
+
 </cfg>
 
 
