@@ -130,7 +130,9 @@
 	<!-- Calibration Reductions CRP_SPEC -->
   <CRP_SPEC>
     <Module Name="Setup Dark Frame from Scan" IDLFunc="mkrectdark_000" Comment="Used for engineering, and creating rectification matrices.">
+     </Module>
     <Module Name="Make Dark Frame" IDLFunc="makedarkfr_000" Comment="Used for engineering, and making dark frame for creating rectification matrices.">
+     </Module>
     <Module Name="Setup Rectification Matrix Frames from Scan" IDLFunc="srtrectdat_000"  Comment="Used for engineering, and creating rectification matrices.">
     </Module>
     <Module Name="Subtract Frame" IDLFunc="subtradark_000" Comment="Subtracts the input frame by a user specfied frame.">
