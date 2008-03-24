@@ -44,6 +44,7 @@ RELPRO   = adjchan_000.pro \
 	   fitdispers_000.pro \
 	   glitchid_000.pro \
 	   linext_000.pro \
+	   makedarkfr_000.pro \
 	   mkdatacube_000.pro \
 	   mkrecmatrx_000.pro \
 	   mkrectdark_000.pro \
