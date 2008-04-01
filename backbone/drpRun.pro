@@ -16,6 +16,7 @@ PRO drpRun, QUEUE_DIR=queue_dir
         print, "*                                                   *"
         print, "*           James Larkin, Shelley Wright,           *"
         print, "*            Jason Weiss, Mike McElwain,            *"
+        print, "*                 Marshall Perrin,                  *"
         print, "*         Christof Iserlohe, Alfred Krabbe,         *"
         print, "*           Tom Gasaway, Tommer Wizanski            *"
         print, "*                                                   *"
