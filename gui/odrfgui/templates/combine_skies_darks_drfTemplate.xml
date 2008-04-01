@@ -17,6 +17,7 @@
   <module
       Name="Combine Frames"
      CalibrationFile="find_file_none"
+     Combine_Method='AVERAGE' 
   />
   <module 
      Name="Save DataSet Information"

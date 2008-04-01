@@ -22,7 +22,7 @@ CFLAGS  =
 SOURCE	= 
 OBJECT	= 
 
-DIRS	= odrfgui classes #drpUtil odrfgui classes
+DIRS	= drpUtil odrfgui classes #drpUtil odrfgui classes
 
 #  Files to make are ...
 FILES	= 

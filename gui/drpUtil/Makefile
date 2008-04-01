@@ -64,6 +64,10 @@ JARSUFFIXES =
 
 JAVAC1_4 = /usr/bin/javac
 
+ifeq ($(HOST),oxygen)
+	override JAVAC1_4 = /usr/jdk/j2sdk1.4.2_06/bin/javac
+endif
+
 ###### general macros #####################################################
 
 # subdirectories to recursively build, in order (required for recursive build)
