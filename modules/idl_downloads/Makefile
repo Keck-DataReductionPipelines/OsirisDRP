@@ -96,6 +96,7 @@ RELPRO   = add_fitskwd_to_header.pro \
 	   define_error_constants.pro \
 	   define_module.pro \
 	   delete_frame.pro \
+	   det2coord.pro \
 	   detabify.pro \
 	   determine_mosaic_offsets_from_header.pro \
 	   div_by_vector.pro \
