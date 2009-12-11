@@ -1,3 +1,4 @@
+
 /* mkrecmatrx_000.c */
 #include <math.h>
 #include <stdio.h>
@@ -120,7 +121,8 @@ int mkrecmatrx_000(int argc, void* argv[]) {
    * the calling IDL code.
    */
 
-  if (strncmp(&(sfilter->s)[1], "bb", 2)) {
+  // Changed conditional to work with the KC filters 6/7/2008 (JEL)
+  if (strncmp(&(sfilter->s)[2], "b", 1)!=0) {
     BB=FALSE;
     NB=TRUE;
     OFFSET=-4;  // Narrowband spectra are lower
@@ -233,7 +235,7 @@ int mkrecmatrx_000(int argc, void* argv[]) {
               basis_vectors[sp][jj][i] = raw_data[j][i];
             } else   // Flagged bad pixel or not effective spectrum
             {
-              basis_vectors[sp][jj][i] = 0.0;
+	      //              basis_vectors[sp][jj][i] = 0.0;
             }
           }
         }
@@ -277,25 +279,26 @@ int mkrecmatrx_000(int argc, void* argv[]) {
     for (i = 0; i<DATA; i++ )
       for ( j = 0; j < basesize; j++ ) {
         basis_vectors[sp][j][i]=basis_vectors[sp][j][i]/weight[0];
-        if (basis_vectors[sp][j][i] < weight_limit)
-          basis_vectors[sp][j][i] = 0.0;
+	//        if (basis_vectors[sp][j][i] < weight_limit)
+	//          basis_vectors[sp][j][i] = 0.0;
       }
  
- // Now look for bad elements in matrix. Bad is 2x both neighbors in spectral direction.
+ // Now look for bad elements in matrix. Bad is 2x both neighbors in spectral direction or 4x in spatial direction.
   for ( sp=0; sp<numspec; sp++ ) {
-    pretotal = 0.0;
-    for ( j = 0; j < basesize; j++ ) pretotal += basis_vectors[sp][j][0];
-    total = 0.0;
-    for ( j = 0; j < basesize; j++ ) total += basis_vectors[sp][j][1];
-
-    for (i = 1; i<(DATA-1); i++ ) {
-      posttotal = 0.0;
-      for ( j = 0; j < basesize; j++ ) posttotal += basis_vectors[sp][j][i+1];
-      if ( (total > 2.0*pretotal) && (total > 2.0*posttotal) ) {
-	for (j = 0; j < basesize; j++ ) basis_vectors[sp][j][i]=0.0;
+    for ( i = 1; i< (DATA-1); i++ ) {
+      pretotal = 0.0;
+      for (j = 1; j < (basesize-1); j++ ) {
+       	pretotal += basis_vectors[sp][j][i];
+	if ( fabs(basis_vectors[sp][j][i]) > ( (basis_vectors[sp][j-1][i]+basis_vectors[sp][j+1][i])*2.0 ) ) {
+	  basis_vectors[sp][j][i]= (basis_vectors[sp][j-1][i]+basis_vectors[sp][j+1][i])/2.0;
+	}
+	if ( fabs(basis_vectors[sp][j][i]) > ( (basis_vectors[sp][j][i-1]+basis_vectors[sp][j][i+1])*4.0 ) ) {
+	  basis_vectors[sp][j][i]= (basis_vectors[sp][j][i+1]+basis_vectors[sp][j][i-1])/2.0;
+	}
       }
-      pretotal = total;
-      total=posttotal;
+      // Look at the upper and lower edges of each strip. Set them to 0, if they are too large
+      if ( fabs(basis_vectors[sp][0][i]) > (pretotal/2.0) ) basis_vectors[sp][0][i]=0.0;
+      if ( fabs(basis_vectors[sp][(basesize-1)][i]) > (pretotal/2.0) ) basis_vectors[sp][(basesize-1)][i]=0.0;
     }
   }
 
