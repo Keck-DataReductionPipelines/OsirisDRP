@@ -1,4 +1,3 @@
-
 /* mkrecmatrx_000.c */
 #include <math.h>
 #include <stdio.h>
@@ -21,7 +20,7 @@ int mkrecmatrx_000(int argc, void* argv[]) {
 
   // Parameters input in IDL calling program
   short int totalParmCount;
-  float weight_limit;
+  float weight_limit, x;
   //int slice;
   Module *pModule;
   DataSet *pDataSet;
@@ -194,11 +193,13 @@ int mkrecmatrx_000(int argc, void* argv[]) {
   // lie on the 2048 X 2048 calibration image.
   // Modified base value to 2056 on Oct 6, 2004 (JEL)
   // Modified base value to 2054 on Feb 27, 2005 (JEL)
+
+  // Temporary trying 2052 on Dec 23, 2009 (JEL)
   sp = 0;
   for (col=0; col<numcolumn; col++ ) {
     for (row=0; row<specpercol; row++ ) {
-      hilo[sp][0]=2054+OFFSET-(31.9*row)-(2*col)-((basesize-1)/2);  // y-pixel lower limit for calibration frame of spectrum no.=sp
-      hilo[sp][1]=2054+OFFSET-(31.9*row)-(2*col)+((basesize-1)/2);  // y-pixel upper limit for calibration frame of spectrum no.=sp
+      hilo[sp][0]=2052+OFFSET-(31.9*row)-(2*col)-((basesize-1)/2);  // y-pixel lower limit for calibration frame of spectrum no.=sp
+      hilo[sp][1]=2052+OFFSET-(31.9*row)-(2*col)+((basesize-1)/2);  // y-pixel upper limit for calibration frame of spectrum no.=sp
       // Checking for top and bottom edges added 10/7/04 (JEL)
       if (hilo[sp][0] < 0) {       // Spectrum is close to the bottom edge
         hilo[sp][0]=0;  // y-pixel lower limit for calibration frame of spectrum no.=sp
@@ -235,7 +236,7 @@ int mkrecmatrx_000(int argc, void* argv[]) {
               basis_vectors[sp][jj][i] = raw_data[j][i];
             } else   // Flagged bad pixel or not effective spectrum
             {
-	      //              basis_vectors[sp][jj][i] = 0.0;
+	      basis_vectors[sp][jj][i] = 0.0;
             }
           }
         }
@@ -279,8 +280,12 @@ int mkrecmatrx_000(int argc, void* argv[]) {
     for (i = 0; i<DATA; i++ )
       for ( j = 0; j < basesize; j++ ) {
         basis_vectors[sp][j][i]=basis_vectors[sp][j][i]/weight[0];
-	//        if (basis_vectors[sp][j][i] < weight_limit)
-	//          basis_vectors[sp][j][i] = 0.0;
+	// Check to see if data is a NAN... If so then set to zero (JEL 12/22/09)
+	x = basis_vectors[sp][j][i];
+	if ( x != x ) {
+	  basis_vectors[sp][j][i] = 0.0;}
+        if (basis_vectors[sp][j][i] < weight_limit)
+          basis_vectors[sp][j][i] = 0.0;
       }
  
  // Now look for bad elements in matrix. Bad is 2x both neighbors in spectral direction or 4x in spatial direction.
@@ -288,12 +293,23 @@ int mkrecmatrx_000(int argc, void* argv[]) {
     for ( i = 1; i< (DATA-1); i++ ) {
       pretotal = 0.0;
       for (j = 1; j < (basesize-1); j++ ) {
+	// Pixels should be between 0 and 1 but noise can make them slightly negative and the psf should make the peak pixels below about 0.8 even in extreme cases. But to make sure we're just killing bad pixels, I'm going to zap values between -0.05 and 1.0.  (JEL 12/23/09)
+	if ( basis_vectors[sp][j][i] < -0.05 ) basis_vectors[sp][j][i]=0.0;
+	if ( basis_vectors[sp][j][i] > 1.0 ) basis_vectors[sp][j][i]=0.0;
+
        	pretotal += basis_vectors[sp][j][i];
 	if ( fabs(basis_vectors[sp][j][i]) > ( (basis_vectors[sp][j-1][i]+basis_vectors[sp][j+1][i])*2.0 ) ) {
 	  basis_vectors[sp][j][i]= (basis_vectors[sp][j-1][i]+basis_vectors[sp][j+1][i])/2.0;
 	}
-	if ( fabs(basis_vectors[sp][j][i]) > ( (basis_vectors[sp][j][i-1]+basis_vectors[sp][j][i+1])*4.0 ) ) {
+	if ( fabs(basis_vectors[sp][j][i]) > ( (basis_vectors[sp][j][i-1]+basis_vectors[sp][j][i+1])*2.0 ) ) {
 	  basis_vectors[sp][j][i]= (basis_vectors[sp][j][i+1]+basis_vectors[sp][j][i-1])/2.0;
+	}
+	if ( fabs(basis_vectors[sp][j][i]) < ( (basis_vectors[sp][j][i-1]+basis_vectors[sp][j][i+1])/2.0 ) ) {
+	  if ( (basis_vectors[sp][j][i-1] > 0.1) ) {
+	    if ( (basis_vectors[sp][j][i+1] > 0.1) ) {
+	      basis_vectors[sp][j][i]= (basis_vectors[sp][j][i+1]+basis_vectors[sp][j][i-1])/2.0;
+	    }
+	  }
 	}
       }
       // Look at the upper and lower edges of each strip. Set them to 0, if they are too large

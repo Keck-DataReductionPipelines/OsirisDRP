@@ -66,9 +66,9 @@
     makeflatfi_COMMON___Debug="1"
     makeflatfi_COMMON___Mode="MED"
 
-    mkrecmatrx_COMMON___slice="14"
+    mkrecmatrx_COMMON___slice="16"
     mkrecmatrx_COMMON___shift="-19"
-    mkrecmatrx_COMMON___weight_limit="0.00"
+    mkrecmatrx_COMMON___weight_limit="0.01"
     mkrectdark_COMMON___Debug="1"
     mkrectdark_COMMON___framesInDark="10"
 
