@@ -47,7 +47,7 @@ RELDAT =
 # This is a release point. Define version macros to override values
 # inherited from the environment
 override SYSNAM = kss/osiris/drs/modules/source/
-override VERNUM = 2.2 
+override VERNUM = 2.2.1 
 
 # Include general make rules (use /etc if no environment variable)
 include $(KROOT)/etc/config.mk
