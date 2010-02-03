@@ -219,6 +219,7 @@ RELPRO   = add_fitskwd_to_header.pro \
 	   sfit_surface.pro \
 	   shift_image.pro \
 	   shift_object.pro \
+	   sigfig.pro \
 	   sigma_poly_fit.pro \
 	   smile.pro \
 	   spec_opt_extract_spec_from_cube_simple.pro \

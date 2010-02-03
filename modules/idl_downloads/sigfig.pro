@@ -9,13 +9,10 @@
 ;        significant figures.
 ;
 ; CALLING SEQUENCE:
-;        RESULT = SigFig(Number, Nfig [, /SCIENTIFIC, /PLUSSES, / 
-NUMERICAL)
-;
+;        RESULT = SigFig(Number, Nfig [, /SCIENTIFIC, /PLUSSES, /NUMERICAL)
 ;
 ; INPUTS:
-;        Number - Scalar or array of numerical values (float, double,  
-int)
+;        Number - Scalar or array of numerical values (float, double, int)
 ;        Nfig   - Number of signficant figures desired in the output
 ;
 ; OUTPUTS:
@@ -24,17 +21,15 @@ int)
 ;
 ; KEYWORD PARAMTERS:
 ;        /SCIENTIFIC - return the numbers in scientific notation
-;        /PLUSSES    - Include plus signs for positive numbers
+;        /PLUSSES    - Include plus signs for positive numbers 
 ;        /NUMERICAL  - Return numerical, rather than string, values
 ;
 ; EXAMPLE:
-;        IDL> print, sigfig(-0.0001234, 2)
-;        -0.00012
-;        IDL> print, sigfig(-0.0001234, 2)
+;        IDL> print, sigfig(-0.0001234, 2)      
 ;        -0.00012
 ;        IDL> print, sigfig(1.234, 1)
 ;        1.
-;        IDL> print, sigfig(1234, 1)
+;        IDL> print, sigfig(1234, 1) 
 ;        1000
 ;        IDL> print, sigfig(-0.0001234, 2, /sci)
 ;        -1.2e-4
@@ -48,80 +43,74 @@ int)
 ;     http://www.cfa.harvard.edu/~erosolow/idl/lib/lib.html#SIGFIG
 ;
 ; This version written by JohnJohn Sept 29, 2005
-; 2006-04-18    Added recursive handling of 1D, 2D, and 3D arrays. - MDP
-;               Will break for arrays >= 4D right now.
+; 2006-04-18	Added recursive handling of 1D, 2D, and 3D arrays. - MDP
+; 		Will break for arrays >= 4D right now.
 
 ;-
 
 ;;; SF_STR - The way STRING() should behave by default
 function sf_str, stringin, format=format
-        return, strcompress(string(stringin, format=format), /rem)
+	return, strcompress(string(stringin, format=format), /rem)
 end
 
 ;;; SF_TRANS_DEC - TRANSlate the DECimal point in a number of order
-;;;                unity, round it, and translate back.
+;;;                unity, round it, and translate back. 
 function sf_trans_dec, numin, nsigin, order_inc=order_inc
-        nel = n_elements(numin)
-        
-        ;;; Double precision can't handle more than 19 sig figs
-        nsig = nsigin < 19
-        
-        
-        ;;; Gonna have to move the decimal nsig-1 places to the right before  
-rounding
-        move = nsig-1
-        len = max(strlen(numin))
-        move = move < (len-1)
-        
-        ;;; Create a string with just the digits, no decimal
-        nodec = strmid(numin, 0, 1)+strmid(numin, 2, len)
-        
-        ;;; Move the decimal, so nsig digits are to the left of the new
-        ;;; decimal position
-        num0 = strmid(nodec,0,1+move)+'.'+strmid(nodec,1+move,len)
-        
-        ;;; Round the new number
-        num1 = sf_str(round(double(num0),/l64))
-        len1 = strlen(num1)
-        
-        
-        ;;; If the number increases an order of magnitude after rounding, set
-        ;;; order_inc=1 so the calling routine knows to add one to the order
-        ;;; of magnitude
-        order_inc = len1 gt nsig
-        ;;; Move the decimal back and return to sender
-        num  = strmid(num1, 0, 1)+'.'+strmid(num1, 1, nsig-1)
-        return, num
+	nel = n_elements(numin)
+	
+	;;; Double precision can't handle more than 19 sig figs
+	nsig = nsigin < 19
+	
+	;;; Gonna have to move the decimal nsig-1 places to the right before rounding
+	move = nsig-1
+	len = max(strlen(numin))
+	move = move < (len-1)
+	
+	;;; Create a string with just the digits, no decimal
+	nodec = strmid(numin, 0, 1)+strmid(numin, 2, len)
+	
+	;;; Move the decimal, so nsig digits are to the left of the new
+	;;; decimal position
+	num0 = strmid(nodec,0,1+move)+'.'+strmid(nodec,1+move,len)
+	
+	;;; Round the new number
+	num1 = sf_str(round(double(num0),/l64))
+	len1 = strlen(num1)
+	
+	;;; If the number increases an order of magnitude after rounding, set
+	;;; order_inc=1 so the calling routine knows to add one to the order 
+	;;; of magnitude
+	order_inc = len1 gt nsig
+	;;; Move the decimal back and return to sender
+	num  = strmid(num1, 0, 1)+'.'+strmid(num1, 1, nsig-1)
+	return, num
 end
 
 function sigfig, NumIn, Nfig $
-                  , string_return=string_return $
-                  , scientific=scientific $
-                  , numerical=numerical $
-                  , plusses=plusses
+                 , string_return=string_return $
+                 , scientific=scientific $
+                 , numerical=numerical $
+                 , plusses=plusses
 
 ;;; MDP additions for multi-d arrays
 sz = size(numin)
-case sz[0] of
-        1:  begin
-                ; Handle 1D arrays
-                if n_elements(numin) eq 1 then return, sigfig(numin[0],nfig)
-                return, [sigfig(numin[0],nfig), sigfig(numin[1:*],nfig)]
-        end
-        2:  begin
-                ; Handle 2D arrays
-                return, [[sigfig(numin[*,0],nfig)],
-[sigfig(numin[*,1:*],nfig)]]
-        end
-        3:  begin
-                ; Handle 3D arrays
-                return, [[[sigfig(numin[*,*,0],nfig)]], [[sigfig(numin[*,*, 
-1:*],nfig)]]]
-        end
-        4: message, "SIGFIG can't handle 4D arrays!"
-
-        5: message, "SIGFIG can't handle 5D arrays!"
-        else: break ; continue below
+case sz[0] of 
+	1:  begin
+		; Handle 1D arrays
+		if n_elements(numin) eq 1 then return, sigfig(numin[0],nfig)
+		return, [sigfig(numin[0],nfig), sigfig(numin[1:*],nfig)]
+	end
+	2:  begin
+		; Handle 2D arrays
+		return, [[sigfig(numin[*,0],nfig)], [sigfig(numin[*,1:*],nfig)]]
+	end
+	3:  begin
+		; Handle 3D arrays
+		return, [[[sigfig(numin[*,*,0],nfig)]], [[sigfig(numin[*,*,1:*],nfig)]]]
+	end
+	4: message, "SIGFIG can't handle 4D arrays!"
+	5: message, "SIGFIG can't handle 5D arrays!"
+	else: break ; continue below
 endcase
 ;;; end MDP additions
 
@@ -136,7 +125,7 @@ Epos = strpos(TestString[0], 'e')
 ;;; Test sign of the order
 Osign = intarr(Nel)+1
 StrOsign = strmid(TestString, Epos+1, 1)
-Wneg = where(strosign eq '-', Nneg)
+Wneg = where(strosign eq '-', Nneg) 
 if Nneg gt 0 then Osign[Wneg] = -1
 
 ;;; Test sign of numbers, form string of minus signs for negative vals
@@ -157,23 +146,22 @@ Len = strlen(NumTrans[0])
 
 ;;; Exit early without looping for /NUMERICAL or /SCIENTIFIC
 if keyword_set(numerical) then begin
-     NumRound = NegSign+NumTrans+'e'+StrOsign+sf_str(Order)
-     return, double(NumRound)
+    NumRound = NegSign+NumTrans+'e'+StrOsign+sf_str(Order)
+    return, double(NumRound)
 endif
 if keyword_set(scientific) then begin
-     NumRound = NegSign+NumTrans+'e'+StrOsign+sf_str(Order)
-     return, NumRound
+    NumRound = NegSign+NumTrans+'e'+StrOsign+sf_str(Order)
+    return, NumRound
 endif
 
 NumRound = strarr(Nel)
 for i = 0, Nel-1 do begin
-     if Osign[i]*Order[i]+1 gt Nfig then Format = '(I40)' else begin
-         d = sf_str(fix(Nfig-(Osign[i]*Order[i])-1) > 0)
-         Format = '(F40.' + d + ')'
-     endelse
-     New = NumTrans[i] * 10d^(Osign[i] * Order[i])
-     NumRound[i] = NegSign[i]+sf_str(New, format=Format)
+    if Osign[i]*Order[i]+1 gt Nfig then Format = '(I40)' else begin
+        d = sf_str(fix(Nfig-(Osign[i]*Order[i])-1) > 0)
+        Format = '(F40.' + d + ')'
+    endelse
+    New = NumTrans[i] * 10d^(Osign[i] * Order[i])
+    NumRound[i] = NegSign[i]+sf_str(New, format=Format)
 endfor
 return, NumRound
 end
-
