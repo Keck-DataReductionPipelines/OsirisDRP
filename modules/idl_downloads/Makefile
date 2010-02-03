@@ -255,7 +255,7 @@ RELPRO   = add_fitskwd_to_header.pro \
 PROSUB = odrs/modules/idl_downloads
 
 override SYSNAM = kss/osiris/drs/modules/idl_downloads/
-override VERNUM = 1.4
+override VERNUM = 2.2 
 
 #  Include general make rules (use /etc if no environment variable).
 
