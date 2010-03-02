@@ -36,6 +36,10 @@
 ;
 ; @AUTHOR  James Larkin
 ;
+; @Modified Shelley Wright & James Larkin (July 2009)
+; 	Made the wavelength soln follow as a funcation of tempertaure
+;	And Fixed Quality Bits to retain bytes 
+;
 ; @END
 ;
 ;-----------------------------------------------------------------------
@@ -98,12 +102,76 @@ FUNCTION assembcube_000, DataSet, Modules, Backbone
    if ( minl lt 1450.0 ) then order = 5   ; J Band or shorter
    if ( minl lt 1160.0 ) then order = 6   ; Z band
 
+   ; Coefficents of thermal expansion of Al for a given temperature (K) 
+   CTE = [[90,-0.003763785],$
+	[89,-0.003774049],$
+	[88,-0.003784192],$
+	[87,-0.003794211],$
+	[86,-0.003804107],$
+	[85,-0.003813879],$
+	[84,-0.003823527],$
+	[83,-0.003833049],$
+	[82,-0.003842445],$
+	[81,-0.003851715],$
+	[80,-0.003860858],$
+	[79,-0.003869873],$
+	[78,-0.00387876],$
+	[77,-0.003887518],$
+	[76,-0.003896146],$
+	[75,-0.003904645],$
+	[74,-0.003913012],$
+	[73,-0.003921249],$
+	[72,-0.003929353],$
+	[71,-0.003937326],$
+	[70,-0.003945165],$
+	[69,-0.00395287],$
+	[68,-0.003960441],$
+	[67,-0.003967877],$
+	[66,-0.003975178],$
+	[65,-0.003982343],$
+	[64,-0.00398937],$
+	[63,-0.003996261],$
+	[62,-0.004003014],$
+	[61,-0.004009628],$
+	[60,-0.004016103],$
+	[59,-0.004022438],$
+	[58,-0.004028633],$
+	[57,-0.004034687],$
+	[56,-0.0040406],$
+	[55,-0.00404637],$
+	[54,-0.004051998],$
+	[53,-0.004057482],$
+	[52,-0.004062822],$
+	[51,-0.004068018],$
+	[50,-0.004073069],$
+	[49,-0.004077974],$
+	[48,-0.004082732],$
+	[47,-0.004087344],$
+	[46,-0.004091808],$
+	[45,-0.004096124]]
+
+   ; Read in header to get temperatures of TMA housing 
+   TMA = sxpar(*DataSet.Headers[0],'DTMP7')
+
+   ; Now find the coefficent given the current temperature data
+   cotemp = interpol(CTE[1,*],CTE[0,*],TMA)
+
+   ; Now find the coefficent to the reference wavelength soln (060701) where T=50.73K
+   coref = interpol(CTE[1,*],CTE[0,*],50.73)
+
+   ; Fraction of expansion/shrinking of the Al grating 
+   frac_expan = (1 + cotemp) / (1 + coref) 
+
    ; Create a look-up table of wavelengths for each of the spectral slices.
    lambda = disp*findgen(npix)+minl
 
    ; Scale the wavelength to the 3rd order where the fit was determined
-   ; and add midwave.
    lambda = lambda * float(order) / 3.0
+
+   ; Apply temperature dependence to wavelength soln (found from Al coefficents above)
+   lambda = lambda / frac_expan 
+
+   ; and add midwave defined above
    lambda = lambda - midwave
 
    ; Read in the matrix of coefficients used for fitting pixel as a function
@@ -228,11 +296,10 @@ FUNCTION assembcube_000, DataSet, Modules, Backbone
                    if ( good[0] ne -1 ) then begin
                        Frame[*,row,col]=interpol((*DataSet.Frames[q])[good,sp],abscissa[good],pixels)
                        IntFrame[*,row,col]=interpol((*DataSet.IntFrames[q])[good,sp],abscissa[good],pixels)
-
                        ; Initially interpolate bad pixel map
                    endif
-                   IntAuxFrame[*,row,col]=interpol((*DataSet.IntAuxFrames[q])[*,sp],abscissa[*],pixels)
-;                   IntAuxFrame[*,row,col]=9
+                   IntAuxFrame[*,row,col]= interpol((*DataSet.IntAuxFrames[q])[*,sp],abscissa[*],pixels)
+                   ;IntAuxFrame[*,row,col]=9
                end
            end
         endif else begin
@@ -249,9 +316,9 @@ FUNCTION assembcube_000, DataSet, Modules, Backbone
                     if ( good[0] ne -1 ) then begin
                         Frame[*,row,col]=interpol((*DataSet.Frames[q])[good,sp],abscissa[good],pixels)
                         IntFrame[*,row,col]=interpol((*DataSet.IntFrames[q])[good,sp],abscissa[good],pixels)
-                    endif
-                    IntAuxFrame[*,row,col]=interpol((*DataSet.IntAuxFrames[q])[*,sp],abscissa[*],pixels)
-;                    IntAuxFrame[*,row,col]=9
+	            endif
+                    IntAuxFrame[*,row,col]= interpol((*DataSet.IntAuxFrames[q])[*,sp],abscissa[*],pixels)
+                    ;IntAuxFrame[*,row,col]=9
                 endif
                 ; Extract 2nd block of 16x64 spectra
                 row = (sp mod (nrows-2))+1
@@ -264,9 +331,9 @@ FUNCTION assembcube_000, DataSet, Modules, Backbone
                     if ( good[0] ne -1 ) then begin
                         Frame[*,row,col]=interpol((*DataSet.Frames[q])[good,sp],abscissa[good],pixels)
                         IntFrame[*,row,col]=interpol((*DataSet.IntFrames[q])[good,sp],abscissa[good],pixels)
-                    endif
-                    IntAuxFrame[*,row,col]=interpol((*DataSet.IntAuxFrames[q])[*,sp],abscissa[*],pixels)
-;                    IntAuxFrame[*,row,col]=9
+		    endif
+                    IntAuxFrame[*,row,col]= interpol((*DataSet.IntAuxFrames[q])[*,sp],abscissa[*],pixels)
+                    ;IntAuxFrame[*,row,col]=9
                 endif
                 ; Extract 3rd block of 16x64 spectra
                 row = (sp mod (nrows-2))
@@ -279,9 +346,9 @@ FUNCTION assembcube_000, DataSet, Modules, Backbone
                     if ( good[0] ne -1 ) then begin
                         Frame[*,row,col]=interpol((*DataSet.Frames[q])[good,sp],abscissa[good],pixels)
                         IntFrame[*,row,col]=interpol((*DataSet.IntFrames[q])[good,sp],abscissa[good],pixels)
-                    endif
-                    IntAuxFrame[*,row,col]=interpol((*DataSet.IntAuxFrames[q])[*,sp],abscissa[*],pixels)
-;                    IntAuxFrame[*,row,col]=9
+			endif
+                    IntAuxFrame[*,row,col]= interpol((*DataSet.IntAuxFrames[q])[*,sp],abscissa[*],pixels)
+                    ;IntAuxFrame[*,row,col]=9
                 endif
                 ; Extract extract few spectra
                 if ( sp gt 831 ) then begin
@@ -295,9 +362,9 @@ FUNCTION assembcube_000, DataSet, Modules, Backbone
                         if ( good[0] ne -1 ) then begin
                             Frame[*,row,col]=interpol((*DataSet.Frames[q])[good,sp],abscissa[good],pixels)
                             IntFrame[*,row,col]=interpol((*DataSet.IntFrames[q])[good,sp],abscissa[good],pixels)
-                        endif
-                        IntAuxFrame[*,row,col]=interpol((*DataSet.IntAuxFrames[q])[*,sp],abscissa[*],pixels)
-;                        IntAuxFrame[*,row,col]=9
+			endif
+                        IntAuxFrame[*,row,col]= interpol((*DataSet.IntAuxFrames[q])[*,sp],abscissa[*],pixels)
+			;IntAuxFrame[*,row,col]=9
                     endif
                 endif
             end
@@ -307,16 +374,15 @@ FUNCTION assembcube_000, DataSet, Modules, Backbone
         ; interpolated value will be less than  9. Set such a pixel to 0 to mark it
         ; as bad. This means one bad pixel in the unstretched cubes will become at
         ; least 2 bad pixels in the end.
-        bad = where( IntAuxFrame lt 9 )
-        if ( bad[0] ne -1 ) then begin
+	bad = where(IntAuxFrame ne 9)
+	if ( bad[0] ne -1 ) then begin
             IntAuxFrame[bad] = 0
-;            Frame[bad]=0.0
         endif
 
-        good = where(IntAuxFrame gt 0 )
-        if ( good[0] ne -1 ) then begin
-            IntAuxFrame[good] = 9
-        endif
+        ;good = where(IntAuxFrame gt 0 )
+        ;if ( good[0] ne -1 ) then begin
+        ;    IntAuxFrame[good] = 9
+        ;endif
 
         ; Make the new cubes the valid data frames.
         tempPtr = PTR_NEW(/ALLOCATE_HEAP) ; Create a temporary reference pointer
@@ -333,7 +399,7 @@ FUNCTION assembcube_000, DataSet, Modules, Backbone
         ; Make the new cubes the valid quality frames.
         tempPtr = PTR_NEW(/ALLOCATE_HEAP) ; Create a temporary reference pointer
         *tempPtr = *DataSet.IntAuxFrames[q]     ; Point it at the old location
-        *DataSet.IntAuxFrames[q]=IntAuxFrame          ; Set the Frames pointer to the new location
+        *DataSet.IntAuxFrames[q]=IntAuxFrame   ; Set the Frames pointer to the new location
         PTR_FREE, tempPtr                 ; Free the memory at the old location
 
         n_dims = size(*DataSet.Frames[q])
@@ -366,6 +432,7 @@ FUNCTION assembcube_000, DataSet, Modules, Backbone
 
 	   if (ra_count eq 0 or dec_count eq 0 or pa_count eq 0 or n_sf eq 0) then begin
     		warning, 'WARNING (' + functionName + '): Some crucial keywords missing from header! '
+print,'cotemp ',cotemp
     		warning, 'WARNING (' + functionName + '): Therefore the resulting WCS information will surely be wrong. '
 			sxaddhist, 'WARNING (' + functionName + '): Some crucial keywords missing from header! ', *DataSet.Headers[q]
     		sxaddhist, 'WARNING (' + functionName + '): Therefore the resulting WCS information will surely be wrong. ', *DataSet.Headers[q]
@@ -447,12 +514,6 @@ FUNCTION assembcube_000, DataSet, Modules, Backbone
 ;       end
 ;   end
  
-
-
-
-
-
-
 
 
 

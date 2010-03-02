@@ -68,7 +68,8 @@
 ;		added RA and DEC header for mosaiced frame 
 ;       Modified 21 March 2008 - SAW and JEL
 ;               modified to include Kc filters
-;
+;	Modified Feb 2009 - Shelley Wright
+;		fixed LGS offsets that J. Lu discovered 
 ;-----------------------------------------------------------------------
 
 FUNCTION mosaic_000, DataSet, Modules, Backbone

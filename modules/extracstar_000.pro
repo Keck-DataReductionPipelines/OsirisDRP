@@ -47,6 +47,8 @@
 ; @STATUS not tested
 ;
 ; @HISTORY 05.25.2007, created
+; 	2010-01-13   Added Method= keyword, and various multiple methods
+; 	             for extraction. - M Perrin
 ;
 ; @AUTHOR  James Larkin
 ;          Based on Extract Telluric Spectrum by Shelley Wright
@@ -60,6 +62,8 @@ FUNCTION extracstar_000, DataSet, Modules, Backbone
    COMMON APP_CONSTANTS
 
    functionName = 'extracstar_000'
+   thisModuleIndex = drpModuleIndexFromCallSequence(Modules, functionName)
+   if tag_exist( Modules[thisModuleIndex], "Method") then Method=strupcase(strtrim(Modules[thisModuleIndex].Method, 2)) else Method="APER_RADIUS7"
 
    ; save starting time
    T = systime(1)
@@ -70,7 +74,13 @@ FUNCTION extracstar_000, DataSet, Modules, Backbone
    BranchID = Backbone->getType()
    nFrames  = Backbone->getValidFrameCount(DataSet.Name)
 
-   radius = 7.0 ; Aperture radius to use
+   if Method eq "APER_RADIUS7" then begin
+	   radius = 7.0 ; Aperture radius to use
+	   skyradii= [8,9]
+   endif else if Method eq "APER_RADIUS10" then begin
+		radius = 10.0 ; Aperture radius to use
+	    skyradii= [15,20]
+	endif
 
    for q=0, nFrames-1 do begin
        sz = size(*DataSet.Frames[q])
@@ -80,28 +90,55 @@ FUNCTION extracstar_000, DataSet, Modules, Backbone
            warning, ' WARNING ('+ functionName + '): Stellar extraction requires at least 5 spectral channels.'
        endif else begin
        ; create final 1-d arrays for storing data.
-           Frame       = make_array(sz[1],/FLOAT)
-           IntFrame    = make_array(sz[1],/FLOAT)
-           IntAuxFrame = make_array(sz[1],/BYTE)
-           image = make_array(sz[2],sz[3],/FLOAT) ; Temporary 2-d image to store partially collapsed cubes.
+           	Frame       = make_array(sz[1],/FLOAT)
+           	IntFrame    = make_array(sz[1],/FLOAT)
+           	IntAuxFrame = make_array(sz[1],/BYTE)
+           	image = make_array(sz[2],sz[3],/FLOAT) ; Temporary 2-d image to store partially collapsed cubes.
+		   	;---------------------------------------------------------------
 
-           image = median((*DataSet.Frames[q])[*,*,*],dimension=1) ; Create collapsed 2-d frame
-           gaus = gauss2dfit(image[2:(sz[2]-2),2:(sz[3]-2)],A)
-           xcen=A[4]+2.0
-           ycen=A[5]+2.0
-           if ( (xcen lt 4.0) or (xcen gt (sz[2]-4.0)) or (ycen lt 4.0) or $
-                (ycen gt (sz[3]-4.0)) ) then begin
-                  print, xcen, (sz[2]-4.0), ycen, (sz[3]-4.0)
-                  return, error('ERROR IN CALL ('+strtrim(functionName)+ $
-               '): Star is too close to edge for simple aperture extraction.;)')
-              end
-           for k = 0, sz[1]-1 do begin
-               image = reform((*DataSet.Frames[q])[k,*,*])
-               aper,image,xcen,ycen,flux,errap,sky,skyerr,1.0,radius,[8,9],[-32000,32000],setskyval=0.0,/FLUX,/SILENT
-               Frame[k]=flux
-               IntFrame[k]=0.0
-               IntAuxFrame[k]=9
-           endfor
+			;--- extract via aperture photometry
+			if Method eq "APER_RADIUS7" or Method eq "APER_RADIUS10" then begin
+			   image = median((*DataSet.Frames[q])[*,*,*],dimension=1) ; Create collapsed 2-d frame
+			   gaus = gauss2dfit(image[2:(sz[2]-2),2:(sz[3]-2)],A)
+			   xcen=A[4]+2.0
+			   ycen=A[5]+2.0
+			   thresh = ceil(radius/2)
+			   if ( (xcen lt thresh) or (xcen gt (sz[2]-thresh)) or (ycen lt thresh) or $
+					(ycen gt (sz[3]-thresh)) ) then begin
+					  print, xcen, (sz[2]-thresh), ycen, (sz[3]-thresh)
+					  return, error('ERROR IN CALL ('+strtrim(functionName)+ $
+				   '): Star is too close to edge for simple aperture extraction.;)')
+				  end
+			   for k = 0, sz[1]-1 do begin
+				   image = reform((*DataSet.Frames[q])[k,*,*])
+				   aper,image,xcen,ycen,flux,errap,sky,skyerr,1.0,radius,[8,9],[-32000,32000],setskyval=0.0,/FLUX,/SILENT
+				   Frame[k]=flux
+				   IntFrame[k]=0.0
+				   IntAuxFrame[k]=9
+			   endfor
+			endif
+			
+			;--- just total the whole cube:
+			if Method eq "TOTAL" then begin
+				Frame = total(total(  (*DataSet.Frames[q]), 3), 2)
+				IntFrame = Frame*0
+				IntAuxFrame += 9b
+
+
+			endif
+
+			;--- PSF Fitting via Gaussian/Moffat profiles
+			;    a la Conor Laver's method
+			if Method eq "PSFFIT" then begin
+				message, "Not implemented yet!"
+
+			endif
+
+
+
+           	SXADDHIST, functionname+": Extracted star via method "+method,  *DataSet.Headers[q]
+
+		   ;---------------------------------------------------------------
 
            ; Make the new cubes the valid data frames.
            tempPtr = PTR_NEW(/ALLOCATE_HEAP) ; Create a temporary reference pointer
@@ -136,7 +173,7 @@ FUNCTION extracstar_000, DataSet, Modules, Backbone
        end
 
        report_success, functionName, T
-   end
+   end  ; end of for loop over files
 
    return, OK
 

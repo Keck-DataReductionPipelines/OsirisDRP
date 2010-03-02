@@ -29,8 +29,17 @@
 ;
 ; @@@@NOTES  - The inside bit is ignored.
 ;            - Input frames must be 2d.
+;
+; @STATUS  not tested
+;
+; @HISTORY  5.29.2005, created
+;
+; @AUTHOR  James Larkin
+;
+; @MODIFICATIONS
 ;            - On June 5, 2006 changed it to only look prependicular
 ;              to spectra. JEL
+;
 ;            - Also started checking the date of the observations. If
 ;              it is after May 18, 2006, then ignore the lowest
 ;              channel in the upper right quad. This includes marking
@@ -38,13 +47,11 @@
 ;              date against 53873 (May 18, 2006).
 ;
 ;            - Bad channel was fixed on June 27, 2006, so added check
-;              if Julian date is after 53913.
+;              if Julian date is after 53913. (SAW/JEL)
 ;
-; @STATUS  not tested
-;
-; @HISTORY  5.29.2005, created
-;
-; @AUTHOR  James Larkin
+;	     - When temps are high (>75 K) threshold needs to be modified
+;		dependent on julian date from 01/2009 to 10/2009
+;		(SAW - Oct 2009)
 ;
 ; @END
 ;
@@ -78,9 +85,14 @@ FUNCTION adjchan_000, DataSet, Modules, Backbone
         ; Calculate and subtract the difference between neighboring
         ; channels. Only subtract if the difference is less than 5
         ; datanumbers when corrected back to the total exposure time.
-        itime = float(SXPAR(head,"ITIME",/SILENT))
-        maxdiff = 4.0/itime
-        print, 'Maximum allowed offset= ', maxdiff
+ 
+
+	;; Added a julian date search for high temp data in 2009A/B (saw edit)
+	;; and changed the threshold for detecting difference in channels 
+     itime = float(SXPAR(head,"ITIME",/SILENT))
+     if (jul_date ge 54832.5) and (jul_date le 55114.5) then maxdiff = 6.0/itime $
+		else maxdiff = 4.0/itime
+     print, 'Maximum allowed offset= ', maxdiff
 
         ; For each channel boundary use 5 different sets of columns in order
         ; to find true background in the case that a spectrum spans the

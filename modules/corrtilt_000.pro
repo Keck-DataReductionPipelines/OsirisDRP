@@ -207,11 +207,14 @@ end
 ;  </DRF>
 ;              \end{verbatim}
 ;
-; @STATUS  partially tested
-;
 ; @HISTORY  5.9.2006, created
 ;
 ; @AUTHOR   Christof Iserlohe (iserlohe@ph1.uni-koeln.de)
+;		James Larkin, Mike McElwain, Shelley Wright (2007) 
+;		modified and applied originally routine as Correct Dispersion
+;
+; @MODIFIED Shelley Wright (July 2009) to correctly handle quality bits 
+;		extension 2 of reduced fits
 ;
 ; @END
 ;
@@ -222,6 +225,7 @@ FUNCTION corrtilt_000, DataSet, Modules, Backbone
     COMMON APP_CONSTANTS
 
     functionName = 'corrtilt_000'
+
 
     ; save the starting time
     T = systime(1)
@@ -512,7 +516,13 @@ FUNCTION corrtilt_000, DataSet, Modules, Backbone
 
          end ; loop over the slices of set i
 
-         ; replace the ith dataset with the enlarged and shifted ith dataset
+         ;Return the Quality Bits to integers of 0(bad) and 9(good) - saw(July 2009)
+	    bad = where(cb_IntAuxFrames ne 9)
+	    if ( bad[0] ne -1 ) then begin
+                  cb_IntAuxFrames[bad] = 0
+            endif
+
+	  ; replace the ith dataset with the enlarged and shifted ith dataset
          *pcb_IntAuxFrame = reform(cb_IntAuxFrames)
          *pcf_IntFrame    = reform(cf_IntFrames)
          *pcf_Frame       = reform(cf_Frames)

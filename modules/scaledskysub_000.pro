@@ -52,21 +52,28 @@
 ;
 ;  /show_plots	flag for whether or not to show plots. Default is 1, True.
 ;
-;  thermal_method=  How to handle thermal background in K? Should it be
-;  		 	separately scaled, or just ignored? Default is to not do anything
-;  		 	special (e.g. ignore it) which seems to work OK in a few test cases,
-;  		 	but may not work if, say, the temperature is varying a lot. In which
-;  		 	case you'll probably have to hack on this module to make it do
-;  		 	something smarter.
+; Scale_K_Continuum = allow for continuum scaling in K band via
+;                     smoothing the sky spectra vs. fitting a thermal
+;                     function.  (Default = Yes)
+;
 ;
 ; STATUS : tested on a limited amount of Jbb, Hbb, Kbb data. 
 ;		   Seems to work reasonably well, but NOT YET EXTENSIVELY TESTED.
 ;
-; HISTORY : 2007-12-05, created
-;
 ; AUTHOR : Marshall Perrin, mperrin@ucla.edu
 ; 		   Code developed 2007-10-14 through 2007-12-06
 ; 		   Based on skysub.pro by R. Davies. See Davies 2007 MNRAS.
+;
+; HISTORY : 2007-12-05, created
+;	           - Now includes scaling of thermal (J. Lu May 2009)
+;		   - Fixed scaling of thermal to add back in to final cube (S. Wright May 2009)
+;		   - Fixed which sky spaxels are used for scaling (S. Wright June 2009)
+;		   - Fixed Quality bit and NAN handling (Q. Konopacky / S.Wright Jan 2010)
+;		   - Includes Z-band range as well (S. Wright Feb 2010)
+;                  - Added continuum scaling for proper thermal scaling
+;                  in K band, added Scale_K_Continuum variable,
+;                  commented out thermal_method variable and thermal
+;                  fitting (Q. Konopacky Feb 2010)
 ;
 ;-----------------------------------------------------------------------
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -154,7 +161,7 @@ end
 
 FUNCTION scaledskysub_000, DataSet, Modules, Backbone
 
-    COMMON APP_CONSTANTS
+        COMMON APP_CONSTANTS
 	common fitsky_par, objlr,skylr,llr,line_regions,cont_regions
 	common fitbkg_par, xlr,ylr,wlr,temp,thermal
 
@@ -162,6 +169,8 @@ FUNCTION scaledskysub_000, DataSet, Modules, Backbone
 ; and now for some constants which describe the various OH spectral bands.
 
 l_boundary = [0.998, 1.067,1.125,1.196,1.252,1.289,1.400,1.472,1.5543,1.6356,1.7253,1.840,1.9570,2.095,2.30d, 2.40]
+
+
               ; wavelengths of boundaries between line groups
               ; corresponding to transitions 5-2 to 9-7
 
@@ -198,12 +207,15 @@ l_rotmed = [1.00282,1.02139,1.04212,1.07539,1.09753,1.13542,1.15917,1.20309,1.22
 
 
 
-	if tag_exist( Modules[thisModuleIndex], "Thermal_Method") then Thermal_Method = string(Modules[thisModuleIndex].Thermal_Method) else Thermal_Method="IGNORE"
-	if tag_exist( Modules[thisModuleIndex], "max_sky_fraction") then maxfrac = float(Modules[thisModuleIndex].max_sky_fraction) else maxfrac=0.25
+;	if tag_exist( Modules[thisModuleIndex], "Thermal_Method") then Thermal_Method = string(Modules[thisModuleIndex].Thermal_Method) else Thermal_Method="IGNORE"
+	if tag_exist( Modules[thisModuleIndex], "Scale_K_Continuum") then Scale_K_Continuum = string(Modules[thisModuleIndex].Scale_K_Continuum) else Scale_K_Continuum="Yes"
+        if tag_exist( Modules[thisModuleIndex], "max_sky_fraction") then maxfrac = float(Modules[thisModuleIndex].max_sky_fraction) else maxfrac=0.25
 	if tag_exist( Modules[thisModuleIndex], "min_sky_fraction") then minfrac = float(Modules[thisModuleIndex].min_sky_fraction) else minfrac=0.10
 	if tag_exist( Modules[thisModuleIndex], "line_halfwidth") then linehalfwidth = fix(Modules[thisModuleIndex].line_halfwidth) else linehalfwidth=4
 	if tag_exist( Modules[thisModuleIndex], "show_plots") then show_plots = strupcase(strtrim(Modules[thisModuleIndex].show_plots, 2)) eq "YES" else show_plots=1
 	; TODO what is the optimum default for OSIRIS???
+
+
 
 
 	pm_y = 5  ; how many panels in the plot?
@@ -216,13 +228,15 @@ l_rotmed = [1.00282,1.02139,1.04212,1.07539,1.09753,1.13542,1.15917,1.20309,1.22
                       strtrim(string(skyfilename),2) + ' not found.' )
 	if (strmid(skyfilename,4,5,/reverse_offset) ne '.fits') then skyfilename += ".fits" 
 	sky = float(readfits(skyfilename,hdrs))
-	sky_IntFrame = readfits(skyfilename, ext=1) 
+	sky_hold = sky
+        sky_IntFrame = readfits(skyfilename, ext=1) 
 	sky_IntAuxFrame = readfits(skyfilename, ext=2) ; mask out bad pixels (outside FoV, etc) using OSIRIS quality flag extension
 	wbad = where(sky_IntAuxFrame eq 0, badct)
 	if badct gt 0 then sky[wbad] = !values.f_nan
 	
 	sky = transpose(sky, [1,2,0]) ; re-arrange to wavelength last.
-	
+        sky_hold = transpose(sky_hold, [1,2,0])
+
 	skyfilter = sxpar(hdrs, 'SFILTER')
 	crvals = sxpar(hdrs,'CRVAL1') ; get wavelength solution for sky
 	cdelts = sxpar(hdrs,'CDELT1')
@@ -237,16 +251,16 @@ l_rotmed = [1.00282,1.02139,1.04212,1.07539,1.09753,1.13542,1.15917,1.20309,1.22
 
 	;=== Read in the Input data ===
 		obj=*DataSet.Frames[i] 
-		quality= *DataSet.IntAuxFrames[i] 
+                quality= *DataSet.IntAuxFrames[i] 
 		wbad = where(quality eq 0, badct)
 		;obj0 = *DataSet.Frames[i]
-		if badct gt 0 then obj[wbad] = !values.f_nan
+		if badct gt 0 then obj[wbad] = !values.f_nan 
 		;atv, [transpose(obj ne 0), transpose(quality)],/bl
-
-
-
+                
 		delvarx, quality
 		obj = transpose(obj, [1,2,0]) ; re-arrange to wavelength last.
+                
+
 		; TODO re-work this using EXTAST3 for generality.
 		
 
@@ -264,7 +278,7 @@ l_rotmed = [1.00282,1.02139,1.04212,1.07539,1.09753,1.13542,1.15917,1.20309,1.22
 		zsize  = sxpar(*DataSet.Headers[i],'NAXIS1')
 		lambda = ((dindgen(zsize)+1-crpixo)*cdelto+crvalo) / 1000.0 ; wavelen in microns
 	
-		lrange = where((lambda ge jbb_range[0] and lambda le jbb_range[1]) or (lambda ge hbb_range[0] and lambda le hbb_range[1]) or (lambda ge kbb_range[0] and lambda le kbb_range[1]))
+		lrange = where((lambda ge zbb_range[0] and lambda le zbb_range[1]) or (lambda ge jbb_range[0] and lambda le jbb_range[1]) or (lambda ge hbb_range[0] and lambda le hbb_range[1]) or (lambda ge kbb_range[0] and lambda le kbb_range[1]))
 		if (n_elements(lambdamask) eq 0) then mrange = lrange else  mrange = where(lambda ge lambdamask[0] and lambda le lambdamask[1])
 		
 		;estimate noise in object cube
@@ -294,9 +308,24 @@ l_rotmed = [1.00282,1.02139,1.04212,1.07539,1.09753,1.13542,1.15917,1.20309,1.22
 		good_im = fltarr(xsize,ysize) ; good pixels
 		image = fltarr(xsize,ysize) ; collapsed image
 
+
+		; Account for edge effects (saw edited in)
+		edge = obj
+
+		for iii=0, xsize-1 do begin
+			for jjj=0, ysize-1 do begin
+					specabs = abs(edge[iii,jjj,*]) 
+					if min(specabs) eq 0.0 then edge[iii,jjj,*] = 0.0		
+			endfor
+                     endfor
+
+
 		;flag voxels which have LOW values, no more than 2 sigma above the cube mean.
-		flag = where(finite(obj) and obj lt centre+2*sigma)
+		flag = where(finite(obj) and obj lt centre+2*sigma and edge ne 0.0) ;saw edited here
+		;flag = where(finite(obj) and obj lt centre+2*sigma) ; old 
 		flagdata[flag] = 1
+
+
 	
 		; which spaxels have at least half the spectral pixels finite?
 		finite_count_im = total(finite(obj[*,*,mrange]),3)
@@ -304,15 +333,18 @@ l_rotmed = [1.00282,1.02139,1.04212,1.07539,1.09753,1.13542,1.15917,1.20309,1.22
 		; MDP addition for OSIRIS: Also discard all pixels within 1 pixel of the
 		; edge of the FOV. This is because those edge pixels are not always properly
 		; illuminated.
-		good_im =  erode(good_im , replicate(1,3,3))
+		good_im =  erode(good_im , replicate(1,5,3))	; SAW edited where edges on long sides are treated better
+		;good_im =  erode(good_im , replicate(1,3,3))
 		if (total(good_im) lt 1) then return, error('no good spaxels in the object cube!')
+
+
 		
 		flag_im = total((flagdata[*,*,mrange] gt 0.5),3)
 		ratio_im = (float(flag_im)/finite_count_im) * good_im   ; what is ratio of flagged low (sky) vs. good pixels?
 		image = total(obj[*,*,mrange],3,/nan) / finite_count_im * good_im
 	
 		;choose pixels which seem to be sky (ie >95% of spectral pixels are flagged)
-		thresh = 0.95
+		thresh = 0.80	;0.95 - saw edited
 		mask = fltarr(xsize,ysize)
 		r2 = where(ratio_im ge thresh,r2i)
 		if (r2i gt 0) then mask[r2] = 1
@@ -386,7 +418,7 @@ l_rotmed = [1.00282,1.02139,1.04212,1.07539,1.09753,1.13542,1.15917,1.20309,1.22
 		            objspectrum[j] = avg
 		        endelse
 		    endif
-		    skyslice = sky[*,*,j]
+                    skyslice = sky[*,*,j]
 		    pos = where(mask gt 0.5 and finite(skyslice),pos_count)
 		    if (pos_count ge 1) then begin
 		        if (pos_count) lt 3 then begin
@@ -401,70 +433,76 @@ l_rotmed = [1.00282,1.02139,1.04212,1.07539,1.09753,1.13542,1.15917,1.20309,1.22
 		    endif
 		endfor
 		
+                ;=== remove thermal background from integrated OH spectrum ===
+                                ;QMK agrees with MDP that this does
+                                ;not produce an accurate
+                                ;representation of the K band
+                                ;background.  Instead follow method of
+                                ;JLu and find continuum via
+                                ;smoothing.  Have implemented optional
+                                ;continuum scaling below
 
-	;=== remove thermal background from integrated OH spectrum? ===
 	
-		sxaddhist, 'IFS_OH_SCALESKY: using thermal background method = '+thermal_method, *dataset.headers[i]
-		case strupcase(thermal_method) of
-		"REMOVE_BOTH":  begin
-			; fit the sky's thermal component, remove it, and leave it out when
-			; you're done.
-			; **and do the same for the science data, too!!***
-		
-			message, /info,'removing thermal component from OH spectrum'
-			temp = 280
-			xlr = lambda[lrange]
-			ylr = skyspectrum[lrange]
-			wlr = where(finite(ylr) and ylr ne 0)
-			; TODO where does 19 come from??!?
-			for j=0,19 do begin
-				message, /info, "Fitting thermal background, iteration = "+string(j, format="(I2)")
-				; model parameters are
-				;   0: constant offset
-				;   1: normalization factor
-				;   2: temperature
-			    p_init = [min(ylr[wlr]),skyspectrum[max(lrange[wlr])],temp]
-			    result = amoeba(1.e-5,function_name='scaledskysub_fitbkg',p0=[p_init],scale=[p_init/5.])
-			    diff = ylr - thermal
-				; mask out all the lines - only fit on the continuum here!
-			    wlrnew = where(finite(ylr) and ylr ne 0 and diff lt median(diff[wlr])+2.0*stddev(diff[wlr]))
-				; stop iterating if we've converged on a consistent set of pixels to
-				; mask out.
-				if n_elements(wlr) eq n_elements(wlrnew) then break
-				;print, "Iter:"+strc(i)+"  ", n_elements(wlrnew), n_elements(wlr)
-				;print, "       ", result
-			    wlr = wlrnew
-			endfor
-			tmp1 = lambda^(-5.)/(exp(14387.7/(lambda*abs(result[2])))-1)
-			tmp2 = xlr^(-5.)/(exp(14387.7/(xlr*abs(result[2])))-1)
-			thermal = result[0] + tmp1 / max(tmp2)*abs(result[1])
-		
-			plot, lambda, skyspectrum, yr=[-0.05, 0.05], $
-		   		xrange=[min(lambda[mrange]),max(lambda[mrange])]
-			oplot, lambda, thermal, color='0000FF'x; fsc_color('red')
-			; MDP
-			;thermal *=0
-			skyspectrum0 = skyspectrum
-			skyspectrum = skyspectrum - thermal
-		end
-		"LEAVE": begin
-			; remove the thermal background at first, so you can properly fit the
-			; scaling parameters for the sky, then add it back in at the end?
-			message, "This option not yet implemented."
-		end
-		"IGNORE": begin
-			; Do nothing about the thermal background at all. Appropriate for
-			; short-wavelength observations.
-			;
-			; 2007-12-05: Actually, the 'IGNORE' option seems to do a relatively
-			; decent job for my Kbb data as well. I'm not entirely 100% sure whether
-			; it's scaling the continuum inappropriately here - I think the code
-			; does end up affecting the final continuum values of the subtracted
-			; cube via this method. But actually it seems to work surprisingly well
-			; to ignore the thermal component even for Kbb. 
-			thermal = fltarr(n_elements(skyspectrum))
-		end
-		endcase
+;		sxaddhist, 'IFS_OH_SCALESKY: using thermal background method = '+thermal_method, *dataset.headers[i]
+;		case strupcase(thermal_method) of
+;		"REMOVE_BOTH":  begin
+;			; fit the sky's thermal component, remove it, and leave it out when
+;			; you're done.
+;			; **and do the same for the science data, too!!***
+;		
+;			message, /info,'removing thermal component from OH spectrum'
+;			temp = 280
+;			xlr = lambda[lrange]
+;			ylr = skyspectrum[lrange]
+;			wlr = where(finite(ylr) and ylr ne 0)
+;			; TODO where does 19 come from??!?
+;			for j=0,19 do begin
+;				message, /info, "Fitting thermal background, iteration = "+string(j, format="(I2)")
+;				; model parameters are
+;				;   0: constant offset
+;				;   1: normalization factor
+;				;   2: temperature
+;			    p_init = [min(ylr[wlr]),skyspectrum[max(lrange[wlr])],temp]
+;			    result = amoeba(1.e-5,function_name='scaledskysub_fitbkg',p0=[p_init],scale=[p_init/5.])
+;			    diff = ylr - thermal
+;				; mask out all the lines - only fit on the continuum here!
+;			    wlrnew = where(finite(ylr) and ylr ne 0 and diff lt median(diff[wlr])+2.0*stddev(diff[wlr]))
+;				; stop iterating if we've converged on a consistent set of pixels to
+;				; mask out.
+;				if n_elements(wlr) eq n_elements(wlrnew) then break
+;				;print, "Iter:"+strc(i)+"  ", n_elements(wlrnew), n_elements(wlr)
+;				;print, "       ", result
+;			    wlr = wlrnew
+;			endfor
+;			tmp1 = lambda^(-5.)/(exp(14387.7/(lambda*abs(result[2])))-1)
+;			tmp2 = xlr^(-5.)/(exp(14387.7/(xlr*abs(result[2])))-1)
+;			thermal = result[0] + tmp1 / max(tmp2)*abs(result[1])
+;                        plot, lambda, skyspectrum, yr=[-0.05, 0.05], $
+;		   		xrange=[min(lambda[mrange]),max(lambda[mrange])]
+;			oplot, lambda, thermal, color='0000FF'x; fsc_color('red')
+;			; MDP
+;			;thermal *=0
+;			skyspectrum0 = skyspectrum
+;			skyspectrum = skyspectrum - thermal
+;		end
+;		"LEAVE": begin
+;			; remove the thermal background at first, so you can properly fit the
+;			; scaling parameters for the sky, then add it back in at the end?
+;			message, "This option not yet implemented."
+;		end
+;		"IGNORE": begin
+;			; Do nothing about the thermal background at all. Appropriate for
+;			; short-wavelength observations.
+;			;
+;			; 2007-12-05: Actually, the 'IGNORE' option seems to do a relatively
+;			; decent job for my Kbb data as well. I'm not entirely 100% sure whether
+;			; it's scaling the continuum inappropriately here - I think the code
+;			; does end up affecting the final continuum values of the subtracted
+;			; cube via this method. But actually it seems to work surprisingly well
+;			; to ignore the thermal component even for Kbb. 
+;			thermal = fltarr(n_elements(skyspectrum))
+;		end
+;		endcase
 	;=== some plotting (do this right before the sky subtraction optimization so that code can overplot)
 		if keyword_set(show_plots) then begin
 			window, xs=600, ys=800
@@ -489,7 +527,7 @@ l_rotmed = [1.00282,1.02139,1.04212,1.07539,1.09753,1.13542,1.15917,1.20309,1.22
 			  xstyle=1,  $
 			   xrange=[min(lambda[mrange]),max(lambda[mrange])],$
 			  ; xrange=[min(lambda[lrange]),max(lambda[lrange])],$
-			  ystyle=3, title="Input Spectra:    OBJ=green/purple    SKY=cyan/blue", xtitle="Wavelength (micron)", ytitle="Counts"
+			  ystyle=3, title="Input Spectra:    SKY=green/purple    OBJ=cyan/blue", xtitle="Wavelength (micron)", ytitle="Counts"
 
 			for iz=0,n_elements(l_boundary)-1 do begin
 				oplot,[l_boundary[iz],l_boundary[iz]],[-1e5,1e5],linestyle=1
@@ -512,13 +550,16 @@ l_rotmed = [1.00282,1.02139,1.04212,1.07539,1.09753,1.13542,1.15917,1.20309,1.22
 		;     the residuals in the lines, after the continuum in the lines has 
 		;     been subtracted by linearly interpolating the continuum on either side.
 		;   	
+
 		npixw=2*linehalfwidth ; full width in pixels of unresolved emission line 
 		rscale0 = dblarr(n_elements(skyspectrum))*0.
 	
 		; revise this to ignore the broad sky thermal background
 		backgnd = median(skyspectrum, 10*linehalfwidth)
-		skyspectrum2 = skyspectrum - backgnd
-	    
+                skyspectrum2 = skyspectrum - backgnd
+                
+                r = 1.0 ; QMK
+                
 		for j=0L,14 do begin
 			lr = where(lambda ge l_boundary[j] and lambda lt l_boundary[j+1] $
 					   and finite(skyspectrum) and finite(objspectrum), range_count)
@@ -527,12 +568,14 @@ l_rotmed = [1.00282,1.02139,1.04212,1.07539,1.09753,1.13542,1.15917,1.20309,1.22
 			skylr2 = skyspectrum2[ lr ] 
 			objlr = objspectrum[ lr ] 
 			llr =  lambda[ lr ] 
-		
+                        
+                        rhold = r; QMK to check to "final bit"
+
 			; find pixels > 1 sigma
 	        ;w_skylines = where(skylr gt median(skylr)+stddev(skylr),skylines_count)
 			; Use the version with the continuum removed to determine where the
 			; lines are.
-	        w_skylines = where(skylr2 gt median(skylr2)+stddev(skyspectrum2),skylines_count)
+	        w_skylines = where(skylr2 gt 10*median(skylr2)+stddev(skyspectrum2),skylines_count)
 			
 	        if (skylines_count gt 0) then begin
 	            line_mask = skylr*0.
@@ -542,6 +585,7 @@ l_rotmed = [1.00282,1.02139,1.04212,1.07539,1.09753,1.13542,1.15917,1.20309,1.22
 	            line_mask = convol(line_mask,replicate(1,npixw),/edge_truncate,/center)
 	            line_regions = where(line_mask gt 0,line_count, complement=cont_regions, ncompl = cont_count)
 	
+
 				
 	            if (line_count ge 3 and cont_count ge 3) then begin
 					print, 'optimising '+description_strings[i]+' transitions'
@@ -553,11 +597,11 @@ l_rotmed = [1.00282,1.02139,1.04212,1.07539,1.09753,1.13542,1.15917,1.20309,1.22
 		                oplot,llr,tmpy,min_value=-9999, color='00FF00'x ; fsc_color('green')
 		                tmpy = skylr & tmpy[cont_regions]=-1.e5
 		                oplot,llr,tmpy,min_value=-9999,color='FF00FF'x; fsc_color('purple')
-		                tmpy = objlr & tmpy[line_regions]=-1.e5
+                                tmpy = objlr & tmpy[line_regions]=-1.e5
 		                oplot,llr,tmpy,min_value=-9999, color='FFFF00'x; fsc_color('cyan');, /lines
 		                tmpy = objlr & tmpy[cont_regions]=-1.e5
 		                oplot,llr,tmpy,min_value=-9999,color='FF0000'x; fsc_color('blue');, /lines
-					endif
+                               	endif
 	
 					; call the fitting routine
 	                r = amoeba(1.e-5,function_name='scaledskysub_fitsky',p0=[1.],scale=[0.5])
@@ -574,12 +618,17 @@ l_rotmed = [1.00282,1.02139,1.04212,1.07539,1.09753,1.13542,1.15917,1.20309,1.22
 	                      r = amoeba(1.e-5,function_name='scaledskysub_fitsky',p0=[1.],scale=[0.5])
 	                endif
 	
+                        if(llr[0] ge 2.3) then begin  ;QMK added
+                           print,'Setting scaling for final bit to value for 9-7'
+                           r = rhold
+                        endif
 					
 	                print,'    using ',strtrim(string(n_elements(line_regions)),2),$
 	                  ' pixels for lines and ',strtrim(string(n_elements(cont_regions)),2),$
 	                  ' for continuum estimation'
 	                print,'    OH spectrum scaling = ',strtrim(string(r),2)
-					rscale0[lr] = r
+
+                                        rscale0[lr] = r
 					sxaddhist, "IFS_OH_SCALESKY: Wavelength range = "+sigfig(l_boundary[j], 4)+$
 								" - "+sigfig(l_boundary[j+1], 4), *Dataset.Headers[i]
 					sxaddhist, "IFS_OH_SCALESKY:  Scaling factor is "+sigfig(r, 3), *Dataset.Headers[i]
@@ -592,7 +641,8 @@ l_rotmed = [1.00282,1.02139,1.04212,1.07539,1.09753,1.13542,1.15917,1.20309,1.22
 		  rscale = interpol(rscale0[range0],lambda[range0],lambda) else $
 		  rscale = rscale0
 		skyspectrumr = skyspectrum*rscale
-		
+
+
 	;=====  new bit - do simple rotational correction ======
 		do_rot = 'yes'
 		do_rot = 'NO' ; MDP debugging - skip the rotational bit for now, until the rest is 100% working!
@@ -607,7 +657,7 @@ l_rotmed = [1.00282,1.02139,1.04212,1.07539,1.09753,1.13542,1.15917,1.20309,1.22
 			    objlr = objspectrum[finitepix]
 			    llr = lambda[finitepix]
 				; xx1 is indices of pixels which are greater than 1 sigma
-			    xxx1 = where(abs(skylr) gt median(skylr)+stddev(skylr),xxx1_count)
+			    xxx1 = where(abs(skylr) gt 10*median(skylr)+stddev(skylr),xxx1_count)
 			    if (xxx1_count gt 0) then begin
 			
 			        lowpos = [0]
@@ -662,9 +712,12 @@ l_rotmed = [1.00282,1.02139,1.04212,1.07539,1.09753,1.13542,1.15917,1.20309,1.22
 			    fsdv = stddev(flineres)
 			    fclip = where(abs(flineres) gt fmed+3*fsdv,fclip_count)
 			    if (fclip_count gt 0) then begin
-			        line_regions = line_regions[where(abs(flineres) lt fmed+3*fsdv)]
-			        if (n_elements(line_regions) ge 3) then $
-			          r = amoeba(1.e-5,function_name='scaledskysub_fitsky',p0=[1.],scale=[0.1])
+				fclop = where(abs(flineres) lt fmed+3*fsdv, fclop_count)
+			        if (fclop_count gt 0) then begin 	; added in SAW/JONELLE IN CASE CLOP NOT FOUND	 
+					line_regions = line_regions[fclop]
+			        	if (n_elements(line_regions) ge 3) then $
+			         	 r = amoeba(1.e-5,function_name='scaledskysub_fitsky',p0=[1.],scale=[0.1])
+				endif
 			    endif
 			    rhi = abs(r[0])
 			    print,'high rotational OH scaling ',rhi
@@ -679,9 +732,12 @@ l_rotmed = [1.00282,1.02139,1.04212,1.07539,1.09753,1.13542,1.15917,1.20309,1.22
 			    fsdv = stddev(flineres)
 			    fclip = where(abs(flineres) gt fmed+3*fsdv,fclip_count)
 			    if (fclip_count gt 0) then begin
-			        line_regions = line_regions[where(abs(flineres) lt fmed+3*fsdv)]
-			        if (n_elements(line_regions) ge 3) then $
-			          r = amoeba(1.e-5,function_name='scaledskysub_fitsky',p0=[1.],scale=[0.1])
+				fclop = where(abs(flineres) lt fmed+3*fsdv, fclop_count)
+			        if (fclop_count gt 0) then begin 
+					line_regions = line_regions[fclop]
+			        	if (n_elements(line_regions) ge 3) then $
+			         	 r = amoeba(1.e-5,function_name='scaledskysub_fitsky',p0=[1.],scale=[0.1])
+				endif
 			    endif
 			    rmed = abs(r[0])
 			    print,'P1(3.5) & R1(1.5) rotational OH scaling ',rmed
@@ -696,9 +752,12 @@ l_rotmed = [1.00282,1.02139,1.04212,1.07539,1.09753,1.13542,1.15917,1.20309,1.22
 			    fsdv = stddev(flineres)
 			    fclip = where(abs(flineres) gt fmed+3*fsdv,fclip_count)
 			    if (fclip_count gt 0) then begin
-			        line_regions = line_regions[where(abs(flineres) lt fmed+3*fsdv)]
-			        if (n_elements(line_regions) ge 3) then $
-			          r = amoeba(1.e-5,function_name='scaledskysub_fitsky',p0=[1.],scale=[0.1])
+				fclop = where(abs(flineres) lt fmed+3*fsdv, fclop_count)
+			       if (fclop_count gt 0) then begin 
+					line_regions = line_regions[fclop]
+			        	if (n_elements(line_regions) ge 3) then $
+			         	 r = amoeba(1.e-5,function_name='scaledskysub_fitsky',p0=[1.],scale=[0.1])
+				endif
 			    endif
 			    rlow = abs(r[0])
 			    print,'P1(2.5) & Q1(1.5) rotational OH scaling ',rlow
@@ -733,19 +792,46 @@ l_rotmed = [1.00282,1.02139,1.04212,1.07539,1.09753,1.13542,1.15917,1.20309,1.22
 			
 	;=====  plot image & masks =====
 
+                
+		;;; Perform continuum background fitting for only Kband observations
+
+		if crvalo gt 1900.0 and Scale_K_Continuum eq 'Yes' then begin 
+			smskyRaw = smooth(skyspectrum, 40)
+			smobjRaw = smooth(objspectrum, 40) ; QMK
+                        contscale = smobjRaw / smskyRaw ; QMK
+                                ;to deal with possible telluric in obj
+                                ;sky which should be ok because
+                                ;continuum is pretty flat here -  QMK
+                        contscale[0:400] = median(smobjRaw[0:400]) / median(smskyRaw[0:400]) ; QMK
+                        skyspectrumr = (skyspectrum - smskyRaw)*rscale + smskyRaw*contscale ;QMK
+			print,'Performing scaled continuum for K band observations'
+			print,''
+		endif 
+                if crvalo gt 1900.0 and Scale_K_Continuum eq 'No' then begin
+                        skyspectrumr = skyspectrum*rscale
+                        print,'Not scaling K band continuum'
+                   endif
+                if crvalo le 1900.0 then begin
+			skyspectrumr = skyspectrum*rscale 
+			print,'Observations are below 1.9 microns - no continuum sky subtraction'	
+                        Scale_K_Continuum = 'No'
+		endif
+                
+                sxaddhist, 'IFS_OH_SCALESKY: using continuum scaling = '+Scale_K_Continuum, *dataset.headers[i]
+                
 		if keyword_set(show_plots) then begin
 		
 			; PLOT 3
-			skyspectrumr = skyspectrum*rscale
 			fullsize = max(rscale) - min(rscale) ; used to draw plot conveniently scaled
 			plot, lambda, rscale, /xs, charsize=1.5, xrange=[min(lambda[lrange]),max(lambda[lrange])], $
 				yrange = [min(rscale)-fullsize*0.5, max(rscale)+fullsize*0.5],/ys, $
 				title="Scaling Factor", ytitle="Ratio"
 		
 			; PLOT 4
-			colors = [!p.color, '0000FF'x, 'FF0000'x]
+                        colors = [!p.color, '0000FF'x, 'FF0000'x]
 			colors = [!p.color, '0000FF'x, 'FFFF00'x]
-			plot,[lambda,lambda],[objspectrum,objspectrum-skyspectrumr],/nodata,charsize=1.5,$
+			
+                        plot,[lambda,lambda],[objspectrum,objspectrum-skyspectrumr],/nodata,charsize=1.5,$
 			  ystyle=3,$
 			  xstyle=1,xrange=[min(lambda[mrange]),max(lambda[mrange])], $
 			  xtitle="Wavelength (microns)", ytitle="Counts", title="Comparison of regular & scaled skys"
@@ -781,24 +867,44 @@ l_rotmed = [1.00282,1.02139,1.04212,1.07539,1.09753,1.13542,1.15917,1.20309,1.22
 
 	;===== now actually apply the scaling to the data cube! =====
 		if not(keyword_set(test_keyword)) then begin
-			;apply same scaling to whole cubes
-			print,'subtracting OH lines from entire cube'
-			therm_cube = rebin(reform(thermal, [1,1,zsize]), xsize, ysize, zsize)
-			rscale_cube = rebin(reform(rscale, [1,1,zsize]), xsize, ysize, zsize)
 
-			;OLD CODE: obj_out = obj - (sky-therm_cube)*rscale_cube
 			; NEW version for PIPELINE: 
 			; re-arrange the scaled sky cube into the pipeline format with
 			; pointers etc, then use frame_op to subtract it. 
 
+			;apply same scaling to whole cubes
+			print,'subtracting OH lines from entire cube'
+			;therm_cube = rebin(reform(thermal, [1,1,zsize]), xsize, ysize, zsize)
+			rscale_cube = rebin(reform(rscale, [1,1,zsize]), xsize, ysize, zsize)
+
+                        
+			if crvalo gt 1900.0 and Scale_K_Continuum eq 'Yes' then begin 
+                           contscale_cube = rebin(reform(contscale, [1,1,zsize]), xsize, ysize, zsize)
+
+                    	    smsky_cube = smooth(sky_hold, [1,1,40], /NAN)
+                           
+                            smsky_out = smsky_cube*contscale_cube
+                            
+
+                    	    smsky_cube = rebin(reform(smsky_cube, [xsize,ysize,zsize]), xsize, ysize, zsize)
+;	  		    scaledsky = (sky_hold - smsky_cube - therm_cube)*rscale_cube + smsky_cube*contscale_cube + therm_cube  
+                            scaledsky = (sky_hold - smsky_cube)*rscale_cube + smsky_cube*contscale_cube 
+
+
+			endif else if crvalo le 1900.0 or Scale_K_Continuum eq 'No' then begin
+			    ;scaledsky = (sky_hold-therm_cube)*rscale_cube 
+                           scaledsky = (sky_hold)*rscale_cube
+      			endif
+
 			; re-arrange to OSIRIS axis order, and set all NaNs to zero, per OSIRIS
 			; convention
-			scaledsky = (sky-therm_cube)*rscale_cube
 			scaledsky = transpose(scaledsky,  [2,0,1])
-			wnan = where(~finite(scaledsky ), nanct)
+                        
+                        wnan = where(~finite(scaledsky ), nanct)
 			if nanct gt 0 then scaledsky[wnan]=0
 			rscale_cube = transpose(rscale_cube,  [2,0,1])
-		
+                        
+                        
 			pcd_scaledskyFrame = ptr_new(scaledsky)
 			; TODO proper error propagation here!
 			pcd_scaledskyIntFrame = ptr_new(sky_IntFrame*rscale_cube)
@@ -808,7 +914,10 @@ l_rotmed = [1.00282,1.02139,1.04212,1.07539,1.09753,1.13542,1.15917,1.20309,1.22
 	;tmp0 = transpose(*DataSet.Frames[i])
 	;tmp0q = transpose(*DataSet.IntAuxFrames[i])
 			
-	     	v_Status = frame_op( DataSet.Frames[i], DataSet.IntFrames[i], DataSet.IntAuxFrames[i], $
+                        
+                        
+
+	     	v_Status = frame_op_ssr( DataSet.Frames[i], DataSet.IntFrames[i], DataSet.IntAuxFrames[i], $
 			                      '-', pcd_scaledskyFrame, pcd_scaledskyIntFrame, pcb_scaledskyIntAuxFrame, 1 )
 
 	;tmp2 = transpose(*DataSet.Frames[i])
