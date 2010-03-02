@@ -41,6 +41,8 @@
     divstarspe_COMMON___Debug = "1"
     divstarspe_COMMON___Limit = "1.d-20"
 
+    extracstar_COMMON___Method = "APER_RADIUS7"
+
     fitdispers_COMMON___Debug="1"
 
     glitchremv_COMMON___Debug = "1" 
@@ -66,7 +68,7 @@
     makeflatfi_COMMON___Debug="1"
     makeflatfi_COMMON___Mode="MED"
 
-    mkrecmatrx_COMMON___slice="16"
+    mkrecmatrx_COMMON___slice="14"
     mkrecmatrx_COMMON___shift="-19"
     mkrecmatrx_COMMON___weight_limit="0.01"
     mkrectdark_COMMON___Debug="1"
@@ -111,6 +113,12 @@
 
     saveflatfi_COMMON___Debug="1"
 
+    scaledskysub_COMMON___max_sky_fraction = "0.5"
+    scaledskysub_COMMON___min_sky_fraction = "0.1"
+    scaledskysub_COMMON___Scale_K_Continuum = "Yes"
+    scaledskysub_COMMON___line_halfwidth = "4"
+    scaledskysub_COMMON___show_plots = "Yes"
+
     spatrectif_COMMON___numiter="4"
     spatrectif_ARP_SPEC_numiter="40"
     spatrectif_ORP_SPEC_numiter="25"
@@ -148,7 +156,7 @@
     <Module Name="Clean Cosmic Rays" IDLFunc="cleancosmic_000" Comment="Clean Cosmic Rays attempts to identify pixels that have been struck by cosmic rays on the detector. Identified pixels are marked as bad in the quality frame. No parameters or file needed." >
     </Module>
     <Module Name="Combine Frames" IDLFunc="combframes_000" Comment="Used to combine multiple frames of the same mode into a lower noise version. The most common applications are to make a dark frame out of many identical darks, or a sky frame out of many identical skies.">
-      <Argument Name="Combine_Method" Type="enum" Range="AVERAGE|MEDIAN" Default="AVERAGE" />
+      <Argument Name="Combine_Method" Type="enum" Range="AVERAGE|MEDIAN|AVGCLIP" Default="AVERAGE" />
     </Module>
     <Module Name="Extract Spectra" IDLFunc="spatrectif_000" Comment="Extract Spectra takes two dimensional raw spectra and extracts them into unblended spectra that can be traced back to particular lenslets. It uses a calibration file called a rectification matrix which contains the psf shape of each lenslet as a function of wavelength. A rectification matrix file exists for each mode of the spectrograph (combination of filter and scale).">
     </Module>
@@ -195,16 +203,15 @@
       <Argument Name="Max_Sky_Fraction" Type="float" Range="(0.01, 0.99)" Default="0.25" />
       <Argument Name="Line_Halfwidth" Type="float" Range="(1,20)" Default="4" />
       <Argument Name="Show_Plots" Type="enum" Range="YES|NO" Default="YES" />
-    </Module> <!-- M. Perrin addition -->
-
+      <Argument Name="Scale_K_Continuum" Type="enum" Range="YES|NO" Default="YES" />
+  </Module> 
     <Module Name="Mosaic Frames" IDLFunc="mosaic_000" Comment="Mosaic Frames combines multiple OSIRIS cubes with the same PA using header keywords from TEL (default), NGS, and LGS. Combining frames may be performed with either AVERAGE (default), MEDIAN, or MEANCLIP.">
       <Argument Name="Combine_Method" Type="enum" Range="AVERAGE|MEDIAN|MEANCLIP" Default="AVERAGE" />
       <Argument Name="Offset_Method" Type="enum" Range="TEL|NGS|LGS" Default="TEL" />
     </Module>
-<!-- Add WCS commented out, 2008-03-31, because this functionality is now included in Assemble Cube - M. Perrin
-   <Module Name='Add WCS' IDLFunc='addwcs_000' Comment="Add WCS-standard-compliant keywords to FITS header."> </Module>  M. Perrin addition -->
     <Module Name="Extract Star" IDLFunc="extracstar_000" Comment="Extract Star takes a reduced data cube and finds the brightest object in the field and then uses aperture photometry to extract a 1D spectrum. The most common use is to extract a telluric spectrum to divide into data cubes.">
-    </Module>
+      <Argument Name="Method" Type="enum" Range="APER_RADIUS7|APER_RADIUS10|TOTAL" Default="APER_RADIUS7" /> 
+   </Module>
     <Module Name="Remove Hydrogen Lines" IDLFunc="remhydr_000" Comment="Remove Hydrogen Lines takes a 1D spectrum and attempts to remove absorption lines due to hydrogen. The primary purpose is to remove hydrogen absorption lines from telluric standard stars.">
     </Module>
     <Module Name="Divide Blackbody" IDLFunc="divblackbo_000" Comment=" This module divides a 1D, 2D or 3D spectra by a blackbody of a specified effective temperature (Kelvin). The default effective temperature is 9,480 K (A0V). This is primarily useful to fix telluric spectra, and accepts different wavelength ranges.">
@@ -252,6 +259,7 @@
     <Module Name="Clean Cosmic Rays" IDLFunc="cleancosmic_000" Comment="Clean Cosmic Rays attempts to identify pixels that have been struck by cosmic rays on the detector. Identified pixels are marked as bad in the quality frame. No parameters or file needed." >
     </Module>
     <Module Name="Extract Spectra" IDLFunc="spatrectif_000" Comment="Extract Spectra takes two dimensional raw spectra and extracts them into unblended spectra that can be traced back to particular lenslets. It uses a calibration file called a rectification matrix which contains the psf shape of each lenslet as a function of wavelength. A rectification matrix file exists for each mode of the spectrograph (combination of filter and scale).">
+      <Argument Name="Extract Star" Type="enum" Range="APER_RADIUS7|APER_RADIUS10|TOTAL" Default="APER_RADIUS7" /> 
     </Module>
     <Module Name="Assemble Data Cube" IDLFunc="assembcube_000" Comment="Assemble Data Cube takes the raw extracted spectra from the Extract Spectra routine and places each spectrum in its correct x,y location in the data cube, and applies a wavelength solution to each lenslet. No parameters or file needed."></Module>
     <Module Name="Correct Dispersion" IDLFunc="corrtilt_000" Comment="This module corrects for spatial shifts along the spectral axis in the datacube due to atmospheric differential dispersion and instrumental effects. This should always be run before using Extract Star module. No parameters or file needed.">
