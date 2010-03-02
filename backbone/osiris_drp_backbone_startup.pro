@@ -24,6 +24,7 @@ if (drs_idl_root ne '') then $
 !path=backbone_dir+':'+module_dir+':'+idl_downloads_dir+':'+!path
 
 ; compile procedures
+.compile buie_avgclip.pro
 .compile strn.pro
 .compile strnumber.pro
 .compile ICG_LIB.pro

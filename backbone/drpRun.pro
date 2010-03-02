@@ -12,7 +12,7 @@ PRO drpRun, QUEUE_DIR=queue_dir
         print, "*                                                   *"
         PRINT, "*          OSIRIS DATA REDUCTION PIPELINE           *"
         print, "*                                                   *"
-        print, "*                   VERSION 2.2                     *"
+        print, "*                   VERSION 2.3                     *"
         print, "*                                                   *"
         print, "*           James Larkin, Shelley Wright,           *"
         print, "*            Jason Weiss, Mike McElwain,            *"
