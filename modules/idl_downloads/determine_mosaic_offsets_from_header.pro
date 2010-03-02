@@ -66,7 +66,13 @@ function coord2det, md_Coords, s_Type, d_Scale, d_PA, vd_InstAngl
 
       vd_InstAngl = (vd_InstAngl* !pi/180)
       md_Offsets = [vd_CoordsNX * cos(vd_InstAngl) + vd_CoordsNY * sin(vd_InstAngl), $
-                               (-1.)*vd_CoordsNX * cos(vd_InstAngl) + vd_CoordsNY * cos(vd_InstAngl)] 
+                               (-1.)*vd_CoordsNX * sin(vd_InstAngl) + vd_CoordsNY * cos(vd_InstAngl)] 
+
+      ;  NJM 12/5/08: original formula for md_Offsets is below
+      ;  I suspect there should be 2 cos terms and 2 sin terms (hence the version in place above).
+      ;
+      ;md_Offsets = [vd_CoordsNX * cos(vd_InstAngl) + vd_CoordsNY * sin(vd_InstAngl), $
+                                ;(-1.)*vd_CoordsNX * cos(vd_InstAngl) + vd_CoordsNY * cos(vd_InstAngl)] 
 
    endif
 
@@ -79,10 +85,16 @@ function coord2det, md_Coords, s_Type, d_Scale, d_PA, vd_InstAngl
       vd_CoordsLX =   (md_Coords(0,0) - md_Coords(0,*)) * (1/d_Scale) * (1/0.727) 
       vd_CoordsLY  =  (md_Coords(1,0) - md_Coords(1,*)) * (1/d_Scale) * (1/0.727) 
 
-      vd_InstAngl = !pi/2 - (vd_InstAngl*!pi/180)
+    
+      ;original version: vd_InstAngl = !pi/2 - (vd_InstAngl*!pi/180)
+      vd_InstAngl = !pi - (vd_InstAngl*!dtor)   ;NJM 11/14/08
+
       md_Offsets = [(vd_CoordsLX * cos(vd_InstAngl) + vd_CoordsLY * sin(vd_InstAngl)), $
                                ((-1.)*vd_CoordsLX * sin(vd_InstAngl) + vd_CoordsLY * cos(vd_InstAngl))] 
-   
+
+      ;NJM 11/14/08  (line below is absent from original version
+      md_Offsets = (-1)*[md_Offsets[1,*],md_Offsets[0,*]]
+
    endif
 
 ;;;--------------------
