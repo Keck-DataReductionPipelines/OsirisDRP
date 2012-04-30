@@ -54,8 +54,7 @@
 ;
 ; Scale_K_Continuum = allow for continuum scaling in K band via
 ;                     smoothing the sky spectra vs. fitting a thermal
-;                     function.  (Default = Yes)
-;
+;                     function.  (Default = YES)
 ;
 ; STATUS : tested on a limited amount of Jbb, Hbb, Kbb data. 
 ;		   Seems to work reasonably well, but NOT YET EXTENSIVELY TESTED.
@@ -74,6 +73,8 @@
 ;                  in K band, added Scale_K_Continuum variable,
 ;                  commented out thermal_method variable and thermal
 ;                  fitting (Q. Konopacky Feb 2010)
+;		   - Fixed the case sensitive aspect of the cont fitting 
+;		   and reform problem in cont.(S. Wright March 4,2010)
 ;
 ;-----------------------------------------------------------------------
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -208,7 +209,7 @@ l_rotmed = [1.00282,1.02139,1.04212,1.07539,1.09753,1.13542,1.15917,1.20309,1.22
 
 
 ;	if tag_exist( Modules[thisModuleIndex], "Thermal_Method") then Thermal_Method = string(Modules[thisModuleIndex].Thermal_Method) else Thermal_Method="IGNORE"
-	if tag_exist( Modules[thisModuleIndex], "Scale_K_Continuum") then Scale_K_Continuum = string(Modules[thisModuleIndex].Scale_K_Continuum) else Scale_K_Continuum="Yes"
+	if tag_exist( Modules[thisModuleIndex], "Scale_K_Continuum") then Scale_K_Continuum = string(Modules[thisModuleIndex].Scale_K_Continuum) else Scale_K_Continuum="YES"
         if tag_exist( Modules[thisModuleIndex], "max_sky_fraction") then maxfrac = float(Modules[thisModuleIndex].max_sky_fraction) else maxfrac=0.25
 	if tag_exist( Modules[thisModuleIndex], "min_sky_fraction") then minfrac = float(Modules[thisModuleIndex].min_sky_fraction) else minfrac=0.10
 	if tag_exist( Modules[thisModuleIndex], "line_halfwidth") then linehalfwidth = fix(Modules[thisModuleIndex].line_halfwidth) else linehalfwidth=4
@@ -795,19 +796,18 @@ l_rotmed = [1.00282,1.02139,1.04212,1.07539,1.09753,1.13542,1.15917,1.20309,1.22
                 
 		;;; Perform continuum background fitting for only Kband observations
 
-		if crvalo gt 1900.0 and Scale_K_Continuum eq 'Yes' then begin 
+		if crvalo gt 1900.0 and Scale_K_Continuum eq 'YES' then begin 
 			smskyRaw = smooth(skyspectrum, 40)
 			smobjRaw = smooth(objspectrum, 40) ; QMK
                         contscale = smobjRaw / smskyRaw ; QMK
                                 ;to deal with possible telluric in obj
                                 ;sky which should be ok because
                                 ;continuum is pretty flat here -  QMK
-                        contscale[0:400] = median(smobjRaw[0:400]) / median(smskyRaw[0:400]) ; QMK
-                        skyspectrumr = (skyspectrum - smskyRaw)*rscale + smskyRaw*contscale ;QMK
+                        ;if(skyfilter eq 'Kbb') then contscale[0:400] = median(smobjRaw[0:400]) / median(smskyRaw[0:400]) ; QMK                        		       skyspectrumr = (skyspectrum - smskyRaw)*rscale + smskyRaw*contscale ;QMK
 			print,'Performing scaled continuum for K band observations'
 			print,''
 		endif 
-                if crvalo gt 1900.0 and Scale_K_Continuum eq 'No' then begin
+                if crvalo gt 1900.0 and Scale_K_Continuum eq 'NO' then begin
                         skyspectrumr = skyspectrum*rscale
                         print,'Not scaling K band continuum'
                    endif
@@ -877,23 +877,22 @@ l_rotmed = [1.00282,1.02139,1.04212,1.07539,1.09753,1.13542,1.15917,1.20309,1.22
 			;therm_cube = rebin(reform(thermal, [1,1,zsize]), xsize, ysize, zsize)
 			rscale_cube = rebin(reform(rscale, [1,1,zsize]), xsize, ysize, zsize)
 
-                        
-			if crvalo gt 1900.0 and Scale_K_Continuum eq 'Yes' then begin 
-                           contscale_cube = rebin(reform(contscale, [1,1,zsize]), xsize, ysize, zsize)
+			if crvalo gt 1900.0 and Scale_K_Continuum eq 'YES' then begin 
+                            print, 'Performing Scaled K Continuum '
+			    contscale_cube = rebin(reform(contscale, [1,1,zsize]), xsize, ysize, zsize)
 
                     	    smsky_cube = smooth(sky_hold, [1,1,40], /NAN)
                            
                             smsky_out = smsky_cube*contscale_cube
-                            
 
                     	    smsky_cube = rebin(reform(smsky_cube, [xsize,ysize,zsize]), xsize, ysize, zsize)
 ;	  		    scaledsky = (sky_hold - smsky_cube - therm_cube)*rscale_cube + smsky_cube*contscale_cube + therm_cube  
                             scaledsky = (sky_hold - smsky_cube)*rscale_cube + smsky_cube*contscale_cube 
 
 
-			endif else if crvalo le 1900.0 or Scale_K_Continuum eq 'No' then begin
+			endif else if crvalo le 1900.0 or Scale_K_Continuum eq 'NO' then begin
 			    ;scaledsky = (sky_hold-therm_cube)*rscale_cube 
-                           scaledsky = (sky_hold)*rscale_cube
+  			    scaledsky = (sky_hold)*rscale_cube
       			endif
 
 			; re-arrange to OSIRIS axis order, and set all NaNs to zero, per OSIRIS
