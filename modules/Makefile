@@ -54,7 +54,8 @@ RELPRO   = adjchan_000.pro \
            mosaicdpos_000.pro \
 	   nrmflxdens_000.pro \
 	   nrmflxmagn_000.pro \
-           remhydr_000.pro \
+	   oflipy_000.pro \
+	   remhydr_000.pro \
 	   rmcrosstalk_000.pro \
 	   savedatset_000.pro \
 	   saveflatfi_000.pro \
@@ -69,7 +70,7 @@ RELPRO   = adjchan_000.pro \
 PROSUB = odrs/modules
 
 override SYSNAM = kss/osiris/drs/modules/
-override VERNUM = 2.3 
+override VERNUM = 3.0 
 
 #  Include general make rules (use /etc if no environment variable).
 
