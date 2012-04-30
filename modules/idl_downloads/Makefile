@@ -130,6 +130,7 @@ RELPRO   = add_fitskwd_to_header.pro \
 	   fits_write.pro \
 	   fix_nb_scan.pro \
 	   frame_op.pro \
+	   frame_op_ssr.pro \
 	   fxaddpar.pro \
 	   fxhmodify.pro \
 	   fxhread.pro \
@@ -257,7 +258,7 @@ RELPRO   = add_fitskwd_to_header.pro \
 PROSUB = odrs/modules/idl_downloads
 
 override SYSNAM = kss/osiris/drs/modules/idl_downloads/
-override VERNUM = 2.3 
+override VERNUM = 3.0
 
 #  Include general make rules (use /etc if no environment variable).
 
