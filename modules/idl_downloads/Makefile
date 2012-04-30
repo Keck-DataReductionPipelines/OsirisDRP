@@ -67,6 +67,7 @@ RELPRO   = add_fitskwd_to_header.pro \
 	   bool_ptr_cube.pro \
 	   bool_ptr_image.pro \
 	   bool_ptr_valid.pro \
+	   buie_avgclip.pro \
 	   break_path.pro \
 	   calc_reg_wl_grid.pro \
 	   calculate_regular_wavelength_grid.pro \
@@ -221,6 +222,7 @@ RELPRO   = add_fitskwd_to_header.pro \
 	   shift_object.pro \
 	   sigfig.pro \
 	   sigma_poly_fit.pro \
+	   skysclim.pro \
 	   smile.pro \
 	   spec_opt_extract_spec_from_cube_simple.pro \
 	   strg.pro \
@@ -255,7 +257,7 @@ RELPRO   = add_fitskwd_to_header.pro \
 PROSUB = odrs/modules/idl_downloads
 
 override SYSNAM = kss/osiris/drs/modules/idl_downloads/
-override VERNUM = 2.2 
+override VERNUM = 2.3 
 
 #  Include general make rules (use /etc if no environment variable).
 
