@@ -64,4 +64,7 @@ clean:
 	$(RM) $(OBJECT) $(OUTPUTDIR)/libosiris_drp_ext_null.so.0.0
 
 
-
+showsym :
+	@echo $(CFLAGS)
+	@echo $(CC)
+	@echo $(LIBDIR)
