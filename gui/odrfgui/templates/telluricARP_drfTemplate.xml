@@ -39,6 +39,9 @@
   <module Name="Correct Dispersion" 
      CalibrationFile="find_file_none"
   />
+  <module Name="Flip Cube Y" 
+     CalibrationFile="find_file_none"
+  />
   <module Name="Extract Star" 
     CalibrationFile="find_file_none"
   />
