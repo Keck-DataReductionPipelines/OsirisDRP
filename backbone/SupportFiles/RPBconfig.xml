@@ -218,6 +218,7 @@
       <Argument Name="Temperature" Type="float" Range="(3000.0,30000.0]" Default="9480.0" />
       </Module>
     <Module Name="Divide by Star Spectrum" IDLFunc="divstarspe_000" Comment="Divides Cube by 1D stellar spectrum. User specified file needed." ></Module>
+    <Module Name="Flip Cube Y" IDLFunc="oflipy_000" Comment="Flips OSIRIS Cube to make handedness correct for Keck I Data"></Module>
     <Module Name="Save DataSet Information" IDLFunc="savedatset_000" Comment="Saves reductions and outputs to fits file with all extensions and header.">
     </Module>
     <Module Name='Rename File' IDLFunc='rename_000' Comment="Rename File"> 
@@ -264,6 +265,7 @@
     <Module Name="Assemble Data Cube" IDLFunc="assembcube_000" Comment="Assemble Data Cube takes the raw extracted spectra from the Extract Spectra routine and places each spectrum in its correct x,y location in the data cube, and applies a wavelength solution to each lenslet. No parameters or file needed."></Module>
     <Module Name="Correct Dispersion" IDLFunc="corrtilt_000" Comment="This module corrects for spatial shifts along the spectral axis in the datacube due to atmospheric differential dispersion and instrumental effects. This should always be run before using Extract Star module. No parameters or file needed.">
     </Module>
+    <Module Name="Flip Cube Y" IDLFunc="oflipy_000" Comment="Flips OSIRIS Cube to make handedness correct for Keck I Data"></Module>
     <Module Name="Save DataSet Information" IDLFunc="savedatset_000" Comment="Saves reductions and outputs to fits file with all extensions and header.">
     </Module>
   </ORP_SPEC>
