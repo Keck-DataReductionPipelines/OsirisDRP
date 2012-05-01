@@ -37,7 +37,7 @@ RELFILES  = $(SOURCE)
 #  from the environment.
 
 override SYSNAM = kss/osiris/drs/scripts/
-override VERNUM = 2.3 
+override VERNUM = 3.0 
 
 #  Include general make rules (use /etc if no environment variable).
 

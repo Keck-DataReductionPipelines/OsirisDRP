@@ -44,7 +44,7 @@ RELPRO   = drpBackbone__define.pro \
 PROSUB = odrs/backbone
 
 override SYSNAM = kss/osiris/drs/backbone/
-override VERNUM = 2.3 
+override VERNUM = 3.0 
 
 #  Include general make rules (use /etc if no environment variable).
 

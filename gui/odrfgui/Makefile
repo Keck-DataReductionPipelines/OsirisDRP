@@ -105,7 +105,7 @@ FILES = \
 # (required for installation to $KROOT/rel)
 # Also, see note below.
 RELFILES = 
-RELDAT = odrfgui_cfg.xml RPBconfig.xml
+RELDAT = odrfgui_cfg.xml 
 
 # unusual files to add to  clean  target (optional)
 CLEAN = 
@@ -117,7 +117,7 @@ CLEAN =
 
 # If this is a release point, override ancestor makefile's values.
 override SYSNAM = kss/osiris/drs/gui/odrfgui/
-override VERNUM = 2.3
+override VERNUM = 3.0 
 
 
 
