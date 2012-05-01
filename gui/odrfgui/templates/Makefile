@@ -40,7 +40,7 @@ RELDAT   = basicARP_drfTemplate.xml \
  	   cubes_telluric_correct_drfTemplate.xml 
 
 #override SYSNAM = kss/osiris/drs/gui/odrfgui
-#override VERNUM = 1.4
+#override VERNUM = 2.3
 
 #  Include general make rules (use /etc if no environment variable).
 
