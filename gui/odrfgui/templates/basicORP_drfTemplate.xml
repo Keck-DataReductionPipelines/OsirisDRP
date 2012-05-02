@@ -19,6 +19,10 @@
      CalibrationFile="find_file_none"
   />
   <module 
+     Name="Remove Crosstalk" 
+     CalibrationFile="find_file_none"
+  />
+  <module 
      Name="Glitch Identification" 
      CalibrationFile="find_file_none"
   />
