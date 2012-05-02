@@ -10,8 +10,8 @@
 #-
 ##############################################################################
 
-IDL_INCLUDE = /usr/local/rsi/idl_6.1/external/include
-CFITSIOLIBDIR = /scisoft/cfitsio/lib
+IDL_INCLUDE = /usr/local/idl/7.1/idl71/external/include
+CFITSIOLIBDIR = /home/osrsbld/cfitsio/
 OUTPUTDIR = .
 
 # Include files.
