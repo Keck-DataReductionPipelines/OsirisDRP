@@ -11,7 +11,7 @@
 ##############################################################################
 
 IDL_INCLUDE = /usr/local/idl/7.1/idl71/external/include
-CFITSIOLIBDIR = /home/osrsbld/cfitsio/
+CFITSIOLIBDIR = /kroot/rel/default/lib/
 OUTPUTDIR = .
 
 # Include files.
@@ -23,7 +23,7 @@ CFLAGS  =  -I./include -I$(IDL_INCLUDE) -D__REENTRANT -fPIC -g -O2 -DHAVE_CONFIG
 
 # This is a release point. Define version macros to override values
 # inherited from the environment
-override VERNUM = 1.4
+override VERNUM = 3.0
 
 ifeq "$(OSTYPE)" "darwin"
 #	CFLAGS_SHARED = -dynamiclib -single_module
