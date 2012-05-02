@@ -33,8 +33,8 @@ RELFILES =
 RELDAT   = osirisDRPConfigFile \
 	   RPBconfig.xml
 
-#override SYSNAM = kss/osiris/drs/backbone
-#override VERNUM = 3.0 
+override SYSNAM = kss/osiris/drs/backbone
+override VERNUM = 3.0 
 
 #  Include general make rules (use /etc if no environment variable).
 
