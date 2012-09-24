@@ -105,7 +105,9 @@ FILES = \
 # (required for installation to $KROOT/rel)
 # Also, see note below.
 RELFILES = 
-RELDAT = odrfgui_cfg.xml 
+RELDAT = \
+	odrfgui_cfg.xml \
+	odrfgui_frp_cfg.xml
 
 # unusual files to add to  clean  target (optional)
 CLEAN = 
