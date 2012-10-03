@@ -13,7 +13,7 @@
 #setenv OSIRIS_BACKBONE_DIR $KROOT/rel/default/idl/odrs/backbone
 
 # grab argument
-if ($#ARGV > 0 ) then
+if ($#argv > 0 ) then
  setenv OSIRIS_ALTERNATE_DRF_QUEUE_DIR $1
 endif 
 
