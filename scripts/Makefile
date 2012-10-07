@@ -21,6 +21,7 @@ CFLAGS  =
 
 SOURCE = osirisDropDRF \
 	 osirisDRPSetupEnv \
+         osirisOfflineDRP \
 	 run_odrp \
          run_offline_drp
 
