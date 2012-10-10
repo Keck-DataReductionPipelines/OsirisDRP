@@ -260,7 +260,7 @@
     <Module Name="Clean Cosmic Rays" IDLFunc="cleancosmic_000" Comment="Clean Cosmic Rays attempts to identify pixels that have been struck by cosmic rays on the detector. Identified pixels are marked as bad in the quality frame. No parameters or file needed." >
     </Module>
     <Module Name="Extract Spectra" IDLFunc="spatrectif_000" Comment="Extract Spectra takes two dimensional raw spectra and extracts them into unblended spectra that can be traced back to particular lenslets. It uses a calibration file called a rectification matrix which contains the psf shape of each lenslet as a function of wavelength. A rectification matrix file exists for each mode of the spectrograph (combination of filter and scale).">
-      <Argument Name="Extract Star" Type="enum" Range="APER_RADIUS7|APER_RADIUS10|TOTAL" Default="APER_RADIUS7" /> 
+      <Argument Name="ExtractStar" Type="enum" Range="APER_RADIUS7|APER_RADIUS10|TOTAL" Default="APER_RADIUS7" /> 
     </Module>
     <Module Name="Assemble Data Cube" IDLFunc="assembcube_000" Comment="Assemble Data Cube takes the raw extracted spectra from the Extract Spectra routine and places each spectrum in its correct x,y location in the data cube, and applies a wavelength solution to each lenslet. No parameters or file needed."></Module>
     <Module Name="Correct Dispersion" IDLFunc="corrtilt_000" Comment="This module corrects for spatial shifts along the spectral axis in the datacube due to atmospheric differential dispersion and instrumental effects. This should always be run before using Extract Star module. No parameters or file needed.">
