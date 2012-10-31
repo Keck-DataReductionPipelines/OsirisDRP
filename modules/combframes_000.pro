@@ -99,7 +99,7 @@
 ;   2000/09/22, MWB, added THRESH keyword
 ;   2006-10-20. MDP: Added /weight_by_exptimes and exptimes.
 ;-
-PRO buie_avgclip,arr,average,scale=scale,NORMALIZE=normalize,SILENT=silent, $
+function buie_avgclip,arr,average,scale=scale,NORMALIZE=normalize,SILENT=silent, $
        THRESH=thresh,$
 	   weight_by_exptimes=weight_by_exptimes,exptimes=exptimes
 

@@ -21,6 +21,10 @@
 ;						(sigma=2)
 ;						(uses bad pixel map)
 ;
+;                                    'MEANCLIP2' - same as MEANCLIP
+;                                                but preserves spaxels represented
+;                                                in only 1 input frame
+;
 ;    mosaic_COMMON___OffsetMethod    : The method to use for determining
 ;                                    the mosaic offsets:
 ;                                    'FILE' : Read the offsets from a
@@ -70,6 +74,8 @@
 ;               modified to include Kc filters
 ;	Modified Feb 2009 - Shelley Wright
 ;		fixed LGS offsets that J. Lu discovered 
+;       Modified Sept. 2010 - Nicholas McConnell
+;               added MEANCLIP2 option
 ;-----------------------------------------------------------------------
 
 FUNCTION mosaic_000, DataSet, Modules, Backbone
@@ -88,7 +94,8 @@ FUNCTION mosaic_000, DataSet, Modules, Backbone
     s_SumMethod    = Modules[thisModuleIndex].combine_method
     s_OffsetMethod    = Modules[thisModuleIndex].offset_method
 
-    if ( (s_SumMethod ne 'AVERAGE') and (s_SumMethod ne 'MEDIAN') and (s_SumMethod ne 'MEANCLIP')) then $
+    if ( (s_SumMethod ne 'AVERAGE') and (s_SumMethod ne 'MEDIAN') $
+          and (s_SumMethod ne 'MEANCLIP2') and (s_SumMethod ne 'MEANCLIP')) then $
        return, error ('ERROR IN CALL (' + functionName + '): SumMethod must be AVERAGE or MEDIAN.')
 
 ;    if ( s_SumMethod ne 'AVERAGE' ) then $
@@ -322,7 +329,14 @@ FUNCTION mosaic_000, DataSet, Modules, Backbone
 
 ;;;;-----------------------;
 
-   if ( s_SumMethod eq 'MEANCLIP' ) then begin
+
+  ;NJM 8/26/08
+  ;As originally written, using MEANCLIP sets to zero any spatial locations that are only covered by a single frame.
+  ;I have added a MEANCLIP2 option where single-frame spaxels are preserved
+  ;MEANCLIP2 also designates a lot more pixels as good, particularly in regions with multiple cubes overlapping
+
+
+   if ( s_SumMethod eq 'MEANCLIP' ) OR (s_SumMethod eq 'MEANCLIP2') then begin
        ; median the data
        info, 'INFO (' + functionName + '): Mean-Clip shifted datasets.'
        ; Create arrays for intermediate results
@@ -375,8 +389,12 @@ FUNCTION mosaic_000, DataSet, Modules, Backbone
        Number = Number - Number
        Mn = Mn - Mn
        for i=0, n_Sets-1 do begin
-	   loc = where( (*DataSet.IntAuxFrames[i] eq 9) and $
-			(*Dev[i] lt threshold*threshold*Var) )
+          if (s_SumMethod eq 'MEANCLIP2') then $
+	      loc = where( (*DataSet.IntAuxFrames[i] eq 9) and $
+		 	   (*Dev[i] le threshold*threshold*Var) )
+          if (s_SumMethod eq 'MEANCLIP') then $
+	      loc = where( (*DataSet.IntAuxFrames[i] eq 9) and $
+			   (*Dev[i] lt threshold*threshold*Var) )
            Mn[loc] = Mn[loc] + (*DataSet.Frames[i])[loc]
            Number[loc]  = Number[loc] + 1
        end

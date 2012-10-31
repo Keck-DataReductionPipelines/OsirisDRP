@@ -36,7 +36,7 @@ end
 
 ;-----------------------------------------------------------------------
 
-function calc_ao_bench_shift_in_pixel, vd_L, d_Scale, DEBUG=DEBUG
+function calc_ao_bench_shift_in_pixel, vd_L, d_Scale, jul_date,DEBUG=DEBUG
 
 ; the shift introduced by the AO bench has been determined
 ; empirically.
@@ -51,7 +51,11 @@ function calc_ao_bench_shift_in_pixel, vd_L, d_Scale, DEBUG=DEBUG
       print, 'INFO (' + functionName + '): Scale = ' + strg(d_Scale) + ' mas.'
    end      
 
-   vd_Motion_mas = -20.4 + sqrt ( -16204. + 19.66 * vd_L - 0.00304 * vd_L^2 )
+	; IR dichroic used on Keck II bench before Sept 2009 use old equation
+	; Use new equation (SAW measured) for after Sept 2009
+   if (jul_date le 55076.02) then $
+	vd_Motion_mas = -20.4 + sqrt ( -16204. + 19.66 * vd_L - 0.00304 * vd_L^2 ) $
+	else vd_Motion_mas = -55.8 + sqrt ( -7516.5 + 12.38 * vd_L - 0.00193 * vd_L^2 )
 
    vi_NAN = where ( finite ( vd_Motion_mas, /NAN ), n_NAN )
 
@@ -213,8 +217,11 @@ end
 ;		James Larkin, Mike McElwain, Shelley Wright (2007) 
 ;		modified and applied originally routine as Correct Dispersion
 ;
-; @MODIFIED Shelley Wright (July 2009) to correctly handle quality bits 
+; @MODIFIED S. Wright (July 2009) to correctly handle quality bits 
 ;		extension 2 of reduced fits
+;
+;	S. Wright modified for new IR dichroic instrumental
+;	chromatic dispersion after June 2009
 ;
 ; @END
 ;
@@ -280,6 +287,12 @@ FUNCTION corrtilt_000, DataSet, Modules, Backbone
           vd_L = findgen(sz[1])*disp + initial
 ; End work around.
 
+	  ; read in julian date for instrumental dispersion equation choice
+   	  jul_date = float(sxpar(*DataSet.Headers[i],'MJD-OBS', count=jnum))
+         if ( n_disp ne 1) then $
+            warning, ' WARNING (' + functionName + '): MJD-OBS is not found ' + strg(i) + '.' 
+          info, 'INFO (' + functionName + '): Found MJD-OBS of ' + strg ( jul_date ) + ' Julian Date.'
+
           ; arrays for the calculated offsets in pixel
           vd_DeltaX = fltarr ( n_elements(vd_L) )  &  vd_DeltaY = fltarr ( n_elements(vd_L) )
 
@@ -342,7 +355,7 @@ FUNCTION corrtilt_000, DataSet, Modules, Backbone
           ; get the shift due to the AO bench
           if ( b_AOBench eq 1 ) then begin
 
-             st_Bench_Shifts = calc_ao_bench_shift_in_pixel( vd_L*1e3, d_Scale*1000., DEBUG=b_Debug  )
+             st_Bench_Shifts = calc_ao_bench_shift_in_pixel( vd_L*1e3, d_Scale*1000., jul_date,DEBUG=b_Debug  )
 
              vd_DeltaX = vd_DeltaX + st_Bench_Shifts.vd_DeltaX 
              vd_DeltaY = vd_DeltaY + st_Bench_Shifts.vd_DeltaY 
