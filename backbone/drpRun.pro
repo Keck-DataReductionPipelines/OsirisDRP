@@ -7,12 +7,13 @@ PRO drpRun, QUEUE_DIR=queue_dir
 		initialQueueDir = GETENV('DRF_QUEUE_DIR')
 	ENDELSE
 	initialQueueDir = initialQueueDir + '/'
+        backboneDIR = GETENV('OSIRIS_BACKBONE_DIR')
         print, "                                                    "
         PRINT, "*****************************************************"
         print, "*                                                   *"
         PRINT, "*          OSIRIS DATA REDUCTION PIPELINE           *"
-        print, "*                                                   *"
-        print, "*                   VERSION 2.3                     *"
+        print, "*                   Development                     *"
+        print, "*                   VERSION 3.0                     *"
         print, "*                                                   *"
         print, "*           James Larkin, Shelley Wright,           *"
         print, "*            Jason Weiss, Mike McElwain,            *"
@@ -22,6 +23,7 @@ PRO drpRun, QUEUE_DIR=queue_dir
         print, "*                                                   *"
         print, "*****************************************************"
 	PRINT, "DRF Queue directory = " + initialQueueDir
+        PRINT, "BACKBONE directory = " + backboneDir
 	x->Run, initialQueueDir
 	OBJ_DESTROY, x
 
