@@ -40,6 +40,12 @@
 ; 	Made the wavelength soln follow as a funcation of tempertaure
 ;	And Fixed Quality Bits to retain bytes 
 ;
+; @Modified Shelley Wright (July 2010)
+;	Put new wavelength solution from Tuan Do's shifts
+;	in after Oct 2009 servicing mission
+;	Julian date called post Oct 2009 
+;
+;
 ; @END
 ;
 ;-----------------------------------------------------------------------
@@ -74,6 +80,7 @@ FUNCTION assembcube_000, DataSet, Modules, Backbone
    s_FilterFile  = strg(Backbone->getParameter('assembcube_COMMON___Filterfile'))
    s_CoeffFile   = strg(Backbone->getParameter('assembcube_COMMON___CoeffFile'))
    s_OldCoeffFile   = strg(Backbone->getParameter('assembcube_COMMON___OldCoeffFile'))
+   s_MidCoeffFile   = strg(Backbone->getParameter('assembcube_COMMON___MidCoeffFile'))
 
    ; midwave is a wavelength offset used to make the poly fit symmetric in wavelength
    ; This must match what is in the routine that fits raw spectra: plot_fwhm
@@ -177,16 +184,25 @@ FUNCTION assembcube_000, DataSet, Modules, Backbone
    ; Read in the matrix of coefficients used for fitting pixel as a function
    ; of wavelength
    jul_date = sxpar(*DataSet.Headers[0], "MJD-OBS", count=num)
-   
+   print,'Julian Date of Observations =',jul_date
    ; Check to see if the date is set and if it is prior to the service
    ; mission in February 2006. If so, then use the old calib
    ; file. Otherwise the default is the new file. 
    if ( (num eq 1) and (jul_date lt 53790.0) ) then begin
        coeffs = readfits(s_OldCoeffFile)
-       print, "Using old coefficient set"
-   endif else begin
-       coeffs = readfits(s_CoeffFile)
-   end
+       print, "Using wavelength coefficients from before 2006"
+   endif
+   ;finds coeffs between Feb 2006 and Oct 2009
+   if ( (num eq 1) and (jul_date ge 53790.0 and jul_date lt 55110.0) ) then begin
+       coeffs = readfits(s_MidCoeffFile) 
+       print, "Using wavelength coefficient solution from Feb 23, 2006 - Oct 4, 2009"
+   endif
+   ; Use the new coeffs that are AFTER Oct 2009
+   if ( (num eq 1) and (jul_date ge 55110.0)) then begin
+	coeffs = readfits(s_CoeffFile)
+        print, "Using wavelength coefficient solution for data taken AFTER Oct 5, 2009"
+   endif
+
    sz = size(coeffs)
    complete = intarr(sz[2],sz[3])
 
@@ -415,7 +431,47 @@ FUNCTION assembcube_000, DataSet, Modules, Backbone
         sxdelpar, *DataSet.Headers[q], 'CRVAL1'
         sxdelpar, *DataSet.Headers[q], 'CRPIX1'
         sxdelpar, *DataSet.Headers[q], 'CUNIT1'
-        
+       
+
+	; FIX for Keck I orientation (this is from Lyke and Randy's oflipy module
+	; addding into assemble so it's hard coded 	
+	; flip cubes in the Y dimension (rows) to make the handedness correct on Keck I
+	; Change made in March of 2012 as part of the recommissioning on Keck I
+	; JL and RDC
+	;
+	;for i=0, nFrames-1 do begin
+     		 jul_date = sxpar(*DataSet.Headers[q],"MJD-OBS", count=num)
+    		 if jul_date gt 55942.5 then begin
+   			*DataSet.Frames[q] = reverse(*DataSet.Frames[q],2,/overwrite)
+       			*DataSet.IntFrames[q] = reverse(*DataSet.IntFrames[q],2,/overwrite)   
+       			*DataSet.IntAuxFrames[q] = reverse(*DataSet.IntAuxFrames[q],2,/overwrite) 
+      		 	sxaddpar, *DataSet.Headers[q],'FLIP','TRUE', 'OSIRIS move to Keck I necessitates a flip'
+   		 	sxaddhist, 'Cube was acquired on Keck I, thus has been flipped', *DataSet.Headers[q]
+       	 		print, 'Julian date indicates this is Keck I data, Cube fliped in Y'
+    		endif else begin
+          		print, 'Julian date is before move to Keck I, using Keck II orientation'
+		endelse
+ 	;endfor
+
+
+;	for i=0, nFrames-1 do begin
+;     		tel = strtrim(sxpar(*DataSet.Headers[i], 'TELESCOP', count = n))
+;    		 if tel eq 'Keck II' then begin
+;      		     sxaddpar, *DataSet.Headers[i],'FLIP','FALSE', $
+;        		        'OSIRIS move to Keck I necessitates a flip'
+;       	 	     sxaddhist, 'Cube was acquired on Keck II, thus not flipped', *DataSet.Headers[i]
+;          		 print, 'oflip Y ignored, keck II data'
+;    		 endif else begin
+;   			*DataSet.Frames[i] = reverse(*DataSet.Frames[i],2,/overwrite)
+;       			*DataSet.IntFrames[i] = reverse(*DataSet.IntFrames[i],2,/overwrite)   
+;       			*DataSet.IntAuxFrames[i] = reverse(*DataSet.IntAuxFrames[i],2,/overwrite) 
+;      		 	sxaddpar, *DataSet.Headers[i],'FLIP','TRUE', 'OSIRIS move to Keck I necessitates a flip'
+;   		 	sxaddhist, 'Cube was acquired on Keck I, thus has been flipped', *DataSet.Headers[i]
+;       	 		 print, 'Cube fliped in Y , Keck I data'
+;    		endelse
+;
+; 	 endfor
+ 
     
 		; Now actually update with a full WCS-compliant header for all axes
 		;  Code by M. Perrin from addwcs_000.pro
@@ -465,10 +521,10 @@ print,'cotemp ',cotemp
 		   if ( strcmp('Kc5',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,33.0]
 	   end
 	   print, "Pointing center is", pnt_cen
- 	
+   
    ; Update RA and DEC header keywords
 	sxaddhist, functionName+":  Updating FITS header WCS keywords.", *DataSet.Headers[q]
-    sxaddpar, *DataSet.Headers[q], "INSTRUME", "OSIRIS", "Instrument: OSIRIS on Keck II" ; FITS-compliant instrument name, too
+    sxaddpar, *DataSet.Headers[q], "INSTRUME", "OSIRIS", "Instrument: OSIRIS on Keck I" ; FITS-compliant instrument name, too
     sxaddpar, *DataSet.Headers[q], "WCSAXES", 3, "Number of axes in WCS system"
 	sxaddpar, *DataSet.Headers[q], "CTYPE1", "WAVE", "Vacuum wavelength."
 	sxaddpar, *DataSet.Headers[q], "CTYPE2", "RA---TAN", "Right Ascension."
@@ -502,8 +558,7 @@ print,'cotemp ',cotemp
 	; observations for conversions to barycentric.
 	sxaddpar, *DataSet.Headers[q], "RADESYS", "FK5", "RA and Dec are in FK5"
 	sxaddpar, *DataSet.Headers[q], "EQUINOX", 2000.0, "RA, Dec equinox is J2000 (I think)"
-
-
+ 
 ;stop
     endfor
 
