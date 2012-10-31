@@ -28,7 +28,7 @@ public class ODRFGUIParameters {
   public static File DEFAULT_INPUT_DIR = new File("/u/osrsdev/osiris/spec_raw/");
   public static File DEFAULT_OUTPUT_DIR = new File("/u/osrsdev/osiris/spec_orp/");
   public static File DEFAULT_LOG_DIR = new File("/u/osrsdev/osiris/spec_orp/DRFs/");
-  public static File OSIRIS_CALIB_ARCHIVE_DIR = new File("/osiris-calib/SPEC/rectification");
+  public static File OSIRIS_CALIB_ARCHIVE_DIR = new File("/osiris-calib/SPEC/rectification/");
   public static File DRF_QUEUE_DIR = new File("/u/osrsdev/osiris/drf_queue");
   public static File DRF_READ_PATH = new File("/u/osrsdev/osiris/");
   public static File DRF_WRITE_PATH = new File("/u/osrsdev/osiris/");
