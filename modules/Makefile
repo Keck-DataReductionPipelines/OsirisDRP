@@ -70,7 +70,7 @@ RELPRO   = adjchan_000.pro \
 PROSUB = odrs/modules
 
 override SYSNAM = kss/osiris/drs/modules/
-override VERNUM = 3.0 
+override VERNUM = 3.0.1 
 
 #  Include general make rules (use /etc if no environment variable).
 
