@@ -39,9 +39,6 @@
   <module Name="Correct Dispersion" 
      CalibrationFile="find_file_none"
   />
-  <module Name="Flip Cube Y" 
-     CalibrationFile="find_file_none"
-  />
   <module Name="Scaled Sky Subtraction" 
      CalibrationFile="find_file_specify_file"
   />

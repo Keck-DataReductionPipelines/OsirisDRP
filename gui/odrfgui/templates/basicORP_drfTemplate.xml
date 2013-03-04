@@ -36,9 +36,6 @@
   <module Name="Assemble Data Cube" 
      CalibrationFile="find_file_none"
   />
-      <module Name="Flip Cube Y" 
-     CalibrationFile="find_file_none"
-  />
   <module 
      Name="Save DataSet Information"
   />
