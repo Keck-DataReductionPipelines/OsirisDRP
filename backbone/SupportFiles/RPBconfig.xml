@@ -4,7 +4,10 @@
     ALL_COMMON___Colors="1"
 
     assembcube_COMMON___CoeffFile         ='$OSIRIS_DRP_DATA_PATH/osiris_wave_coeffs.fits'
-    assembcube_COMMON___OldCoeffFile      ='$OSIRIS_DRP_DATA_PATH/old_wave_coeffs.fits'
+    assembcube_COMMON___05_06CoeffFile    ='$OSIRIS_DRP_DATA_PATH/osiris_wave_coeffs_050222-060222.fits'
+    assembcube_COMMON___06_09CoeffFile    ='$OSIRIS_DRP_DATA_PATH/osiris_wave_coeffs_060223-091004.fits'
+    assembcube_COMMON___09_12CoeffFile    ='$OSIRIS_DRP_DATA_PATH/osiris_wave_coeffs_091005-120103.fits'
+    assembcube_COMMON___12_12CoeffFile    ='$OSIRIS_DRP_DATA_PATH/osiris_wave_coeffs_120104-121109.fits'
     assembcube_COMMON___Filterfile        ='$OSIRIS_DRP_DATA_PATH/osiris_filter_info.list'
 
     caelum_mosaic_COMMON___Debug          = '0'
@@ -69,7 +72,7 @@
     makeflatfi_COMMON___Mode="MED"
 
     mkrecmatrx_COMMON___slice="14"
-    mkrecmatrx_COMMON___shift="-19"
+    mkrecmatrx_COMMON___shift="-13"
     mkrecmatrx_COMMON___weight_limit="0.01"
     mkrectdark_COMMON___Debug="1"
     mkrectdark_COMMON___framesInDark="10"
@@ -86,7 +89,7 @@
     mkwavcalfr_COMMON___MaxLag_px            = '20'
     mkwavcalfr_COMMON___DispFitSigma_fact    = '2.'
     mkwavcalfr_COMMON___DispFitIter          = '2'
-    mkwavcalfr_COMMON___Linefile             = '$OSIRIS_DRP_DATA_PATH/osiris_callines.list'
+    mkwavcalfr_COMMON___Linefile             = '$OSIRIS_DRP_DATA_PATH/osiris_cal_line.list'
     mkwavcalfr_COMMON___Filterfile           = '$OSIRIS_DRP_DATA_PATH/osiris_filter_info.list'
     mkwavcalfr_COMMON___MedianLag            = '1'
 
@@ -181,6 +184,7 @@
     </Module>
   </CRP_SPEC>
 	<!-- Astronomical Reductions ARP_SPEC -->
+	<!-- New Arguments from NJM should also be added to appropriate routines in ORP and CRP -->
   <ARP_SPEC>
     <Module Name="Subtract Frame" IDLFunc="subtradark_000" Comment="Subtracts the input frame by a user specfied frame.">
     </Module>
@@ -190,7 +194,12 @@
     </Module> 
     <Module Name="Glitch Identification" IDLFunc="glitchid_000" Comment="The detector shows occasional bursts of intense noise we term glitches. This module identifies these glitches between the 32 channels, and flags them bad in the quality frame. No parameters or file needed.">
     </Module>
-    <Module Name="Clean Cosmic Rays" IDLFunc="cleancosmic_000" Comment="Clean Cosmic Rays attempts to identify pixels that have been struck by cosmic rays on the detector. Identified pixels are marked as bad in the quality frame. No parameters or file needed." >
+    <Module Name="Clean Cosmic Rays" IDLFunc="cleancosmic_000" Comment="Clean Cosmic Rays attempts to identify pixels that have been struck by cosmic rays on the detector. Identified pixels are marked as bad in the quality frame. No parameters or file needed.  Includes a Faint_Extended option, which cleans more agressively: this option is safe ONLY for faint, extended targets." >
+      <Argument Name="Faint_Extended" Type="enum" Range="YES|NO" Default="NO" />
+ <!--  	<Argument Name="Mask" Type="string" Default="maskfile.fits" />
+        Extra argument from N. McConnell ... but only applies if Extra_Clean = YES.
+	To avoid confusion, keep out of GUI, and let NM and others edit XML files directly
+   -->
     </Module>
     <Module Name="Extract Spectra" IDLFunc="spatrectif_000" Comment="Extract Spectra takes two dimensional raw spectra and extracts them into unblended spectra that can be traced back to particular lenslets. It uses a calibration file called a rectification matrix which contains the psf shape of each lenslet as a function of wavelength. A rectification matrix file exists for each mode of the spectrograph (combination of filter and scale).">
     </Module>
@@ -206,19 +215,24 @@
       <Argument Name="Scale_K_Continuum" Type="enum" Range="YES|NO" Default="YES" />
   </Module> 
     <Module Name="Mosaic Frames" IDLFunc="mosaic_000" Comment="Mosaic Frames combines multiple OSIRIS cubes with the same PA using header keywords from TEL (default), NGS, and LGS. Combining frames may be performed with either AVERAGE (default), MEDIAN, or MEANCLIP.">
-      <Argument Name="Combine_Method" Type="enum" Range="AVERAGE|MEDIAN|MEANCLIP" Default="AVERAGE" />
+      <Argument Name="Combine_Method" Type="enum" Range="AVERAGE|MEDIAN|MEANCLIP|MEANCLIP2" Default="AVERAGE" />
       <Argument Name="Offset_Method" Type="enum" Range="TEL|NGS|LGS" Default="TEL" />
     </Module>
     <Module Name="Extract Star" IDLFunc="extracstar_000" Comment="Extract Star takes a reduced data cube and finds the brightest object in the field and then uses aperture photometry to extract a 1D spectrum. The most common use is to extract a telluric spectrum to divide into data cubes.">
-      <Argument Name="Method" Type="enum" Range="APER_RADIUS7|APER_RADIUS10|TOTAL" Default="APER_RADIUS7" /> 
-   </Module>
+	    <Argument Name="Method" Type="enum" Range="APER_RADIUS7|APER_RADIUS10|TOTAL|BOX" Default="APER_RADIUS7" /> 	    
+	    <!--   Extra arguments from N. McConnell ... but whether extra files are useful or required depends on specific choice of Method.
+		To avoid confusion, keep out of GUI, and let users edit XML files directly.
+		<Argument Name="BoxCoords" Type="string" Default="boxcoords.fits" />  
+		<Argument Name="Centers" Type="string" Default="centers.fits" />  -->
+	   </Module>
     <Module Name="Remove Hydrogen Lines" IDLFunc="remhydr_000" Comment="Remove Hydrogen Lines takes a 1D spectrum and attempts to remove absorption lines due to hydrogen. The primary purpose is to remove hydrogen absorption lines from telluric standard stars.">
     </Module>
     <Module Name="Divide Blackbody" IDLFunc="divblackbo_000" Comment=" This module divides a 1D, 2D or 3D spectra by a blackbody of a specified effective temperature (Kelvin). The default effective temperature is 9,480 K (A0V). This is primarily useful to fix telluric spectra, and accepts different wavelength ranges.">
       <Argument Name="Temperature" Type="float" Range="(3000.0,30000.0]" Default="9480.0" />
       </Module>
     <Module Name="Divide by Star Spectrum" IDLFunc="divstarspe_000" Comment="Divides Cube by 1D stellar spectrum. User specified file needed." ></Module>
-    <Module Name="Flip Cube Y" IDLFunc="oflipy_000" Comment="Flips OSIRIS Cube to make handedness correct for Keck I Data"></Module>
+    <Module Name="Flip Cube Y" IDLFunc="oflipy_000" Comment="Flips OSIRIS Cube t
+o make handedness correct for Keck I Data"></Module>
     <Module Name="Save DataSet Information" IDLFunc="savedatset_000" Comment="Saves reductions and outputs to fits file with all extensions and header.">
     </Module>
     <Module Name='Rename File' IDLFunc='rename_000' Comment="Rename File"> 
@@ -265,8 +279,10 @@
     <Module Name="Assemble Data Cube" IDLFunc="assembcube_000" Comment="Assemble Data Cube takes the raw extracted spectra from the Extract Spectra routine and places each spectrum in its correct x,y location in the data cube, and applies a wavelength solution to each lenslet. No parameters or file needed."></Module>
     <Module Name="Correct Dispersion" IDLFunc="corrtilt_000" Comment="This module corrects for spatial shifts along the spectral axis in the datacube due to atmospheric differential dispersion and instrumental effects. This should always be run before using Extract Star module. No parameters or file needed.">
     </Module>
-    <Module Name="Flip Cube Y" IDLFunc="oflipy_000" Comment="Flips OSIRIS Cube to make handedness correct for Keck I Data"></Module>
+    <Module Name="Flip Cube Y" IDLFunc="oflipy_000" Comment="Flips OSIRIS Cube t
+o make handedness correct for Keck I Data"></Module>
     <Module Name="Save DataSet Information" IDLFunc="savedatset_000" Comment="Saves reductions and outputs to fits file with all extensions and header.">
     </Module>
   </ORP_SPEC>
 </Config>
+
