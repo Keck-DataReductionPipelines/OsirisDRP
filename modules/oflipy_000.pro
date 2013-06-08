@@ -76,7 +76,7 @@ FUNCTION oflipy_000, DataSet, Modules, Backbone
         *DataSet.IntAuxFrames[i] = reverse(*DataSet.IntAuxFrames[i],2,/overwrite)  ; quality      
         sxaddpar, *DataSet.Headers[i],'FLIP','TRUE', 'OSIRIS move to Keck I necessitates a flip'
         sxaddhist, 'Cube was acquired on Keck I, thus has been flipped', *DataSet.Headers[i]
-        print, 'Cube fliped in Y , Keck I data'
+        print, 'Cube flipped in Y , Keck I data'
      endelse
  
    endfor

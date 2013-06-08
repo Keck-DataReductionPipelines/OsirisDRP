@@ -68,7 +68,7 @@ FUNCTION adjchan_000, DataSet, Modules, Backbone
     drpLog, 'Received data set: ' + DataSet.Name, /DRF, DEPTH = 1
 
     nFrames = Backbone->getValidFrameCount(DataSet.Name)
-    n_Dims = size( *DataSet.Frames(0))
+    n_Dims = size( *DataSet.Frames[0])
     ; Read the modified Julian date.
     jul_date = sxpar(*DataSet.Headers[0],"MJD-OBS", count=num)
 
@@ -90,16 +90,8 @@ FUNCTION adjchan_000, DataSet, Modules, Backbone
 	;; Added a julian date search for high temp data in 2009A/B (saw edit)
 	;; and changed the threshold for detecting difference in channels 
      itime = float(SXPAR(head,"ITIME",/SILENT))
-     print, 'Julian Date for this Observations  ',jul_date
-     if (jul_date ge 54832.5) and (jul_date le 55114.5) then begin 
-		maxdiff = 6.0/itime
-		print, 'Using threshold for warm detector mode in 2009' 
-     endif else begin	
-    	 maxdiff = 4.0/itime
-	 print,'Using threshold for stable detector operating temps'
-     endelse
-;	if (jul_date ge 54832.5) and (jul_date le 55114.5) then maxdiff = 6.0/itime $
-;		else maxdiff = 4.0/itime
+     if (jul_date ge 54832.5) and (jul_date le 55114.5) then maxdiff = 6.0/itime $
+		else maxdiff = 4.0/itime
      print, 'Maximum allowed offset= ', maxdiff
 
         ; For each channel boundary use 5 different sets of columns in order
@@ -118,9 +110,9 @@ FUNCTION adjchan_000, DataSet, Modules, Backbone
             ; median the five resulting measurements of the step functions.
             del = del - del
             tmp =( (*DataSet.Frames[n])[1151+128*i,0:1023]-(*DataSet.Frames[n])[1152+128*i,0:1023])
-            loc = where ( abs(tmp) lt 2.0*maxdiff,cnt)
+            loc = where ( abs(tmp) lt 2.0*maxdiff )
             if ( loc[0] ne -1 ) then $
-            del[0] = median( tmp[loc] )
+              del[0] = median( tmp[loc] )
             tmp=( (*DataSet.Frames[n])[1146+128*i,0:1023]-(*DataSet.Frames[n])[1157+128*i,0:1023])
             loc = where ( abs(tmp) lt 2.0*maxdiff )
             if ( loc[0] ne -1 ) then $
@@ -143,9 +135,8 @@ FUNCTION adjchan_000, DataSet, Modules, Backbone
             if ( abs(d[i]) gt maxdiff ) then begin
                 d(i) = 0.0
             end
-	    ;print,'step function for lower right quadrant',abs(d[i])
         end
-	; Apply the shifts for the channels in the lower right channel.
+        ; Apply the shifts for the channels in the lower right channel.
         for i = 0, 6 do begin
             (*DataSet.Frames[n])[1024:(1151+128*i),0:1023] = (*DataSet.Frames[n])[1024:(1151+128*i),0:1023] - d[i]
         end
@@ -182,13 +173,11 @@ FUNCTION adjchan_000, DataSet, Modules, Backbone
             if ( loc[0] ne -1 ) then $
             del[4] = median( tmp[loc] )
             d[i] = median(del)
-	   ; print,'step function for upper left quadrant',abs(d[i])
-	   ; If the measured step function is above the maximum allowed value,
+            ; If the measured step function is above the maximum allowed value,
             ; then ignore the step and set it to 0.0.
             if ( abs(d[i]) gt maxdiff ) then begin
                 d(i) = 0.0
             end
-	    print,'step function for upper left quadrant',abs(d[i])
         end
         ; Apply the shifts for the upper left channels.
         for i = 0, 6 do begin
@@ -263,26 +252,24 @@ FUNCTION adjchan_000, DataSet, Modules, Backbone
             a2 = abs(s2)
             a3 = abs(s3)
             jk = [s1, s2, s3]
-;            if ( (a1 lt a2) and (a1 lt a3) ) then shift[i] = s1 $	
-;            else if ( a2 lt a3 ) then shift[i] = s2 $	
-;            else shift[i] = s3	
+;            if ( (a1 lt a2) and (a1 lt a3) ) then shift[i] = s1 $
+;            else if ( a2 lt a3 ) then shift[i] = s2 $
+;            else shift[i] = s3
             shift[i] = median(jk)
         end
         s1 = ends[0]
         s3 = bound[0] - ends[1]
-;        if ( abs(s1) lt abs(s3) ) then shift[0] = s1 $	
-;	     else shift[0]= s3			
+;        if ( abs(s1) lt abs(s3) ) then shift[0] = s1 $
+;        else shift[0]= s3
         shift[0] = s3
 
         s1 = ends[7]
         s2 = ends[6] - bound[6]
- ;       if ( abs(s1) lt abs(s2) ) then shift[7] = s1 $	
-  ;           else shift[7]= s2			
+;        if ( abs(s1) lt abs(s2) ) then shift[7] = s1 $
+;        else shift[7]= s2
         shift[7] = s2
-	
-        ;print,'shifts for lower left quadrant (aligned with spectra)',abs(shift)
 
-        for i = 0, 7 do begin	;******
+        for i = 0, 7 do begin
             if ( abs(shift[i]) le maxdiff ) then $
               (*DataSet.Frames[n])[0:1023,(128*i):(128*i+127)] = (*DataSet.Frames[n])[0:1023,(128*i):(128*i+127)] - shift[i]
         end
@@ -351,33 +338,30 @@ FUNCTION adjchan_000, DataSet, Modules, Backbone
             a1 = abs(s1)
             a2 = abs(s2)
             a3 = abs(s3)
- ;           if ( (a1 lt a2) and (a1 lt a3) ) then shift[i] = s1 $	
- ;           else if ( a2 lt a3 ) then shift[i] = s2 $	
- ;           else shift[i] = s3	
+;            if ( (a1 lt a2) and (a1 lt a3) ) then shift[i] = s1 $
+;            else if ( a2 lt a3 ) then shift[i] = s2 $
+;            else shift[i] = s3
             jk = [s1, s2, s3]
             shift[i] = median(jk)
         end
         s1 = ends[0]
         s3 = ends[1] - bound[0]
-;        if ( abs(s1) lt abs(s3) ) then shift[0] = s1 $	
-;        else shift[0]= s3 
+;        if ( abs(s1) lt abs(s3) ) then shift[0] = s1 $
+;        else shift[0]= s3
         shift[0]= s3
 
         s1 = ends[7]
         s2 = ends[6] + bound[6]
-  ;      if ( abs(s1) lt abs(s2) ) then shift[7] = s1 $	
-   ;        else shift[7]= s2	
+;        if ( abs(s1) lt abs(s2) ) then shift[7] = s1 $
+;        else shift[7]= s2
         shift[7]= s2
 
-	print,''
-       ; print,'shifts for upper right quadrant (aligned with spectra)',abs(shift)
-	
         for i = 0, 7 do begin
             if ( (jul_date ge 53873.0) and (i eq 0) and (jul_date le 53913.0) ) then begin
                 (*DataSet.IntAuxFrames[n])[1024:2047,1024:1151]=0 ; Flag the channel as bad
                 print, "Lower channel in upper right quad is marked as bad..."
             end
-        if ( abs(shift[i]) le maxdiff ) then $				;******
+            if ( abs(shift[i]) le maxdiff ) then $
               (*DataSet.Frames[n])[1024:2047,(128*i+1024):(128*i+1151)] = (*DataSet.Frames[n])[1024:2047,(128*i+1024):(128*i+1151)] + shift[i]
         end
         

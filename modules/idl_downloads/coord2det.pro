@@ -24,7 +24,7 @@
 
 function coord2det, md_Coords, d_Scale, d_PA
 
-   COMMON APP_CONSTANTS
+;   COMMON APP_CONSTANTS
 
    functionName = 'coord2det.pro'
 

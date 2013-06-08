@@ -70,7 +70,7 @@ FUNCTION divstarspe_000, DataSet, Modules, Backbone
     pvd_StarFrame       = readfits(c_File, h_Header )
 
     ; all frames, intframes and intauxframes have the same dims
-    n_Dims = size ( *DataSet.Frames(0) )
+    n_Dims = size ( *DataSet.Frames[0] )
     length = size( pvd_StarFrame )
     if ( n_Dims[0] ne 3 ) then return, error('ERROR IN CALL ('+strtrim(functionName)+'): Dataset must be 3-d for divide star spectrum')
     if ( length[0] ne 1 ) then return, error('ERROR IN CALL ('+strtrim(functionName)+'): Stellar Spectrum must be 1-d for divide star spectrum')

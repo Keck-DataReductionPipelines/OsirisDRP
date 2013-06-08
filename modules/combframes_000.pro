@@ -99,7 +99,7 @@
 ;   2000/09/22, MWB, added THRESH keyword
 ;   2006-10-20. MDP: Added /weight_by_exptimes and exptimes.
 ;-
-function buie_avgclip,arr,average,scale=scale,NORMALIZE=normalize,SILENT=silent, $
+PRO buie_avgclip,arr,average,scale=scale,NORMALIZE=normalize,SILENT=silent, $
        THRESH=thresh,$
 	   weight_by_exptimes=weight_by_exptimes,exptimes=exptimes
 
@@ -335,7 +335,7 @@ FUNCTION combframes_000, DataSet, Modules, Backbone
     
 
     ; do the subtraction
-    n_Dims = size( *DataSet.Frames(0))
+    n_Dims = size( *DataSet.Frames[0])
     print, "--Now Combining Frames:--"
     print, "Number of frames = ", nFrames
     print, "Size of each =", n_Dims

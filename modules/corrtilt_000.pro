@@ -36,7 +36,7 @@ end
 
 ;-----------------------------------------------------------------------
 
-function calc_ao_bench_shift_in_pixel, vd_L, d_Scale, jul_date,DEBUG=DEBUG
+function calc_ao_bench_shift_in_pixel, vd_L, d_Scale, DEBUG=DEBUG
 
 ; the shift introduced by the AO bench has been determined
 ; empirically.
@@ -51,11 +51,7 @@ function calc_ao_bench_shift_in_pixel, vd_L, d_Scale, jul_date,DEBUG=DEBUG
       print, 'INFO (' + functionName + '): Scale = ' + strg(d_Scale) + ' mas.'
    end      
 
-	; IR dichroic used on Keck II bench before Sept 2009 use old equation
-	; Use new equation (SAW measured) for after Sept 2009
-   if (jul_date le 55076.02) then $
-	vd_Motion_mas = -20.4 + sqrt ( -16204. + 19.66 * vd_L - 0.00304 * vd_L^2 ) $
-	else vd_Motion_mas = -55.8 + sqrt ( -7516.5 + 12.38 * vd_L - 0.00193 * vd_L^2 )
+   vd_Motion_mas = -20.4 + sqrt ( -16204. + 19.66 * vd_L - 0.00304 * vd_L^2 )
 
    vi_NAN = where ( finite ( vd_Motion_mas, /NAN ), n_NAN )
 
@@ -217,11 +213,8 @@ end
 ;		James Larkin, Mike McElwain, Shelley Wright (2007) 
 ;		modified and applied originally routine as Correct Dispersion
 ;
-; @MODIFIED S. Wright (July 2009) to correctly handle quality bits 
+; @MODIFIED Shelley Wright (July 2009) to correctly handle quality bits 
 ;		extension 2 of reduced fits
-;
-;	S. Wright modified for new IR dichroic instrumental
-;	chromatic dispersion after June 2009
 ;
 ; @END
 ;
@@ -268,51 +261,45 @@ FUNCTION corrtilt_000, DataSet, Modules, Backbone
     for i=0, nFrames-1 do begin
 
        ; only do cubes
-       if ( (size(*DataSet.Frames(i)))(0) eq 3 ) then begin
+       if ( (size(*DataSet.Frames[i]))(0) eq 3 ) then begin
           info, 'INFO (' + functionName + '): Working on set ' + strg(i) + ' now.'
 
           ; get the wavelengths in microns
 ; Don't have get_wave_axis routine. Quick work around. Jan 9,2007:  JEL.
-;          vd_L = get_wave_axis ( DataSet.Headers(i), s_Parameters, DEBUG=b_Debug ) * 1.E6
-          sz = size(*DataSet.Frames(i))
-          disp = float( sxpar( *DataSet.Headers(i), 'CDELT1', count= n_disp))/1.E3   ; Raw value is in nm.
+;          vd_L = get_wave_axis ( DataSet.Headers[i], s_Parameters, DEBUG=b_Debug ) * 1.E6
+          sz = size(*DataSet.Frames[i])
+          disp = float( sxpar( *DataSet.Headers[i], 'CDELT1', count= n_disp))/1.E3   ; Raw value is in nm.
           if ( n_disp ne 1) then $
             warning, ' WARNING (' + functionName + '): CDELT1 not found or not unique in set ' + strg(i) + '.' 
           info, 'INFO (' + functionName + '): Found CDELT1 of ' + strg ( disp ) + ' microns.'
 
-          initial = float( sxpar( *DataSet.Headers(i), 'CRVAL1', count= n_val))/1.E3   ; Raw value is in nm.
+          initial = float( sxpar( *DataSet.Headers[i], 'CRVAL1', count= n_val))/1.E3   ; Raw value is in nm.
           if ( n_val ne 1) then $
             warning, ' WARNING (' + functionName + '): CRVAL1 not found or not unique in set ' + strg(i) + '.' 
           info, 'INFO (' + functionName + '): Found initial wavelength of ' + strg ( initial ) + ' microns.'
           vd_L = findgen(sz[1])*disp + initial
 ; End work around.
 
-	  ; read in julian date for instrumental dispersion equation choice
-   	  jul_date = float(sxpar(*DataSet.Headers[i],'MJD-OBS', count=jnum))
-         if ( n_disp ne 1) then $
-            warning, ' WARNING (' + functionName + '): MJD-OBS is not found ' + strg(i) + '.' 
-          info, 'INFO (' + functionName + '): Found MJD-OBS of ' + strg ( jul_date ) + ' Julian Date.'
-
           ; arrays for the calculated offsets in pixel
           vd_DeltaX = fltarr ( n_elements(vd_L) )  &  vd_DeltaY = fltarr ( n_elements(vd_L) )
 
           ; get the fitsheader keywords
-          d_Elevation   = float( sxpar ( *DataSet.Headers(i), 'EL', count = n_El ) )
+          d_Elevation   = float( sxpar ( *DataSet.Headers[i], 'EL', count = n_El ) )
           if ( n_El ne 1 ) then $
              warning, ' WARNING (' + functionName + '): EL not found or not unique in set ' + strg(i) + '.' 
           info, 'INFO (' + functionName + '): Found telescope elevation of ' + strg ( d_Elevation ) + ' degrees.'
 
-          d_Parang   = float( sxpar ( *DataSet.Headers(i), 'PARANG', count = n_Parang ) )
+          d_Parang   = float( sxpar ( *DataSet.Headers[i], 'PARANG', count = n_Parang ) )
           if ( n_Parang ne 1 ) then $
              warning, ' WARNING (' + functionName + '): PARANG not found or not unique in set ' + strg(i) + '.' 
           info, 'INFO (' + functionName + '): Found parallactic angle of ' + strg ( d_Parang ) + ' degrees.'
 
-          d_Pa_Spec   = float( sxpar ( *DataSet.Headers(i), 'PA_SPEC', count = n_Pa_Spec ) )
+          d_Pa_Spec   = float( sxpar ( *DataSet.Headers[i], 'PA_SPEC', count = n_Pa_Spec ) )
           if ( n_Pa_Spec ne 1 ) then begin
              warning, ' WARNING (' + functionName + '): PA_SPEC not found or not unique in set ' + $
                       strg(i) + '. Trying ROTPOSN and INSTANGL.' 
-             d_RotPos    = float( sxpar ( *DataSet.Headers(i), 'ROTPOSN', count = n_RotPos ) )
-             d_InstAngle = float( sxpar ( *DataSet.Headers(i), 'INSTANGL', count = n_InstAngle ) )
+             d_RotPos    = float( sxpar ( *DataSet.Headers[i], 'ROTPOSN', count = n_RotPos ) )
+             d_InstAngle = float( sxpar ( *DataSet.Headers[i], 'INSTANGL', count = n_InstAngle ) )
              if ( n_RotPos ne 1 or n_InstAngle ne 1 ) then $
                 warning, ' WARNING (' + functionName + '): Cannot determine angle of the spectrograph in set ' + $
                          strg(i) + '.'  $
@@ -325,8 +312,8 @@ FUNCTION corrtilt_000, DataSet, Modules, Backbone
           ; the real scale is not exactly the keyword
 ; Not sure why get_real_scale is needed.
 ; Trying just raw parameter. JEL Jan 9, 2007
-;          d_Scale = get_real_scale(float( sxpar ( *DataSet.Headers(i), 'SSCALE', count = n_Scale ) ), 1 )
-          d_Scale = (float( sxpar ( *DataSet.Headers(i), 'SSCALE', count = n_Scale ) ))
+;          d_Scale = get_real_scale(float( sxpar ( *DataSet.Headers[i], 'SSCALE', count = n_Scale ) ), 1 )
+          d_Scale = (float( sxpar ( *DataSet.Headers[i], 'SSCALE', count = n_Scale ) ))
           if ( n_Scale ne 1 ) then $
              warning, 'WARNING (' + functionName + '): Scale of the spectrograph not found or not unique in set ' + strg(i) + '.' 
           if ( d_Scale lt 0. ) then $
@@ -351,11 +338,24 @@ FUNCTION corrtilt_000, DataSet, Modules, Backbone
              end
 
           end
+; FIX for Keck I orientation 
+  ; Keck I dichroic dispersion is neglible so skip the bench contribution
+  ; Change made in March of 2013 as part of the recommissioning on Keck I
+  ; JL and RDC
+  ;
+          jul_date = sxpar(*DataSet.Headers[i],"MJD-OBS", count=num)
+          if jul_date gt 55942.5 then begin
+            b_AOBench = 0  
+            sxaddhist, 'Cube acquired on Keck I, NO bench disp-correction', *DataSet.Headers[i]
+            print, 'Julian date indicates this is Keck I data, NO bench disp-correct'
+          endif else begin
+              print, 'Julian date is before move to Keck I, correcting bench dispersion'
+          endelse
 
           ; get the shift due to the AO bench
           if ( b_AOBench eq 1 ) then begin
 
-             st_Bench_Shifts = calc_ao_bench_shift_in_pixel( vd_L*1e3, d_Scale*1000., jul_date,DEBUG=b_Debug  )
+             st_Bench_Shifts = calc_ao_bench_shift_in_pixel( vd_L*1e3, d_Scale*1000., DEBUG=b_Debug  )
 
              vd_DeltaX = vd_DeltaX + st_Bench_Shifts.vd_DeltaX 
              vd_DeltaY = vd_DeltaY + st_Bench_Shifts.vd_DeltaY 
@@ -380,10 +380,10 @@ FUNCTION corrtilt_000, DataSet, Modules, Backbone
           ; now shift the cube
 
           ; some shorts
-          pcf_Frame       = DataSet.Frames(i)
-          pcf_IntFrame    = DataSet.IntFrames(i)
-          pcb_IntAuxFrame = DataSet.IntAuxFrames(i)
-          p_Header        = DataSet.Headers(i)
+          pcf_Frame       = DataSet.Frames[i]
+          pcf_IntFrame    = DataSet.IntFrames[i]
+          pcb_IntAuxFrame = DataSet.IntAuxFrames[i]
+          p_Header        = DataSet.Headers[i]
 
           n_Dims = size( *pcf_Frame )  ; size of the unshifted datacube
 
@@ -427,8 +427,8 @@ FUNCTION corrtilt_000, DataSet, Modules, Backbone
           ; determine spatial size of the shifted cube
           nn1 = n_Dims(2) + max(vi_xi) ; x-size of the old cube + the greatest array index shift
           nn2 = n_Dims(3) + max(vi_yi) ; y-size of the old cube + the greatest array index shift
-          sxaddpar, *Dataset.Headers(i), 'NAXIS2', nn1
-          sxaddpar, *Dataset.Headers(i), 'NAXIS3', nn2
+          sxaddpar, *Dataset.Headers[i], 'NAXIS2', nn1
+          sxaddpar, *Dataset.Headers[i], 'NAXIS3', nn2
 
           info, 'INFO (' + functionName + '): Size of unshifted cube ' + strg(n_Dims(2)) + ' ' + strg(n_Dims(3))
           info, 'INFO (' + functionName + '): Size of shifted cube ' + strg(nn1) + ' ' + strg(nn2)
@@ -438,15 +438,15 @@ FUNCTION corrtilt_000, DataSet, Modules, Backbone
 
              ; we have to update the RA and DEC keyword
              info, 'INFO (' + functionName + '): Updating Ra and Dec.'
-             d_Ra = double(sxpar ( *DataSet.Headers(i), 'RA', count=n ))
+             d_Ra = double(sxpar ( *DataSet.Headers[i], 'RA', count=n ))
              if ( n ne 1 ) then $
                 return, error ('FAILURE (' + functionName + '): RA keyword not found in set ' + strg(i) + '.')
-             d_Dec = double(sxpar ( *DataSet.Headers(i), 'DEC', count=n ))
+             d_Dec = double(sxpar ( *DataSet.Headers[i], 'DEC', count=n ))
              if ( n ne 1 ) then $
                 return, error ('FAILURE (' + functionName + '): DEC keyword not found in set ' + strg(i) + '.')
              vd_Coords = det2coord(float([-i_MinX, -i_MinY]), d_RA, d_Dec, d_Scale, d_Pa_Spec/!RADEG)
-             ; sxaddpar, *Dataset.Headers(i), 'CRRA', vd_Coords(0)
-             ; sxaddpar, *Dataset.Headers(i), 'CRDEC', vd_Coords(1)
+             ; sxaddpar, *Dataset.Headers[i], 'CRRA', vd_Coords(0)
+             ; sxaddpar, *Dataset.Headers[i], 'CRDEC', vd_Coords(1)
             
              radec, vd_Coords(0), vd_Coords(1), ihr, imin, xsec, ideg, imn, xsc
 
@@ -458,8 +458,8 @@ FUNCTION corrtilt_000, DataSet, Modules, Backbone
              dec_min=strtrim(imn,2)
              dec_sec=strtrim(string(Format='(F4.1)',xsc),2)
 
-             sxaddpar, *Dataset.Headers(i), 'RA', vd_Coords(0), 'telescope right ascension ('+ra_hr+':'+ra_min+':'+ra_sec+' deg)' 
-             sxaddpar, *Dataset.Headers(i), 'DEC', vd_Coords(1), 'telescope declination ('+dec_hr+':'+dec_min+':'+dec_sec+' hr)'
+             sxaddpar, *Dataset.Headers[i], 'RA', vd_Coords(0), 'telescope right ascension ('+ra_hr+':'+ra_min+':'+ra_sec+' deg)' 
+             sxaddpar, *Dataset.Headers[i], 'DEC', vd_Coords(1), 'telescope declination ('+dec_hr+':'+dec_min+':'+dec_sec+' hr)'
 
              print,format='("INFO (",A,"): RA and DEC shifted from ")',functionName
              print,format='("     ",D15.10,",",D15.10)',d_RA,d_Dec
@@ -614,9 +614,9 @@ FUNCTION corrtilt_000, DataSet, Modules, Backbone
              if ( NOT bool_is_string(c_File) ) then $
                 return, error('FAILURE (' + functionName + '): Output filename creation failed.')
          
-             writefits, c_File, *DataSet.Frames(i), *DataSet.Headers(i)
-             writefits, c_File, *DataSet.IntFrames(i), /append
-             writefits, c_File, *DataSet.IntAuxFrames(i), /append
+             writefits, c_File, *DataSet.Frames[i], *DataSet.Headers[i]
+             writefits, c_File, *DataSet.IntFrames[i], /append
+             writefits, c_File, *DataSet.IntAuxFrames[i], /append
 
           endif
 

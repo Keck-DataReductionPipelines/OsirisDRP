@@ -21,10 +21,6 @@
 ;						(sigma=2)
 ;						(uses bad pixel map)
 ;
-;                                    'MEANCLIP2' - same as MEANCLIP
-;                                                but preserves spaxels represented
-;                                                in only 1 input frame
-;
 ;    mosaic_COMMON___OffsetMethod    : The method to use for determining
 ;                                    the mosaic offsets:
 ;                                    'FILE' : Read the offsets from a
@@ -74,8 +70,6 @@
 ;               modified to include Kc filters
 ;	Modified Feb 2009 - Shelley Wright
 ;		fixed LGS offsets that J. Lu discovered 
-;       Modified Sept. 2010 - Nicholas McConnell
-;               added MEANCLIP2 option
 ;-----------------------------------------------------------------------
 
 FUNCTION mosaic_000, DataSet, Modules, Backbone
@@ -94,8 +88,7 @@ FUNCTION mosaic_000, DataSet, Modules, Backbone
     s_SumMethod    = Modules[thisModuleIndex].combine_method
     s_OffsetMethod    = Modules[thisModuleIndex].offset_method
 
-    if ( (s_SumMethod ne 'AVERAGE') and (s_SumMethod ne 'MEDIAN') $
-          and (s_SumMethod ne 'MEANCLIP2') and (s_SumMethod ne 'MEANCLIP')) then $
+    if ( (s_SumMethod ne 'AVERAGE') and (s_SumMethod ne 'MEDIAN') and (s_SumMethod ne 'MEANCLIP')) then $
        return, error ('ERROR IN CALL (' + functionName + '): SumMethod must be AVERAGE or MEDIAN.')
 
 ;    if ( s_SumMethod ne 'AVERAGE' ) then $
@@ -124,7 +117,7 @@ FUNCTION mosaic_000, DataSet, Modules, Backbone
        V_Shifts = readfits(c_File)
     endif else $
        ; determine shifts from header coordinates
-       V_Shifts = determine_mosaic_offsets_from_header( DataSet.Headers, bool_is_cube((*DataSet.Frames(0))), $
+       V_Shifts = determine_mosaic_offsets_from_header( DataSet.Headers, bool_is_cube((*DataSet.Frames[0])), $
                                                          s_OffsetMethod, n_Sets )
 
     ; verify shift list
@@ -132,11 +125,9 @@ FUNCTION mosaic_000, DataSet, Modules, Backbone
        return, error('ERROR IN CALL ('+strtrim(functionName)+'): Offset list has a strange format.')
     if ( (size(V_Shifts))[2] ne n_Sets ) then $
        return, error('ERROR IN CALL ('+strtrim(functionName)+'): Number of shifts from offset list does not agree with the number of frames to be shifted.')
-
     ; for mosaicing the datasets must all have the same size, so we resize them first 
     if ( resize_dataset( DataSet, n_Sets ) ne OK ) then $
        return, error ('FAILURE ('+strtrim(functionName)+'): Resizing of dataset failed.')
-
    n_Dims = size( *DataSet.Frames[0] )   ; all input cubes/images have the same size
 
    ; ----- Shifts are determined --------------------------------------------------------------
@@ -175,15 +166,15 @@ FUNCTION mosaic_000, DataSet, Modules, Backbone
            info, 'INFO (' + functionName + '): ' + strg(round(100.*float(j)/float(n_Dims(1)))) + '% of set ' + $
                  strg(i) + ' shifted.' 
          
-         dx = x_shift(i)       - round(x_shift(i)) ; the shift is slice independent (mosaicing)
-         dy = y_shift(i)       - round(y_shift(i))
-         ix = abs(min_x_shift) + round(x_shift(i))
-         iy = abs(min_y_shift) + round(y_shift(i))
+         dx = x_shift[i]       - round(x_shift[i]) ; the shift is slice independent (mosaicing)
+         dy = y_shift[i]       - round(y_shift[i])
+         ix = abs(min_x_shift) + round(x_shift[i])
+         iy = abs(min_y_shift) + round(y_shift[i])
          
          ; extract slices for shifting
-         mf_D = ( n_Dims(0) eq 3 ) ? reform((*DataSet.Frames(i))(j,*,*)) : *DataSet.Frames(i)
-         mf_N = ( n_Dims(0) eq 3 ) ? reform((*DataSet.IntFrames(i))(j,*,*)) : *DataSet.IntFrames(i)
-         mb_Q = ( n_Dims(0) eq 3 ) ? reform((*DataSet.IntAuxFrames(i))(j,*,*)) : *DataSet.IntAuxFrames(i)
+         mf_D = ( n_Dims[0] eq 3 ) ? reform((*DataSet.Frames[i])(j,*,*)) : *DataSet.Frames[i]
+         mf_N = ( n_Dims[0] eq 3 ) ? reform((*DataSet.IntFrames[i])(j,*,*)) : *DataSet.IntFrames[i]
+         mb_Q = ( n_Dims[0] eq 3 ) ? reform((*DataSet.IntAuxFrames[i])(j,*,*)) : *DataSet.IntAuxFrames[i]
 
          ; fill the temporary cubes with the shifted (or original) slices
          cf_Frames( j, ix : ix + n_Dims(2)-1, iy : iy + n_Dims(3)-1 )       = mf_D
@@ -193,12 +184,12 @@ FUNCTION mosaic_000, DataSet, Modules, Backbone
       end ; loop over the slices of set i
 
       ; replace the dataset with the enlarged dataset
-      *DataSet.IntAuxFrames(i) = reform(cb_IntAuxFrames)
-      *DataSet.IntFrames(i)    = reform(cf_IntFrames)
-      *DataSet.Frames(i)       = reform(cf_Frames)
+      *DataSet.IntAuxFrames[i] = reform(cb_IntAuxFrames)
+      *DataSet.IntFrames[i]    = reform(cf_IntFrames)
+      *DataSet.Frames[i]       = reform(cf_Frames)
    end
 
-   n_Dims = size ( *DataSet.IntAuxFrames(0) )
+   n_Dims = size ( *DataSet.IntAuxFrames[0] )
 
    ; allocate memory for final quality status frame
    NewStatus = make_array ( SIZE=n_Dims, /BYTE, VALUE = 0b )
@@ -246,8 +237,8 @@ FUNCTION mosaic_000, DataSet, Modules, Backbone
    print, "Pointing center is", pnt_cen
    
    ; Find offsets from frame1 to padded mosaic frame in arcseconds
-        hdx = (abs(min_x_shift) + round(x_shift(0)) + pnt_cen[0]) * d_Scale
-	hdy = (abs(min_y_shift) + round(y_shift(0)) + pnt_cen[1]) * d_Scale
+        hdx = (abs(min_x_shift) + round(x_shift[0]) + pnt_cen[0]) * d_Scale
+	hdy = (abs(min_y_shift) + round(y_shift[0]) + pnt_cen[1]) * d_Scale
 
    ; Rotate offsets using lenslet PA (arcseconds)
 	hdx_rot = hdx * cos(d_PA) - hdy * sin(d_PA)
@@ -274,7 +265,7 @@ FUNCTION mosaic_000, DataSet, Modules, Backbone
    if ( s_SumMethod eq 'AVERAGE' ) then begin
        ; averaging the data
        info, 'INFO (' + functionName + '): Averaging shifted datasets.'
-       Sum = (*DataSet.Frames(0)) - (*DataSet.Frames(0))
+       Sum = (*DataSet.Frames[0]) - (*DataSet.Frames[0])
        Noise = Sum
        Number = Sum
        
@@ -282,7 +273,7 @@ FUNCTION mosaic_000, DataSet, Modules, Backbone
            loc = where (*DataSet.IntAuxFrames[i] eq 9)
            Sum[loc]= Sum[loc] + (*DataSet.Frames[i])[loc]
            Number[loc]  = Number[loc] + 1
-           Noise[loc] = Noise[loc] + (*DataSet.IntFrames(i))[loc] * (*DataSet.IntFrames(i))[loc]
+           Noise[loc] = Noise[loc] + (*DataSet.IntFrames[i])[loc] * (*DataSet.IntFrames[i])[loc]
        end
 
 	print, 'Average Complete'
@@ -305,7 +296,7 @@ FUNCTION mosaic_000, DataSet, Modules, Backbone
        ; median the data
        info, 'INFO (' + functionName + '): Medianing shifted datasets.'
        ; Creat arrays for median function
-       Stack = (*DataSet.Frames(0)) - (*DataSet.Frames(0))
+       Stack = (*DataSet.Frames[0]) - (*DataSet.Frames[0])
        Noise = Stack
        Number = Stack + n_Sets
        sz = size(Stack,/dimensions)
@@ -313,8 +304,8 @@ FUNCTION mosaic_000, DataSet, Modules, Backbone
        IntAx = fltarr(sz[0],sz[1],sz[2],n_Sets)
 
       for n=0, n_Sets-1 do begin
-           Frame[*,*,*,n] = (*DataSet.Frames(n))[*,*,*]
-           IntAx[*,*,*,n] = (*DataSet.IntAuxFrames(n))[*,*,*]
+           Frame[*,*,*,n] = (*DataSet.Frames[n])[*,*,*]
+           IntAx[*,*,*,n] = (*DataSet.IntAuxFrames[n])[*,*,*]
       end
 
        Stack[*,*,*] = median(Frame[*,*,*,*], dimension = 4)
@@ -329,18 +320,11 @@ FUNCTION mosaic_000, DataSet, Modules, Backbone
 
 ;;;;-----------------------;
 
-
-  ;NJM 8/26/08
-  ;As originally written, using MEANCLIP sets to zero any spatial locations that are only covered by a single frame.
-  ;I have added a MEANCLIP2 option where single-frame spaxels are preserved
-  ;MEANCLIP2 also designates a lot more pixels as good, particularly in regions with multiple cubes overlapping
-
-
-   if ( s_SumMethod eq 'MEANCLIP' ) OR (s_SumMethod eq 'MEANCLIP2') then begin
+   if ( s_SumMethod eq 'MEANCLIP' ) then begin
        ; median the data
        info, 'INFO (' + functionName + '): Mean-Clip shifted datasets.'
        ; Create arrays for intermediate results
-       sz = size(*DataSet.Frames(0),/dimensions)
+       sz = size(*DataSet.Frames[0],/dimensions)
        Noise = fltarr(sz[0],sz[1],sz[2])
        Mn = fltarr(sz[0],sz[1],sz[2])
        Var = fltarr(sz[0],sz[1],sz[2])
@@ -359,8 +343,8 @@ FUNCTION mosaic_000, DataSet, Modules, Backbone
            loc = where(*DataSet.IntAuxFrames[i] eq 9)
            Mn[loc]= Mn[loc] + (*DataSet.Frames[i])[loc]
            Number[loc]  = Number[loc] + 1
-           Noise[loc] = Noise[loc] + (*DataSet.IntFrames(i))[loc] * $
-					(*DataSet.IntFrames(i))[loc]
+           Noise[loc] = Noise[loc] + (*DataSet.IntFrames[i])[loc] * $
+					(*DataSet.IntFrames[i])[loc]
        end
        ; Calculate an initial average at the valid pixels.
        loc = where(Number gt 0)
@@ -389,12 +373,8 @@ FUNCTION mosaic_000, DataSet, Modules, Backbone
        Number = Number - Number
        Mn = Mn - Mn
        for i=0, n_Sets-1 do begin
-          if (s_SumMethod eq 'MEANCLIP2') then $
-	      loc = where( (*DataSet.IntAuxFrames[i] eq 9) and $
-		 	   (*Dev[i] le threshold*threshold*Var) )
-          if (s_SumMethod eq 'MEANCLIP') then $
-	      loc = where( (*DataSet.IntAuxFrames[i] eq 9) and $
-			   (*Dev[i] lt threshold*threshold*Var) )
+	   loc = where( (*DataSet.IntAuxFrames[i] eq 9) and $
+			(*Dev[i] lt threshold*threshold*Var) )
            Mn[loc] = Mn[loc] + (*DataSet.Frames[i])[loc]
            Number[loc]  = Number[loc] + 1
        end
@@ -422,7 +402,7 @@ FUNCTION mosaic_000, DataSet, Modules, Backbone
    for i=1, n_Sets-1 do clear_frame, DataSet, i, /ALL
 
    ; update the header
-   if ( verify_naxis ( DataSet.Frames(0), DataSet.Headers(0), /UPDATE ) ne OK ) then $
+   if ( verify_naxis ( DataSet.Frames[0], DataSet.Headers[0], /UPDATE ) ne OK ) then $
       return, error('FAILURE ('+strtrim(functionName)+'): Update of header failed.')
 
    ; reset the ValidFrameCounter
@@ -438,7 +418,7 @@ FUNCTION mosaic_000, DataSet, Modules, Backbone
                                 ; save the result
 
        c_File = make_filename ( DataSet.Headers[0], Modules[thisModuleIndex].OutputDir, $
-                            '_mosaic', IMAG = bool_is_image(*DataSet.Frames(0)) )
+                            '_mosaic', IMAG = bool_is_image(*DataSet.Frames[0]) )
 ;   if ( NOT bool_is_string(c_File) ) then $
 ;      return, error('FAILURE ('+strtrim(functionName)+'): Output filename creation failed.')
 ;   c_File = '/net/hydrogen/data/projects/osiris/DRP/saw/051123/reduce_v1/test.fits'

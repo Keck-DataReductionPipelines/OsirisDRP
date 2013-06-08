@@ -49,10 +49,6 @@
 ; @HISTORY 05.25.2007, created
 ; 	2010-01-13   Added Method= keyword, and various multiple methods
 ; 	             for extraction. - M Perrin
-;       2010-09-20   Added user-defined centers (for APER methods), which 
-;                    requires Centers= keyword
-;                    Added BOX method, which requires BoxCoords= keyword
-;                    - N McConnell
 ;
 ; @AUTHOR  James Larkin
 ;          Based on Extract Telluric Spectrum by Shelley Wright
@@ -68,12 +64,6 @@ FUNCTION extracstar_000, DataSet, Modules, Backbone
    functionName = 'extracstar_000'
    thisModuleIndex = drpModuleIndexFromCallSequence(Modules, functionName)
    if tag_exist( Modules[thisModuleIndex], "Method") then Method=strupcase(strtrim(Modules[thisModuleIndex].Method, 2)) else Method="APER_RADIUS7"
-   ; don't let program crash for Box method without Boxcoords keyword
-   if (Method eq "BOX" AND ~tag_exist( Modules[thisModuleIndex], "BoxCoords")) then begin 
-       Method = "APER_RADIUS7"
-       warning, " WARNING ("+ functionName + "): BOX method requires input file.  Specify filename with BoxCoords tag in DRF." 
-       warning, " WARNING ("+ functionName + "): Reverting to APER_RADIUS7 extraction method."
-   endif 
 
    ; save starting time
    T = systime(1)
@@ -109,35 +99,9 @@ FUNCTION extracstar_000, DataSet, Modules, Backbone
 			;--- extract via aperture photometry
 			if Method eq "APER_RADIUS7" or Method eq "APER_RADIUS10" then begin
 			   image = median((*DataSet.Frames[q])[*,*,*],dimension=1) ; Create collapsed 2-d frame
-
-			   ; -- Centers keyword --
-			   ;  Nicholas McConnell 9/20/2010
-                           ;Centers = 2D array of pre-determined object centers (1 object per frame)
-		 	   ;centers[0,*] = x positions (long axis)
-			   ;centers[1,*] = y positions (short axis)
-			   ;The array must be saved in a FITS file.
-			   ;In the XML file, add the keyword Centers="Directory/Filename"
-                           if tag_exist(Modules[thisModuleIndex], "Centers") then begin 
-       			       cenfile = string(Modules[thisModuleIndex].Centers)
-       			       drpLog, "Using object centers from file " + cenfile, /DRF, DEPTH=1
-       			       print,"Using object centers from file " + cenfile
-       			       cen = readfits(cenfile,/silent)
-       			       if ((size(cen))[0] eq 2 AND (size(cen))[2] ne nFrames) OR $
-          			 ((size(cen))[0] eq 1 AND (size(cen))[1] ne 2) OR $
-          			 ((size(cen))[0] ne 2 and (size(cen))[0] ne 1) then begin
-           		           return, error("ERROR in "+strtrim(functionName)+ $
-     			                         " Input: Centers array has wrong dimensions")
-           		       end
-			       xcen = cen[0,q]
-                               ycen = cen[1,q]
-   			   endif else begin
-                               ;The following 3 lines are from Marshall's original code.
-			       gaus = gauss2dfit(image[2:(sz[2]-2),2:(sz[3]-2)],A)
-			       xcen=A[4]+2.0
-			       ycen=A[5]+2.0
-			   endelse
-			   ; -- end Centers keyword portion --
-
+			   gaus = gauss2dfit(image[2:(sz[2]-2),2:(sz[3]-2)],A)
+			   xcen=A[4]+2.0
+			   ycen=A[5]+2.0
 			   thresh = ceil(radius/2)
 			   if ( (xcen lt thresh) or (xcen gt (sz[2]-thresh)) or (ycen lt thresh) or $
 					(ycen gt (sz[3]-thresh)) ) then begin
@@ -159,8 +123,9 @@ FUNCTION extracstar_000, DataSet, Modules, Backbone
 				Frame = total(total(  (*DataSet.Frames[q]), 3), 2)
 				IntFrame = Frame*0
 				IntAuxFrame += 9b
-                        endif
 
+
+			endif
 
 			;--- PSF Fitting via Gaussian/Moffat profiles
 			;    a la Conor Laver's method
@@ -170,60 +135,6 @@ FUNCTION extracstar_000, DataSet, Modules, Backbone
 			endif
 
 
-                    	;---  sum a box within the cube ---
-			;   Nicholas McConnell, 9/20/2010
-			;This method uses an additional keyword, BoxCoords: 
-			;a 2D array of coordinates specifying corners of a box
-			;from which to extract a spectrum. 
-                        ; 
-			;The array (boxcoords) must be saved in a FITS file.
-			;boxcoords[0,*] = minimum x values  (long axis)
-			;boxcoords[1,*] = maximum x values
-			;boxcoords[2,*] = minimum y values  (short axis)
-			;boxcoords[3,*] = maximum y values
-			;In the XML file, add the keyword BoxCoords="Directory/Filename"  
-                        ;
-                        ;This method includes replacing bad pixels (as previously
-                        ;flagged in the 2nd FITS extension) with nearby values,
-                        ;but does not consider PSF structure at all.
-                        ;Hence, the APER methods might be better for absolute photometry.
-
-			if Method eq "BOX" then begin 
-       			    boxfile = string(Modules[thisModuleIndex].BoxCoords)
-       			    drpLog, "Using box corners from file " + boxfile, /DRF, DEPTH=1
-       			    print,"Using box corners from file " + boxfile
-       			    box = readfits(boxfile,/silent)
-       			    if ((size(box))[0] eq 2 AND ((size(box))[1] ne 4 OR (size(box))[2] ne nFrames)) OR $
-          			((size(box))[0] eq 1 AND (size(box))[1] ne 4) OR $
-          			((size(box))[0] ne 2 and (size(box))[0] ne 1) then begin
-           			return, error("ERROR in "+strtrim(functionName)+ $
-				              " Input: BoxCoords array has wrong dimensions")
-           		    end
-                            for k = 0, sz[1]-1 do begin
-				image = reform((*DataSet.Frames[q])[k,*,*])
-				bad = reform((*DataSet.IntAuxFrames[q])[k,*,*])
-
-		                image_cut = image[box[0,q]:box[1,q],box[2,q]:box[3,q]]
-                  		bad_cut = bad[box[0,q]:box[1,q],box[2,q]:box[3,q]]
-                   		wbc = where(bad_cut ne 9,wbct)
-                   		if wbct gt 0 then begin
-                       		    image_cut[wbc] = !values.f_nan
-                       		    wbx = wbc mod (box[1,q]-box[0,q]+1)
-                       		    wby = wbc/(box[1,q]-box[0,q]+1)
-                       		    for i=0,wbct-1 do begin
-                           	    	wbx1 = wbx[i]-1 > 0 
-				    	wby1 = wby[i]-1 > 0
-                           	    	wbx2 = wbx[i]+1 < (box[1,q]-box[0,q]) 
-				    	wby2 = wby[i]+1 < (box[3,q]-box[2,q])
-                           	    	image_cut[wbx[i],wby[i]] = mean(image_cut[wbx1:wbx2,wby1:wby2],/nan)
-                       		    endfor
-                   		endif
-                   		flux = total(image_cut,/nan)
-				Frame[k]=flux
-				IntFrame[k]=0.0
-				IntAuxFrame[k]=9b
-			    endfor
-			endif
 
            	SXADDHIST, functionname+": Extracted star via method "+method,  *DataSet.Headers[q]
 
@@ -250,8 +161,8 @@ FUNCTION extracstar_000, DataSet, Modules, Backbone
            n_dims = size(*DataSet.Frames[q])
 
            ; Set the correct header keywords for the array size
-           SXADDPAR, *DataSet.Headers[q], "NAXIS", n_dims(0),AFTER='BITPIX'
-           SXADDPAR, *DataSet.Headers[q], "NAXIS1", n_dims(1),AFTER='NAXIS'
+           SXADDPAR, *DataSet.Headers[q], "NAXIS", n_dims[0],AFTER='BITPIX'
+           SXADDPAR, *DataSet.Headers[q], "NAXIS1", n_dims[1],AFTER='NAXIS'
 
            ; Edit file name in header to replace datset with calstar
            fname = sxpar(*DataSet.Headers[q],'DATAFILE')

@@ -11,6 +11,10 @@ FUNCTION mkrecmatrx_000, DataSet, Modules, Backbone
 	slice = FIX(drpParamValue('mkrecmatrx_COMMON___slice'))
 	shift = FIX(drpParamValue('mkrecmatrx_COMMON___shift'))
 
+        print, 'WEIGHT_LIMIT = ', weight_limit
+        print, 'SLICE        = ', slice
+        print, 'SHIFT        = ', shift
+
 	BranchID = Backbone->getType()
 	CASE BranchID OF
 		'CRP_SPEC':	BEGIN

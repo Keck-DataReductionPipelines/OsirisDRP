@@ -23,6 +23,29 @@ if (drs_idl_root ne '') then $
 ; put backbone code in idl path
 !path=backbone_dir+':'+module_dir+':'+idl_downloads_dir+':'+!path
 
+; put idl astro library in the path (7.1.1 does this the IDL bin dir)
+; not working the way I want it to...
+!path='/usr/local/pkg/astron/pro/astro:'+!path
+!path='/usr/local/pkg/astron/pro/astron:'+!path
+!path='/usr/local/pkg/astron/pro/database:'+!path
+!path='/usr/local/pkg/astron/pro/disk_io:'+!path
+!path='/usr/local/pkg/astron/pro/fits:'+!path
+!path='/usr/local/pkg/astron/pro/fits_bintable:'+!path
+!path='/usr/local/pkg/astron/pro/fits_table:'+!path
+!path='/usr/local/pkg/astron/pro/idlphot:'+!path
+!path='/usr/local/pkg/astron/pro/image:'+!path
+!path='/usr/local/pkg/astron/pro/jhuapl:'+!path
+!path='/usr/local/pkg/astron/pro/math:'+!path
+!path='/usr/local/pkg/astron/pro/misc:'+!path
+!path='/usr/local/pkg/astron/pro/plot:'+!path
+!path='/usr/local/pkg/astron/pro/robust:'+!path
+!path='/usr/local/pkg/astron/pro/sdas:'+!path
+!path='/usr/local/pkg/astron/pro/sdas_table:'+!path
+!path='/usr/local/pkg/astron/pro/sockets:'+!path
+!path='/usr/local/pkg/astron/pro/structure:'+!path
+!path='/usr/local/pkg/astron/pro/tv:'+!path
+!path=expand_path(!path)
+
 ; compile procedures
 .compile skysclim.pro
 .compile strn.pro

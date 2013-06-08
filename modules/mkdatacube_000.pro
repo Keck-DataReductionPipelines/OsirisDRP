@@ -369,10 +369,10 @@ FUNCTION mkdatacube_000, DataSet, Modules, Backbone
 
                n_dims = size(*DataSet.Frames[i])
 
-   	       SXADDPAR, *DataSet.Headers[i], "NAXIS", n_dims(0),AFTER='BITPIX'
-   	       SXADDPAR, *DataSet.Headers[i], "NAXIS1", n_dims(1),AFTER='NAXIS'
-   	       SXADDPAR, *DataSet.Headers[i], "NAXIS2", n_dims(2),AFTER='NAXIS1'
-	       SXADDPAR, *DataSet.Headers[i], "NAXIS3", n_dims(3),AFTER='NAXIS2'
+   	       SXADDPAR, *DataSet.Headers[i], "NAXIS", n_dims[0],AFTER='BITPIX'
+   	       SXADDPAR, *DataSet.Headers[i], "NAXIS1", n_dims[1],AFTER='NAXIS'
+   	       SXADDPAR, *DataSet.Headers[i], "NAXIS2", n_dims[2],AFTER='NAXIS1'
+	       SXADDPAR, *DataSet.Headers[i], "NAXIS3", n_dims[3],AFTER='NAXIS2'
 
             endfor ; repeat on nFrames
 	 END ; end case of BranchID...

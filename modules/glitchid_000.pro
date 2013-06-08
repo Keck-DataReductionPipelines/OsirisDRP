@@ -64,7 +64,7 @@ FUNCTION glitchid_000, DataSet, Modules, Backbone
     nFrames = Backbone->getValidFrameCount(DataSet.Name)
     
     ; do the subtraction
-    n_Dims = size( *DataSet.Frames(0))
+    n_Dims = size( *DataSet.Frames[0])
     print, "Number of frames = ", nFrames
     print, "Size of each =", n_Dims
 

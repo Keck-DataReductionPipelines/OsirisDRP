@@ -104,7 +104,7 @@ FUNCTION calibrwave_000, DataSet, Modules, Backbone
    for i=0, nFrames-1 do begin
 
       ; check that input cubes and wavelength cube have the same size
-      if ( NOT bool_dim_match ( cd_CalibFrame, *DataSet.Frames(i) ) ) then $
+      if ( NOT bool_dim_match ( cd_CalibFrame, *DataSet.Frames[i] ) ) then $
          return, error('ERROR IN CALL ('+strtrim(functionName)+'): Wavelength map and input cube '+$
             strg(i)+' not compatible in size.')
       ; check that the SFilter keyword occurs exactly 1 time
@@ -144,7 +144,7 @@ FUNCTION calibrwave_000, DataSet, Modules, Backbone
 
    ; update the header
    for i=0, nFrames-1 do $
-      if ( verify_naxis ( DataSet.Frames(i), DataSet.Headers(i), /UPDATE ) ne OK ) then $
+      if ( verify_naxis ( DataSet.Frames[i], DataSet.Headers[i], /UPDATE ) ne OK ) then $
          return, error('FAILURE ('+strtrim(functionName)+'): Update of header failed.')
   
    thisModuleIndex = drpModuleIndexFromCallSequence(Modules, functionName)

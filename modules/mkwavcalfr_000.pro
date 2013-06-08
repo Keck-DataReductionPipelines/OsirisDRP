@@ -99,7 +99,7 @@ FUNCTION mkwavcalfr_000, DataSet, Modules, Backbone
     s_Debug              = strsplit(Backbone->getParameter('mkwavcalfr_COMMON___Debug'),',',/EXTRACT)
     if ( n_elements(s_Debug) le 2 ) then begin
        if ( n_elements(s_Debug) eq 2 ) then $
-          i_Debug = [ fix(s_Debug(0)), fix(s_Debug(1))] $
+          i_Debug = [ fix(s_Debug[0]), fix(s_Debug(1))] $
        else $
           i_Debug = fix(s_Debug)
     endif else $
@@ -130,16 +130,16 @@ FUNCTION mkwavcalfr_000, DataSet, Modules, Backbone
 
     ; check whether the SFILTER keyword is the same for all datasets
     vs_Filter = get_kwd( DataSet.Headers, nFrames, "SFILTER" )
-    if ( NOT array_equal ( vs_Filter, vs_Filter(0) ) ) then $ 
+    if ( NOT array_equal ( vs_Filter, vs_Filter[0] ) ) then $ 
        return, error ('ERROR IN CALL (' + strtrim(functionName) + '): Inconsistent SFILTER keyword in dataset.')
 
     ; check whether the SSCALE keyword is the same for all datasets
     vs_Scale = get_kwd( DataSet.Headers, nFrames, "SSCALE" )
-    if ( NOT array_equal ( vs_Scale, vs_Scale(0) ) ) then $ 
+    if ( NOT array_equal ( vs_Scale, vs_Scale[0] ) ) then $ 
        return, error ('ERROR IN CALL (' + strtrim(functionName) + '): Inconsistent SScale keyword in dataset.')
 
     ; get the filter parameters
-    s_FiltParam = get_filter_param ( vs_Filter(0), s_Filterfile, DEBUG=i_Debug )
+    s_FiltParam = get_filter_param ( vs_Filter[0], s_Filterfile, DEBUG=i_Debug )
     if ( NOT bool_is_struct ( s_FiltParam ) ) then $
        return, error ('FAILURE ('+strtrim(functionName)+'): Failed to get filter parameters.')
 
@@ -154,15 +154,15 @@ FUNCTION mkwavcalfr_000, DataSet, Modules, Backbone
        c_File = 0
 
     for i=0, nFrames-1 do begin
-       *DataSet.Frames(i)       = reverse(*DataSet.Frames(i), 1)
-       *DataSet.IntFrames(i)    = reverse(*DataSet.IntFrames(i), 1)
-       *DataSet.IntAuxFrames(i) = reverse(*DataSet.IntAuxFrames(i), 1)
+       *DataSet.Frames[i]       = reverse(*DataSet.Frames[i], 1)
+       *DataSet.IntFrames[i]    = reverse(*DataSet.IntFrames[i], 1)
+       *DataSet.IntAuxFrames[i] = reverse(*DataSet.IntAuxFrames[i], 1)
     end
 
     s_Res = findlines ( DataSet, nFrames, $
                         s_Lines, $              ; structure with the calibration lines
                         s_FiltParam, $          ; structure with filter info
-                        vs_Filter(0), $         ; the filter used
+                        vs_Filter[0], $         ; the filter used
 
                         i_CCMaxLag_px, $        ; maximum allowed CC lag
                         b_CCMedianLag, $        ; median CC lags ?
@@ -184,9 +184,9 @@ FUNCTION mkwavcalfr_000, DataSet, Modules, Backbone
                         DEBUG = i_DEBUG )       ; initialize debugging mode
 
     for i=0, nFrames-1 do begin
-       *DataSet.Frames(i)       = reverse(*DataSet.Frames(i), 1)
-       *DataSet.IntFrames(i)    = reverse(*DataSet.IntFrames(i), 1)
-       *DataSet.IntAuxFrames(i) = reverse(*DataSet.IntAuxFrames(i), 1)
+       *DataSet.Frames[i]       = reverse(*DataSet.Frames[i], 1)
+       *DataSet.IntFrames[i]    = reverse(*DataSet.IntFrames[i], 1)
+       *DataSet.IntAuxFrames[i] = reverse(*DataSet.IntAuxFrames[i], 1)
     end
 
     if ( NOT bool_is_struct ( s_Res ) ) then $
@@ -200,9 +200,9 @@ FUNCTION mkwavcalfr_000, DataSet, Modules, Backbone
 
     mkhdr, h, s_Res.cd_WMap
     sxaddpar, h, 'EXTEND', 'T'
-    sxaddpar, h, 'SFILTER', vs_Filter(0)
-    sxaddpar, h, 'SSCALE', vs_Scale(0)
-    sxaddpar, h, 'DATAFILE', sxpar ( *DataSet.Headers(0), 'DATAFILE' )
+    sxaddpar, h, 'SFILTER', vs_Filter[0]
+    sxaddpar, h, 'SSCALE', vs_Scale[0]
+    sxaddpar, h, 'DATAFILE', sxpar ( *DataSet.Headers[0], 'DATAFILE' )
     sxaddpar, h, 'ORDER', n_DispFitOrder
     sxaddpar, h, 'COMMNT0', '0 Extension : Wavelength map/cube.'
     sxaddpar, h, 'COMMNT1', '1 Extension : Status of the the dispersion relation for a specific pixel. 0 means OK'

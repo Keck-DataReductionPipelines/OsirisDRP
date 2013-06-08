@@ -152,7 +152,7 @@ FUNCTION nrmflxmagn_000, DataSet, Modules, Backbone
          n_elements(vd_CW2_um) ne n_elements(vd_Fl) ) then $
        return, error('ERROR IN CALL ('+strg(functionName)+'): Number of wavelengths and magnitudes do not conform.')    ; check wavelength limits
     for i=0, n_elements(vd_Fl)-1 do $
-       if ( vd_CW1_um(i) ge vd_CW2_um(i) ) then $
+       if ( vd_CW1_um[i] ge vd_CW2_um[i] ) then $
           return, error('ERROR IN CALL ('+strg(functionName)+'): Calibration wavelengths not set correctly.')
     ; done with the parameter checks
 
@@ -166,7 +166,7 @@ FUNCTION nrmflxmagn_000, DataSet, Modules, Backbone
     d_MinLExposed_um = s_Filter.d_MinWL_nm/1000.    ; These are the minimum and maximum (app.) wavelengths that
     d_MaxLExposed_um = s_Filter.d_MaxWL_nm/1000.    ;   "are exposed to light"
     ; get the regular wavelength grid of the input dataset
-    vd_LRegular_um   = get_wave_axis ( DataSet.Headers(0), DEBUG=b_Debug ) * 1.d6  ; wavelength axis in microns
+    vd_LRegular_um   = get_wave_axis ( DataSet.Headers[0], DEBUG=b_Debug ) * 1.d6  ; wavelength axis in microns
     d_MinLRegular_um = min ( vd_LRegular_um )
     d_MaxLRegular_um = max ( vd_LRegular_um ) 
     if ( d_MinLExposed_um lt d_MinLRegular_um or d_MaxLExposed_um gt d_MaxLRegular_um ) then $
@@ -233,7 +233,7 @@ FUNCTION nrmflxmagn_000, DataSet, Modules, Backbone
        if ( b_Debug ) then $
           debug_info, 'DEBUG INFO ('+functionName+'): No library star is needed.'
 
-    n_Dims = size(*DataSet.Frames(0))
+    n_Dims = size(*DataSet.Frames[0])
 
     ; now loop over the number of input fluxes/magnitudes
     for j=0, n_elements(vd_Fl)-1 do begin
@@ -253,7 +253,7 @@ FUNCTION nrmflxmagn_000, DataSet, Modules, Backbone
        endif 
 
        ; collapse the dataset
-       s_Image = cube2image ( DataSet.Frames(0), DataSet.IntFrames(0), DataSet.IntAuxFrames(0), $
+       s_Image = cube2image ( DataSet.Frames[0], DataSet.IntFrames[0], DataSet.IntAuxFrames[0], $
                               1., 'SUM', SRANGE=[i_LPos,i_UPos], DEBUG=b_Debug )
 
        if ( bool_is_struct(s_Image) ) then begin

@@ -94,10 +94,10 @@ FUNCTION nrmflxdens_000, DataSet, Modules, Backbone
     nFrames = Backbone->getValidFrameCount(DataSet.Name)
     for i=0, nFrames-1 do begin
 
-       n_Dims = size(*DataSet.Frames(i))
+       n_Dims = size(*DataSet.Frames[i])
 
        ; create wavelength vector
-       vd_L = get_wave_axis ( DataSet.Headers(i), DEBUG=b_Debug )  ; wavelength axis in meter
+       vd_L = get_wave_axis ( DataSet.Headers[i], DEBUG=b_Debug )  ; wavelength axis in meter
        vd_L = vd_L * 1.d6 ; in microns
        d_LL = min ( vd_L )
        d_UL = max ( vd_L )
@@ -115,10 +115,10 @@ FUNCTION nrmflxdens_000, DataSet, Modules, Backbone
              ; determine the slices to extract from the cube
              i_Pos = my_index( vd_L, vd_WL_um(j) )
              i_L   = (i_Pos-i_Window) > 0
-             i_U   = (i_Pos+i_Window) < (n_Dims(1)-1)
+             i_U   = (i_Pos+i_Window) < (n_Dims[1]-1)
 
              ; create collapsed average image from the specified slices
-             s_Image = cube2image ( DataSet.Frames(i), DataSet.IntFrames(i), DataSet.IntAuxFrames(i), $
+             s_Image = cube2image ( DataSet.Frames[i], DataSet.IntFrames[i], DataSet.IntAuxFrames[i], $
                                     1., 'AVRG', SRANGE=[i_L,i_U], DEBUG=b_Debug )
 
              if ( bool_is_struct(s_Image) ) then begin
@@ -196,17 +196,17 @@ FUNCTION nrmflxdens_000, DataSet, Modules, Backbone
              pcd_NormIntFrame    = ptr_new(make_array(/FLOAT,SIZE=n_Dims,VALUE=d_ENorm))
              pcb_NormIntAuxFrame = ptr_new(make_array(/BYTE,SIZE=n_Dims,VALUE=9b))
 
-             v_Status = frame_op ( DataSet.Frames(i), DataSet.IntFrames(i), DataSet.IntAuxFrames(i), $
+             v_Status = frame_op ( DataSet.Frames[i], DataSet.IntFrames[i], DataSet.IntAuxFrames[i], $
                                    '*', pcd_NormFrame, pcd_NormIntFrame, pcb_NormIntAuxFrame, 1 )
 
              if ( NOT bool_is_vector (v_Status) ) then $
-                warning,'WARNING ('+strtrim(functionName)+'): Normalization of dataset '+strg(i)+' failed (0).' $
-             else if ( v_Status(0) ne 1 ) then $
-                     warning,'WARNING ('+strtrim(functionName)+'): Normalization of dataset '+strg(i)+' failed (1).' $
+                warning,'WARNING ('+strtrim(functionName)+'): Normalization of dataset '+strg(i)+' failed [0].' $
+             else if ( v_Status[0] ne 1 ) then $
+                     warning,'WARNING ('+strtrim(functionName)+'): Normalization of dataset '+strg(i)+' failed [0].' $
                   else begin
-                     add_fitskwd_to_header, DataSet.Headers(i), 1, ['NORMCMMT'], ['This cube has been flux normalized.'], ['a']
-                     add_fitskwd_to_header, DataSet.Headers(i), 1, ['NORMUNIT'], ['The units are mJy.'], ['a']
-                     add_fitskwd_to_header, DataSet.Headers(i), 1, ['NORMCNST'], [d_Norm], ['f']
+                     add_fitskwd_to_header, DataSet.Headers[i], 1, ['NORMCMMT'], ['This cube has been flux normalized.'], ['a']
+                     add_fitskwd_to_header, DataSet.Headers[i], 1, ['NORMUNIT'], ['The units are mJy.'], ['a']
+                     add_fitskwd_to_header, DataSet.Headers[i], 1, ['NORMCNST'], [d_Norm], ['f']
 
                      info,'INFO ('+strtrim(functionName)+'): Normalization of dataset '+strg(i)+' successfully done.'
                   end

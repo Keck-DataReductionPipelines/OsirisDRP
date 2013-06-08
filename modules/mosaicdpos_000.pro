@@ -80,15 +80,15 @@ FUNCTION mosaicdpos_000, DataSet, Modules, Backbone
        return, error ('FAILURE ('+strtrim(functionName)+'): Resizing of dataset failed.')
 
     ; extract images for offset determination
-    n_Dims = size(*DataSet.Frames(0))
+    n_Dims = size(*DataSet.Frames[0])
 
-    if ( bool_is_cube( *DataSet.Frames(0)) ) then begin
+    if ( bool_is_cube( *DataSet.Frames[0]) ) then begin
 
-       cd_Images = make_array(n_Dims(2), n_Dims(3), n_Sets, /FLOAT)
+       cd_Images = make_array(n_Dims[2], n_Dims[3], n_Sets, /FLOAT)
 
        for i=0, n_Sets-1 do begin
 
-          s_Res = img_cube2image ( DataSet.Frames(i), DataSet.IntFrames(i), DataSet.IntAuxFrames(i), $
+          s_Res = img_cube2image ( DataSet.Frames[i], DataSet.IntFrames[i], DataSet.IntAuxFrames[i], $
                                    d_SpecChannels, s_Mode, DEBUG=b_Debug )
           if ( NOT bool_is_struct ( s_Res ) ) then $
              return, 'FAILURE ('+strtrim(functionName)+'): Failed to extract image of set '+strg(i)+'.' $
@@ -99,7 +99,7 @@ FUNCTION mosaicdpos_000, DataSet, Modules, Backbone
 
     endif else begin
 
-       if ( bool_is_image(*DataSet.Frames(0)) ) then begin
+       if ( bool_is_image(*DataSet.Frames[0]) ) then begin
 
           cd_Images = make_array(n_Dims(1), n_Dims(2), n_Sets, /FLOAT)
           for i=0, n_Sets-1 do $

@@ -336,6 +336,7 @@ int mkrecmatrx_000(int argc, void* argv[]) {
   fits_update_key(fptr, TSHORT, "BASESIZE", &basesize, "Derived from input slice value", &status);
   fits_update_key(fptr, TFLOAT, "WTLIMIT", &weight_limit, "Passed in parameter", &status);
   fits_update_key(fptr, TSHORT, "SLICE", &slice, "Passed in parameter", &status);
+  fits_update_key(fptr, TSHORT, "SHIFT", &shift, "Passed in paraemter", &status);
 
   nelements = naxes_hilo[0] * naxes_hilo[1];  /* number of pixels to write */
 

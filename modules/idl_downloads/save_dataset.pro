@@ -39,9 +39,9 @@ function save_dataset, DataSet, nFrames, s_OutputDir, s_Ext, DEBUG=DEBUG
           c_File1 = c_File+'_'+strg(i)+'.fits'
        end
 
-       writefits, c_File1, float(*DataSet.Frames(i)), *DataSet.Headers[i]
-       writefits, c_File1, float(*DataSet.IntFrames(i)), /APPEND
-       writefits, c_File1, byte(*DataSet.IntAuxFrames(i)), /APPEND
+       writefits, c_File1, float( *DataSet.Frames[i]), *DataSet.Headers[i]
+       writefits, c_File1, float( *DataSet.IntFrames[i]), /APPEND
+       writefits, c_File1, byte( *DataSet.IntAuxFrames[i]), /APPEND
 
        if ( keyword_set ( DEBUG ) ) then begin
           debug_info, 'DEBUG INFO ('+functionName+'): File '+c_File1+' successfully written.'

@@ -8,12 +8,19 @@ PRO drpRun, QUEUE_DIR=queue_dir
 	ENDELSE
 	initialQueueDir = initialQueueDir + '/'
         backboneDIR = GETENV('OSIRIS_BACKBONE_DIR')
+        drpData = GETENV('OSIRIS_DRP_DATA_PATH')
+        drpConfig = GETENV('OSIRIS_DRP_CONFIG_FILE')
+        IDLversion = !version.release
         print, "                                                    "
         PRINT, "*****************************************************"
         print, "*                                                   *"
         PRINT, "*          OSIRIS DATA REDUCTION PIPELINE           *"
+        print, "*                                                   *"
+        print, "*###################################################*"
         print, "*                   Development                     *"
-        print, "*                   VERSION 3.0                     *"
+        print, "*###################################################*"
+        print, "*                                                   *"
+        print, "*                   VERSION 3.0.1                   *"
         print, "*                                                   *"
         print, "*           James Larkin, Shelley Wright,           *"
         print, "*            Jason Weiss, Mike McElwain,            *"
@@ -24,6 +31,9 @@ PRO drpRun, QUEUE_DIR=queue_dir
         print, "*****************************************************"
 	PRINT, "DRF Queue directory = " + initialQueueDir
         PRINT, "BACKBONE directory = " + backboneDir
+        PRINT, "DRP Data Path = " + drpData
+        PRINT, "DRP Config File = " + drpConfig
+        PRINT, "IDL Version = " + IDLversion
 	x->Run, initialQueueDir
 	OBJ_DESTROY, x
 

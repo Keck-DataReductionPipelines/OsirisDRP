@@ -54,7 +54,7 @@ FUNCTION rmcrosstalk_000, DataSet, Modules, Backbone
     nFrames = Backbone->getValidFrameCount(DataSet.Name)
 
     ; do the subtraction
-    n_Dims = size( *DataSet.Frames(0))
+    n_Dims = size( *DataSet.Frames[0])
 
     for n = 0, (nFrames-1) do begin
 

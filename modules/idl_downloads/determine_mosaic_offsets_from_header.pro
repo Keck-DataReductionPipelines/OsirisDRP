@@ -32,7 +32,7 @@
 
 function coord2det, md_Coords, s_Type, d_Scale, d_PA, vd_InstAngl
 
-   COMMON APP_CONSTANTS
+;   COMMON APP_CONSTANTS
 
    functionName = 'determine_mosaic_offsets_from_header/coord2det'
 

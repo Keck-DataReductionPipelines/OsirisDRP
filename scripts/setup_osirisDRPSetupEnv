@@ -1,5 +1,5 @@
-setenv OSIRIS_ROOT /net/highz/work/1/larkin/code/drs
-
+#setenv OSIRIS_ROOT /net/highz/work/1/larkin/code/drs
+setenv OSIRIS_ROOT /home/osrsbld/kroot/kss/osiris/drs_dev
 # Location of data files
 setenv OSIRIS_DRP_DATA_PATH $OSIRIS_ROOT/data/
 

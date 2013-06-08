@@ -62,9 +62,9 @@ FUNCTION saveflatfi_000, DataSet, Modules, Backbone
     sxaddpar, h_H, 'COMMENT1', 'First image is the flatfield frame'
     sxaddpar, h_H, 'COMMENT2', 'Second image is the flatfield intframe'
     sxaddpar, h_H, 'COMMENT3', 'Third image is the flatfield intauxframe'
-    writefits, c_File, float(*DataSet.Frames(0)), h_H
-    writefits, c_File, float(*DataSet.IntFrames(0)), /APPEND
-    writefits, c_File, byte(*DataSet.IntAuxFrames(0)), /APPEND
+    writefits, c_File, float(*DataSet.Frames[0]), h_H
+    writefits, c_File, float(*DataSet.IntFrames[0]), /APPEND
+    writefits, c_File, byte(*DataSet.IntAuxFrames[0]), /APPEND
 
     if ( b_Debug ) then begin
        debug_info, 'DEBUG INFO ('+strtrim(functionName)+'): File '+c_File+' successfully written.'

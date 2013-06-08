@@ -44,6 +44,10 @@
 ;	Put new wavelength solution from Tuan Do's shifts
 ;	in after Oct 2009 servicing mission
 ;	Julian date called post Oct 2009 
+; @Modified Jim Lyke (May 2013)
+;       Added additional wavelength solutions for several dates and
+;       updated naming conventions of the wavelength solutions to 
+;       include dates
 ;
 ;
 ; @END
@@ -79,8 +83,10 @@ FUNCTION assembcube_000, DataSet, Modules, Backbone
    ; Store common variables into local ones.
    s_FilterFile  = strg(Backbone->getParameter('assembcube_COMMON___Filterfile'))
    s_CoeffFile   = strg(Backbone->getParameter('assembcube_COMMON___CoeffFile'))
-   s_OldCoeffFile   = strg(Backbone->getParameter('assembcube_COMMON___OldCoeffFile'))
-   s_MidCoeffFile   = strg(Backbone->getParameter('assembcube_COMMON___MidCoeffFile'))
+   s05_06CoeffFile   = strg(Backbone->getParameter('assembcube_COMMON___05_06CoeffFile'))
+   s06_09CoeffFile   = strg(Backbone->getParameter('assembcube_COMMON___06_09CoeffFile'))
+   s09_12CoeffFile   = strg(Backbone->getParameter('assembcube_COMMON___09_12CoeffFile'))
+   s12_12CoeffFile   = strg(Backbone->getParameter('assembcube_COMMON___12_12CoeffFile'))
 
    ; midwave is a wavelength offset used to make the poly fit symmetric in wavelength
    ; This must match what is in the routine that fits raw spectra: plot_fwhm
@@ -189,19 +195,33 @@ FUNCTION assembcube_000, DataSet, Modules, Backbone
    ; mission in February 2006. If so, then use the old calib
    ; file. Otherwise the default is the new file. 
    if ( (num eq 1) and (jul_date lt 53790.0) ) then begin
-       coeffs = readfits(s_OldCoeffFile)
        print, "Using wavelength coefficients from before 2006"
+       coeffFile = s05_06CoeffFile
    endif
    ;finds coeffs between Feb 2006 and Oct 2009
    if ( (num eq 1) and (jul_date ge 53790.0 and jul_date lt 55110.0) ) then begin
-       coeffs = readfits(s_MidCoeffFile) 
        print, "Using wavelength coefficient solution from Feb 23, 2006 - Oct 4, 2009"
+       coeffFile = s06_09CoeffFile
    endif
-   ; Use the new coeffs that are AFTER Oct 2009
-   if ( (num eq 1) and (jul_date ge 55110.0)) then begin
-	coeffs = readfits(s_CoeffFile)
-        print, "Using wavelength coefficient solution for data taken AFTER Oct 5, 2009"
+   ;finds coeffs between Oct 2009 and Jan 2012
+   if ( (num eq 1) and (jul_date ge 55110.0 and jul_date lt 55930.0) ) then begin
+       print, "Using wavelength coefficient solution from Oct 4, 2009 - Jan 3, 2012"
+       coeffFile = s09_12CoeffFile
    endif
+   ;finds coeffs between Jan 2012 and Dec 2012
+   if ( (num eq 1) and (jul_date ge 559300.0 and jul_date lt 56242.0) ) then begin
+       print, "Using wavelength coefficient solution from Jan 3, 2012 - Nov 9, 2012"
+       coeffFile = s12_12CoeffFile
+   endif
+   ; Use the new coeffs that are AFTER Nov 2012
+   if ( (num eq 1) and (jul_date ge 56242.0)) then begin
+        print, "Using wavelength coefficient solution for data taken AFTER Nov 9, 2012"
+        coeffFile = s_CoeffFile
+   endif
+
+   dum = strsplit(coeffFile, '/', /extract)
+   coeffFileNoPath = dum[n_elements(dum)-1]
+   coeffs = readfits(coeffFile)
 
    sz = size(coeffs)
    complete = intarr(sz[2],sz[3])
@@ -525,6 +545,7 @@ print,'cotemp ',cotemp
    ; Update RA and DEC header keywords
 	sxaddhist, functionName+":  Updating FITS header WCS keywords.", *DataSet.Headers[q]
     sxaddpar, *DataSet.Headers[q], "INSTRUME", "OSIRIS", "Instrument: OSIRIS on Keck I" ; FITS-compliant instrument name, too
+    sxaddpar, *DataSet.Headers[q], "WAVEFILE", coeffFileNoPath, "Wavelength Solution File"
     sxaddpar, *DataSet.Headers[q], "WCSAXES", 3, "Number of axes in WCS system"
 	sxaddpar, *DataSet.Headers[q], "CTYPE1", "WAVE", "Vacuum wavelength."
 	sxaddpar, *DataSet.Headers[q], "CTYPE2", "RA---TAN", "Right Ascension."
