@@ -33,10 +33,13 @@ RELFILES =
 RELDAT   = osiris_cal_line.list \
 	   osiris_filter_info.list \
 	   osiris_wave_coeffs.fits \
-	   old_wave_coeffs.fits
+	   osiris_wave_coeffs_050222-060222.fits \
+	   osiris_wave_coeffs_060223-091004.fits \
+	   osiris_wave_coeffs_091005-120103.fits \
+	   osiris_wave_coeffs_120104-121109.fits
 
 override SYSNAM = kss/osiris/drs/data/
-override VERNUM = 3.0.1 
+override VERNUM = 3.2 
 
 #  Include general make rules (use /etc if no environment variable).
 
