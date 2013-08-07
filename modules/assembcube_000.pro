@@ -209,7 +209,7 @@ FUNCTION assembcube_000, DataSet, Modules, Backbone
        coeffFile = s09_12CoeffFile
    endif
    ;finds coeffs between Jan 2012 and Dec 2012
-   if ( (num eq 1) and (jul_date ge 559300.0 and jul_date lt 56242.0) ) then begin
+   if ( (num eq 1) and (jul_date ge 55930.0 and jul_date lt 56242.0) ) then begin
        print, "Using wavelength coefficient solution from Jan 3, 2012 - Nov 9, 2012"
        coeffFile = s12_12CoeffFile
    endif
