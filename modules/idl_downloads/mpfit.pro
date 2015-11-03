@@ -855,7 +855,7 @@
 ;   Always call ITERPROC in the final iteration; add ITERKEYSTOP
 ;     keyword, CM, 30 June 2003
 ;
-;  $Id$
+;  $Id: mpfit.pro,v 1.1 2005/09/22 00:46:36 osiris Exp $
 ;-
 ; Copyright (C) 1997-2003, Craig Markwardt
 ; This software is provided as is without any warranty whatsoever.

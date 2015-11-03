@@ -146,7 +146,7 @@
 ;   Found small error in computation of _EVAL (when CIRCULAR) was set;
 ;      sanity check when CIRCULAR is set, 21 Jan 2003, CM
 ;
-;  $Id$
+;  $Id: mpfitellipse.pro,v 1.1 2005/09/22 00:46:37 osiris Exp $
 ;-
 ; Copyright (C) 1997-2000,2002,2003, Craig Markwardt
 ; This software is provided as is without any warranty whatsoever.

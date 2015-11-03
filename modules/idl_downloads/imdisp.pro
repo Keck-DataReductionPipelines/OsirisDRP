@@ -459,7 +459,7 @@ PRO IMDISP, IMAGE, RANGE=RANGE, BOTTOM=BOTTOM, NCOLORS=NCOLORS, $
 ; MODIFICATION HISTORY:
 ; Liam.Gumley@ssec.wisc.edu
 ; http://cimss.ssec.wisc.edu/~gumley
-; $Id$
+; $Id: imdisp.pro,v 1.1 2008/03/23 23:54:37 osiris Exp $
 ;
 ; Copyright (C) 1999, 2000 Liam E. Gumley
 ;
@@ -478,7 +478,7 @@ PRO IMDISP, IMAGE, RANGE=RANGE, BOTTOM=BOTTOM, NCOLORS=NCOLORS, $
 ; Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 ;-
 
-rcs_id = '$Id$'
+rcs_id = '$Id: imdisp.pro,v 1.1 2008/03/23 23:54:37 osiris Exp $'
 
 ;-------------------------------------------------------------------------------
 ;- CHECK INPUT

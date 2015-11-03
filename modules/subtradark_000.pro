@@ -38,8 +38,6 @@
 ; 	Added julian date for fixing pixel offset problem 
 ; 	that developed after a leach board change Sep 27, 2011 
 ;		Made - July 1, 2013 (JEL/SAW)
-;       Changed julian date due to typo.  Board was changed on Sep 17,
-;       2011 such that the MJD was 55821.5 (NOT 55831.5) jlyke
 ;
 ;-----------------------------------------------------------------------
 
@@ -87,7 +85,7 @@ FUNCTION subtradark_000, DataSet, Modules, Backbone
     
     ; This takes a raw OSIRIS file and shifts one of the output
     ; channels by one pixel. This appears to be needed after a board
-    ; change in the Leach electronics on Sep 17, 2011. Its a one pixel shift
+    ; change in the Leach electronics on Sep 27, 2011. Its a one pixel shift
     ; of the entire 128x1024 array when its treated as a linear sequence
     ; of pixels.
 
@@ -112,8 +110,8 @@ FUNCTION subtradark_000, DataSet, Modules, Backbone
    if fixdetec eq 0 then begin
 
    	for n = 0, (nFrames-1) do begin
-  		 if (jul_date_frame ge 55821.5) then begin
-			print, 'Julian date is after Sep 17, 2011 perform adjust pixel offset on object frames'
+  		 if (jul_date_frame ge 55831.5) then begin
+			print, 'Julian date is after Sep 27, 2011 perform adjust pixel offset on object frames'
 			; DataSet.Frames
  			    quad_f = (*Dataset.Frames[n])[1408:1535,0:1024] 	; Grab the bad output channel
  			    quad_f[0:131070]=quad_f[1:131071]		; Shift it by one pixel linearly
@@ -144,8 +142,8 @@ FUNCTION subtradark_000, DataSet, Modules, Backbone
           day = strmid(datestring,4,2)
           jul_date_dark = julday(month, day, year) - 2400000. 
          endif
-   	 if (jul_date_dark ge 55821.5) then begin
-		print, 'Julian date is after Sep 17, 2011 perform adjust pixel offset on dark frames'
+   	 if (jul_date_dark ge 55831.5) then begin
+		print, 'Julian date is after Sep 27, 2011 perform adjust pixel offset on dark frames'
 		; pmd_DarkFrames
 		    quad_d = (*pmd_DarkFrame)[1408:1535,0:1024] 	
 		    quad_d[0:131070]=quad_d[1:131071]	
@@ -161,7 +159,7 @@ FUNCTION subtradark_000, DataSet, Modules, Backbone
   	  endif
 
      endif else begin
-	print,'Not fixing bad offset since this routine has been run before OR frame is before Sep 17, 2011'
+	print,'Not fixing bad offset since this routine has been run before OR frame is before Sep 27, 2011'
 	;;;
      endelse
 
