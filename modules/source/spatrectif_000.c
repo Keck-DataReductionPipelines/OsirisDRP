@@ -139,13 +139,14 @@ int spatrectif_000(int argc, void* argv[])
       w=weight[sp];
       fw=fweight[sp];
       for ( i=0; i<DATA; i++)
+      //for ( i=DATA-1; i>-1, i++)
 	{
 	  w[i] =0.0;
 	  fw[i] =0.0;
 	  bl = blame[i][sp];
       	  fbl = fblame[i][sp];
 	  fbv = fbasisv[i][sp];
-	  //	  maxi = fbv[0];
+	  // maxi = fbv[0];
 	  //for (l=0; l<MAXSLICE; l++)
 	  //  {
 	  //    bl[l]=0.0;
@@ -155,11 +156,12 @@ int spatrectif_000(int argc, void* argv[])
 	  //	  where = l;
 	  //	}
 	  //  }
-	  //	  bl[where]= maxi;   // Alternative initial blame where only peak pixel is used.
-	  //      w[i] = bl[where];
+	  //bl[where]= maxi;   // Alternative initial blame where only peak pixel is used.
+	  //w[i] = bl[where];
 	  for (l=0; l<MAXSLICE; l++)
 	    {
 	      bl[l]= fbv[l]*fbv[l]*fbv[l];   // initial blame is very focused on peak pixels.
+	      //bl[l]= fbv[l];                 // initial blame is very focused on peak pixels.
 	      w[i] += bl[l];                 // Weight factor for distributing blame
 	      fbl[l]= fbv[l];                // final blame is a copy of the infl matrices
 	      fw[i]+= fbl[l];                // Weight factor for distributing blame
@@ -249,18 +251,41 @@ int spatrectif_000(int argc, void* argv[])
 		  //  // Initially be very aggressive in applying blame.
 		  //  ti[sp]+=relax*residual[j]* bl[jj];
 		  //}
-		  if ( ii < 15 ) {
-		    // Initially be very aggressive in applying blame. Accumulate the blame, but don't apply yet for the 1st iterations.
-		    ti[sp]+=relax*residual[j]* bl[jj];
+		  // SAW: edit
+		  if ( ii < 2 ) {
+		    ti[sp]+=0.15*relax*residual[j]* bl[jj];
 		  }
-		  if ( ii > 14) {
+		  if ( (ii > 3) && (ii < 5) ) {
+		    ti[sp]+=0.5*relax*residual[j]* bl[jj];
+		  }
+		  if ( (ii > 6) && (ii < 10) ) {
+		    ti[sp]+=0.7*relax*residual[j]* bl[jj];
+		  }
+		  if ( (ii > 11) && (ii < 19) ) {
+		    ti[sp]+=0.9*relax*residual[j]* bl[jj];
+		  }
+		  if ( ii > 20) {
 		    // After first set of iterations, settle down to stable solution
 		    ci[sp]+=relax*residual[j]* fbl[jj];
 		  }
-		  //		  if ( ii > 20) {
+
+		  // ORIGINAL CODE:
+		  //if ( ii > 14) {
 		    // After first set of iterations, settle down to stable solution
-		    //		    ci[sp]+=2.0*relax*residual[j]* fbl[jj];
+		  //  ci[sp]+=relax*residual[j]* fbl[jj];
 		  //}
+		  //if ( ii < 15 ) {
+		    // Initially be very aggressive in applying blame. Accumulate the blame, but don't apply yet for the 1st iterations
+		  //  ti[sp]+=relax*residual[j]* bl[jj];
+		  //}
+		  //if ( ii > 14) {
+		    // After first set of iterations, settle down to stable solution
+		  //  ci[sp]+=relax*residual[j]* fbl[jj];
+		  //}
+		  ////if ( ii > 20) {
+		    //// After first set of iterations, settle down to stable solution
+		  /////  ci[sp]+=2.0*relax*residual[j]* fbl[jj];
+		  ////}
 		  j++;
 		}
 	    }
@@ -300,7 +325,7 @@ int spatrectif_000(int argc, void* argv[])
 	{
 	  for (sp = 0; sp<numspec; sp++)
 	    for (i = 2; i<(DATA-2); i++ )
-	      // t_image[i][sp]=0.2*c_image[i-2][sp]+0.2*c_image[i-1][sp]+0.2*c_image[i][sp]+0.2*c_image[i+1][sp]+0.2*c_image[i+2][sp];
+	      //t_image[i][sp]=0.2*c_image[i-2][sp]+0.2*c_image[i-1][sp]+0.2*c_image[i][sp]+0.2*c_image[i+1][sp]+0.2*c_image[i+2][sp];
 	      t_image[i][sp]=0.1*c_image[i-2][sp]+0.2*c_image[i-1][sp]+0.4*c_image[i][sp]+0.2*c_image[i+1][sp]+0.1*c_image[i+2][sp];
 	  
 	  for (sp = 0; sp<numspec; sp++)
