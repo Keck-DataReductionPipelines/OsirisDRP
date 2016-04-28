@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- s160420_s010 -->
+<DRF LogPath="/Users/alexrudy/Documents/osiris" ReductionType="ARP_SPEC">
+  <dataset InputDir="$OSIRIS_ROOT/tests/test_calstar" Name="s151026_s021" OutputDir="$OSIRIS_ROOT/tests/test_calstar">
+    <fits FileName="s151026_s021001.fits" />
+  </dataset>
+  <module Name="Subtract Frame" CalibrationFile="$OSIRIS_ROOT/tests/test_calstar/s151026_s021002.fits" />
+  <module Name="Adjust Channel Levels" />
+  <module Name="Remove Crosstalk" />
+  <module Name="Glitch Identification" />
+  <module Name="Clean Cosmic Rays" Faint_Extended="NO" />
+  <module Name="Extract Spectra" CalibrationFile="/usr/local/osiris/drs/calib/s140606_c002___infl_Kbb_100.fits.gz" />
+  <module Name="Assemble Data Cube" />
+  <module Name="Correct Dispersion" />
+  <module Name="Extract Star" Method="APER_RADIUS7" />
+  <module Name="Remove Hydrogen Lines" />
+  <module Name="Divide Blackbody" Temperature="9480.0" />
+  <module Name="Save DataSet Information" />
+</DRF>
+
