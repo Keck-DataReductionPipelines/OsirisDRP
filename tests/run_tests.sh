@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 idl -e drpTest
-files="tests/**/expected/*.fits"
+wd=`dirname $0`
+files="$wd/**/expected/*.fits"
 for file in $files
 do
     outfile=`echo $file | sed -E "s|/expected/|/|"`
