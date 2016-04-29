@@ -240,14 +240,17 @@ PRO drpBackbone::ConsumeQueue, QueueDir
     	CATCH, Error; Catch errors inside the pipeline
     	IF Error EQ 0 THEN BEGIN
     		CurrentDRF = drpGetNextWaitingFile(FileNameArray)
+    		DRFFileName = drpFileNameFromStruct(QueueDir, CurrentDRF)
     		Self -> DoSingle, CurrentDRF, QueueDir
+            if CurrentDRF.Name NE '' THEN BEGIN
+                done = where(FileNameArray EQ DRFFileName)
+                remove, done, FileNameArray
     	ENDIF ELSE BEGIN
     		PRINT, "Calling Self -> ErrorHandler..."
     		Self -> ErrorHandler, CurrentDRF, QueueDir
     		CLOSE, LOG_DRF
     		FREE_LUN, LOG_DRF
     	ENDELSE
-    	FileNameArray = FILE_SEARCH(queueDirName)
     ENDWHILE
 END
 
