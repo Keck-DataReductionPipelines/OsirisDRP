@@ -226,6 +226,32 @@ PRO drpBackbone::DoQueueOnce, QueueDir
 END
 
 ;+
+; Get all waiting DRFs and process them.
+;-
+PRO drpBackbone::ConsumeQueue, QueueDir
+	COMMON APP_CONSTANTS
+	COMMON MSGCONSTANTS
+	COMMON MSGBUFFERIN
+	COMMON MSGBUFFEROUT
+	queueDirName = QueueDir + '*.waiting'
+	FileNameArray = FILE_SEARCH(queueDirName)
+    DRPCONTINUE = 1
+    WHILE size(FileNameArray)[0] GT 0 AND DRPCONTINUE DO BEGIN
+    	CATCH, Error; Catch errors inside the pipeline
+    	IF Error EQ 0 THEN BEGIN
+    		CurrentDRF = drpGetNextWaitingFile(FileNameArray)
+    		Self -> DoSingle, CurrentDRF, QueueDir
+    	ENDIF ELSE BEGIN
+    		PRINT, "Calling Self -> ErrorHandler..."
+    		Self -> ErrorHandler, CurrentDRF, QueueDir
+    		CLOSE, LOG_DRF
+    		FREE_LUN, LOG_DRF
+    	ENDELSE
+    	FileNameArray = FILE_SEARCH(queueDirName)
+    ENDWHILE
+END
+
+;+
 ; Called to close log files etc when the DRP queue is done.
 ;-
 PRO drpBackbone::Finish
