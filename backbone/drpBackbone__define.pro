@@ -266,9 +266,9 @@ END
 
 
 ;+
-; Consume the DRP backbone queue indefinietly, similar to how drpBackbone::Run works.
+; Consume the DRP backbone queue indefinietly.
 ;-
-PRO drpBackbone::RunMany, QueueDir
+PRO drpBackbone::Run, QueueDir
 	COMMON APP_CONSTANTS
 	COMMON MSGCONSTANTS
 	COMMON MSGBUFFERIN
@@ -282,149 +282,9 @@ PRO drpBackbone::RunMany, QueueDir
                                 ; down. Suggested by Marshall Perrin
                                 ; Feb 18, 2006
                 ; Moved to the correct place JEL, May 30, 2007
-    wait, 1
+        wait, 1
 	ENDWHILE
 	Self -> Finish
-END
-
-PRO drpBackbone::Run, QueueDir
-
-	COMMON APP_CONSTANTS
-	COMMON MSGCONSTANTS
-	COMMON MSGBUFFERIN
-	COMMON MSGBUFFEROUT
-
-	CATCH, Error   	; Catch errors before the pipeline
-	IF Error EQ 0 THEN BEGIN
-		drpSetAppConstants		; Set the application constants
-		drpPushCallStack, 'drpBackbone::Run'	
-		Self -> OpenLog, drpXlateFileName(GETENV('OSIRIS_DRP_DEFAULTLOGDIR')) + '/' + general_log_name(), /GENERAL
-		drpLog, 'Run Backbone', /GENERAL		 
-		InErrHandler = 0
-		; The following should probably be done in a drpBackbone::INIT method
-		Self.Parser = OBJ_NEW('drpDRFParser')		
-		Self.DRFPipeline = OBJ_NEW('drpDRFPipeline')
-		Self.ConfigParser = OBJ_NEW('drpConfigParser')
-		; End INIT?
-		drpPARAMETERSDefine
-		;drpLog, 'drpBackbone::Run: About to parse config file', /GENERAL		 
-		drpDefineStructs		; Define the DRP structures
-	ENDIF ELSE BEGIN
-		Self -> ErrorHandler
-		CLOSE, LOG_GENERAL
-		FREE_LUN, LOG_GENERAL
-		CLOSE, LOG_DRF
-		FREE_LUN, LOG_DRF
-   		RETURN
-	ENDELSE	
-
-	; Replace this fixed assignement with some environment variable stuff
-
-; Commented out by James Larkin, Oct. 29, 2005
-;	OriginalPath = STRING(!PATH)
-;	newModulePath = drpXlateFileName(GETENV('OSIRIS_DRP_MODULE_PATH')) + ':' + OriginalPath
-;	drpSetModulePath, newModulePath
-;	OriginalPath = STRING(!PATH)
-;	newModulePath = drpXlateFileName(GETENV('OSIRIS_DRP_IDL_DOWNLOADS_PATH')) + ':' + OriginalPath
-;	drpSetModulePath, newModulePath
-;	OriginalPath = STRING(!PATH)
-;	newModulePath = drpXlateFileName(GETENV('OSIRIS_DRP_BACKBONE_PATH')) + ':' + OriginalPath
-;	drpSetModulePath, newModulePath
-
-	;  Poll the 'queue' directory continuously.  If a DRF is encountered, reduce it.
-	DRPCONTINUE = 1  ; Start off with a continuous loop
-	WHILE DRPCONTINUE EQ 1 DO BEGIN
-		CATCH, Error	; Catch errors inside the pipeline
-  	IF Error EQ 0 THEN BEGIN
-			queueDirName = QueueDir + '*.waiting'
-			FileNameArray = FILE_SEARCH(queueDirName)
-			CurrentDRF = drpGetNextWaitingFile(FileNameArray)
-			IF CurrentDRF.Name NE '' THEN BEGIN
-				drpLog, 'Found file:' + CurrentDRF.Name, /GENERAL
-                                wait, 1.0   ; Wait 1 seconds to make sure file is fully written.
-				drpSetStatus, CurrentDRF, QueueDir, 'working'
-				DRFFileName = drpFileNameFromStruct(QueueDir, CurrentDRF)
-				; Re-parse the configuration file, in case it has been changed.
-				OPENR, lun, CONFIG_FILENAME_FILE, /GET_LUN
-				READF, lun, CONFIG_FILENAME
-				FREE_LUN, lun
-				Self.ConfigParser -> ParseFile, drpXlateFileName(CONFIG_FILENAME)
-				Self.ConfigParser -> getParameters, Self
-        CATCH, parserError
-				IF parserError EQ 0 THEN BEGIN
-					continueAfterDRFParsing = 1    ; Assume it will be Ok to continue
-					Self.Parser -> ParseFile, DRFFileName, Self
-					CATCH, /CANCEL
-				ENDIF ELSE BEGIN
-          ; This branch, for errors we have not thought of yet, will cause a
-          ; memory leak.  I do not understand it, but the the destruction and
-          ; recreation of the DRF parser seems to be the source of the leak.
-          ; TMG July 12, 2004
-					; Call the local error handler
-					Self -> ErrorHandler, CurrentDRF, QueueDir
-					; Destroy the current DRF parser and punt the DRF
-					OBJ_DESTROY, Self.Parser
-					; Recreate a parser object for the next DRF in the pipeline
-					Self.Parser = OBJ_NEW('drpDRFParser')
-					continueAfterDRFParsing = 0
-					CATCH, /CANCEL
-				ENDELSE
-				IF continueAfterDRFParsing EQ 1 THEN BEGIN
-					Self.ConfigParser -> getIDLFunctions, Self
-					Self -> OpenLog, Self.LogPath + '/' + CurrentDRF.Name + '.log', /DRF
-					Result = Self.DRFPipeline -> Reduce(*Self.Modules, *Self.Data, Self)
-					IF Result EQ 1 THEN BEGIN
-						PRINT, "Success"
-						drpSetStatus, CurrentDRF, QueueDir, 'done'
-					ENDIF ELSE BEGIN
-						PRINT, "Failure"
-						drpSetStatus, CurrentDRF, QueueDir, 'failed'
-					ENDELSE
-					; Free any remaining THIS memory here
-					IF PTR_VALID(Self.Data) THEN BEGIN
-						FOR i = N_ELEMENTS(*Self.Data)-1, 0, -1 DO BEGIN
-							PTR_FREE, (*Self.Data)[i].IntAuxFrames[*]
-							PTR_FREE, (*Self.Data)[i].IntFrames[*]
-							PTR_FREE, (*Self.Data)[i].Headers[*]
-							PTR_FREE, (*Self.Data)[i].Frames[*]
-						ENDFOR
-					ENDIF ; PTR_VALID(Self.Data)
-
-					; We are done with the DRF, so close its log file
-					CLOSE, LOG_DRF
-					FREE_LUN, LOG_DRF
-				ENDIF ELSE BEGIN  ; ENDIF continueAfterDRFParsing EQ 1
-          ; This code if continueAfterDRFParsing == 0
-          drpLog, 'drpBackbone::Run: Reduction failed due to parsing error in file ' + DRFFileName, /GENERAL
-          drpSetStatus, CurrentDRF, QueueDir, 'failed'
-          ; If we failed with outstanding data, then clean it up.
-          IF PTR_VALID(Self.Data) THEN BEGIN
-            FOR i = N_ELEMENTS(*Self.Data)-1, 0, -1 DO BEGIN
-              PTR_FREE, (*Self.Data)[i].IntAuxFrames[*]
-              PTR_FREE, (*Self.Data)[i].IntFrames[*]
-              PTR_FREE, (*Self.Data)[i].Headers[*]
-              PTR_FREE, (*Self.Data)[i].Frames[*]
-            ENDFOR
-          ENDIF
-        ENDELSE
-drpMemoryMarkSimple, 'xh'
-;HEAP_GC, /VERBOSE    ; Use this if the RBconfig.xml parameter list gets "big"
-			ENDIF
-		ENDIF ELSE BEGIN
-			PRINT, "Calling Self -> ErrorHandler..."
-			Self -> ErrorHandler, CurrentDRF, QueueDir
-			CLOSE, LOG_DRF
-			FREE_LUN, LOG_DRF
-		ENDELSE
-		drpCheckMessages  ; Check to see if we told ourselves to stop via the GUI
-                                ; Delay added to keep CPU usage
-                                ; down. Suggested by Marshall Perrin
-                                ; Feb 18, 2006
-                ; Moved to the correct place JEL, May 30, 2007
-                wait, 1
-	ENDWHILE
-	CLOSE, LOG_GENERAL
-	FREE_LUN, LOG_GENERAL
 END
 
 
