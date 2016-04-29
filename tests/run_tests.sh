@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-idl -e drpTest
 wd=`dirname $0`
+idl -IDL_STARTUP "$wd/drpStartup.pro" -e drpTest
 files="$wd/**/expected/*.fits"
 for file in $files
 do
