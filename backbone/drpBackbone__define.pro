@@ -235,16 +235,23 @@ PRO drpBackbone::ConsumeQueue, QueueDir
 	COMMON MSGBUFFEROUT
 	queueDirName = QueueDir + '*.waiting'
 	FileNameArray = FILE_SEARCH(queueDirName)
-    DRPCONTINUE = 1
-    WHILE size(FileNameArray)[0] GT 0 AND DRPCONTINUE DO BEGIN
+    s = size(FileNameArray)
+    QUEUECONTINUE=1
+    WHILE s[0] GT 0 AND QUEUECONTINUE GT 0 DO BEGIN
     	CATCH, Error; Catch errors inside the pipeline
     	IF Error EQ 0 THEN BEGIN
     		CurrentDRF = drpGetNextWaitingFile(FileNameArray)
     		DRFFileName = drpFileNameFromStruct(QueueDir, CurrentDRF)
     		Self -> DoSingle, CurrentDRF, QueueDir
             if CurrentDRF.Name NE '' THEN BEGIN
-                done = where(FileNameArray EQ DRFFileName)
-                remove, done, FileNameArray
+                done = where(FileNameArray EQ DRFFileName, nmatch)
+                IF s[0] EQ 1 THEN BEGIN
+                    QUEUECONTINUE=0
+                ENDIF
+                IF NMATCH GT 0 AND s[0] GT 1 THEN
+                    remove, done, FileNameArray
+                    s = SIZE(FileNameArray)
+                ENDIF
     	ENDIF ELSE BEGIN
     		PRINT, "Calling Self -> ErrorHandler..."
     		Self -> ErrorHandler, CurrentDRF, QueueDir
