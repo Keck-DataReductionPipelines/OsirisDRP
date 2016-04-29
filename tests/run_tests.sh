@@ -5,5 +5,5 @@ files="$wd/**/expected/*.fits"
 for file in $files
 do
     outfile=`echo $file | sed -E "s|/expected/|/|"`
-    fitsdiff-ap -c SIMPLE $file $outfile
+    fitsdiff -c SIMPLE $file $outfile
 done
