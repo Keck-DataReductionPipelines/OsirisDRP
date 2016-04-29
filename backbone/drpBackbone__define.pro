@@ -243,15 +243,16 @@ PRO drpBackbone::ConsumeQueue, QueueDir
     		CurrentDRF = drpGetNextWaitingFile(FileNameArray)
     		DRFFileName = drpFileNameFromStruct(QueueDir, CurrentDRF)
     		Self -> DoSingle, CurrentDRF, QueueDir
-            if CurrentDRF.Name NE '' THEN BEGIN
+            IF CurrentDRF.Name NE '' THEN BEGIN
                 done = where(FileNameArray EQ DRFFileName, nmatch)
                 IF s[0] EQ 1 THEN BEGIN
                     QUEUECONTINUE=0
                 ENDIF
-                IF NMATCH GT 0 AND s[0] GT 1 THEN
+                IF NMATCH GT 0 AND s[0] GT 1 THEN BEGIN
                     remove, done, FileNameArray
                     s = SIZE(FileNameArray)
                 ENDIF
+            ENDIF
     	ENDIF ELSE BEGIN
     		PRINT, "Calling Self -> ErrorHandler..."
     		Self -> ErrorHandler, CurrentDRF, QueueDir
