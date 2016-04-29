@@ -9,19 +9,19 @@ FUNCTION drpParseFilename, Filename
     return, CurrentDRF
 END
 
-PRO drpTestSingle, Filename
-  
-  parsed = FILE_PATH_NAME_EXT(Filename)
-  QueueDir = parsed.path
+PRO drpTestSingle, QueueDir
   
   ; We have to do this, otherwise the default log directory probably won't exist at runtime.
-  SetLogDir = STRING('OSIRIS_DRP_DEFAULTLOGDIR=',parsed.path,FORMAT='(A,A,$)')
+  SetLogDir = STRING('OSIRIS_DRP_DEFAULTLOGDIR=',QueueDir,FORMAT='(A,A,$)')
   SETENV, SetLogDir
   x = OBJ_NEW('drpBackbone')
   x->Start
-  CurrentDRF = drpParseFilename(Filename)
-  x->DoSingle, CurrentDRF, QueueDir
-  drpSetStatus, CurrentDRF, QueueDir, "waiting"
+  x->ConsumeQueue, QueueDir
+  DRFFiles = FILE_SEARCH(QueueDir + "*.done")
+  FOR i=0, N_ELEMENTS(DRFFiles)-1 DO BEGIN
+      CurrentDRF = drpParseFilename(DRFFiles[i])
+      drpSetStatus, CurrentDRF, QueueDir, "waiting"
+  ENDFOR
   x->Finish
   OBJ_DESTROY, x
   
@@ -32,14 +32,17 @@ END
 ;-
 PRO drpTest
     TestDir = GETENV("OSIRIS_ROOT") + "/tests/"
-	TestDirName = TestDir + 'test**/*.waiting'
-	FileNameArray = FILE_SEARCH(TestDirName)
-    s = SIZE(FileNameArray)
-    IF s[0] GT 0 THEN BEGIN
-        FOR i=0, s[0] DO BEGIN
-            PRINT, "Testing ", FileNameArray[i], format="(A,A)"
-            drpTestSingle, FileNameArray[i]
-        ENDFOR
+	TestDirName = TestDir + 'test**/'
+	QueueDirArray = FILE_SEARCH(TestDirName)
+    IF N_ELEMENTS(QueueDirArray) GT 0 THEN BEGIN
+        TESTCONTINUE = 1
+        WHILE TESTCONTINUE EQ 1 DO BEGIN
+            PRINT, "Testing ", QueueDirArray[0], format="(A,A,'/')"
+            drpTestSingle, QueueDirArray[0] + "/"
+            IF N_ELEMENTS(QueueDirArray) EQ 1 THEN TESTCONTINUE = 0 $
+            ELSE IF N_ELEMENTS(QueueDirArray) GT 1 THEN remove, [0], QueueDirArray
+            s = SIZE(QueueDirArray)
+        ENDWHILE
     ENDIF
 END
 
