@@ -144,7 +144,7 @@
 ;     CM
 ;   Example corrected again (sigh...), 13 Feb 2003, CM
 ;
-;  $Id$
+;  $Id: mpftest.pro,v 1.1 2005/09/22 00:46:39 osiris Exp $
 ;-
 ; Copyright (C) 1999,2001,2002,2003, Craig Markwardt
 ; This software is provided as is without any warranty whatsoever.

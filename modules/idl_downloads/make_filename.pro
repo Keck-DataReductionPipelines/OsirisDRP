@@ -49,6 +49,9 @@ function make_filename, p_DataHeader, s_OutputDir, s_Type, IMAG=IMAG
        warning, 'WARNING (make_filename.pro): keyword DATAFILE not found in header.'
        s_file = strjoin(strsplit(systime(),/extract,escape=':'),'_')
     endif ELSE BEGIN
+       ; jlyke 2016mar31: H2RG now includes ".fits" in DATAFILE keyword
+       sfn = STRSPLIT(s_file, '.', /EXTRACT)
+       s_file = sfn[0]
        ; Chop the frame number off of the file name since we only want the name
        ; through the set number
        s_file_full = s_file  ; save the full name for possible later use

@@ -514,7 +514,7 @@
 ;   Documented RELSTEP field of PARINFO (!!), CM, 25 Oct 2002
 ;   Add DOF keyword to return degrees of freedom, CM, 23 June 2003
 ;
-;  $Id$
+;  $Id: mpfit2dfun.pro,v 1.1 2005/09/22 00:46:37 osiris Exp $
 ;-
 ; Copyright (C) 1997-2000, 2002, 2003, Craig Markwardt
 ; This software is provided as is without any warranty whatsoever.
