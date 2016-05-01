@@ -165,7 +165,12 @@ FUNCTION extracstar_000, DataSet, Modules, Backbone
            SXADDPAR, *DataSet.Headers[q], "NAXIS1", n_dims[1],AFTER='NAXIS'
 
            ; Edit file name in header to replace datset with calstar
+           ; updated code for H2RG (by jlyke, added by A. Boehle - April 2016)
+           ; For H2, this file name DOES NOT include the .fits file extension.
+           ; For H2RG, this file name DOES include the .fits file extenstion.
            fname = sxpar(*DataSet.Headers[q],'DATAFILE')
+           fn = STRSPLIT(fname, '.', /EXTRACT)
+           fname = fn[0]
            fname = fname + '_1d'
            print, fname
            SXADDPAR, *DataSet.Headers[q], "DATAFILE", fname

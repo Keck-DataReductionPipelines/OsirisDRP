@@ -41,6 +41,8 @@
 ; @HISTORY  6.14.2005, created
 ;	    11.21.2005, modified with M. Perrin suggestions
 ;           06.17.2006, modified for ratio detection
+;           04.06.2016, modified so algorithm is not run on data from
+;                       new H2RG detector (A. Boehle)
 	
 ; @AUTHOR  Shelley Wright 
 ;
@@ -67,6 +69,16 @@ FUNCTION glitchid_000, DataSet, Modules, Backbone
     n_Dims = size( *DataSet.Frames[0])
     print, "Number of frames = ", nFrames
     print, "Size of each =", n_Dims
+
+    ; update for detector upgrade to H2RG:
+    ; check Julian date of data: if after Jan. 1st, 2016, 
+    ; then glitch ID is not run because data is from new H2RG detector.
+    ; read in header of first frame to get MJD
+    jul_date = sxpar(*DataSet.Headers[0], "MJD-OBS", count=num)
+    if (jul_date ge 57388.0) then begin
+        print, 'Glitch ID not performed: data is from H2RG detector.'
+        drpLog, 'Glitch ID not performed: data is from H2RG detector.', /DRF, DEPTH=1
+    endif else begin
 
     for n = 0, (nFrames-1) do begin
 
@@ -179,6 +191,8 @@ FUNCTION glitchid_000, DataSet, Modules, Backbone
         end
 
     endfor
+
+    endelse
 
     ; it is not neccessary to change the dataset pointer
     report_success, functionName, T

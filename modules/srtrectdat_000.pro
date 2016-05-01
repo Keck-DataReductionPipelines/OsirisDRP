@@ -61,10 +61,14 @@ FUNCTION srtrectdat_000, DataSet, Modules, Backbone
   BranchID = Backbone->getType()
   CASE BranchID OF
     'CRP_SPEC':  BEGIN
-      ; Get the file name from the header.  This file name does not include the
-      ; .fits file extension
+      ; Get the file name from the header.  
+      ; jlyke 2016mar31 
+      ; For H2, this file name DOES NOT include the .fits file extension
+      ; For H2RG, this file name DOES include the .fits file extension
       filename = STRTRIM(SXPAR(*DataSet.Headers[0], 'DATAFILE', /SILENT), 2)
       sfilter = STRTRIM(SXPAR(*DataSet.Headers[0], 'SFILTER', /SILENT), 2)
+      fn = STRSPLIT(filename, '.', /EXTRACT)
+      filename = fn[0]
       firstFrameNum = FIX(STRMID(filename, STRLEN(filename)-3))
       fileNameThruDSN = STRMID(filename, 0, STRLEN(filename)-3)
       rectType = 'nb'  ; Assume Narrowband
@@ -237,6 +241,14 @@ FUNCTION srtrectdat_000, DataSet, Modules, Backbone
     RETURN, ERR_BADCASE
   END  ; CASE BadType
   ENDCASE
+
+;;;; jlyke testing 2014 jul 08
+;;;;
+;help, *DataSet.Headers[0]
+for i=0,18 do begin
+  filename = STRTRIM(SXPAR(*DataSet.Headers[i], 'DATAFILE', /SILENT), 2)
+  print, i, ' ', filename
+endfor
 
   PRINT, FORMAT='(A, " ", $)', functionName
   HELP, /MEMORY

@@ -48,11 +48,8 @@
 ;       Added additional wavelength solutions for several dates and
 ;       updated naming conventions of the wavelength solutions to 
 ;       include dates
-; @Modified Etsuko Mieda (July 2014)
-;       Fixed WCS header keywords:
-;             1) lambda-y-x orientation 
-;             2) pointing origin change due to Keck-II to Keck-I move
-;             3) rotation matrix
+; @Modified Jim Lyke (Apr 2016)
+;       Added additional wavelength solutions for 13-15, new SPEC: 16-
 ;
 ;
 ; @END
@@ -92,6 +89,7 @@ FUNCTION assembcube_000, DataSet, Modules, Backbone
    s06_09CoeffFile   = strg(Backbone->getParameter('assembcube_COMMON___06_09CoeffFile'))
    s09_12CoeffFile   = strg(Backbone->getParameter('assembcube_COMMON___09_12CoeffFile'))
    s12_12CoeffFile   = strg(Backbone->getParameter('assembcube_COMMON___12_12CoeffFile'))
+   s13_15CoeffFile   = strg(Backbone->getParameter('assembcube_COMMON___13_15CoeffFile'))
 
    ; midwave is a wavelength offset used to make the poly fit symmetric in wavelength
    ; This must match what is in the routine that fits raw spectra: plot_fwhm
@@ -213,14 +211,18 @@ FUNCTION assembcube_000, DataSet, Modules, Backbone
        print, "Using wavelength coefficient solution from Oct 4, 2009 - Jan 3, 2012"
        coeffFile = s09_12CoeffFile
    endif
-   ;finds coeffs between Jan 2012 and Dec 2012
+   ;finds coeffs between Jan 2012 and Nov 2012
    if ( (num eq 1) and (jul_date ge 55930.0 and jul_date lt 56242.0) ) then begin
        print, "Using wavelength coefficient solution from Jan 3, 2012 - Nov 9, 2012"
        coeffFile = s12_12CoeffFile
    endif
-   ; Use the new coeffs that are AFTER Nov 2012
-   if ( (num eq 1) and (jul_date ge 56242.0)) then begin
-        print, "Using wavelength coefficient solution for data taken AFTER Nov 9, 2012"
+   ; finds coeffs between Nov 2012 and Dec 2015
+   if ( (num eq 1) and (jul_date ge 56242.0 and jul_date lt 57388.0)) then begin
+        print, "Using wavelength coefficient solution from Nov 9, 2012 - Dec 31, 2015"
+       coeffFile = s13_15CoeffFile
+   endif
+   ; use current coeff file for dates Jan 1, 2016 and after
+   if ( (num eq 1) and (jul_date ge 57388.0 )) then begin
         coeffFile = s_CoeffFile
    endif
 
@@ -520,14 +522,12 @@ print,'cotemp ',cotemp
 		endif
 	   ; the following is from mosaic_000.pro:
 	   ; Make default center the broad band values
-	   
-           if jul_date lt 55942.5 then begin ; (Mieda-201407: x reference pixel correction for x flip due to Keck-I optics)
-               pnt_cen=[32.0,9.0]
-               if ( n_sf eq 1 ) then begin
-                   bb = strcmp('b',strmid(s_filter,2,1))
-                   if ( strcmp('Zn2',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,25.0]
-                   if ( strcmp('Zn3',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,25.0]
-                   if ( strcmp('Zn4',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,33.0]
+	   pnt_cen=[32.0,9.0]
+	   if ( n_sf eq 1 ) then begin
+		   bb = strcmp('b',strmid(s_filter,2,1))
+		   if ( strcmp('Zn2',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,25.0]
+		   if ( strcmp('Zn3',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,25.0]
+		   if ( strcmp('Zn4',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,33.0]
 		   if ( strcmp('Zn5',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,33.0]
 		   if ( strcmp('Jn1',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,17.0]
 		   if ( strcmp('Jn2',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,22.0]
@@ -546,74 +546,33 @@ print,'cotemp ',cotemp
 		   if ( strcmp('Kc3',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,25.0]
 		   if ( strcmp('Kc4',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,28.0]
 		   if ( strcmp('Kc5',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,33.0]
-               endif
-           endif else begin
-               pnt_cen=[32.0,n_dims[3]-1-9.0]
-               if ( n_sf eq 1 ) then begin
-                   bb = strcmp('b',strmid(s_filter,2,1))
-                   if ( strcmp('Zn2',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,n_dims[3]-1-25.0]
-                   if ( strcmp('Zn3',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,n_dims[3]-1-25.0]
-                   if ( strcmp('Zn4',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,n_dims[3]-1-33.0]
-		   if ( strcmp('Zn5',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,n_dims[3]-1-33.0]
-		   if ( strcmp('Jn1',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,n_dims[3]-1-17.0]
-		   if ( strcmp('Jn2',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,n_dims[3]-1-22.0]
-		   if ( strcmp('Jn3',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,n_dims[3]-1-25.0]
-		   if ( strcmp('Jn4',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,n_dims[3]-1-28.0]
-		   if ( strcmp('Hn1',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,n_dims[3]-1-19.0]
-		   if ( strcmp('Hn2',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,n_dims[3]-1-23.0]
-		   if ( strcmp('Hn3',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,n_dims[3]-1-25.0]
-		   if ( strcmp('Hn4',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,n_dims[3]-1-28.0]
-		   if ( strcmp('Hn5',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,n_dims[3]-1-33.0]
-		   if ( strcmp('Kn1',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,n_dims[3]-1-19.0]
-		   if ( strcmp('Kn2',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,n_dims[3]-1-23.0]
-		   if ( strcmp('Kn3',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,n_dims[3]-1-25.0]
-		   if ( strcmp('Kn4',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,n_dims[3]-1-28.0]
-		   if ( strcmp('Kn5',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,n_dims[3]-1-33.0]
-		   if ( strcmp('Kc3',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,n_dims[3]-1-25.0]
-		   if ( strcmp('Kc4',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,n_dims[3]-1-28.0]
-		   if ( strcmp('Kc5',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,n_dims[3]-1-33.0]
-               endif
-           endelse
+	   end
 	   print, "Pointing center is", pnt_cen
    
    ; Update RA and DEC header keywords
 	sxaddhist, functionName+":  Updating FITS header WCS keywords.", *DataSet.Headers[q]
-        sxaddpar, *DataSet.Headers[q], "INSTRUME", "OSIRIS", "Instrument: OSIRIS on Keck I" ; FITS-compliant instrument name, too
-        sxaddpar, *DataSet.Headers[q], "WAVEFILE", coeffFileNoPath, "Wavelength Solution File"
-        sxaddpar, *DataSet.Headers[q], "WCSAXES", 3, "Number of axes in WCS system"
+    sxaddpar, *DataSet.Headers[q], "INSTRUME", "OSIRIS", "Instrument: OSIRIS on Keck I" ; FITS-compliant instrument name, too
+    sxaddpar, *DataSet.Headers[q], "WAVEFILE", coeffFileNoPath, "Wavelength Solution File"
+    sxaddpar, *DataSet.Headers[q], "WCSAXES", 3, "Number of axes in WCS system"
 	sxaddpar, *DataSet.Headers[q], "CTYPE1", "WAVE", "Vacuum wavelength."
-        
-       ; (Mieda-201407: CTYPE, CUNIT, CRVAL are supposed to be 2 for RA and 3 for Dec
-                                ;sxaddpar, *DataSet.Headers[q], "CTYPE2", "RA---TAN", "Right Ascension."
-                                ;sxaddpar, *DataSet.Headers[q], "CTYPE3", "DEC--TAN", "Declination."
-        sxaddpar, *DataSet.Headers[q], "CTYPE2", "DEC--TAN", "Declination."
-        sxaddpar, *DataSet.Headers[q], "CTYPE3", "RA---TAN", "Right Ascension."
-
+	sxaddpar, *DataSet.Headers[q], "CTYPE2", "RA---TAN", "Right Ascension."
+	sxaddpar, *DataSet.Headers[q], "CTYPE3", "DEC--TAN", "Declination."
 	sxaddpar, *DataSet.Headers[q], "CUNIT1", "nm", "Vacuum wavelength unit is nanometers"
-                                ;sxaddpar, *DataSet.Headers[q], "CUNIT2", "deg", "R.A. unit is degrees, always"
-                                ;sxaddpar, *DataSet.Headers[q], "CUNIT3", "deg", "Declination unit is degrees, always"
-        sxaddpar, *DataSet.Headers[q], "CUNIT2", "deg", "Declination unit is degrees, always"
-        sxaddpar, *DataSet.Headers[q], "CUNIT3", "deg", "R.A. unit is degrees, always"
-
-        sxaddpar, *DataSet.Headers[q], 'CRVAL1', minl, " [nm] Wavelength at reference pixel"
-                                ;sxaddpar, *DataSet.Headers[q], "CRVAL2", sxpar(*DataSet.Headers[q],"RA"), " [deg] R.A. at reference pixel"
-                                ;sxaddpar, *DataSet.Headers[q], "CRVAL3", sxpar(*DataSet.Headers[q],"DEC"), " [deg] Declination at reference pixel"
-        sxaddpar, *DataSet.Headers[q], "CRVAL2", sxpar(*DataSet.Headers[q],"DEC"), " [deg] Declination at reference pixel"
-        sxaddpar, *DataSet.Headers[q], "CRVAL3", sxpar(*DataSet.Headers[q],"RA"), " [deg] R.A. at reference pixel"
-
-        sxaddpar, *DataSet.Headers[q], 'CRPIX1', 1, "Reference pixel location"
+	sxaddpar, *DataSet.Headers[q], "CUNIT2", "deg", "R.A. unit is degrees, always"
+	sxaddpar, *DataSet.Headers[q], "CUNIT3", "deg", "Declination unit is degrees, always"
+    sxaddpar, *DataSet.Headers[q], 'CRVAL1', minl, " [nm] Wavelength at reference pixel"
+	sxaddpar, *DataSet.Headers[q], "CRVAL2", sxpar(*DataSet.Headers[q],"RA"), " [deg] R.A. at reference pixel"
+	sxaddpar, *DataSet.Headers[q], "CRVAL3", sxpar(*DataSet.Headers[q],"DEC"), " [deg] Declination at reference pixel"
+    sxaddpar, *DataSet.Headers[q], 'CRPIX1', 1, "Reference pixel location"
 	sxaddpar, *DataSet.Headers[q], "CRPIX2", pnt_cen[0],     	"Reference pixel location"
 	sxaddpar, *DataSet.Headers[q], "CRPIX3", pnt_cen[1],     	"Reference pixel location"
-        sxaddpar, *DataSet.Headers[q], 'CDELT1', disp , "Wavelength scale is "+string(disp)+" nm/channel "
+    sxaddpar, *DataSet.Headers[q], 'CDELT1', disp , "Wavelength scale is "+string(disp)+" nm/channel "
 	sxaddpar, *DataSet.Headers[q], "CDELT2", pixelscale/3600., "Pixel scale is "+pixelscale_str+" arcsec/pixel"
 	sxaddpar, *DataSet.Headers[q], "CDELT3", pixelscale/3600., "Pixel scale is "+pixelscale_str+" arcsec/pixel"
 
 	; rotation matrix.
-	;pc = [[cos(d_PA), -sin(d_PA)], $
-	;	  [sin(d_PA), cos(d_PA)]]
-
-        pc = [[cos(d_PA), sin(d_PA)], $
-		  [sin(d_PA), -cos(d_PA)]]  ; (Mieda-201407: Rotation matrix correction
+	pc = [[cos(d_PA), -sin(d_PA)], $
+		  [sin(d_PA), cos(d_PA)]]
 
 	sxaddpar, *DataSet.Headers[q], "PC1_1", 1, "Spectral axis is unrotated"
 	sxaddpar, *DataSet.Headers[q], "PC2_2", pc[0,0], "RA, Dec axes rotated by "+PA_str+" degr."

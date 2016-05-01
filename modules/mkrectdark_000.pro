@@ -53,9 +53,14 @@ FUNCTION mkrectdark_000, DataSet, Modules, Backbone
   BranchID = Backbone->getType()
   CASE BranchID OF
     'CRP_SPEC':  BEGIN
-      ; Get the file name from the header.
-      filename = STRTRIM(SXPAR(*DataSet.Headers[0], "DATAFILE", /SILENT), 2)
-      sfilter = STRTRIM(SXPAR(*DataSet.Headers[0], "SFILTER", /SILENT), 2)
+      ; Get the file name from the header.  
+      ; jlyke 2016mar31 
+      ; For H2, this file name DOES NOT include the .fits file extension
+      ; For H2RG, this file name DOES include the .fits file extension
+      filename = STRTRIM(SXPAR(*DataSet.Headers[0], 'DATAFILE', /SILENT), 2)
+      sfilter = STRTRIM(SXPAR(*DataSet.Headers[0], 'SFILTER', /SILENT), 2)
+      fn = STRSPLIT(filename, '.', /EXTRACT)
+      filename = fn[0]
       firstFrameNum = FIX(STRMID(filename, STRLEN(filename)-3))
       fileNameThruDSN = STRMID(filename, 0, STRLEN(filename)-3)
       rectType = 'nb'  ; Assume Narrowband
