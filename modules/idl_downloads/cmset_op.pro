@@ -132,7 +132,7 @@
 ;      which tries to "help" you by restricting the MIN/MAX to the
 ;      range of the input variable (thanks to Will Maddox), CM, 16 Jan 2006
 ;
-;  $Id$
+;  $Id: cmset_op.pro,v 1.1 2006/05/03 00:09:44 osiris Exp $
 ;
 ;-
 ; Copyright (C) 2000, 2004, 2005, 2006, Craig Markwardt
