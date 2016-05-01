@@ -8,6 +8,7 @@
     assembcube_COMMON___06_09CoeffFile    ='$OSIRIS_DRP_DATA_PATH/osiris_wave_coeffs_060223-091004.fits'
     assembcube_COMMON___09_12CoeffFile    ='$OSIRIS_DRP_DATA_PATH/osiris_wave_coeffs_091005-120103.fits'
     assembcube_COMMON___12_12CoeffFile    ='$OSIRIS_DRP_DATA_PATH/osiris_wave_coeffs_120104-121109.fits'
+    assembcube_COMMON___13_15CoeffFile    ='$OSIRIS_DRP_DATA_PATH/osiris_wave_coeffs_130101-151231.fits'
     assembcube_COMMON___Filterfile        ='$OSIRIS_DRP_DATA_PATH/osiris_filter_info.list'
 
     caelum_mosaic_COMMON___Debug          = '0'
@@ -72,7 +73,7 @@
     makeflatfi_COMMON___Mode="MED"
 
     mkrecmatrx_COMMON___slice="14"
-    mkrecmatrx_COMMON___shift="-13"
+    mkrecmatrx_COMMON___shift="-26"
     mkrecmatrx_COMMON___weight_limit="0.01"
     mkrectdark_COMMON___Debug="1"
     mkrectdark_COMMON___framesInDark="10"
@@ -182,6 +183,9 @@
     </Module>
     <Module Name='Determine Spectral Resolution' IDLFunc='detspecres_000' HideInGUI="1" Comment="Used for engineering">
     </Module>
+    <Module Name="Median Combine Frames from Scan" IDLFunc="scanmed_000"  Comment="Used for engineering, and creating rectification matrices.">
+      <Argument Name="scan_repeat_value" Type="int" Range="(3, 11)" Default="5" />
+    </Module>
   </CRP_SPEC>
 	<!-- Astronomical Reductions ARP_SPEC -->
 	<!-- New Arguments from NJM should also be added to appropriate routines in ORP and CRP -->
@@ -231,8 +235,7 @@
       <Argument Name="Temperature" Type="float" Range="(3000.0,30000.0]" Default="9480.0" />
       </Module>
     <Module Name="Divide by Star Spectrum" IDLFunc="divstarspe_000" Comment="Divides Cube by 1D stellar spectrum. User specified file needed." ></Module>
-    <Module Name="Flip Cube Y" IDLFunc="oflipy_000" Comment="Flips OSIRIS Cube t
-o make handedness correct for Keck I Data"></Module>
+    <Module Name="Flip Cube Y" IDLFunc="oflipy_000" Comment="Flips OSIRIS Cube to make handedness correct for Keck I Data"></Module>
     <Module Name="Save DataSet Information" IDLFunc="savedatset_000" Comment="Saves reductions and outputs to fits file with all extensions and header.">
     </Module>
     <Module Name='Rename File' IDLFunc='rename_000' Comment="Rename File"> 
@@ -274,13 +277,12 @@ o make handedness correct for Keck I Data"></Module>
     <Module Name="Clean Cosmic Rays" IDLFunc="cleancosmic_000" Comment="Clean Cosmic Rays attempts to identify pixels that have been struck by cosmic rays on the detector. Identified pixels are marked as bad in the quality frame. No parameters or file needed." >
     </Module>
     <Module Name="Extract Spectra" IDLFunc="spatrectif_000" Comment="Extract Spectra takes two dimensional raw spectra and extracts them into unblended spectra that can be traced back to particular lenslets. It uses a calibration file called a rectification matrix which contains the psf shape of each lenslet as a function of wavelength. A rectification matrix file exists for each mode of the spectrograph (combination of filter and scale).">
-      <Argument Name="ExtractStar" Type="enum" Range="APER_RADIUS7|APER_RADIUS10|TOTAL" Default="APER_RADIUS7" /> 
+      <Argument Name="Extract Star" Type="enum" Range="APER_RADIUS7|APER_RADIUS10|TOTAL" Default="APER_RADIUS7" /> 
     </Module>
     <Module Name="Assemble Data Cube" IDLFunc="assembcube_000" Comment="Assemble Data Cube takes the raw extracted spectra from the Extract Spectra routine and places each spectrum in its correct x,y location in the data cube, and applies a wavelength solution to each lenslet. No parameters or file needed."></Module>
     <Module Name="Correct Dispersion" IDLFunc="corrtilt_000" Comment="This module corrects for spatial shifts along the spectral axis in the datacube due to atmospheric differential dispersion and instrumental effects. This should always be run before using Extract Star module. No parameters or file needed.">
     </Module>
-    <Module Name="Flip Cube Y" IDLFunc="oflipy_000" Comment="Flips OSIRIS Cube t
-o make handedness correct for Keck I Data"></Module>
+    <Module Name="Flip Cube Y" IDLFunc="oflipy_000" Comment="Flips OSIRIS Cube to make handedness correct for Keck I Data"></Module>
     <Module Name="Save DataSet Information" IDLFunc="savedatset_000" Comment="Saves reductions and outputs to fits file with all extensions and header.">
     </Module>
   </ORP_SPEC>
