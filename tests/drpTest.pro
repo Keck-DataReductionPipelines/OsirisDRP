@@ -9,6 +9,14 @@ FUNCTION drpParseFilename, Filename
     return, CurrentDRF
 END
 
+PRO drpResetDRFs, DRFFiles
+    IF DRFFiles NE '' AND N_ELEMENTS(DRFFiles) GT 0 THEN BEGIN
+        FOR i=0, N_ELEMENTS(DRFFiles)-1 DO BEGIN
+            CurrentDRF = drpParseFilename(DRFFiles[i])
+            drpSetStatus, CurrentDRF, QueueDir, "waiting"
+        ENDFOR
+    ENDIF
+
 PRO drpTestSingle, QueueDir
   
   ; We have to do this, otherwise the default log directory probably won't exist at runtime.
@@ -18,10 +26,9 @@ PRO drpTestSingle, QueueDir
   x->Start
   x->ConsumeQueue, QueueDir
   DRFFiles = FILE_SEARCH(QueueDir + "*.done")
-  FOR i=0, N_ELEMENTS(DRFFiles)-1 DO BEGIN
-      CurrentDRF = drpParseFilename(DRFFiles[i])
-      drpSetStatus, CurrentDRF, QueueDir, "waiting"
-  ENDFOR
+  drpResetDRFs, DRFFiles
+  DRFFiles = FILE_SEARCH(QueueDir + "*.failed")
+  drpResetDRFs, DRFFiles
   x->Finish
   OBJ_DESTROY, x
   
