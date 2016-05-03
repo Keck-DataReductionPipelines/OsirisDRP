@@ -8,7 +8,7 @@
     assembcube_COMMON___06_09CoeffFile    ='$OSIRIS_DRP_DATA_PATH/osiris_wave_coeffs_060223-091004.fits'
     assembcube_COMMON___09_12CoeffFile    ='$OSIRIS_DRP_DATA_PATH/osiris_wave_coeffs_091005-120103.fits'
     assembcube_COMMON___12_12CoeffFile    ='$OSIRIS_DRP_DATA_PATH/osiris_wave_coeffs_120104-121109.fits'
-    assembcube_COMMON___13_15CoeffFile    ='$OSIRIS_DRP_DATA_PATH/osiris_wave_coeffs_130101-151231.fits'
+    assembcube_COMMON___13_15CoeffFile    ='$OSIRIS_DRP_DATA_PATH/osiris_wave_coeffs_121110-151231.fits'
     assembcube_COMMON___Filterfile        ='$OSIRIS_DRP_DATA_PATH/osiris_filter_info.list'
 
     caelum_mosaic_COMMON___Debug          = '0'
