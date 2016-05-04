@@ -34,6 +34,8 @@ override SYSNAM = kss/osiris/drs/
 override VERNUM = 4.1 
 
 #  Include general make rules (use /etc if no environment variable).
-
+ifeq ($(wildcard $(KROOT)/etc/config.mk),)
+include Makefile.local
+else
 include $(KROOT)/etc/config.mk
-
+endif

@@ -1,0 +1,14 @@
+#
+#  Makefile.local
+#  OsirisDRP
+#
+#  Created by Alexander Rudy on 2016-05-04.
+#
+
+SOURCE = modules/source
+include modules/source/Makefile.local
+
+.PHONY: test
+
+test: all
+	tests/run_tests.sh

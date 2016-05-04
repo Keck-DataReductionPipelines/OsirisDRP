@@ -1,0 +1,62 @@
+##############################################################################
+#+
+#  Author:	Jason Weiss
+#
+#  Date:	20 September 2005
+#
+#  Description:	makefile to build OSIRIS DRS C modules
+#       osiris_ext_null.so
+#
+#-
+##############################################################################
+
+SOURCE ?= .
+
+IDL_INCLUDE ?= /Applications/exelis/idl/external/include
+CFITSIOLIBDIR ?= /opt/local/lib/
+
+# Include files.
+INCLUDE = 
+LD_LIBRARY_PATH = 
+
+# C source and object files.
+CFLAGS =  -I$(SOURCE)/include -I$(IDL_INCLUDE) -D__REENTRANT -fPIC -g -O2 -DHAVE_CONFIG_H -c 
+
+# This is a release point. Define version macros to override values
+# inherited from the environment
+override VERNUM = 3.1
+
+OBJ = osiris_rename_null.o \
+	osiris_wait_on_sem_signal_null.o \
+	osiris_post_sem_signal_null.o \
+	osiris_test.o \
+	osiris_rectify_lib.o \
+	mkrecmatrx_000.o \
+	spatrectif_000.o \
+	dumpxmlptr.o \
+	idlgetpid.o \
+	drp_structs.h
+OBJECTS = $(addprefix $(SOURCE)/, $(OBJ))
+
+
+ifeq "$(OSTYPE)" "darwin"
+#	CFLAGS_SHARED = -dynamiclib -single_module
+	CFLAGS_SHARED = -bundle
+else
+	CFLAGS_SHARED = -bundle
+endif
+
+.PHONY: all clean
+
+all: $(SOURCE)/libosiris_drp_ext_null.so.0.0
+	
+clean:
+	rm $(SOURCE)/*.o
+	rm $(SOURCE)/libosiris_drp_ext_null.so.0.0
+
+$(SOURCE)/libosiris_drp_ext_null.so.0.0 : $(OBJECTS)
+	$(CC) $(CFLAGS_SHARED) $< -L$(CFITSIOLIBDIR) -lm -lcfitsio -lm -o $@ 
+
+$(SOURCE)/%.o : $(SOURCE)/%.c
+	$(CC) $(CFLAGS) $< -o $@
+
