@@ -10,29 +10,35 @@ To install and run the OSIRIS DRP, you will need the following:
 
 ## Compiling a Local version of the DRP
 
-Set up the following environment variables:
+Set up the following environment variables if the defaults won't work for your installation. The defaults should work for installations of IDL on Mac OS X and CFITSIO installed using [MacPorts][]:
 
-- ``IDL_INCLUDE``, which should point to something like ``/Applications/exelis/idl/external/include``
-- ``CFITSIOLIBDIR``, which should point to the directory containing your installation of CFITSIO. For macports, that would be ``/opt/local/lib``.
+- ``IDL_INCLUDE``: The IDL include directory. If you don't set ``IDL_INCLUDE``, it defaults to ``IDL_INCLUDE=/Applications/exelis/idl/external/include``
+- ``CFITSIOLIBDIR``: The directory containing your installation of CFITSIO. If you don't set ``CFITSIOLIBDIR``, it will default to ``CFITSIOLIBDIR=/opt/local/lib``, which is correct for [MacPorts][].
 
 Then you can run the makefile from the top level of the OSIRIS DRP source code:
 
 ```
-    make all
+make all
 ```
 
 and you should see that the pipeline has been built correctly. Be sure you are using ``gmake`` (which on OS X is the only ``make``, so using ``make`` works.)
+
+[MacPorts]: https://www.macports.org
 
 ## OSIRIS Environment
 
 To setup the OSIRIS environment, source the file ``scripts/osirisSetup.sh``, then run ``osirisSetup`` with the root directory of your OSIRIS DRF installation. If your OSIRIS pipeline is installed in ``/usr/local/osiris/drs/``, then you would do:
 
 ```
-    source scripts/osirisSetup.sh
-    osirisSetup /usr/local/osiris/drs/
+source scripts/osirisSetup.sh
+osirisSetup /usr/local/osiris/drs/
 ```
 
 You can change all of the relevant OSIRIS variables later by running ``osirisSetup`` again.
+
+## Running the Pipeline
+
+Please check out the OSIRIS pipeline manual: <http://www2.keck.hawaii.edu/inst/osiris/OSIRIS_Manual_v2.3.pdf>
 
 ## Troubleshooting
 
