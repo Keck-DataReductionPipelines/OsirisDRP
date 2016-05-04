@@ -1,5 +1,8 @@
 test_*/*.fits
 test_*/*.log
+test_*/*.log.txt
+
+logs/*
 
 # Need to solve the big-data in repo problem.
 test_*/expected/* 
