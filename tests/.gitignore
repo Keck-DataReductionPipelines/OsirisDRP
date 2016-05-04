@@ -3,3 +3,6 @@ test_*/*.log
 
 # Need to solve the big-data in repo problem.
 test_*/expected/* 
+
+*.pyc
+*/__pycache__/*
