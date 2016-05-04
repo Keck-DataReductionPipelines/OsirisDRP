@@ -16,6 +16,7 @@ PRO drpResetDRFs, DRFFiles
             drpSetStatus, CurrentDRF, QueueDir, "waiting"
         ENDFOR
     ENDIF
+END
 
 PRO drpTestSingle, QueueDir
   
