@@ -5,6 +5,7 @@ This file contains a bunch of common pipeline installation problems and their so
 ## Wrong Architecture Errors
 
 If you get an error like this:
+
 ```
             % DRPBACKBONE::ERRORHANDLER: ERROR in drpBackbone::ErrorHandler - -379: CALL_EXTERNAL: Error loading sharable executable.
                 Symbol: osiris_wait_on_sem_signal, File = ./modules/source/libosiris_drp_ext_null.so.0.0
@@ -22,6 +23,7 @@ There is a mismatch between your compiled architectures somewhere between CFITSI
 ```
 
 You should see an architecture like ``x86_64``. You should check the architecture of ``libosiris`` and ``cfitsio``. They need to match the architecture of IDL. You can find out your IDL architecture from within IDL with the following:
+
 ```
     IDL> print, !VERSION.arch
     x86_64
