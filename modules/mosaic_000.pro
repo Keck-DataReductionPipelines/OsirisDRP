@@ -69,7 +69,10 @@
 ;       Modified 21 March 2008 - SAW and JEL
 ;               modified to include Kc filters
 ;	Modified Feb 2009 - Shelley Wright
-;		fixed LGS offsets that J. Lu discovered 
+;		fixed LGS offsets that J. Lu discovered
+;       Modified Jul 2014 - Etsuko Mieda
+;               1) fixed pointing origin due to Keck-II to Keck-I move
+;               2) fixed WCS header update 
 ;-----------------------------------------------------------------------
 
 FUNCTION mosaic_000, DataSet, Modules, Backbone
@@ -209,31 +212,62 @@ FUNCTION mosaic_000, DataSet, Modules, Backbone
    s_filter = sxpar(*DataSet.Headers[0],'SFILTER',count=n_sf)
 
    ; Make default center the broad band values
-   pnt_cen=[32.0,9.0]
-   if ( n_sf eq 1 ) then begin
-       bb = strcmp('b',strmid(s_filter,2,1))
-       if ( strcmp('Zn2',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,25.0]
-       if ( strcmp('Zn3',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,25.0]
-       if ( strcmp('Zn4',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,33.0]
-       if ( strcmp('Zn5',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,33.0]
-       if ( strcmp('Jn1',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,17.0]
-       if ( strcmp('Jn2',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,22.0]
-       if ( strcmp('Jn3',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,25.0]
-       if ( strcmp('Jn4',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,28.0]
-       if ( strcmp('Hn1',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,19.0]
-       if ( strcmp('Hn2',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,23.0]
-       if ( strcmp('Hn3',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,25.0]
-       if ( strcmp('Hn4',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,28.0]
-       if ( strcmp('Hn5',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,33.0]
-       if ( strcmp('Kn1',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,19.0]
-       if ( strcmp('Kn2',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,23.0]
-       if ( strcmp('Kn3',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,25.0]
-       if ( strcmp('Kn4',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,28.0]
-       if ( strcmp('Kn5',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,33.0]
-       if ( strcmp('Kc3',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,25.0]
-       if ( strcmp('Kc4',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,28.0]
-       if ( strcmp('Kc5',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,33.0]
-   end
+; (Mieda-201407: x reference pixel correction for x flip due to Keck-I optics
+jul_date = sxpar(*DataSet.Headers[0],"MJD-OBS", count=num)
+
+if jul_date lt 55942.5 then begin
+    pnt_cen=[32.0,9.0]
+    if ( n_sf eq 1 ) then begin
+        bb = strcmp('b',strmid(s_filter,2,1))
+        if ( strcmp('Zn2',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,25.0]
+        if ( strcmp('Zn3',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,25.0]
+        if ( strcmp('Zn4',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,33.0]
+        if ( strcmp('Zn5',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,33.0]
+        if ( strcmp('Jn1',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,17.0]
+        if ( strcmp('Jn2',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,22.0]
+        if ( strcmp('Jn3',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,25.0]
+        if ( strcmp('Jn4',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,28.0]
+        if ( strcmp('Hn1',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,19.0]
+        if ( strcmp('Hn2',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,23.0]
+        if ( strcmp('Hn3',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,25.0]
+        if ( strcmp('Hn4',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,28.0]
+        if ( strcmp('Hn5',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,33.0]
+        if ( strcmp('Kn1',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,19.0]
+        if ( strcmp('Kn2',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,23.0]
+        if ( strcmp('Kn3',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,25.0]
+        if ( strcmp('Kn4',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,28.0]
+        if ( strcmp('Kn5',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,33.0]
+        if ( strcmp('Kc3',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,25.0]
+        if ( strcmp('Kc4',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,28.0]
+        if ( strcmp('Kc5',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,33.0]
+    endif 
+    endif else begin
+        pnt_cen=[32.0,n_dims[3]-1-9.0]
+        if ( n_sf eq 1 ) then begin
+            bb = strcmp('b',strmid(s_filter,2,1))
+            if ( strcmp('Zn2',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,n_dims[3]-1-25.0]
+            if ( strcmp('Zn3',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,n_dims[3]-1-25.0]
+            if ( strcmp('Zn4',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,n_dims[3]-1-33.0]
+            if ( strcmp('Zn5',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,n_dims[3]-1-33.0]
+            if ( strcmp('Jn1',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,n_dims[3]-1-17.0]
+            if ( strcmp('Jn2',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,n_dims[3]-1-22.0]
+            if ( strcmp('Jn3',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,n_dims[3]-1-25.0]
+            if ( strcmp('Jn4',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,n_dims[3]-1-28.0]
+            if ( strcmp('Hn1',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,n_dims[3]-1-19.0]
+            if ( strcmp('Hn2',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,n_dims[3]-1-23.0]
+            if ( strcmp('Hn3',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,n_dims[3]-1-25.0]
+            if ( strcmp('Hn4',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,n_dims[3]-1-28.0]
+            if ( strcmp('Hn5',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,n_dims[3]-1-33.0]
+            if ( strcmp('Kn1',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,n_dims[3]-1-19.0]
+            if ( strcmp('Kn2',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,n_dims[3]-1-23.0]
+            if ( strcmp('Kn3',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,n_dims[3]-1-25.0]
+            if ( strcmp('Kn4',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,n_dims[3]-1-28.0]
+            if ( strcmp('Kn5',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,n_dims[3]-1-33.0]
+            if ( strcmp('Kc3',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,n_dims[3]-1-25.0]
+            if ( strcmp('Kc4',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,n_dims[3]-1-28.0]
+            if ( strcmp('Kc5',strmid(s_filter,0,3)) eq 1 ) then pnt_cen=[32.0,n_dims[3]-1-33.0]
+        endif
+    endelse
    print, "Pointing center is", pnt_cen
    
    ; Find offsets from frame1 to padded mosaic frame in arcseconds
@@ -241,8 +275,8 @@ FUNCTION mosaic_000, DataSet, Modules, Backbone
 	hdy = (abs(min_y_shift) + round(y_shift[0]) + pnt_cen[1]) * d_Scale
 
    ; Rotate offsets using lenslet PA (arcseconds)
-	hdx_rot = hdx * cos(d_PA) - hdy * sin(d_PA)
-        hdy_rot = -1* hdx * sin(d_PA) - hdy * cos(d_PA) 
+        hdx_rot = hdx * cos(d_PA) + hdy * sin(d_PA)
+        hdy_rot = hdx * sin(d_PA) - hdy * cos(d_PA)
 
    ; Convert offsets from arcsecs to RA and DEC
    ; Add RA Dec offsets to original RA, Dec from 1st file.
@@ -258,7 +292,11 @@ FUNCTION mosaic_000, DataSet, Modules, Backbone
    ; Update RA and DEC header keywords
 	sxaddpar, *DataSet.Headers[0], 'RA', RA_new,' RA at spatial [0,0] in mosaic'
 	sxaddpar, *DataSet.Headers[0], 'DEC', DEC_new,' DEC at spatial [0,0] in mosaic'
-
+   ; (Mieda: CRPIX, CRVAL update)
+        sxaddpar, *DataSet.Headers[0], 'CRPIX2', 0
+        sxaddpar, *DataSet.Headers[0], 'CRPIX3', 0
+        sxaddpar, *DataSet.Headers[0], 'CRVAL2', DEC_new
+        sxaddpar, *DataSet.Headers[0], 'CRVAL3', RA_new
 ;;;-------------------------;
 
 
