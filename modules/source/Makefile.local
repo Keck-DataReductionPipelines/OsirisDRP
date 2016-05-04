@@ -34,8 +34,7 @@ OBJ = osiris_rename_null.o \
 	mkrecmatrx_000.o \
 	spatrectif_000.o \
 	dumpxmlptr.o \
-	idlgetpid.o \
-	drp_structs.h
+	idlgetpid.o
 OBJECTS = $(addprefix $(SOURCE)/, $(OBJ))
 
 
@@ -43,7 +42,7 @@ ifeq "$(OSTYPE)" "darwin"
 #	CFLAGS_SHARED = -dynamiclib -single_module
 	CFLAGS_SHARED = -bundle
 else
-	CFLAGS_SHARED = -bundle
+	CFLAGS_SHARED = -shared
 endif
 
 .PHONY: all clean
@@ -55,7 +54,7 @@ clean:
 	rm $(SOURCE)/libosiris_drp_ext_null.so.0.0
 
 $(SOURCE)/libosiris_drp_ext_null.so.0.0 : $(OBJECTS)
-	$(CC) $(CFLAGS_SHARED) $< -L$(CFITSIOLIBDIR) -lm -lcfitsio -lm -o $@ 
+	$(CC) $(CFLAGS_SHARED) $? -L$(CFITSIOLIBDIR) -lm -lcfitsio -lm -o $@ 
 
 $(SOURCE)/%.o : $(SOURCE)/%.c
 	$(CC) $(CFLAGS) $< -o $@
