@@ -87,7 +87,12 @@ FUNCTION divstarspe_000, DataSet, Modules, Backbone
             end
         end
         ; Edit file name in header to replace datset with calstar
+        ; updated code for H2RG (by jlyke, added by A. Boehle - April 2016)
+        ; For H2, this file name DOES NOT include the .fits file extension.
+        ; For H2RG, this file name DOES include the .fits file extenstion.
         fname = sxpar(*DataSet.Headers[i],'DATAFILE')
+        fn = STRSPLIT(fname, '.', /EXTRACT)
+        fname = fn[0]
         fname = fname + '_tlc'
         print, fname
         SXADDPAR, *DataSet.Headers[i], "DATAFILE", fname

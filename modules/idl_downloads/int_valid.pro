@@ -19,12 +19,14 @@
 ;
 ; AUTHOR : Christof Iserlohe (iserlohe@ph1.uni-koeln.de)
 ;
+; jlyke 2016 apr 04 chg d_Min to 1.d-20
+; jlyke 2016 apr 06 chg d_Min to -1.d-20 to allow 0.0 values
 ;-----------------------------------------------------------------------
 
 function int_valid, v, n, NOVAL=NOVAL, MINV=MINV, ABSOLUT=ABSOLUT
 
    ; intframe values must be greater/less than d_Min
-   if ( keyword_set ( MINV ) ) then d_Min = MINV else d_Min = 1.d-10
+   if ( keyword_set ( MINV ) ) then d_Min = MINV else d_Min = -1.d-20
 
    if ( keyword_set ( ABSOLUT ) ) then v = abs(v)
 

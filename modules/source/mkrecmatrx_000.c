@@ -61,6 +61,8 @@ int mkrecmatrx_000(int argc, void* argv[]) {
   long int naxes_basis_vectors[3] = { DATA, MAXSLICE, numspec };    // Indices go "backwards", like FORTRAN
   float total, pretotal, posttotal;  // Temporary variables when looking for bad pixels.
 
+  int skip1; // Temporary variable to turn on/off some value checks
+
   // These parameters should be set in the same order as theay are passed
   // from the IDL code.  This is not yet automated, and I'm not sure how to
   // do it.
@@ -108,7 +110,7 @@ int mkrecmatrx_000(int argc, void* argv[]) {
 
   for (i=0; i<frameCount; i++) {
     Frames[i]       = (float *        )argv[ptrsOffset+4*i+0];
-    Headers[i]      = (IDL_STRING **  )argv[ptrsOffset+4*i+1];
+    Headers[i]      = (IDL_STRING *  )argv[ptrsOffset+4*i+1];
     IntFrames[i]    = (float *        )argv[ptrsOffset+4*i+2];
     IntAuxFrames[i] = (unsigned char *)argv[ptrsOffset+4*i+3];
   }
@@ -194,12 +196,16 @@ int mkrecmatrx_000(int argc, void* argv[]) {
   // Modified base value to 2056 on Oct 6, 2004 (JEL)
   // Modified base value to 2054 on Feb 27, 2005 (JEL)
 
-  // Temporary trying 2052 on Dec 23, 2009 (JEL)
+  // Temporarily trying 2052 on Dec 23, 2009 (JEL)
   sp = 0;
   for (col=0; col<numcolumn; col++ ) {
     for (row=0; row<specpercol; row++ ) {
-      hilo[sp][0]=2052+OFFSET-(31.9*row)-(2*col)-((basesize-1)/2);  // y-pixel lower limit for calibration frame of spectrum no.=sp
-      hilo[sp][1]=2052+OFFSET-(31.9*row)-(2*col)+((basesize-1)/2);  // y-pixel upper limit for calibration frame of spectrum no.=sp
+      // Modified vertical offset between spectra to 31.79 from 31.9
+      hilo[sp][0]=2052+OFFSET-(31.79*row)-(2*col)-((basesize-1)/2);  // y-pixel lower limit for calibration frame of spectrum no.=sp
+      hilo[sp][1]=2052+OFFSET-(31.79*row)-(2*col)+((basesize-1)/2);  // y-pixel upper limit for calibration frame of spectrum no.=sp
+      //hilo[sp][0]=2052+OFFSET-(31.9*row)-(2*col)-((basesize-1)/2);  // y-pixel lower limit for calibration frame of spectrum no.=sp
+      //hilo[sp][1]=2052+OFFSET-(31.9*row)-(2*col)+((basesize-1)/2);  // y-pixel upper limit for calibration frame of spectrum no.=sp
+      
       // Checking for top and bottom edges added 10/7/04 (JEL)
       if (hilo[sp][0] < 0) {       // Spectrum is close to the bottom edge
         hilo[sp][0]=0;  // y-pixel lower limit for calibration frame of spectrum no.=sp
@@ -283,12 +289,17 @@ int mkrecmatrx_000(int argc, void* argv[]) {
 	// Check to see if data is a NAN... If so then set to zero (JEL 12/22/09)
 	x = basis_vectors[sp][j][i];
 	if ( x != x ) {
-	  basis_vectors[sp][j][i] = 0.0;}
+	  basis_vectors[sp][j][i] = 0.0;
+	}
         if (basis_vectors[sp][j][i] < weight_limit)
-          basis_vectors[sp][j][i] = 0.0;
+	  basis_vectors[sp][j][i] = 0.0;
       }
  
  // Now look for bad elements in matrix. Bad is 2x both neighbors in spectral direction or 4x in spatial direction.
+ // jlyke 2016mar30 skip this as a try why PSF replaced with so many zeros
+ // jlyke 2016apr06 make skip1=0 as we had weird values in recmats
+  skip1 = 0;
+  if ( skip1 == 0 ) { 
   for ( sp=0; sp<numspec; sp++ ) {
     for ( i = 1; i< (DATA-1); i++ ) {
       pretotal = 0.0;
@@ -316,6 +327,7 @@ int mkrecmatrx_000(int argc, void* argv[]) {
       if ( fabs(basis_vectors[sp][0][i]) > (pretotal/2.0) ) basis_vectors[sp][0][i]=0.0;
       if ( fabs(basis_vectors[sp][(basesize-1)][i]) > (pretotal/2.0) ) basis_vectors[sp][(basesize-1)][i]=0.0;
     }
+  }
   }
 
 
