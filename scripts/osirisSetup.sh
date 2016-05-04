@@ -1,4 +1,9 @@
-function setup_OSIRIS {
+
+# Set up the OSIRIS environment variables.
+# Pass a single argument to this function, 
+# which should be the root directory for the
+# OSIRIS pipeline.
+function osirisSetup {
     export OSIRIS_ROOT=$1
     
     export OSIRIS_WROOT=${2:-$OSIRIS_ROOT}
@@ -36,12 +41,12 @@ function setup_OSIRIS {
     # Fixes a bug with awt on OSX
     export JAVA_TOOL_OPTIONS='-Djava.awt.headless=false'
     
-    function odrp {
-        idl  ${OSIRIS_BACKBONE_DIR}/osiris_drp_backbone_startup.pro
+    function run_odrp {
+        idl ${OSIRIS_BACKBONE_DIR}/osiris_drp_backbone_startup.pro
     }
 }
 
 if [ -d "/usr/local/osiris/drs/scripts/" ]; then
     # Contents of /usr/local/osiris/drs/scripts/
-    setup_OSIRIS /usr/local/osiris/drs
+    osirisSetup /usr/local/osiris/drs
 fi
