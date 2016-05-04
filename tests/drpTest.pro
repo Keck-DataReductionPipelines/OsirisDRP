@@ -9,7 +9,7 @@ FUNCTION drpParseFilename, Filename
     return, CurrentDRF
 END
 
-PRO drpResetDRFs, DRFFiles
+PRO drpResetDRFs, DRFFiles, QueueDir
     IF DRFFiles NE '' AND N_ELEMENTS(DRFFiles) GT 0 THEN BEGIN
         FOR i=0, N_ELEMENTS(DRFFiles)-1 DO BEGIN
             CurrentDRF = drpParseFilename(DRFFiles[i])
@@ -27,9 +27,9 @@ PRO drpTestSingle, QueueDir
   x->Start
   x->ConsumeQueue, QueueDir
   DRFFiles = FILE_SEARCH(QueueDir + "*.done")
-  drpResetDRFs, DRFFiles
+  drpResetDRFs, DRFFiles, QueueDir
   DRFFiles = FILE_SEARCH(QueueDir + "*.failed")
-  drpResetDRFs, DRFFiles
+  drpResetDRFs, DRFFiles, QueueDir
   x->Finish
   OBJ_DESTROY, x
   
