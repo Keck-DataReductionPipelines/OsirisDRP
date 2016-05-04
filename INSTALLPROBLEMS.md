@@ -29,3 +29,8 @@ You should see an architecture like ``x86_64``. You should check the architectur
     x86_64
 ```
 
+If you need to explicitly tell your compilier to target a specific architecutre, you might try the following copiler flags:
+
+- For 32 bit systems, either ``-m32`` or ``-arch i386``
+- For 64 bit systems, ``-arch x86_64``
+

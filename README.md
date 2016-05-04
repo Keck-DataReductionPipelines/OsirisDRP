@@ -1,5 +1,13 @@
 # OSIRIS Data Reduction Pipeline
 
+## Prerequisites
+
+To install and run the OSIRIS DRP, you will need the following:
+
+- A working C compiler (e.g. ``gcc``)
+- A copy of the compiled library cfitsio
+- A working installation of IDL
+
 ## Compiling a Local version of the DRP
 
 Set up the following environment variables:
@@ -7,7 +15,7 @@ Set up the following environment variables:
 - ``IDL_INCLUDE``, which should point to something like ``/Applications/exelis/idl/external/include``
 - ``CFITSIOLIBDIR``, which should point to the directory containing your installation of CFITSIO. For macports, that would be ``/opt/local/lib``.
 
-Then you can run the makefile:
+Then you can run the makefile from the top level of the OSIRIS DRP source code:
 
 ```
     make all
@@ -25,3 +33,8 @@ To setup the OSIRIS environment, source the file ``scripts/osirisSetup.sh``, the
 ```
 
 You can change all of the relevant OSIRIS variables later by running ``osirisSetup`` again.
+
+## Troubleshooting
+
+If you run into problems, please re-read this README.md, then read INSTALLPROBLEMS.md for some common installation problems.
+
