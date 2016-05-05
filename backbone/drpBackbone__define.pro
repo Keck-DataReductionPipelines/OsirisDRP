@@ -123,7 +123,7 @@ END
 ; Process a single CurrentDRF struct.
 ; This inernal method is used by both drpBackbone::DoQueueOnce
 ; and drpBackbone::DoFile
-;
+;-
 PRO drpBackbone::DoSingle, CurrentDRF, QueueDir
 	COMMON APP_CONSTANTS
 	COMMON MSGCONSTANTS
