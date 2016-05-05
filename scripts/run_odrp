@@ -13,4 +13,4 @@
 #setenv OSIRIS_BACKBONE_DIR $KROOT/rel/default/idl/odrs/backbone
 
 #start drp
-xterm +ls -sb -sl 5000 -T 'OSIRIS DRP' -e idl  ${OSIRIS_BACKBONE_DIR}/osiris_drp_backbone_startup.pro
+xterm +ls -sb -sl 5000 -T 'OSIRIS DRP' -e "idl -IDL_STARTUP ${OSIRIS_BACKBONE_DIR}/drpStartup.pro ${OSIRIS_BACKBONE_DIR}/osiris_drp_backbone_startup.pro"
