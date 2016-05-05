@@ -304,6 +304,11 @@ PRO drpBackbone::OpenLog, LogFile, GENERAL = LogGeneral, DRF = LogDRF
 	COMMON APP_CONSTANTS
 
 	drpPushCallStack, 'drpBackbone::OpenLog'
+        
+        LogDirectory = FILE_DIRNAME(LogFile)
+        IF NOT FILE_TEST(LogDirectory, /DIRECTORY) THEN BEGIN
+                FILE_MKDIR, LogDirectory
+        ENDIF
 
 	IF KEYWORD_SET(LogGeneral) THEN BEGIN
 		drpIOLock
