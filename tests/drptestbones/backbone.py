@@ -7,6 +7,13 @@ import glob
 import subprocess
 import shutil
 
+__all__ = ['prepare_and_consume_queue_directory', 'prepare_queue_directory', 'consume_queue_directory']
+
+def prepare_and_consume_queue_directory(queue_directory):
+    """Prepare and consume an OSIRIS DRP queue directory."""
+    prepare_queue_directory(queue_directory)
+    consume_queue_directory(queue_directory)
+
 def prepare_queue_directory(queue_directory):
     """Prepare the DRFs in a queue directory for testing"""
     for i, xml_filename in enumerate(glob.iglob(os.path.join(queue_directory, "*.xml"))):
