@@ -37,8 +37,5 @@ automatically downloaded when they are needed.
 
 ## Running Tests
 
-To run tests, use ``run_tests.sh``
+To run tests, use ``py.test`` or ``make test``
 
-The script will automatically discover all of the available test DRFs by looking for directories which start with ``test`` and have a DRF inside with the extension ``.waiting``.
-
-The test script will first run all of the found DRFs through the pipeline, then it will use ``fitsdiff`` (from pyfits or astropy) to compare the output FITS files to the _expected_ versions, inside of an ``expected/`` folder.
