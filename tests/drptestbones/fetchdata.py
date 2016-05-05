@@ -3,7 +3,10 @@ import urllib2
 from astropy.table import Table
 import inspect
 import os
+import glob
 import numpy as np
+
+from .drf import OsirisDRF
 
 def setup_test_data(test_directory):
     """
@@ -11,10 +14,7 @@ def setup_test_data(test_directory):
     """
     test_name = os.path.basename(os.path.normpath(test_directory))
     
-    for i, xml_filename in enumerate(glob.iglob(os.path.join(test_directory, "*.xml"))):
-        pipeline_file = os.path.splitext(os.path.basename(xml_filename))[0]
-        if "." in pipeline_file:
-            raise ValueError("XML DRF Filename contains '.' which is illegal. Filename: {0}".format(xml_filename))
+    for xml_filename in glob.iglob(os.path.join(test_directory, "*.xml")):
         drf = OsirisDRF.parse(xml_filename)
         cal_files = drf.calibration_files()
         dat_files = drf.data_files()
@@ -25,8 +25,7 @@ def setup_test_data(test_directory):
             sdx = dat_files[dd].rindex(test_name) + len(test_name) + 1
             file_to_fetch = dat_files[dd][sdx:]
             print 'Downloading ' + file_to_fetch
-            
-            fetchdata.get_test_file(test_name, file_to_fetch)
+            get_test_file(test_name, file_to_fetch)
 
     return
 
