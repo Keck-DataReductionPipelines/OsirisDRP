@@ -1,3 +1,4 @@
+!quiet=1
 drs_idl_root = getenv('OSIRIS_IDL_BASE')
 
 if (drs_idl_root ne '') then $
@@ -47,3 +48,4 @@ if (drs_idl_root ne '') then $
 .compile drpPipeline__define.pro
 .compile drpRun.pro
 .compile drpTest.pro
+!quiet=0
