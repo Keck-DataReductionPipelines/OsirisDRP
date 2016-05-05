@@ -51,6 +51,8 @@ clean:
 	$(RM) $(SOURCE)/*.o
 	$(RM) $(SOURCE)/libosiris_drp_ext_null.so.0.0
 
+all: $(SOURCE)/libosiris_drp_ext_null.so.0.0
+
 $(SOURCE)/libosiris_drp_ext_null.so.0.0 : $(OBJECTS)
 	$(CC) $(CFLAGS_SHARED) $? -L$(CFITSIOLIBDIR) -lm -lcfitsio -lm -o $@ 
 

@@ -10,9 +10,7 @@ include modules/source/Makefile.local
 
 .PHONY: test
 
-all: $(SOURCE)/libosiris_drp_ext_null.so.0.0
-	git submodule init
-	git submodule update
+
 	
 
 test: all
