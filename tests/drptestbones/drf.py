@@ -26,21 +26,21 @@ class OsirisDRF(object):
     @property
     def log_directory(self):
         """Check that the log directory exists."""
-        return expand_osiris_path(self.tree.find("DRF").get('LogPath'))
+        return expand_osiris_path(self.tree.find("./DRF").get('LogPath'))
     
     @property
     def output_directory(self):
         """Output directory"""
-        return expand_osiris_path(self.tree.find("DRF/dataset").get("OutputDir"))
+        return expand_osiris_path(self.tree.find("./DRF/dataset").get("OutputDir"))
         
     @property
     def input_directory(self):
         """Input directory."""
-        return expand_osiris_path(self.tree.find("DRF/dataset").get("InputDir"))
+        return expand_osiris_path(self.tree.find("./DRF/dataset").get("InputDir"))
     
     def data_files(self):
         """A list of input data files."""
-        dataset = self.tree.find("DRF/dataset")
+        dataset = self.tree.find("./DRF/dataset")
         input_directory = dataset.get("InputDir")
         return [ expand_osiris_path(os.path.join(input_directory, fits.get("FileName")))
             for fits in dataset.findall("fits") ]
@@ -48,7 +48,7 @@ class OsirisDRF(object):
     def calibration_files(self):
         """A list of input calibration files."""
         return [ expand_osiris_path(module.get('CalibrationFile'))
-            for module in self.tree.findall("DRF/module") if 'CalibrationFile' in module.attrib ]
+            for module in self.tree.findall("./DRF/module") if 'CalibrationFile' in module.attrib ]
         
     
     def files(self):

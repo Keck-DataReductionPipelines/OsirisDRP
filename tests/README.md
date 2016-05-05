@@ -16,10 +16,10 @@ Note that any rectification matrices that are needed to run the test
 should be downloaded into the $OSIRIS_ROOT/calib in advance of running
 the test.
 
-Not FITS files should be checked into the git repository. Please place
-any FITS files needed for the test to run into the
+Note that FITS files should NOT be checked into the git repository. Please place
+any FITS files needed for the test into the
 [data repository](https://drive.google.com/open?id=0B_YkzZoUSrX-ZlZ5T2k1cHZzYUE)
-on Google Drive. Your files should be placed in
+on Google Drive. Your files should be uploaded to
 ``tests/test_mynewtest/`` in the data repository. They will be
 automatically downloaded when they are needed.
 

@@ -4,6 +4,13 @@ import inspect
 import os
 import numpy as np
 
+def setup_test_data():
+    """
+    This should be called in the fixture for each test. 
+    """
+    pass
+
+
 def get_test_file(test_name, file_name, refresh=False):
     """
     Fetch a file for the specified test from a URL.
