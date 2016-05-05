@@ -1,3 +1,4 @@
 # test_name  file_name  file_url
-test_emission_line s150531_a025001.fits https://docs.google.com/uc?export=download&confirm=ac7q&id=0B85z1g2m_UvlMXBGcWF2WVVoc3M
-
+test_emission_line s150531_a025001.fits https://www.dropbox.com/s/cturwr3ynctb1lk/s150531_a025001.fits?dl=0
+test_emission_line s150531_a025002.fits https://www.dropbox.com/s/f2yhcyh585ew4b1/s150531_a025002.fits?dl=0
+test_emission_line s150531_a025002_Kn5_035_ref.fits https://www.dropbox.com/s/05jge00i5yo79vz/s150531_a025002_Kn5_035_ref.fits?dl=0
