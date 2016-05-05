@@ -3,8 +3,20 @@
 DRP Backbone based tests.
 """
 import os
+import glob
 import subprocess
+import shutil
 
+def prepare_queue_directory(queue_directory):
+    """Prepare the DRFs in a queue directory for testing"""
+    for i, xml_filename in enumerate(glob.iglob(os.path.join(queue_directory, "*.xml"))):
+        pipeline_file = os.path.splitext(os.path.basename(xml_filename))[0]
+        if "." in pipeline_file:
+            raise ValueError("XML DRF Filename contains '.' which is illegal. Filename: {0}".format(xml_filename))
+        pipeline_filename = "{0:03d}.{1:s}.waiting".format(i+1, pipeline_file)
+        pipeline_filepath = os.path.join(os.path.dirname(xml_filename), pipeline_filename)
+        shutil.copy(xml_filename, pipeline_filepath)
+    
 
 def consume_queue_directory(queue_directory, test_directory=None, capture=False):
     """Run the DRP until it has consumed a single queue directory.
