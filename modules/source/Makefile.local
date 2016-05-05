@@ -47,8 +47,6 @@ endif
 
 .PHONY: all clean
 
-all: $(SOURCE)/libosiris_drp_ext_null.so.0.0
-	
 clean:
 	$(RM) $(SOURCE)/*.o
 	$(RM) $(SOURCE)/libosiris_drp_ext_null.so.0.0
