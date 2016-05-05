@@ -9,7 +9,7 @@
   <module Name="Remove Crosstalk" />
   <module Name="Glitch Identification" />
 <module Name="Clean Cosmic Rays" />
-  <module CalibrationFile="$OSIRIS_ROOT/tests/test_emission_line/s150901_c008___infl_Kn5_035.fits" Name="Spatially Rectify Spectrum" />
+  <module CalibrationFile="$OSIRIS_ROOT/tests/calib/s150901_c008___infl_Kn5_035.fits" Name="Spatially Rectify Spectrum" />
   <module Name="Assemble Data Cube" /> 
   <module Name="Save DataSet Information" />
  </DRF>
