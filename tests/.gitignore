@@ -1,7 +1,15 @@
 test_*/*.fits
+
+# DRP Log files.
 test_*/*.log
 test_*/*.log.txt
 
+# DRFs which are used by an active queue.
+test_*/*.done
+test_*/*.waiting
+test_*/*.failed
+
+# Master DRP logs
 logs/*
 
 # Need to solve the big-data in repo problem.
