@@ -12,6 +12,10 @@ New tests are defined by a directory containing a DRF and an ``expected/`` folde
         - ``expected/``
             - ``myfitsfile.fits`` expceted output to be compared to pipeline output. The filename should match.
 
+Note that any rectification matrices that are needed to run the test
+should be downloaded into the $OSIRIS_ROOT/calib in advance of running
+the test. 
+
 ## Running Tests
 
 To run tests, use ``run_tests.sh``
