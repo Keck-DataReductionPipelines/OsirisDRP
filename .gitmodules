@@ -1,0 +1,3 @@
+[submodule "modules/idl_downloads/astrolib"]
+	path = modules/idl_downloads/astrolib
+	url = git@github.com:wlandsman/IDLAstro.git
