@@ -1,3 +1,6 @@
 *.o
 *.so*
 .cache/*
+
+# This directory usually contains recmats.
+calib
