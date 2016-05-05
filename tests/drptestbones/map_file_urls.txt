@@ -1,0 +1,3 @@
+# test_name  file_name  file_url
+test_emission_line s150531_a025001.fits https://docs.google.com/uc?export=download&confirm=ac7q&id=0B85z1g2m_UvlMXBGcWF2WVVoc3M
+
