@@ -11,4 +11,4 @@ include modules/source/Makefile.local
 .PHONY: test
 
 test: all
-	tests/run_tests.sh
+	py.test
