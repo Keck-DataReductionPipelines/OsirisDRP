@@ -19,5 +19,6 @@ def fits_osiris_allclose(a, b):
         ignore_blanks=True,
         ignore_blank_cards=True,
         tolerance=1e-5)
+    diff.diff_keyword_count = ()
     diff.report(fileobj=report)
     assert diff.identical, report.getvalue()
