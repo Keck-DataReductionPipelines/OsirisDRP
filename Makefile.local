@@ -14,4 +14,4 @@ include modules/source/Makefile.local
 	
 
 test: all
-	tests/run_tests.sh
+	py.test

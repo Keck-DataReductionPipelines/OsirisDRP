@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- s160420_s010 -->
-<DRF LogPath="OSIRIS_DRP_DEFAULTLOGDIR" ReductionType="ARP_SPEC">
+<DRF LogPath="$OSIRIS_DRP_DEFAULTLOGDIR" ReductionType="ARP_SPEC">
   <dataset InputDir="$OSIRIS_ROOT/tests/test_calstar" Name="s151026_s021" OutputDir="$OSIRIS_ROOT/tests/test_calstar">
     <fits FileName="s151026_s021001.fits" />
   </dataset>

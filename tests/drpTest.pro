@@ -26,10 +26,6 @@ PRO drpTestSingle, QueueDir
   x = OBJ_NEW('drpBackbone')
   x->Start
   x->ConsumeQueue, QueueDir
-  DRFFiles = FILE_SEARCH(QueueDir + "*.done")
-  drpResetDRFs, DRFFiles, QueueDir
-  DRFFiles = FILE_SEARCH(QueueDir + "*.failed")
-  drpResetDRFs, DRFFiles, QueueDir
   x->Finish
   OBJ_DESTROY, x
   
