@@ -17,6 +17,7 @@ def fits_osiris_allclose(a, b):
         ignore_comments=["SIMPLE"],
         ignore_fields=[],
         ignore_blanks=True,
-        ignore_blank_cards=True)
+        ignore_blank_cards=True,
+        tolerance=1e-5)
     diff.report(fileobj=report)
     assert diff.identical, report.getvalue()
