@@ -64,9 +64,9 @@ PRO drpBackbone::Start
 	CATCH, Error   	; Catch errors before the pipeline
 	IF Error EQ 0 THEN BEGIN
 		drpSetAppConstants		; Set the application constants
-		drpPushCallStack, 'drpBackbone::Run'	
+		drpPushCallStack, 'drpBackbone::Run'
 		Self -> OpenLog, drpXlateFileName(GETENV('OSIRIS_DRP_DEFAULTLOGDIR')) + '/' + general_log_name(), /GENERAL
-		drpLog, 'Run Backbone', /GENERAL		 
+		drpLog, 'Run Backbone', /GENERAL
 		InErrHandler = 0
 		; The following should probably be done in a drpBackbone::INIT method
 		Self.Parser = OBJ_NEW('drpDRFParser')		
@@ -77,6 +77,7 @@ PRO drpBackbone::Start
 		;drpLog, 'drpBackbone::Run: About to parse config file', /GENERAL		 
 		drpDefineStructs		; Define the DRP structures
 	ENDIF ELSE BEGIN
+                DRPCONTINUE = 0
 		Self -> ErrorHandler
 		CLOSE, LOG_GENERAL
 		FREE_LUN, LOG_GENERAL
@@ -84,6 +85,7 @@ PRO drpBackbone::Start
 		FREE_LUN, LOG_DRF
    		RETURN
 	ENDELSE
+        CATCH, /CANCEL
 END
 
 ;+
@@ -236,7 +238,6 @@ PRO drpBackbone::ConsumeQueue, QueueDir
 	queueDirName = QueueDir + '*.waiting'
 	FileNameArray = FILE_SEARCH(queueDirName)
     s = size(FileNameArray)
-    DRPCONTINUE = 1
     WHILE s[0] GT 0 AND DRPCONTINUE DO BEGIN
     	CATCH, Error; Catch errors inside the pipeline
     	IF Error EQ 0 THEN BEGIN
@@ -285,7 +286,6 @@ PRO drpBackbone::Run, QueueDir
 	COMMON MSGBUFFERIN
 	COMMON MSGBUFFEROUT
 	Self -> Start
-	DRPCONTINUE = 1  ; Start off with a continuous loop
 	WHILE DRPCONTINUE EQ 1 DO BEGIN
 		Self -> DoQueueOnce, QueueDir
 		drpCheckMessages  ; Check to see if we told ourselves to stop via the GUI
@@ -404,6 +404,7 @@ PRO drpBackbone::ErrorHandler, CurrentDRF, QueueDir
 		ENDIF
 	ENDIF ELSE BEGIN
     ; Will this cause a recursion error?
+                DRPCONTINUE = 0
 		MESSAGE, 'ERROR in drpBackbone::ErrorHandler - ' + STRTRIM(STRING(!ERR),2) + ': ' + !ERR_STRING, /INFO
 	ENDELSE
 

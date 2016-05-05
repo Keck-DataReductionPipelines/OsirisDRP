@@ -17,3 +17,4 @@ def test_emission_line(drf_queue):
     output_file = os.path.join(drf_queue, "s150531_a025002_Kn5_035.fits")
     expected_file = os.path.join(drf_queue, "s150531_a025002_Kn5_035_ref.fits")
     fits_osiris_allclose(output_file, expected_file)
+

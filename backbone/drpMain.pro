@@ -81,7 +81,7 @@ PRO drpSetAppConstants
 	PRINTDEPTH = 0
 	LOG_GENERAL = 1
 	LOG_DRF = 2
-	DRPCONTINUE = 0
+	DRPCONTINUE = 1
 	CALL_STACK = ''
 	OK = 0
 
