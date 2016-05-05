@@ -2,19 +2,19 @@
 
 import pytest
 import os
+import glob
 
-from drptestbones.backbone import prepare_and_consume_queue_directory
+from drptestbones.backbone import consume_queue_directory
 from drptestbones.diff import fits_osiris_allclose
+from drptestbones.fetchdata import get_test_file
 
-def test_emission_line():
+def test_emission_line(drf_queue):
     """Test FITS emission lines"""
+    # Download the reference file to compare to.
+    get_test_file('test_emission_line', 's150531_a025002_Kn5_035_ref.fits')
     
-    queue_directory = os.path.dirname(__file__)
-    prepare_and_consume_queue_directory(queue_directory)
-    
-    output_file = os.path.join(queue_directory, "s150531_a025002_Kn5_035.fits")
-    expected_file = os.path.join(queue_directory, "s150531_a025002_Kn5_035_ref.fits")
-
-    # testing that the new cube is similar to the reference
+    consume_queue_directory(drf_queue)
+    output_file = os.path.join(drf_queue, "s150531_a025002_Kn5_035.fits")
+    expected_file = os.path.join(drf_queue, "s150531_a025002_Kn5_035_ref.fits")
     fits_osiris_allclose(output_file, expected_file)
-    
+
