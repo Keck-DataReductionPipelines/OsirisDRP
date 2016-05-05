@@ -1,14 +1,34 @@
+# -*- coding: utf-8 -*-
 import urllib2
 from astropy.table import Table
 import inspect
 import os
 import numpy as np
 
-def setup_test_data():
+def setup_test_data(test_directory):
     """
     This should be called in the fixture for each test. 
     """
-    pass
+    test_name = os.path.basename(os.path.normpath(test_directory))
+    
+    for i, xml_filename in enumerate(glob.iglob(os.path.join(test_directory, "*.xml"))):
+        pipeline_file = os.path.splitext(os.path.basename(xml_filename))[0]
+        if "." in pipeline_file:
+            raise ValueError("XML DRF Filename contains '.' which is illegal. Filename: {0}".format(xml_filename))
+        drf = OsirisDRF.parse(xml_filename)
+        cal_files = drf.calibration_files()
+        dat_files = drf.data_files()
+
+        # Loop through the data files and download them if we need to.
+        for dd in range(len(dat_files)):
+            # Find the file name (and sub-directories) relative to the tests/<test_mytest> directory.
+            sdx = dat_files[dd].rindex(test_name) + len(test_name) + 1
+            file_to_fetch = dat_files[dd][sdx:]
+            print 'Downloading ' + file_to_fetch
+            
+            fetchdata.get_test_file(test_name, file_to_fetch)
+
+    return
 
 
 def get_test_file(test_name, file_name, refresh=False):
