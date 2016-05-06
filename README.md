@@ -27,14 +27,40 @@ and you should see that the pipeline has been built correctly. Be sure you are u
 
 ## OSIRIS Environment
 
+The OSIRIS DRP requires that you set various environment variables to that it knows how to find and run the pipeline. Instructions are below for bash (should work for other POSIX compliant shells) and CSH.
+
+### Environment Setup in Bash
+
 To setup the OSIRIS environment, source the file ``scripts/osirisSetup.sh``, then run ``osirisSetup`` with the root directory of your OSIRIS DRF installation. If your OSIRIS pipeline is installed in ``/usr/local/osiris/drs/``, then you would do:
 
 ```
-source scripts/osirisSetup.sh
-osirisSetup /usr/local/osiris/drs/
+$ source scripts/osirisSetup.sh
+To use the OSIRIS DRP, run osirisSetup /path/to/my/drp
+$ osirisSetup /my/path/to/osiris/drp/
+Setting OSIRIS_ROOT=/my/path/to/osiris/drp/
+Adding /my/path/to/osiris/drp/scripts to your path.
+Successfully setup OSIRIS DRP environment.
+The DRP is in /my/path/to/osiris/drp/
 ```
 
-You can change all of the relevant OSIRIS variables later by running ``osirisSetup`` again.
+You can change all of the relevant OSIRIS variables later by running ``osirisSetup`` again. ``osirisSetup`` will by default add ``$OSIRIS_ROOT/scripts`` to your environment's PATH variable. To skip this step, run ``osirisSetup`` with ``-n``:
+
+```
+$ osirisSetup -n /my/path/to/osiris/drp/
+```
+
+### Environment Setup in CSH
+
+To setup the OSIRIS environment, set the environment variable ``OSIRIS_ROOT`` to the root directory for the OSIRIS data reduction pipeline. Then source the file ``scripts/osirisSetup.csh``.
+
+```
+$ setenv OSIRIS_ROOT /my/path/to/osiris/drp/
+$ source scripts/osirisSetup.csh
+Using OSIRIS_ROOT=/my/path/to/osiris/drp/
+Successfully setup OSIRIS DRP environment.
+The DRP is in /my/path/to/osiris/drp/
+You might want to add /my/path/to/osiris/drp/scripts to your PATH.
+```
 
 ## Running the Pipeline
 

@@ -2,16 +2,25 @@ function osirisSetup() {
     local OPTIND o a
     
     function osirisSetup_usage() {
-        echo "Usage: $FUNCNAME /my/path/to/osiris/DRF/" >&2
-        echo "       $FUNCNAME" >&2
+        echo "Usage: $FUNCNAME [-n] /my/path/to/osiris/DRF/" >&2
+        echo "       $FUNCNAME [-n]" >&2
         echo "       (w/o arguments, assumes current directory)" >&2
+        echo "" >&2
+        echo "Flags:" >&2
+        echo "   -n  Do not adjust the \$PATH variable." >&2
+        echo "   -h  Show this message and exit." >&2
+        echo "" >&2
     }
     
-    while getopts h opt; do
+    setpath=1
+    while getopts hn opt; do
       case $opt in
         h)
           osirisSetup_usage
           return 1
+          ;;
+        n)
+          setpath=0
           ;;
         \?)
           echo "Invalid option: -$OPTARG" >&2
@@ -66,9 +75,11 @@ function osirisSetup() {
     export OSIRIS_DRP_CONFIG_FILE=$OSIRIS_ROOT/backbone/SupportFiles/local_osirisDRPConfigFile
 
     export OSIRIS_IDL_BASE=$OSIRIS_ROOT
-
-    export PATH=${OSIRIS_ROOT}/scripts:${PATH}
-        
+    
+    if [[ $setpath -eq 1 ]]; then
+        echo "Adding ${OSIRIS_ROOT}/scripts to your path."
+        export PATH=${OSIRIS_ROOT}/scripts:${PATH}
+    fi
     # Fixes a bug with awt on OSX
     export JAVA_TOOL_OPTIONS='-Djava.awt.headless=false'
     
