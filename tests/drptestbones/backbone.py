@@ -29,6 +29,12 @@ def prepare_queue_directory(queue_directory):
         pipeline_filename = "{0:03d}.{1:s}.waiting".format(i+1, pipeline_file)
         pipeline_filepath = os.path.join(os.path.dirname(xml_filename), pipeline_filename)
         shutil.copy(xml_filename, pipeline_filepath)
+        pipeline_status_glob = "{0:03d}.{1:s}.*".format(i+1, pipeline_file)
+        for filename in glob.iglob(pipeline_status_glob):
+            base, status = os.path.splitext(filename)
+            if status != '.waiting':
+                os.remove(filename)
+        
     
 
 def consume_queue_directory(queue_directory, test_directory=None):
