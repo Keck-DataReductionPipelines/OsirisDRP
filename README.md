@@ -64,6 +64,8 @@ You might want to add /my/path/to/osiris/drp/scripts to your PATH.
 
 ## Running the Pipeline
 
+To run the pipeline, use ``run_odrp``. If you don't want the pipeline to open a new xterm window, call ``run_odrp -n``.
+
 Please check out the OSIRIS pipeline manual: <http://www2.keck.hawaii.edu/inst/osiris/OSIRIS_Manual_v2.3.pdf>
 
 ## Troubleshooting
