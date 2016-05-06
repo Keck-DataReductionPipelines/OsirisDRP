@@ -12,7 +12,6 @@ IF (drs_idl_root NE '') THEN $
     backbone_dir=drs_idl_root+'/backbone/' & $
     module_dir=drs_idl_root+'/modules/' & $
     idl_downloads_dir=module_dir+'idl_downloads/' & $
-    test_dir=drs_idl_root+'/tests/'
 
 IF (drs_idl_root EQ '') THEN print, "OSIRIS_IDL_BASE=", drs_idl_root
 IF (drs_idl_root EQ '') THEN print, "The OSIRIS DRP cannot locate the correct source code directory."
@@ -20,7 +19,7 @@ IF (drs_idl_root EQ '') THEN print, "Did you forget to set the environment varia
 IF (drs_idl_root EQ '') THEN print, "You should run scripts/osirisSetup.sh to set environment variables"
 IF (drs_idl_root EQ '') THEN EXIT, /NO_CONFIRM
 
-!PATH=test_dir+':'+backbone_dir+':'+module_dir+':'+'+'+idl_downloads_dir+':'+'<IDL_DEFAULT>'
+!PATH=backbone_dir+':'+module_dir+':'+'+'+idl_downloads_dir+':'+'<IDL_DEFAULT>'
 !PATH=expand_path(!PATH)
 
 readcol_path = FILE_WHICH('readcol.pro')
@@ -64,4 +63,3 @@ IF (readcol_path EQ '') THEN EXIT, /NO_CONFIRM
 .compile drpDRFPipeline__define.pro
 .compile drpPipeline__define.pro
 .compile drpRun.pro
-.compile drpTest.pro
