@@ -30,7 +30,7 @@ def prepare_queue_directory(queue_directory):
         pipeline_filepath = os.path.join(os.path.dirname(xml_filename), pipeline_filename)
         shutil.copy(xml_filename, pipeline_filepath)
         pipeline_status_glob = "{0:03d}.{1:s}.*".format(i+1, pipeline_file)
-        for filename in glob.iglob(pipeline_status_glob):
+        for filename in glob.iglob(os.path.join(queue_directory, pipeline_status_glob)):
             base, status = os.path.splitext(filename)
             if status != '.waiting':
                 os.remove(filename)
@@ -75,10 +75,14 @@ def consume_queue_directory(queue_directory, test_directory=None):
     proc.wait()
     
     for drf in waiting_drfs:
+        drf = os.path.relpath(os.path.abspath(drf), os.path.realpath(os.environ["OSIRIS_ROOT"]))
         done_drf = os.path.splitext(drf)[0] + ".done"
         failed_drf = os.path.splitext(drf)[0] + ".failed"
-        if os.path.exists(failed_drf) or not os.path.exists(done_drf):
+        if os.path.exists(failed_drf):
             raise BackboneError("The backbone seems to have failed on DRF {0}".format(drf))
+        if not os.path.exists(done_drf):
+            raise BackboneError("The backbone doesn't appear to have finished DRF {0}".format(drf))
+            
     return proc.returncode
     
 
