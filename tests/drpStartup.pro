@@ -5,5 +5,3 @@ drs_idl_root=getenv('OSIRIS_IDL_BASE')
 !PATH=expand_path('+'+drs_idl_root+'/tests/')+":"+!PATH
 .compile drpTest.pro
 !quiet=0
-
-PRINT, !PATH
