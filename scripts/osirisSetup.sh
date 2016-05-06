@@ -1,11 +1,47 @@
-
-# Set up the OSIRIS environment variables.
-# Pass a single argument to this function, 
-# which should be the root directory for the
-# OSIRIS pipeline.
-function osirisSetup {
-    export OSIRIS_ROOT=$1
+function osirisSetup() {
+    local OPTIND o a
     
+    function osirisSetup_usage() {
+        echo "Usage: $FUNCNAME /my/path/to/osiris/DRF/" >&2
+        echo "       $FUNCNAME" >&2
+        echo "       (w/o arguments, assumes current directory)" >&2
+    }
+    
+    while getopts h opt; do
+      case $opt in
+        h)
+          osirisSetup_usage
+          return 1
+          ;;
+        \?)
+          echo "Invalid option: -$OPTARG" >&2
+          ;;
+      esac
+    done
+    
+    if [[ $# == 0 ]]; then
+        echo "No path to the OSIRIS pipeline was given."
+        echo "Assuming you want the pipeline to be in the current directory"
+    fi
+
+    # Set up the OSIRIS environment variables.
+    # Pass a single argument to this function, 
+    # which should be the root directory for the
+    # OSIRIS pipeline.
+    OSIRIS_ROOT=${1:-$PWD}
+    echo "Setting OSIRIS_ROOT=$OSIRIS_ROOT"
+    if [[ ! -d "$OSIRIS_ROOT/backbone" ]]; then
+        echo "Can't find the $OSIRIS_ROOT/backbone/ directory."
+        osirisSetup_usage
+        return 1
+    fi
+    if [[ ! -d "$OSIRIS_ROOT/modules" ]]; then
+        echo "Can't find the $OSIRIS_ROOT/modules/ directory."
+        osirisSetup_usage
+        return 1
+    fi
+    export OSIRIS_ROOT=$OSIRIS_ROOT
+
     export OSIRIS_WROOT=${2:-$OSIRIS_ROOT}
     # Location of data files
     export OSIRIS_DRP_DATA_PATH=$OSIRIS_WROOT/data/
@@ -28,25 +64,15 @@ function osirisSetup {
     # Specify where the configuration filename is stored. This file just
     # contains the real name of the configuration file.
     export OSIRIS_DRP_CONFIG_FILE=$OSIRIS_ROOT/backbone/SupportFiles/local_osirisDRPConfigFile
-    
+
     export OSIRIS_IDL_BASE=$OSIRIS_ROOT
-    
-    export PATH=${PATH}:${OSIRIS_ROOT}/scripts
-    if [[ $IDL_PATH != *"${OSIRIS_ROOT}/../ql2"* ]]; then
-        export IDL_PATH=+${OSIRIS_ROOT}/../ql2:/usr/local/pkg/astron/pro:${IDL_PATH:-<IDL_DEFAULT>}
-    fi
-    
-    export QL_FILEDIR=/usr/local/osiris/ql2
-    
+
+    export PATH=${OSIRIS_ROOT}/scripts:${PATH}
+        
     # Fixes a bug with awt on OSX
     export JAVA_TOOL_OPTIONS='-Djava.awt.headless=false'
     
-    function run_odrp {
-        idl ${OSIRIS_BACKBONE_DIR}/osiris_drp_backbone_startup.pro
-    }
-}
-
-if [ -d "/usr/local/osiris/drs/scripts/" ]; then
-    # Contents of /usr/local/osiris/drs/scripts/
-    osirisSetup /usr/local/osiris/drs
-fi
+    echo "Successfully setup OSIRIS DRP environment."
+    echo "The DRP is in $OSIRIS_ROOT"
+};
+echo "To use the OSIRIS DRP, run osirisSetup /path/to/my/drp"
