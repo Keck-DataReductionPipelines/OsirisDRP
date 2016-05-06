@@ -17,5 +17,5 @@ if ($?1 & $1 == "-n") then
     idl -IDL_STARTUP ${OSIRIS_BACKBONE_DIR}/drpStartup.pro ${OSIRIS_BACKBONE_DIR}/osiris_drp_backbone_startup.pro
 else
     #start drp
-    xterm +ls -sb -sl 5000 -T 'OSIRIS DRP' -e "idl -IDL_STARTUP ${OSIRIS_BACKBONE_DIR}/drpStartup.pro ${OSIRIS_BACKBONE_DIR}/osiris_drp_backbone_startup.pro"
+    xterm +ls -sb -sl 5000 -T 'OSIRIS DRP' -e idl -IDL_STARTUP ${OSIRIS_BACKBONE_DIR}/drpStartup.pro ${OSIRIS_BACKBONE_DIR}/osiris_drp_backbone_startup.pro
 endif
