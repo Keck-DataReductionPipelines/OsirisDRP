@@ -6,7 +6,7 @@
 - 2.7 GHz Intel Core i5
 - OS X El Capitan v10.11.1
 - IDL v8.5
-- Ureka installed
+- Ureka installed -- needed only to run DRP test in python
 - XQuartz v2.7.8
 - User "jlyke" has admin priviledges
 
