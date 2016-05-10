@@ -117,54 +117,78 @@ cc -Imodules/source/include -I/Applications/exelis/idl/external/include -D__REEN
 In file included from modules/source/osiris_rename_null.c:8:
 /Applications/exelis/idl/external/include/idl_export.h:2758:9: warning: 
       'strlcpy' macro redefined [-Wmacro-redefined]
+```
 #define strlcpy IDL_StrBase_strlcpy
+```
         ^
 /usr/include/secure/_string.h:104:9: note: previous definition is here
+```
 #define strlcpy(dest, src, len)                                 \
+```
         ^
 In file included from modules/source/osiris_rename_null.c:8:
 /Applications/exelis/idl/external/include/idl_export.h:2762:9: warning: 
       'strlcat' macro redefined [-Wmacro-redefined]
+```
 #define strlcat IDL_StrBase_strlcat
+```
         ^
 /usr/include/secure/_string.h:110:9: note: previous definition is here
+```
 #define strlcat(dest, src, len)                                 \
+```
         ^
 2 warnings generated.
 cc -Imodules/source/include -I/Applications/exelis/idl/external/include -D__REENTRANT -fPIC -g -O2 -DHAVE_CONFIG_H -c  modules/source/osiris_wait_on_sem_signal_null.c -o modules/source/osiris_wait_on_sem_signal_null.o
 In file included from modules/source/osiris_wait_on_sem_signal_null.c:8:
 /Applications/exelis/idl/external/include/idl_export.h:2758:9: warning: 
       'strlcpy' macro redefined [-Wmacro-redefined]
+```
 #define strlcpy IDL_StrBase_strlcpy
+```
         ^
 /usr/include/secure/_string.h:104:9: note: previous definition is here
+```
 #define strlcpy(dest, src, len)                                 \
+```
         ^
 In file included from modules/source/osiris_wait_on_sem_signal_null.c:8:
 /Applications/exelis/idl/external/include/idl_export.h:2762:9: warning: 
       'strlcat' macro redefined [-Wmacro-redefined]
+```
 #define strlcat IDL_StrBase_strlcat
+```
         ^
 /usr/include/secure/_string.h:110:9: note: previous definition is here
+```
 #define strlcat(dest, src, len)                                 \
+```
         ^
 2 warnings generated.
 cc -Imodules/source/include -I/Applications/exelis/idl/external/include -D__REENTRANT -fPIC -g -O2 -DHAVE_CONFIG_H -c  modules/source/osiris_post_sem_signal_null.c -o modules/source/osiris_post_sem_signal_null.o
 In file included from modules/source/osiris_post_sem_signal_null.c:8:
 /Applications/exelis/idl/external/include/idl_export.h:2758:9: warning: 
       'strlcpy' macro redefined [-Wmacro-redefined]
+```
 #define strlcpy IDL_StrBase_strlcpy
+```
         ^
 /usr/include/secure/_string.h:104:9: note: previous definition is here
+```
 #define strlcpy(dest, src, len)                                 \
+```
         ^
 In file included from modules/source/osiris_post_sem_signal_null.c:8:
 /Applications/exelis/idl/external/include/idl_export.h:2762:9: warning: 
       'strlcat' macro redefined [-Wmacro-redefined]
+```
 #define strlcat IDL_StrBase_strlcat
+```
         ^
 /usr/include/secure/_string.h:110:9: note: previous definition is here
+```
 #define strlcat(dest, src, len)                                 \
+```
         ^
 2 warnings generated.
 cc -Imodules/source/include -I/Applications/exelis/idl/external/include -D__REENTRANT -fPIC -g -O2 -DHAVE_CONFIG_H -c  modules/source/osiris_test.c -o modules/source/osiris_test.o
@@ -173,54 +197,78 @@ cc -Imodules/source/include -I/Applications/exelis/idl/external/include -D__REEN
 In file included from modules/source/mkrecmatrx_000.c:11:
 /Applications/exelis/idl/external/include/idl_export.h:2758:9: warning: 
       'strlcpy' macro redefined [-Wmacro-redefined]
+```
 #define strlcpy IDL_StrBase_strlcpy
+```
         ^
 /usr/include/secure/_string.h:104:9: note: previous definition is here
+```
 #define strlcpy(dest, src, len)                                 \
+```
         ^
 In file included from modules/source/mkrecmatrx_000.c:11:
 /Applications/exelis/idl/external/include/idl_export.h:2762:9: warning: 
       'strlcat' macro redefined [-Wmacro-redefined]
+```
 #define strlcat IDL_StrBase_strlcat
+```
         ^
 /usr/include/secure/_string.h:110:9: note: previous definition is here
+```
 #define strlcat(dest, src, len)                                 \
+```
         ^
 2 warnings generated.
 cc -Imodules/source/include -I/Applications/exelis/idl/external/include -D__REENTRANT -fPIC -g -O2 -DHAVE_CONFIG_H -c  modules/source/spatrectif_000.c -o modules/source/spatrectif_000.o
 In file included from modules/source/spatrectif_000.c:11:
 /Applications/exelis/idl/external/include/idl_export.h:2758:9: warning: 
       'strlcpy' macro redefined [-Wmacro-redefined]
+```
 #define strlcpy IDL_StrBase_strlcpy
+```
         ^
 /usr/include/secure/_string.h:104:9: note: previous definition is here
+```
 #define strlcpy(dest, src, len)                                 \
+```
         ^
 In file included from modules/source/spatrectif_000.c:11:
 /Applications/exelis/idl/external/include/idl_export.h:2762:9: warning: 
       'strlcat' macro redefined [-Wmacro-redefined]
+```
 #define strlcat IDL_StrBase_strlcat
+```
         ^
 /usr/include/secure/_string.h:110:9: note: previous definition is here
+```
 #define strlcat(dest, src, len)                                 \
+```
         ^
 2 warnings generated.
 cc -Imodules/source/include -I/Applications/exelis/idl/external/include -D__REENTRANT -fPIC -g -O2 -DHAVE_CONFIG_H -c  modules/source/dumpxmlptr.c -o modules/source/dumpxmlptr.o
 In file included from modules/source/dumpxmlptr.c:6:
 /Applications/exelis/idl/external/include/idl_export.h:2758:9: warning: 
       'strlcpy' macro redefined [-Wmacro-redefined]
+```
 #define strlcpy IDL_StrBase_strlcpy
+```
         ^
 /usr/include/secure/_string.h:104:9: note: previous definition is here
+```
 #define strlcpy(dest, src, len)                                 \
+```
         ^
 In file included from modules/source/dumpxmlptr.c:6:
 /Applications/exelis/idl/external/include/idl_export.h:2762:9: warning: 
       'strlcat' macro redefined [-Wmacro-redefined]
+```
 #define strlcat IDL_StrBase_strlcat
+```
         ^
 /usr/include/secure/_string.h:110:9: note: previous definition is here
+```
 #define strlcat(dest, src, len)                                 \
+```
         ^
 modules/source/dumpxmlptr.c:14:57: warning: format specifies type 'unsigned int'
       but the argument has type 'void *' [-Wformat]
@@ -231,18 +279,26 @@ cc -Imodules/source/include -I/Applications/exelis/idl/external/include -D__REEN
 In file included from modules/source/idlgetpid.c:6:
 /Applications/exelis/idl/external/include/idl_export.h:2758:9: warning: 
       'strlcpy' macro redefined [-Wmacro-redefined]
+```
 #define strlcpy IDL_StrBase_strlcpy
+```
         ^
 /usr/include/secure/_string.h:104:9: note: previous definition is here
+```
 #define strlcpy(dest, src, len)                                 \
+```
         ^
 In file included from modules/source/idlgetpid.c:6:
 /Applications/exelis/idl/external/include/idl_export.h:2762:9: warning: 
       'strlcat' macro redefined [-Wmacro-redefined]
+```
 #define strlcat IDL_StrBase_strlcat
+```
         ^
 /usr/include/secure/_string.h:110:9: note: previous definition is here
+```
 #define strlcat(dest, src, len)                                 \
+```
         ^
 2 warnings generated.
 cc -bundle modules/source/osiris_rename_null.o modules/source/osiris_wait_on_sem_signal_null.o modules/source/osiris_post_sem_signal_null.o modules/source/osiris_test.o modules/source/osiris_rectify_lib.o modules/source/mkrecmatrx_000.o modules/source/spatrectif_000.o modules/source/dumpxmlptr.o modules/source/idlgetpid.o -L/opt/local/lib/ -lm -lcfitsio -lm -o modules/source/libosiris_drp_ext_null.so.0.0 
