@@ -99,54 +99,6 @@ Fast-forward
 
 >-- git pull request --<
 
-## Merge another user's version into the official version
-
-```
-[JLyke-MacBook:/Applications/OsirisDRP] jlyke% git checkout -b astrofitz-develop develop
-```
-Switched to a new branch 'astrofitz-develop'
-git pull https://github.com/astrofitz/OsirisDRP.git develop
-```
-[JLyke-MacBook:/Applications/OsirisDRP] jlyke% git pull https://github.com/astrofitz/OsirisDRP.git develop
-```
-remote: Counting objects: 5, done.
-remote: Compressing objects: 100% (1/1), done.
-remote: Total 5 (delta 4), reused 5 (delta 4), pack-reused 0
-Unpacking objects: 100% (5/5), done.
-From https://github.com/astrofitz/OsirisDRP
- * branch            develop    -> FETCH_HEAD
-Merge made by the 'recursive' strategy.
- modules/source/Makefile.local | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-```
-[JLyke-MacBook:/Applications/OsirisDRP] jlyke% git status
-```
-On branch astrofitz-develop
-nothing to commit, working directory clean
-```
-[JLyke-MacBook:/Applications/OsirisDRP] jlyke% git checkout develop
-```
-Switched to branch 'develop'
-Your branch is up-to-date with 'origin/develop'.
-
-## Merge the changes, but explicitly do NOT commit or fast-forward a commit
-
-```
-[JLyke-MacBook:/Applications/OsirisDRP] jlyke% git merge --no-commit --no-ff astrofitz-develop
-```
-Automatic merge went well; stopped before committing as requested
-```
-[JLyke-MacBook:/Applications/OsirisDRP] jlyke% git status
-```
-On branch develop
-Your branch is up-to-date with 'origin/develop'.
-All conflicts fixed but you are still merging.
-  (use "git commit" to conclude merge)
-
-Changes to be committed:
-
-	modified:   modules/source/Makefile.local
-
 ## make clean to remove previously compiled software
 
 ```
