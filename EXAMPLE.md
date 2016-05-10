@@ -13,73 +13,60 @@
 ## Go to directory in which you wish to copy the OSIRIS DRP
 ```
 [JLyke-MacBook:/Applications] jlyke% pwd
-```
 /Applications
-
+```
 ## Clone the DRP repository from github
 ```
 [JLyke-MacBook:/Applications] jlyke% git clone https://github.com/Keck-DataReductionPipelines/OsirisDRP.git
 [JLyke-MacBook:/Applications] jlyke% ls -lrt | tail -1
-```
 drwxr-xr-x   10 jlyke          admin    340 May  6 10:14 OsirisDRP/
-```
 [JLyke-MacBook:/Applications] jlyke% du -hs OsirisDRP
-```
  26M	OsirisDRP
-
+```
 ## Change to the newly installed directory
 ```
 JLyke-MacBook:/Applications] jlyke% cd OsirisDRP
-```
 /Applications/OsirisDRP
-
+```
 ## Determine which branches have been updated
 ```
 [JLyke-MacBook:/Applications/OsirisDRP] jlyke% git fetch -a
-```
 remote: Counting objects: 4, done.
 remote: Compressing objects: 100% (4/4), done.
 remote: Total 4 (delta 0), reused 0 (delta 0), pack-reused 0
 Unpacking objects: 100% (4/4), done.
 From https://github.com/Keck-DataReductionPipelines/OsirisDRP
    0740aaf..82b86b1  develop    -> origin/develop
-
+```
 ## By default, you are on the "master" branch.  Change to the desired branch, here "develop"
 ```
 [JLyke-MacBook:/Applications/OsirisDRP] jlyke% git checkout develop
-```
 Branch develop set up to track remote branch develop from origin.
 Switched to a new branch 'develop'
-
+```
 ## Check that your local files match those in the repository, this does not look for new files in the repository
 ```
 [JLyke-MacBook:/Applications/OsirisDRP] jlyke% git status
-```
 On branch develop
 Your branch is up-to-date with 'origin/develop'.
 nothing to commit, working directory clean
-
+```
 ## Check whether the repository has new files that are not in your local copy
 
 ```
 [JLyke-MacBook:/Applications/OsirisDRP] jlyke% git fetch
-```
 remote: Counting objects: 33, done.
 remote: Compressing objects: 100% (33/33), done.
 remote: Total 33 (delta 14), reused 0 (delta 0), pack-reused 0
 Unpacking objects: 100% (33/33), done.
 From https://github.com/Keck-DataReductionPipelines/OsirisDRP
    82b86b1..5aed808  develop    -> origin/develop
-```
 [JLyke-MacBook:/Applications/OsirisDRP] jlyke% git status
-```
 On branch develop
 Your branch is behind 'origin/develop' by 7 commits, and can be fast-forwarded.
   (use "git pull" to update your local branch)
 nothing to commit, working directory clean
-```
 [JLyke-MacBook:/Applications/OsirisDRP] jlyke% git pull
-```
 Updating 82b86b1..5aed808
 Fast-forward
  README.md                                   | 34 ++++++++++--
@@ -98,15 +85,14 @@ Fast-forward
  delete mode 100644 tests/test_teluric/001.test_teluric.waiting
 
 >-- git pull request --<
-
+```
 ## make clean to remove previously compiled software
 
 ```
 [JLyke-MacBook:/Applications/OsirisDRP] jlyke% make clean
-```
 rm -f modules/source/*.o
 rm -f modules/source/libosiris_drp_ext_null.so.0.0
-
+```
 ## make the DRP 
 ### Note that the warnings from IDL are benign
 
@@ -251,47 +237,41 @@ cc -bundle modules/source/osiris_rename_null.o modules/source/osiris_wait_on_sem
 
 ```
 [JLyke-MacBook:/Applications/OsirisDRP] jlyke% make test
-```
 py.test
 make: py.test: No such file or directory
 make: *** [test] Error 1
-
+```
 ## The test requires py.test to be installed, check python install
 ```
 [JLyke-MacBook:/Applications/OsirisDRP] jlyke% which python
-```
 /usr/bin/python
-
+```
 ## Force the Ureka version of python
 
 ```
 [JLyke-MacBook:/Applications/OsirisDRP] jlyke% ur_setup
 [JLyke-MacBook:/Applications/OsirisDRP] jlyke% which python
-```
 /Applications/Ureka/variants/common/bin/python
-
+```
 ## Install the test framework
 
 ```
 [JLyke-MacBook:/Applications/OsirisDRP] jlyke% pip install pytest astropy
-```
 Requirement already satisfied (use --upgrade to upgrade): pytest in /Applications/Ureka/python/lib/python2.7/site-packages
 Requirement already satisfied (use --upgrade to upgrade): astropy in /Applications/Ureka/python/lib/python2.7/site-packages
 Requirement already satisfied (use --upgrade to upgrade): py>=1.4.25 in /Applications/Ureka/python/lib/python2.7/site-packages (from pytest)
 Requirement already satisfied (use --upgrade to upgrade): numpy>=1.6.0 in /Applications/Ureka/python/lib/python2.7/site-packages (from astropy)
 Cleaning up...
-
+```
 ## Verify that py.test is now available
 
 ```
 [JLyke-MacBook:/Applications/OsirisDRP] jlyke% which py.test
-```
 /Applications/Ureka/python/bin/py.test
-
+```
 ## Try the test again 
 ```
 [JLyke-MacBook:/Applications/OsirisDRP] jlyke% make test
-```
 py.test
 ============================= test session starts ==============================
 platform darwin -- Python 2.7.5 -- py-1.4.26 -- pytest-2.6.4
@@ -301,6 +281,6 @@ collected 1 items
 tests/test_emission_line/test_emission_line.py .
 
 ========================== 1 passed in 93.84 seconds ===========================
-
+```
 ## Test Successful
 
