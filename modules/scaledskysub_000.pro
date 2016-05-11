@@ -75,6 +75,8 @@
 ;                  fitting (Q. Konopacky Feb 2010)
 ;		   - Fixed the case sensitive aspect of the cont fitting 
 ;		   and reform problem in cont.(S. Wright March 4,2010)
+;                  - Switched to using al_legend.pro from astrolib so
+;                    as not to conflict with IDL 8 (T. Do, May 2016)
 ;
 ;-----------------------------------------------------------------------
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -848,7 +850,7 @@ l_rotmed = [1.00282,1.02139,1.04212,1.07539,1.09753,1.13542,1.15917,1.20309,1.22
 				message, /info, "continuum-suppressed spectrum RMS AFTER:  "+ sigfig(rms2,3)
 		
 		
-			legend, /top, /right, $
+			al_legend, /top, /right, $
 				["Original Object Cube Spectrum", "Obj - Orig. Sky (RMS="+sigfig(rms1,3)+")", "Obj - Scaled Sky (RMS="+sigfig(rms2,3)+")"],$
 				colors = colors, $
 				lines=[0,0,0], psym=[-3,-3, -3], box=0, textcolors = replicate('00FFFF'x,4)
