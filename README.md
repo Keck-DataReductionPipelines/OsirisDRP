@@ -1,5 +1,13 @@
 # OSIRIS Data Reduction Pipeline
 
+## v4.0beta Release Notes (2016-05-12)
+
+- Updates to the code in order to run the pipeline for the new detector.
+- For data taken in 2016 onward, it is no longer necessary to run the following modules: Remove Cross Talk, Glitch Identification. It is fine to keep them in the DRF XML, these modules will automatically not run on the new data.
+- Installation has now been simplified (see below for install directions). Bash scripts have been included for those who would like to use bash shell.
+- Test framework is now available to run tests of the pipeline (requires pytest module in python, see README in ''tests'' directory)
+- WCS bugs have been fixed. 
+
 ## Prerequisites
 
 To install and run the OSIRIS DRP, you will need the following:
