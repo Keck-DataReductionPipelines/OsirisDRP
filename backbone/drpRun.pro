@@ -11,14 +11,14 @@ PRO drpRun, QUEUE_DIR=queue_dir
         drpData = GETENV('OSIRIS_DRP_DATA_PATH')
         drpConfig = GETENV('OSIRIS_DRP_CONFIG_FILE')
         IDLversion = !version.release
-        print, "                                                    "
+        print, "                                                     "
         PRINT, "*****************************************************"
         print, "*                                                   *"
         PRINT, "*          OSIRIS DATA REDUCTION PIPELINE           *"
         print, "*                                                   *"
         print, "*###################################################*"
         print, "*                                                   *"
-        print, "*                   VERSION 3.2                     *"
+        print, "*                   VERSION 4.0beta                 *"
         print, "*                                                   *"
         print, "*           James Larkin, Shelley Wright,           *"
         print, "*            Jason Weiss, Mike McElwain,            *"
@@ -27,6 +27,11 @@ PRO drpRun, QUEUE_DIR=queue_dir
         print, "*           Tom Gasaway, Tommer Wizanski,           *"
         print, "*              Randy Campbell, Jim Lyke             *" 
         print, "*                                                   *"
+        print, "* Other contributors (alphabetical):                *"
+        print, "* Anna Boehle, Sam Chappell, Devin Chu, Tuan Do,    *"
+        print, "* Mike Fitzgerald, Kelly Lockhart, Jessica Lu,      *"
+        print, "* Etsuko Mieda, Breann Sitarski, Alex Rudy,         *"
+        print, "* Andrey Vayner, Greg Walth                         *"        
         print, "*****************************************************"
 	PRINT, "DRF Queue directory = " + initialQueueDir
         PRINT, "BACKBONE directory = " + backboneDir
