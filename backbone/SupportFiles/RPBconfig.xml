@@ -124,7 +124,7 @@
     scaledskysub_COMMON___show_plots = "Yes"
 
     spatrectif_COMMON___numiter="4"
-    spatrectif_ARP_SPEC_numiter="4"
+    spatrectif_ARP_SPEC_numiter="40"
     spatrectif_ORP_SPEC_numiter="25"
     spatrectif_COMMON___relaxation="1.0"
 
