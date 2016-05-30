@@ -83,7 +83,9 @@ function osirisSetup() {
     
     if [[ $setpath -eq 1 ]]; then
         [[ $OSIRIS_VERBOSE -eq 1 ]] && echo "Adding ${OSIRIS_ROOT}/scripts to your path."
-        export PATH=${OSIRIS_ROOT}/scripts:${PATH}
+        if [ -d "${OSIRIS_ROOT}/scripts" ] && [[ ":$PATH:" != *":${OSIRIS_ROOT}/scripts:"* ]]; then
+            export PATH="${OSIRIS_ROOT}/scripts${PATH:+":$PATH"}"
+        fi
     fi
     # Fixes a bug with awt on OSX
     export JAVA_TOOL_OPTIONS='-Djava.awt.headless=false'
