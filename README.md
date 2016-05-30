@@ -35,7 +35,7 @@ and you should see that the pipeline has been built correctly. Be sure you are u
 
 ## OSIRIS Environment
 
-The OSIRIS DRP requires that you set various environment variables to that it knows how to find and run the pipeline. Instructions are below for bash (should work for other POSIX compliant shells) and CSH.
+The OSIRIS DRP requires that you set various environment variables to that it knows how to find and run the pipeline. Instructions are below for bash (should work for other POSIX compliant shells) and c-shell. If you want to set up your environment every time you start your shell (e.g. via ``.cshrc`` or ``.bashrc``), you should set ``OSIRIS_VERBOSE=0`` to silence the output of the setup scripts. Otherwise, they will print useful messages about the setup of your OSIRIS pipeline environment.
 
 ### Environment Setup in Bash
 

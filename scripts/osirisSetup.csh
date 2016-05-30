@@ -1,22 +1,38 @@
-# Make the user set OSIRIS_ROOT
+# Script to set OSIRIS environment variables.
 set CONTINUE=1
 
+if (! $?OSIRIS_VERBOSE) then       
+  set OSIRIS_VERBOSE="1"
+else
+  if ("$OSIRIS_VERBOSE" == "")  then
+      set OSIRIS_VERBOSE="0"
+  endif
+endif
+
 if ! $?OSIRIS_ROOT then
-    echo "The OSIRIS DRP needs $OSIRIS_ROOT to be set."
-    echo "$ setenv OSIRIS_ROOT /path/to/my/drp"
+    if ("$OSIRIS_VERBOSE" != "0") then 
+        echo "The OSIRIS DRP needs $OSIRIS_ROOT to be set."
+        echo "$ setenv OSIRIS_ROOT /path/to/my/drp"
+    endif
     set CONTINUE=0
     
 endif
 
-echo "Using OSIRIS_ROOT=$OSIRIS_ROOT"
+if ("$OSIRIS_VERBOSE" != "0") then
+    echo "Using OSIRIS_ROOT=$OSIRIS_ROOT"
+endif
 if (! -d "$OSIRIS_ROOT/backbone") then
-    echo "Can't find the $OSIRIS_ROOT/backbone/ directory."
-    echo 'Be sure that $OSIRIS_ROOT is set correctly.'
+    if ("$OSIRIS_VERBOSE" != "0") then
+        echo "Can't find the $OSIRIS_ROOT/backbone/ directory."
+        echo 'Be sure that $OSIRIS_ROOT is set correctly.'
+    endif
     set CONTINUE=0
 else
   if (! -d "$OSIRIS_ROOT/modules") then
-      echo "Can't find the $OSIRIS_ROOT/modules/ directory."
-      echo 'Be sure that $OSIRIS_ROOT is set correctly.'
+      if ("$OSIRIS_VERBOSE" != "0") then
+          echo "Can't find the $OSIRIS_ROOT/modules/ directory."
+          echo 'Be sure that $OSIRIS_ROOT is set correctly.'
+      endif
       set CONTINUE=0
   endif
 endif
@@ -46,8 +62,10 @@ if ($CONTINUE == "1") then
     
     setenv OSIRIS_IDL_BASE $OSIRIS_ROOT
     
-    echo "Successfully setup OSIRIS DRP environment."
-    echo "The DRP is in $OSIRIS_ROOT"
-    echo "You might want to add $OSIRIS_ROOT/scripts to your PATH."
+    if ("$OSIRIS_VERBOSE" != "0") then
+        echo "Successfully setup OSIRIS DRP environment."
+        echo "The DRP is in $OSIRIS_ROOT"
+        echo "You might want to add $OSIRIS_ROOT/scripts to your PATH."
+    endif
 endif
 
