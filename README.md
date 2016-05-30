@@ -55,6 +55,17 @@ You can change all of the relevant OSIRIS variables later by running ``osirisSet
 
 ```
 $ osirisSetup -n /my/path/to/osiris/drp/
+Setting OSIRIS_ROOT=/my/path/to/osiris/drp/
+Successfully setup OSIRIS DRP environment.
+The DRP is in /my/path/to/osiris/drp/
+```
+
+You can add these lines to your ``.bashrc`` file or other startup profile if you want to set up the osiris environment variables for each of your shell sessions. Add lines like this to your profile:
+
+```
+OSIRIS_VERBOSE=0
+source scripts/osirisSetup.sh
+osirisSetup /my/path/to/osiris/drp/
 ```
 
 ### Environment Setup in CSH
@@ -68,6 +79,14 @@ Using OSIRIS_ROOT=/my/path/to/osiris/drp/
 Successfully setup OSIRIS DRP environment.
 The DRP is in /my/path/to/osiris/drp/
 You might want to add /my/path/to/osiris/drp/scripts to your PATH.
+```
+
+You can add these lines to your ``.cshrc`` file or other startup profile if you want to set up the osiris environment variables for each of your shell sessions. Add lines like this to your profile:
+
+```
+set OSIRIS_VERBOSE=0
+setenv OSIRIS_ROOT=/my/path/to/osiris/drp/
+source scripts/osirisSetup.csh
 ```
 
 ## Running the Pipeline
