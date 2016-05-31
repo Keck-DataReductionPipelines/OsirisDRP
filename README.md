@@ -35,7 +35,7 @@ and you should see that the pipeline has been built correctly. Be sure you are u
 
 ## OSIRIS Environment
 
-The OSIRIS DRP requires that you set various environment variables to that it knows how to find and run the pipeline. Instructions are below for bash (should work for other POSIX compliant shells) and CSH.
+The OSIRIS DRP requires that you set various environment variables to that it knows how to find and run the pipeline. Instructions are below for bash (should work for other POSIX compliant shells) and c-shell. If you want to set up your environment every time you start your shell (e.g. via ``.cshrc`` or ``.bashrc``), you should set ``OSIRIS_VERBOSE=0`` to silence the output of the setup scripts. Otherwise, they will print useful messages about the setup of your OSIRIS pipeline environment.
 
 ### Environment Setup in Bash
 
@@ -55,6 +55,17 @@ You can change all of the relevant OSIRIS variables later by running ``osirisSet
 
 ```
 $ osirisSetup -n /my/path/to/osiris/drp/
+Setting OSIRIS_ROOT=/my/path/to/osiris/drp/
+Successfully setup OSIRIS DRP environment.
+The DRP is in /my/path/to/osiris/drp/
+```
+
+You can add these lines to your ``.bashrc`` file or other startup profile if you want to set up the osiris environment variables for each of your shell sessions. Add lines like this to your profile:
+
+```
+OSIRIS_VERBOSE=0
+source scripts/osirisSetup.sh
+osirisSetup /my/path/to/osiris/drp/
 ```
 
 ### Environment Setup in CSH
@@ -68,6 +79,14 @@ Using OSIRIS_ROOT=/my/path/to/osiris/drp/
 Successfully setup OSIRIS DRP environment.
 The DRP is in /my/path/to/osiris/drp/
 You might want to add /my/path/to/osiris/drp/scripts to your PATH.
+```
+
+You can add these lines to your ``.cshrc`` file or other startup profile if you want to set up the osiris environment variables for each of your shell sessions. Add lines like this to your profile:
+
+```
+set OSIRIS_VERBOSE=0
+setenv OSIRIS_ROOT=/my/path/to/osiris/drp/
+source scripts/osirisSetup.csh
 ```
 
 ## Running the Pipeline
