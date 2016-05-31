@@ -18,7 +18,7 @@ PRO drpRun, QUEUE_DIR=queue_dir
         print, "*                                                   *"
         print, "*###################################################*"
         print, "*                                                   *"
-        print, "*                   VERSION 4.0beta                 *"
+        print, "*                   VERSION 4.0.0-beta              *"
         print, "*                                                   *"
         print, "*           James Larkin, Shelley Wright,           *"
         print, "*            Jason Weiss, Mike McElwain,            *"

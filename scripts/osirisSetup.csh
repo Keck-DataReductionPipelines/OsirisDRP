@@ -10,6 +10,7 @@ else
 endif
 
 if ! $?OSIRIS_ROOT then
+
     if ("$OSIRIS_VERBOSE" != "0") then 
         echo "The OSIRIS DRP needs $OSIRIS_ROOT to be set."
         echo "$ setenv OSIRIS_ROOT /path/to/my/drp"

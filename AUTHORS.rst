@@ -7,7 +7,7 @@ OSIRIS DRP Project Contributors
 
 Project Coordinators
 --------------------
-* Jim Lyke (@jlyke)
+* Jim Lyke (@jlyke-keck)
 
 Alphabetical list of contributors
 ---------------------------------
@@ -21,7 +21,7 @@ Alphabetical list of contributors
 * Christof Iserlohe
 * Alfred Krabbe
 * James Larkin
-* Jim Lyke (@jlyke)
+* Jim Lyke (@jlyke-keck)
 * Kelly Lockhart
 * Jessica Lu
 * Etsuko Mieda

@@ -1,6 +1,6 @@
 # OSIRIS Data Reduction Pipeline
 
-## v4.0beta Release Notes (2016-05-12)
+## v4.0beta Release Notes (2016-05-30)
 
 - Updates to the code in order to run the pipeline for the new detector.
 - For data taken in 2016 onward, it is no longer necessary to run the following modules: Remove Cross Talk, Glitch Identification. It is fine to keep them in the DRF XML, these modules will automatically not run on the new data.
