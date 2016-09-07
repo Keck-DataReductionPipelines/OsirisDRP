@@ -15,6 +15,7 @@ To install and run the OSIRIS DRP, you will need the following:
 - A working C compiler (e.g. ``gcc``)
 - A copy of the compiled library cfitsio
 - A working installation of IDL
+- Python test dependencies: pytest, astropy
 
 ## Compiling a Local version of the DRP
 
