@@ -309,20 +309,22 @@ int mkrecmatrx_000(int argc, void* argv[]) {
 	if ( basis_vectors[sp][j][i] > 1.0 ) basis_vectors[sp][j][i]=0.0;
 
        	pretotal += basis_vectors[sp][j][i];
+	(void)printf("why");
 	//if ( fabs(basis_vectors[sp][j][i]) > ( (basis_vectors[sp][j-1][i]+basis_vectors[sp][j+1][i])*2.0 ) ) {
 	//  basis_vectors[sp][j][i]= (basis_vectors[sp][j-1][i]+basis_vectors[sp][j+1][i])/2.0;
 	//}
 	//if ( fabs(basis_vectors[sp][j][i]) > ( (basis_vectors[sp][j][i-1]+basis_vectors[sp][j][i+1])*2.0 ) ) {
 	//  basis_vectors[sp][j][i]= (basis_vectors[sp][j][i+1]+basis_vectors[sp][j][i-1])/2.0;
 	//}
-	if ( fabs(basis_vectors[sp][j][i]) < ( (basis_vectors[sp][j][i-1]+basis_vectors[sp][j][i+1])/0.2 ) ) {
-	  if ( (basis_vectors[sp][j][i-1] > 0.1) ) {
-	    if ( (basis_vectors[sp][j][i+1] > 0.1) ) {
-	      basis_vectors[sp][j][i]= (basis_vectors[sp][j][i+1]+basis_vectors[sp][j][i-1])/2.0;
-	    }
-	  }
-	}
-      }
+	//if ( fabs(basis_vectors[sp][j][i]) < ( (basis_vectors[sp][j][i-1]+basis_vectors[sp][j][i+1])/2.0 ) ) {
+	//  if ( (basis_vectors[sp][j][i-1] > 0.1) ) {
+	//    if ( (basis_vectors[sp][j][i+1] > 0.1) ) {
+	//      basis_vectors[sp][j][i]= (basis_vectors[sp][j][i+1]+basis_vectors[sp][j][i-1])/2.0;
+	//    }
+	//  }
+	//}
+	
+       }
       // Look at the upper and lower edges of each strip. Set them to 0, if they are too large
       if ( fabs(basis_vectors[sp][0][i]) > (pretotal/2.0) ) basis_vectors[sp][0][i]=0.0;
       if ( fabs(basis_vectors[sp][(basesize-1)][i]) > (pretotal/2.0) ) basis_vectors[sp][(basesize-1)][i]=0.0;
