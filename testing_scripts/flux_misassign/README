@@ -1,0 +1,14 @@
+# The problem
+During reduction, the DRP is mis-assigning flux from the correct spaxel+spectral channel to the adjacent spaxels at +/- 32 spectral channels. On the raw frame, these spaxels with mis-assigned flux are above or below the correct spaxel (these spaxels are staggered by 32 spectral channels, hence the spectral channel mis-assignment). Also, in some cases, mis-assigned flux appears in the correct spectral channel but in an adjacent spaxel.
+
+This has been observed in data taken in 2012 and later.
+
+# Quantifying the problem
+The easiest way to quantify how much flux is being mis-assigned is to use an arc lamp frame where all lenslets are masked except for one column (a.k.a. a single-column arc; a single-column sky frame could also work, but generally the SNR is too low to properly measure the effect).
+
+In the single-column arc, integrate the flux in an emission line in a given illuminated spaxel, over the width of the emission line. This is the properly assigned flux. Then integrate the flux in the adjacent (dark) spaxels, at +/- 32 spectral channels and at the original channel. (We assume that all flux is accounted for in these locations.) This is the mis-assigned flux. The percent of correctly assigned flux is taken as the ratio of the properly assigned flux to the sum of the properly assigned flux and the mis-assigned flux. If no flux is mis-assigned, this percentage should be roughly 100%, within the errors.
+
+As an example, a single-column arc (Kbb/50 mas) taken in April 2015 showed that roughly 71% of the flux was properly assigned. A single-column arc (also Kbb/50 mas) taken in March 2016 (after a detector upgrade) showed that roughly 78% of the flux was properly assigned, using the same emission line as for the April 2015 calculation.
+
+# The code
+A short IDL script, misflux_single.pro, is provided to run the above test. Provide the reduced single-column arc cube and the refchannel, or the spectral channel at the center of the emission line to be tested. An optional keyword, /plotflux, can be turned on to show how the routine is integrating the properly assigned flux.
