@@ -68,6 +68,7 @@ source scripts/osirisSetup.sh
 osirisSetup /my/path/to/osiris/drp/
 ```
 
+
 ### Environment Setup in CSH
 
 To setup the OSIRIS environment, set the environment variable ``OSIRIS_ROOT`` to the root directory for the OSIRIS data reduction pipeline. Then source the file ``scripts/osirisSetup.csh``.
