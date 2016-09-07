@@ -87,7 +87,8 @@ You can add these lines to your ``.cshrc`` file or other startup profile if you 
 ```
 set OSIRIS_VERBOSE=0
 setenv OSIRIS_ROOT=/my/path/to/osiris/drp/
-source scripts/osirisSetup.csh
+source ${OSIRIS_ROOT}/scripts/osirisSetup.csh
+setenv PATH ${PATH}:${OSIRIS_ROOT}/scripts
 ```
 
 ## Running the Pipeline
