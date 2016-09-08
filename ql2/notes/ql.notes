@@ -1,0 +1,111 @@
+things to add to conbase
+------------------------
+ + arithmetic (both image and math)
+ - mosaicing / shift and add
+ + change zoom window size?
+ - multiple file formats
+ + new window defaults - current active imwin parameters
+	+ size
+	+ zoom
+	+ stretch
+ + color table
+ + close all
+ + new?
+ - read/save recent file list to disk
+ - resize events -- conbase, conoptions, server polling, buffer list
+	- arithmetic, reduce, about 
+ - fix the buffer list
+
+things to add to imwin
+----------------------
+ + zoom
+ + display true xs & ys / zoom factor
+ + resize window
+ + statistics
+ + strehl
+ + photometry
+ + gaussian fitting
+ + cutting
+ + plotting
+ - sdiff
+ + save as
+ - print
+ + rotate image
+ + shift
+ + negative
+ - clip
+ - cut and paste?
+ - painting?
+ - keyboard shortcuts / arrow keys
+ - prompt to save file if not saved
+ + reopen
+
+bugs
+----
+ - fix recent menu (show opened file rather that open again)
+ - reduce file size checking
+ - clean up procedures
+ + box redrawing after resize
+ + win size smaller cuts out base stuff
+ + fix exact cursor location (on zoomed images)
+ + box drawing (a little off)
+ - rotate image only works for 1 or 2 dimensioned images
+ 
+thoughts...
+-----------
+ + polling should have a verify button to verify settings (check server
+	is running, keywords exist etc.) -- or instead, have automatic
+	verification... i.e. graphically display if server name is okay 
+	as it is typed in
+
+
+plotwin object
+--------------
+ + pass in x and y data, then generic controls for everything else
+ + range stretching
+ + interactive pointer info
+ - zooming
+ - pass in alternate (additional) axes
+ + log plot ranges
+
+digital filters
+---------------
+ - remember last dir
+ - xystyle (force range)
+ - close plot window
+
+stuff for review
+---------------
+ + determine what does and does not work
+ + check all window backing store
+ + fix black space when image is bigger than window
+ - fix the gaussian floating underflow problem
+ + remove digital filter from plot window selection
+ + remove mode from stat window (but not from code)
+ - ask james about digital filter (if so, we should come up with a demo)
+ - ask james about alternate plot axes (e.g. wavelength)
+ + change zoom box to checkbox
+ - adjusting slice updates box
+ + adjusting plot range in plotwin updates box
+ + transposing cube should do something with previously drawn box
+ + resize plot window
+ + interactive plot info
+ - adjusting slice in imwin updates plotwin
+ + make box drawing more accurate (box should enclose selected pixels)
+ + zooming under zoombox is off by a pixel in y 
+	+- figure out what's going on with tv_p0
+ + photometry
+ + printing?
+ + saving?
+ + why is there a small box in the lower left corner of the image when you
+        make any one of the plots (before you draw your new box)?
+
+things that crash ql
+-------------------
+single pixel stats
+1D surface plot 
+1D contour plot
+gaussian fit (not enough pixels)
+rotate
+shift
+display filter

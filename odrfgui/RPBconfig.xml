@@ -1,0 +1,270 @@
+<Config DirName="/Users/tgasaway/OSIRIS/backbone/code/backbone"
+
+    adjchan_COMMON___Debug="1"
+    ALL_COMMON___Colors="1"
+
+    assembcube_COMMON___CoeffFile         ='$OSIRIS_DRP_DATA_PATH/osiris_wave_coeffs.fits'
+    assembcube_COMMON___OldCoeffFile      ='$OSIRIS_DRP_DATA_PATH/old_wave_coeffs.fits'
+    assembcube_COMMON___Filterfile        ='$OSIRIS_DRP_DATA_PATH/osiris_filter_info.list'
+
+    caelum_mosaic_COMMON___Debug          = '0'
+
+    calibrwave_COMMON___Debug             = '0'
+    calibrwave_COMMON___BadMultiplier     = '10.'
+    calibrwave_COMMON___BadIntMultiplier  = '4.' 
+    calibrwave_COMMON___LowerLimitGood    = '0.5'
+    calibrwave_COMMON___UpperLimitGood    = '1.5'
+    calibrwave_COMMON___UpperLimitBad     = '5.'
+    calibrwave_COMMON___NoiseMultiplier   = '10.'
+    calibrwave_COMMON___InterPolType      = 'LINEAR'
+    calibrwave_COMMON___Filterfile        ='$OSIRIS_DRP_DATA_PATH/osiris_filter_info.list'
+
+    combframes_COMMON___Combine_Method		 = 'AVERAGE'
+
+    corrtilt_COMMON___Debug      ="0"
+    corrtilt_COMMON___MinShift   ="0"
+    corrtilt_COMMON___Atmo       ="1"
+    corrtilt_COMMON___AOBench    ="1"
+    corrtilt_COMMON___Pressure   ="640."
+    corrtilt_COMMON___Temperature="273."
+
+    detspecres_COMMON___Linefile         = '$OSIRIS_DRP_DATA_PATH/osiris_cal_line.list'
+    detspecres_COMMON___FitHalfWindow    ='12'
+    detspecres_COMMON___FitFunction      ='GAUSSIAN'
+    detspecres_COMMON___FitTerms         ='4'
+    detspecres_COMMON___FitOrder         ='2'
+    detspecres_COMMON___Debug            ='1'
+
+    divideflat_COMMON___Debug="1"
+    divideflat_COMMON___Limit="1.d-10"
+
+    divstarspe_COMMON___Debug = "1"
+    divstarspe_COMMON___Limit = "1.d-20"
+
+    extracstar_COMMON___Method = "APER_RADIUS7"
+
+    fitdispers_COMMON___Debug="1"
+
+    glitchremv_COMMON___Debug = "1" 
+    glitchremv_COMMON___Mask = "0" 
+    glitchremv_COMMON___LowerLimit ="-.8"
+    glitchremv_COMMON___BoxHalfSize ="10"
+    glitchremv_COMMON___BoxSigma ="6."  
+    glitchremv_COMMON___LineHalfSize ="30"
+    glitchremv_COMMON___LineSigma ="3."
+
+    glitchid_COMMON___SlopeThresh ="10."
+    glitchid_COMMON___ChanThresh ="5."  
+    
+    interponed_COMMON___Debug ='0'
+    interponed_COMMON___BadMult  = '10.'
+    interponed_COMMON___GoodMult = '4.'
+
+    linext_COMMON___numpix="3"
+
+    makedarkfr_COMMON___Debug="1"
+    makedarkfr_COMMON___Mode="MED"
+
+    makeflatfi_COMMON___Debug="1"
+    makeflatfi_COMMON___Mode="MED"
+
+    mkrecmatrx_COMMON___slice="14"
+    mkrecmatrx_COMMON___shift="-19"
+    mkrecmatrx_COMMON___weight_limit="0.01"
+    mkrectdark_COMMON___Debug="1"
+    mkrectdark_COMMON___framesInDark="10"
+
+    mkwavcalfr_COMMON___Debug                = '0'
+    mkwavcalfr_COMMON___MinDiff_adu          = '1.e-2'
+    mkwavcalfr_COMMON___LineFitDSigma_fact   = '3.'
+    mkwavcalfr_COMMON___DispFitOrder         = '2'
+    mkwavcalfr_COMMON___LineFitFunction      = 'GAUSSIAN'
+    mkwavcalfr_COMMON___LineFitTerms         = '4'
+    mkwavcalfr_COMMON___MinSigma_px          = '.5'
+    mkwavcalfr_COMMON___MaxSigma_px          = '3.5'
+    mkwavcalfr_COMMON___MinFlux_adu          = '1.'
+    mkwavcalfr_COMMON___MaxLag_px            = '20'
+    mkwavcalfr_COMMON___DispFitSigma_fact    = '2.'
+    mkwavcalfr_COMMON___DispFitIter          = '2'
+    mkwavcalfr_COMMON___Linefile             = '$OSIRIS_DRP_DATA_PATH/osiris_callines.list'
+    mkwavcalfr_COMMON___Filterfile           = '$OSIRIS_DRP_DATA_PATH/osiris_filter_info.list'
+    mkwavcalfr_COMMON___MedianLag            = '1'
+
+    mkwavsmo_COMMON___Debug                  = '1'
+    mkwavsmo_COMMON___Order                  = '2'
+    mkwavsmo_COMMON___MedianWindow           = '5'
+    mkwavsmo_COMMON___LimitPixel             = '2'
+    mkwavsmo_COMMON___FilterFile             = '$OSIRIS_DRP_DATA_PATH/osiris_filter_info.list'
+
+    mosaicdpos_COMMON___Debug             = '1'
+    mosaicdpos_COMMON___Magnification     = '1.'
+    mosaicdpos_COMMON___PlateauTreshold   = '0.01'
+    mosaicdpos_COMMON___Channels          = '0.8'
+    mosaicdpos_COMMON___Mode              = 'MED'
+  
+    mosaicdith_COMMON___Cubic = '-0.5'
+    mosaicdith_COMMON___SumMethod  = 'AVERAGE'    
+    mosaicdith_COMMON___ShiftMethod = 'ROUNDED'
+    mosaicdith_COMMON___Debug = '1'   
+    mosaicdith_COMMON___OffsetMethod = 'TEL'   
+    mosaicdith_COMMON___Equalize = '0'
+
+    savedatset_COMMON___Debug="1"
+
+    saveflatfi_COMMON___Debug="1"
+
+    scaledskysub_COMMON___max_sky_fraction = "0.5"
+    scaledskysub_COMMON___min_sky_fraction = "0.1"
+    scaledskysub_COMMON___Scale_K_Continuum = "Yes"
+    scaledskysub_COMMON___line_halfwidth = "4"
+    scaledskysub_COMMON___show_plots = "Yes"
+
+    spatrectif_COMMON___numiter="4"
+    spatrectif_ARP_SPEC_numiter="40"
+    spatrectif_ORP_SPEC_numiter="25"
+    spatrectif_COMMON___relaxation="1.0"
+
+    srtrectdat_COMMON___Debug="1"
+    srtrectdat_COMMON___nframesInNBMode="51"
+    srtrectdat_COMMON___first_pixInNBMode="1450"
+    srtrectdat_COMMON___last_pixInNBMode="2100"
+    srtrectdat_COMMON___stepInNBMode="31"
+
+    subtracsky_COMMON___Debug="1"
+    subtradark_COMMON___Debug="1"
+
+    mkdetrespo_COMMON___Debug="0">
+
+	<!-- Module Names to IDL functions map -->
+
+	<!-- Calibration Reductions CRP_SPEC -->
+  <CRP_SPEC>
+    <Module Name="Setup Dark Frame from Scan" IDLFunc="mkrectdark_000" Comment="Used for engineering, and creating rectification matrices.">
+     </Module>
+    <Module Name="Make Dark Frame" IDLFunc="makedarkfr_000" Comment="Used for engineering, and making dark frame for creating rectification matrices.">
+     </Module>
+    <Module Name="Setup Rectification Matrix Frames from Scan" IDLFunc="srtrectdat_000"  Comment="Used for engineering, and creating rectification matrices.">
+    </Module>
+    <Module Name="Subtract Frame" IDLFunc="subtradark_000" Comment="Subtracts the input frame by a user specfied frame.">
+    </Module>
+    <Module Name="Adjust Channel Levels" IDLFunc="adjchan_000" Comment="Adjust Channel Levels measures any DCS bias shifts between the 32 spectrograph channels and adjusts to a common level. No parameters or file needed.">
+    </Module>
+    <Module Name="Remove Crosstalk" IDLFunc="rmcrosstalk_000" Comment="The purpose of this module is to remove crosstalk caused by bright stars and residual gradients within the raw data. No parameters or file needed.">
+    </Module> 
+    <Module Name="Glitch Identification" IDLFunc="glitchid_000" Comment="The detector shows occasional bursts of intense noise we term glitches. This module identifies these glitches between the 32 channels, and flags them bad in the quality frame. No parameters or file needed.">
+    </Module>
+    <Module Name="Clean Cosmic Rays" IDLFunc="cleancosmic_000" Comment="Clean Cosmic Rays attempts to identify pixels that have been struck by cosmic rays on the detector. Identified pixels are marked as bad in the quality frame. No parameters or file needed." >
+    </Module>
+    <Module Name="Combine Frames" IDLFunc="combframes_000" Comment="Used to combine multiple frames of the same mode into a lower noise version. The most common applications are to make a dark frame out of many identical darks, or a sky frame out of many identical skies.">
+      <Argument Name="Combine_Method" Type="enum" Range="AVERAGE|MEDIAN|AVGCLIP" Default="AVERAGE" />
+    </Module>
+    <Module Name="Extract Spectra" IDLFunc="spatrectif_000" Comment="Extract Spectra takes two dimensional raw spectra and extracts them into unblended spectra that can be traced back to particular lenslets. It uses a calibration file called a rectification matrix which contains the psf shape of each lenslet as a function of wavelength. A rectification matrix file exists for each mode of the spectrograph (combination of filter and scale).">
+    </Module>
+    <Module Name="Assemble Data Cube" IDLFunc="assembcube_000" Comment="Assemble Data Cube takes the raw extracted spectra from the Extract Spectra routine and places each spectrum in its correct x,y location in the data cube, and applies a wavelength solution to each lenslet. No parameters or file needed."></Module>
+    <Module Name="Correct Dispersion" IDLFunc="corrtilt_000" Comment="This module corrects for spatial shifts along the spectral axis in the datacube due to atmospheric differential dispersion and instrumental effects. This should always be run before using Extract Star module. No parameters or file needed."></Module>
+    <Module Name="Make Rectification Matrix" IDLFunc="mkrecmatrx_000" Comment="Used for engineering, and creating rectification matrices.">
+    </Module>
+    <Module Name="Make Wave Calib Frame" IDLFunc="mkwavcalfr_000" Comment="Used for engineering">
+    </Module>
+    <Module Name="Save DataSet Information" IDLFunc="savedatset_000" Comment="Saves reductions and outputs to fits file with all extensions and header.">
+    </Module>
+    <Module Name="Extract Line Emission" IDLFunc="linext_000" HideInGUI="1" Comment="Do Not Use. For development." >
+    </Module>
+    <Module Name="Subtract Dark Frame" IDLFunc="subtradark_000" HideInGUI="1"></Module>
+    <Module Name="Pack NB Frames" IDLFunc="packnbfrms_000" HideInGUI="1" Comment="Used for engineering">
+    </Module>
+    <Module Name="Swap Channels for Test" IDLFunc="swapchan_000" HideInGUI="1" Comment="Used for engineering">
+    </Module>
+    <Module Name="Save Master Flat Field" IDLFunc="saveflatfi_000" HideInGUI="1" Comment="Used for engineering">
+    </Module>
+    <Module Name='Determine Spectral Resolution' IDLFunc='detspecres_000' HideInGUI="1" Comment="Used for engineering">
+    </Module>
+  </CRP_SPEC>
+	<!-- Astronomical Reductions ARP_SPEC -->
+  <ARP_SPEC>
+    <Module Name="Subtract Frame" IDLFunc="subtradark_000" Comment="Subtracts the input frame by a user specfied frame.">
+    </Module>
+    <Module Name="Adjust Channel Levels" IDLFunc="adjchan_000" Comment="Adjust Channel Levels measures any DCS bias shifts between the 32 spectrograph channels and adjusts to a common level. No parameters or file needed.">
+    </Module>
+    <Module Name="Remove Crosstalk" IDLFunc="rmcrosstalk_000" Comment="The purpose of this module is to remove crosstalk caused by bright stars and residual gradients within the raw data. No parameters or file needed.">
+    </Module> 
+    <Module Name="Glitch Identification" IDLFunc="glitchid_000" Comment="The detector shows occasional bursts of intense noise we term glitches. This module identifies these glitches between the 32 channels, and flags them bad in the quality frame. No parameters or file needed.">
+    </Module>
+    <Module Name="Clean Cosmic Rays" IDLFunc="cleancosmic_000" Comment="Clean Cosmic Rays attempts to identify pixels that have been struck by cosmic rays on the detector. Identified pixels are marked as bad in the quality frame. No parameters or file needed." >
+    </Module>
+    <Module Name="Extract Spectra" IDLFunc="spatrectif_000" Comment="Extract Spectra takes two dimensional raw spectra and extracts them into unblended spectra that can be traced back to particular lenslets. It uses a calibration file called a rectification matrix which contains the psf shape of each lenslet as a function of wavelength. A rectification matrix file exists for each mode of the spectrograph (combination of filter and scale).">
+    </Module>
+    <Module Name="Extract Line Emission" IDLFunc="linext_000" HideInGUI="1" Comment="Do Not Use. For development." >
+    </Module>
+    <Module Name="Assemble Data Cube" IDLFunc="assembcube_000" Comment="Assemble Data Cube takes the raw extracted spectra from the Extract Spectra routine and places each spectrum in its correct x,y location in the data cube, and applies a wavelength solution to each lenslet. No parameters or file needed."></Module>
+    <Module Name="Correct Dispersion" IDLFunc="corrtilt_000" Comment="This module corrects for spatial shifts along the spectral axis in the datacube due to atmospheric differential dispersion and instrumental effects. This should always be run before using Extract Star module. No parameters or file needed."></Module>
+    <Module Name='Scaled Sky Subtraction' IDLFunc='scaledskysub_000' Comment="Remove OH lines via scaled subtraction algorithm of R. Davies"> 
+      <Argument Name="Min_Sky_Fraction" Type="float" Range="(0.01, 0.99)" Default="0.1" />
+      <Argument Name="Max_Sky_Fraction" Type="float" Range="(0.01, 0.99)" Default="0.25" />
+      <Argument Name="Line_Halfwidth" Type="float" Range="(1,20)" Default="4" />
+      <Argument Name="Show_Plots" Type="enum" Range="YES|NO" Default="YES" />
+      <Argument Name="Scale_K_Continuum" Type="enum" Range="YES|NO" Default="YES" />
+  </Module> 
+    <Module Name="Mosaic Frames" IDLFunc="mosaic_000" Comment="Mosaic Frames combines multiple OSIRIS cubes with the same PA using header keywords from TEL (default), NGS, and LGS. Combining frames may be performed with either AVERAGE (default), MEDIAN, or MEANCLIP.">
+      <Argument Name="Combine_Method" Type="enum" Range="AVERAGE|MEDIAN|MEANCLIP" Default="AVERAGE" />
+      <Argument Name="Offset_Method" Type="enum" Range="TEL|NGS|LGS" Default="TEL" />
+    </Module>
+    <Module Name="Extract Star" IDLFunc="extracstar_000" Comment="Extract Star takes a reduced data cube and finds the brightest object in the field and then uses aperture photometry to extract a 1D spectrum. The most common use is to extract a telluric spectrum to divide into data cubes.">
+      <Argument Name="Method" Type="enum" Range="APER_RADIUS7|APER_RADIUS10|TOTAL" Default="APER_RADIUS7" /> 
+   </Module>
+    <Module Name="Remove Hydrogen Lines" IDLFunc="remhydr_000" Comment="Remove Hydrogen Lines takes a 1D spectrum and attempts to remove absorption lines due to hydrogen. The primary purpose is to remove hydrogen absorption lines from telluric standard stars.">
+    </Module>
+    <Module Name="Divide Blackbody" IDLFunc="divblackbo_000" Comment=" This module divides a 1D, 2D or 3D spectra by a blackbody of a specified effective temperature (Kelvin). The default effective temperature is 9,480 K (A0V). This is primarily useful to fix telluric spectra, and accepts different wavelength ranges.">
+      <Argument Name="Temperature" Type="float" Range="(3000.0,30000.0]" Default="9480.0" />
+      </Module>
+    <Module Name="Divide by Star Spectrum" IDLFunc="divstarspe_000" Comment="Divides Cube by 1D stellar spectrum. User specified file needed." ></Module>
+    <Module Name="Save DataSet Information" IDLFunc="savedatset_000" Comment="Saves reductions and outputs to fits file with all extensions and header.">
+    </Module>
+    <Module Name='Rename File' IDLFunc='rename_000' Comment="Rename File"> 
+      <Argument Name="OutputFilename" Type="string" Default="newfile.fits" />
+    </Module> <!-- M. Perrin addition -->
+    <Module Name="Subtract Dark Frame" IDLFunc="subtradark_000" HideInGUI="1"></Module>
+    <Module Name="Combine Frames" IDLFunc="combframes_000" HideInGUI="1" Comment="Used to combine multiple frames of the same type into a lower noise version. The most common applications are to make a dark frame out of many identical darks, or a sky frame out of many identical skies.">
+      <Argument Name="Combine_Method" Type="enum" Range="AVERAGE|MEDIAN" Default="AVERAGE" />
+    </Module>
+    <Module Name="Spatially Rectify Spectrum" IDLFunc="spatrectif_000" HideInGUI="1" Comment="Used for old name in xml file, exactly the same as Extract Spectra">
+    </Module>
+    <Module Name="Divide by Flat Field" IDLFunc="divideflat_000" HideInGUI="1" Comment="Used for engineering">
+    </Module>
+    <Module Name="Caelum Mosaic Frames" IDLFunc="caelum_mosaic_000" HideInGUI="1"  Comment="Used for development">
+    </Module>
+    <Module Name="Make Data Cube" IDLFunc="mkdatacube_000" HideInGUI="1" Comment="Used for engineering">
+    </Module>
+    <Module Name="Calibrate Wavelength" IDLFunc="calibrwave_000" HideInGUI="1" Comment="Used for engineering">
+    </Module>
+    <Module Name="Swap Channels for Test" IDLFunc="swapchan_000" HideInGUI="1" Comment="Used for engineering">
+    </Module>
+    <Module Name="Save Master Flat Field" IDLFunc="saveflatfi_000" HideInGUI="1" Comment="Used for engineering">
+    </Module>
+    <Module Name="Debug Three" IDLFunc="debugtest3_000" HideInGUI="1" Comment="Used for engineering">
+    </Module>
+    <Module Name='Determine Spectral Resolution' IDLFunc='detspecres_000' HideInGUI="1" Comment="Used for engineering">
+    </Module>
+  </ARP_SPEC>
+	<!-- On-line Reductions ORP_SPEC -->
+  <ORP_SPEC>
+    <Module Name="Subtract Frame" IDLFunc="subtradark_000" Comment="Subtracts the input frame by a user specfied frame.">
+    </Module>
+    <Module Name="Adjust Channel Levels" IDLFunc="adjchan_000" Comment="Adjust Channel Levels measures any DCS bias shifts between the 32 spectrograph channels and adjusts to a common level. No parameters or file needed.">
+    </Module>
+    <Module Name="Remove Crosstalk" IDLFunc="rmcrosstalk_000" Comment="The purpose of this module is to remove crosstalk caused by bright stars and residual gradients within the raw data. No parameters or file needed.">
+    </Module> 
+    <Module Name="Glitch Identification" IDLFunc="glitchid_000" Comment="The detector shows occasional bursts of intense noise we term glitches. This module identifies these glitches between the 32 channels, and flags them bad in the quality frame. No parameters or file needed.">
+    </Module>
+    <Module Name="Clean Cosmic Rays" IDLFunc="cleancosmic_000" Comment="Clean Cosmic Rays attempts to identify pixels that have been struck by cosmic rays on the detector. Identified pixels are marked as bad in the quality frame. No parameters or file needed." >
+    </Module>
+    <Module Name="Extract Spectra" IDLFunc="spatrectif_000" Comment="Extract Spectra takes two dimensional raw spectra and extracts them into unblended spectra that can be traced back to particular lenslets. It uses a calibration file called a rectification matrix which contains the psf shape of each lenslet as a function of wavelength. A rectification matrix file exists for each mode of the spectrograph (combination of filter and scale).">
+      <Argument Name="Extract Star" Type="enum" Range="APER_RADIUS7|APER_RADIUS10|TOTAL" Default="APER_RADIUS7" /> 
+    </Module>
+    <Module Name="Assemble Data Cube" IDLFunc="assembcube_000" Comment="Assemble Data Cube takes the raw extracted spectra from the Extract Spectra routine and places each spectrum in its correct x,y location in the data cube, and applies a wavelength solution to each lenslet. No parameters or file needed."></Module>
+    <Module Name="Correct Dispersion" IDLFunc="corrtilt_000" Comment="This module corrects for spatial shifts along the spectral axis in the datacube due to atmospheric differential dispersion and instrumental effects. This should always be run before using Extract Star module. No parameters or file needed.">
+    </Module>
+    <Module Name="Save DataSet Information" IDLFunc="savedatset_000" Comment="Saves reductions and outputs to fits file with all extensions and header.">
+    </Module>
+  </ORP_SPEC>
+</Config>

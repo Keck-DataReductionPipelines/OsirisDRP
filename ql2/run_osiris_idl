@@ -1,0 +1,8 @@
+#!/bin/csh -f
+#
+# Stand alone script to launch an IDL Session in a new xterm
+#
+# Michael McElwain 5/28/05
+
+# start idl
+xterm -e idl &

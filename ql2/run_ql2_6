@@ -1,0 +1,32 @@
+#!/bin/csh -f
+#
+# Stand alone script to launch Quicklook IDL program.
+#
+# James Larkin 1/30/98
+# modified for host 'nirspec' by George Brims 2/26/98
+# Completely changed for batch execution instead of
+# RPC communication. 3/1/98.
+# modified to run outside of qlook dir by setting env 
+#    variable -- Jason L. Weiss 02/03/00
+
+# set $QL_FILEDIR if it does not already exists
+set file_status=`echo $QL_FILEDIR` 
+echo $file_status
+
+if ($file_status == "") then
+    echo setting filedir...
+    setenv QL_FILEDIR $KROOT/kss/qlook2
+endif
+
+echo $#argv
+echo $*
+
+# Pass in an argument which tells you which configuration file you
+# want to use.  Then put in a switch right here that calls the appropriate
+# startup file.  Count the number of arguments, if there is only 1, then you
+# should have a default startup file.  Do some error checking to see if there
+# is a 2nd parameter that doesn't match any of the startup files.
+
+# start ql2
+xterm -iconic -e idl6 $QL_FILEDIR/qlook2_startup &
+

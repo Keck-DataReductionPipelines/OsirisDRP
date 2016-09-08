@@ -1,0 +1,49 @@
+cimwin
+------
+ structure:
+
+
+
+
+ definition:
+  
+
+
+
+
+ menu:
+    File
+	Save As
+	Fits Header
+	Close
+    Window
+	Resize
+	Zoom
+	Recenter
+	Color Map
+	Color Stretch
+    Image
+	Shift
+	Rotate
+	Slice/Crop
+	Filter
+    Plot
+	Horizontal Cut
+	Vertical Cut
+	Diagonal Cut
+	Surface Plot
+	Contour Plot
+    Tools
+	Gaussian Fit
+	Statistics
+	Photometry
+	Strehl Calc.
+	Spectral Tools
+		Line Profile
+		Atlas Overlays
+
+
+ Draw Image
+    should support default scale and centering
+    should have x,y,z scaling options
+    window size should be forced to be integer multiple of scale

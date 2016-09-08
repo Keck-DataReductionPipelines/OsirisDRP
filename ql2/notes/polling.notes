@@ -1,0 +1,53 @@
+polling structure:
+name:''
+on?:0
+polling_rate:1
+poll_function:'ktl_poll_function'
+
+->
+frame_ready_function:''
+kill_ql_function:''
+get_filename_function:'osiris_get_filename'
+
+
+ktl poll function:
+function ktl_poll_function, server, keyword
+
+return, show(server+"."+keyword)
+
+end
+
+
+make a class?  has functions, could use this like:
+;kill ql?
+if (server_class.kill_ql_function() eq 1) then exit
+
+otherwise, if we use a struct, it would be:
+;kill ql?
+if (call_function(server_struct.kill_ql_function) eq 1) then exit
+
+
+
+; polling would be something like
+if (call_function(server_struct.polling_function, server_name, keyword_name) $
+	eq 1) then begin
+	;get_filename
+endif
+
+
+; get_filename function
+function osiris_get_filename
+	return call_function(server_struct.get_directory)+call_function(server.struct.get_filename))
+end
+
+function osiris_get_directory 
+	return show("osiris.outdir")
+end
+
+; or ->=
+function osiris_get_directory 
+	return call_function(server_struct.poll_function, "osiris", "outdir")
+end
+
+; in polling loop
+filename=call_function(server_struct.get_filename_function)
