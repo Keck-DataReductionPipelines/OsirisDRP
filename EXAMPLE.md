@@ -283,4 +283,3 @@ tests/test_emission_line/test_emission_line.py .
 ========================== 1 passed in 93.84 seconds ===========================
 ```
 ## Test Successful
-
