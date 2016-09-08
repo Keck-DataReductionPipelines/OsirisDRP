@@ -1,0 +1,13 @@
+#!/bin/csh -f
+#
+# Stand alone script to launch Quicklook IDL program.
+#
+# James Larkin 1/30/98
+# modified for host 'nirspec' by George Brims 2/26/98
+# Completely changed for batch execution instead of
+# RPC communication. 3/1/98.
+# modified to run outside of qlook dir by setting env 
+#    variable -- Jason L. Weiss 02/03/00
+#
+setenv NS_QLOOK2_DIR $KROOT/kss/qlook2/
+shelltool -I "idl $NS_QLOOK2_DIR/qlook2_startup.pro ; exit " -iconic &
