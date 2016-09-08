@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- s160318_c017 -->
+<DRF LogPath="$OSIRIS_ROOT/tests/logs" ReductionType="ARP_SPEC">
+  <dataset InputDir="$OSIRIS_ROOT/tests/test_misflux_singlearc/data_misflux_single" Name="s160318_c017" OutputDir="$OSIRIS_ROOT/tests/test_misflux_singlearc/data_misflux_single">
+    <fits FileName="s160318_c017026_kbb_050_arc.fits" />
+  </dataset>
+  <module Name="Subtract Frame" CalibrationFile="$OSIRIS_ROOT/tests/test_misflux_singlearc/data_misflux_single/s160318_c017057_kbb_050_drk.fits" />
+  <module Name="Adjust Channel Levels" />
+  <module Name="Remove Crosstalk" />
+  <module Name="Glitch Identification" />
+  <module Name="Clean Cosmic Rays" Faint_Extended="NO" />
+  <module Name="Extract Spectra" CalibrationFile="$OSIRIS_ROOT/tests/test_misflux_singlearc/data_misflux_single/s160412_c006___infl_Kbb_050.fits.gz" />
+  <module Name="Assemble Data Cube" />
+  <module Name="Correct Dispersion" Skip="1" />
+  <module Name="Save DataSet Information" />
+</DRF>
+
