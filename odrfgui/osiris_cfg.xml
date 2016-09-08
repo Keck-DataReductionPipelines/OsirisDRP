@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<cfg package="osiris">
+
+
+  <double paramName="DDF_DEFAULT_VERSION" value="1.0"
+    desc="" />
+  <double paramName="CDF_DEFAULT_VERSION" value="1.0"
+    desc="" />
+
+</cfg>
+
+
