@@ -15,6 +15,7 @@ To install and run the OSIRIS DRP, you will need the following:
 - A working C compiler (e.g. ``gcc``)
 - A copy of the compiled library cfitsio
 - A working installation of IDL
+- Python test dependencies: pytest, astropy
 
 ## Compiling a Local version of the DRP
 
@@ -68,6 +69,7 @@ source scripts/osirisSetup.sh
 osirisSetup /my/path/to/osiris/drp/
 ```
 
+
 ### Environment Setup in CSH
 
 To setup the OSIRIS environment, set the environment variable ``OSIRIS_ROOT`` to the root directory for the OSIRIS data reduction pipeline. Then source the file ``scripts/osirisSetup.csh``.
@@ -86,7 +88,8 @@ You can add these lines to your ``.cshrc`` file or other startup profile if you 
 ```
 set OSIRIS_VERBOSE=0
 setenv OSIRIS_ROOT=/my/path/to/osiris/drp/
-source scripts/osirisSetup.csh
+source ${OSIRIS_ROOT}/scripts/osirisSetup.csh
+setenv PATH ${PATH}:${OSIRIS_ROOT}/scripts
 ```
 
 ## Running the Pipeline

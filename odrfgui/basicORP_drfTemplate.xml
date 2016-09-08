@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Reduce Frames with ORP  -->
+<!-- find_file_current -->
+<DRF 
+  LogPath="find_file_construct_from_filename" 
+  ReductionType="ORP_SPEC">
+  <dataset 
+     Name="find_file_current"
+     InputDir="find_file_construct_from_filename"
+     OutputDir="find_file_specify_file" >
+    <fits FileName="find_file_current" />
+  </dataset>
+  <module
+     Name="Subtract Frame"
+     CalibrationFile="find_file_specify_file"
+  />
+  <module 
+     Name="Adjust Channel Levels" 
+     CalibrationFile="find_file_none"
+  />
+  <module 
+     Name="Glitch Identification" 
+     CalibrationFile="find_file_none"
+  />
+  <module Name="Clean Cosmic Rays" 
+     CalibrationFile="find_file_none"
+  />
+  <module
+     Name="Extract Spectra"
+     CalibrationFile="find_file_most_recent"
+  />
+  <module Name="Assemble Data Cube" 
+     CalibrationFile="find_file_none"
+  />
+  <module 
+     Name="Save DataSet Information"
+  />
+</DRF>
