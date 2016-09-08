@@ -28,12 +28,15 @@ CASE BranchID OF
         RETURN, ERR_BADCASE
     END                         ; CASE BadType
 ENDCASE
-                                ; Now perform the common code execution for spatial rectification
-                                ; Read in the Calibration file that will contain:
-                                ;	BASESIZE	Keyword
-                                ;	hilo		short int array[NUMSPEC][2]
-                                ;	effective	short int array[NUMSPEC]
-                                ;	basis_vectors	float array[NUMSPEC][MAXSLICE][DATAFRAMEDIM]
+           ; Now perform the common code execution for spatial rectification
+           ; Read in the Calibration file that will contain:
+           ;	BASESIZE	Keyword
+           ;	hilo		short int array[NUMSPEC][2]                  -- The row index of the bottom (low) and the top (high) raw for each spectral slice.
+           ;	effective	short int array[NUMSPEC]                     -- A flag to indicate whether this spaxel is sufficiently illuminated (0=bad, 1=good)
+           ;	basis_vectors	float array[NUMSPEC][MAXSLICE][DATAFRAMEDIM] -- The actual influence matrix.
+           ;	Note NUMSPEC = typically 1216 spectra
+           ;	Note MAXSLICE = 16 (default) but up to 32 (height of slice, orthogonal to dispersion direction)
+           ;	Note DATAFRAMEDIM = 2048 (width of slice in dispersion direction)
 thisModuleIndex = drpModuleIndexFromCallSequence(Modules, functionName)
 FileName = drpXlateFileName(Modules[thisModuleIndex].CalibrationFile)
 pHilo = PTR_NEW(/ALLOCATE_HEAP)
