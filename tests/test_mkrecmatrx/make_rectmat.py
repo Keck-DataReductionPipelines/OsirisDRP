@@ -1,22 +1,27 @@
 import os
 import pyfits
 
-source_dir = '/Users/aboehle/osiris_dev/OsirisDRP/modules/source/'        #'/Users/aboehle/osiris/drs/modules/source/'
-RPB_dir =  '/Users/aboehle/osiris_dev/OsirisDRP/backbone/SupportFiles/'   #'/Users/aboehle/osiris/drs/backbone/SupportFiles/'
+# location of OSIRIS DRP:
+drp_dir = '/Users/aboehle/osiris_dev/OsirisDRP/'
 
-rectmat_outdir = 'rectmat/' #rectmats_QSOdata'
-reduce_dir = '/Users/aboehle/research/irlab/projects/osiris_rectmat_tests/images/160412/reduce/'#160317/reduce/'
+source_dir = drp_dir + '/modules/source/'   
+RPB_dir =  drp_dir + '/backbone/SupportFiles/'
 
-# make a rect mat with whatever slice values you want, update the dir_suffix
+# location of rect mat raw scans and created rect mats
+reduce_dir = '/Users/aboehle/research/irlab/projects/osiris_rectmat_tests/images/160412/reduce/'      # from here, raw dir is: ../SPEC/raw/
+rectmat_outdir = 'rectmat/'  # sub-directory of reduce_dir above
 
-def make_rectmat(slice,maxslice,weightlimit,dir_suffix=''):
 
-    xml_filename = 'Kbb_50.xml'   #'Hn3_100.xml'
-    xml_test_filename = 'testrectmat_Kbb_50_newpipeline.xml' #'testrectmat_Hn3_100_newpipeline.xml'
+def make_rectmat(slice,maxslice,weightlimit,dir_suffix='', xml_filename = 'Kbb_050.xml', xml_test_filename = 'testrectmat_Kbb_50_newpipeline.xml'):
+    '''
+    Make a rect mat with a given slice, maxslice, and weight limit value.  Save the rect mat into a sub-directory of the reduce_dir (reduce_dir is hard-coded above).  This sub-directory is named with the weightlimit, slice, and maxslice values followed by an optional dir_suffix.
 
-    #dir_suffix = 'test123'  # for additional tests
+    To make rect mat: updates the given rect mat xml file (named "xml_filename") with new output dir and the appropriate drp files with new maxslice, slice, and weight limit values.  Prompts the user to close the OSIRIS DRP so it can be reopened with the new drp parameter values.  Recompiles the c code in drp modules/source/ directory.
 
-    if dir_suffix:
+    Also updates the given test filename (named "xml_test_filename") with the new data directory
+    '''
+
+    if dir_suffix and dir_suffix[0] != '_':
         dir_suffix = '_'+dir_suffix
 
     # Check that output directories exist
@@ -37,11 +42,8 @@ def make_rectmat(slice,maxslice,weightlimit,dir_suffix=''):
         print cmd
         os.system(cmd)
     
-def check_rectmats(rectmat_name = 's160412_c006___infl_Kbb_050.fits'):   #'s160318_c003___infl_Hn3_100.fits'):
-        
-    slice_arr = [[14,16],[20,22],[28,30]]
-    weight_lim_arr = [0,0.01]
-
+def check_rectmats(rectmat_name = 's160412_c006___infl_Kbb_050.fits', slice_arr = [[14,16],[20,22],[28,30]], weight_lim_arr = [0,0.01]):   #'s160318_c003___infl_Hn3_100.fits'):
+    
     for slice,maxslice in slice_arr:
         for lmt in weight_lim_arr:
                 filename = reduce_dir +rectmat_outdir +  '/weightlimit%1.2f_slice%i_maxslice%i/' % (lmt, slice, maxslice) + rectmat_name
