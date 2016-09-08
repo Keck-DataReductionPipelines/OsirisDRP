@@ -1,0 +1,198 @@
+OSIRIS Data Reduction File GUI
+Jason Weiss
+UCLA Infrared Laboratory
+weiss@astro.ucla.edu
+
+version 2.3
+Release date: 2010 March 1 
+
+
+=== Files ===
+odrfgui.jar - java code for odrfgui
+osirisUtil.jar - java library with general utility classes for OSIRIS programs
+osirisDrpUtil.jar - utility classes for OSIRIS DRP programs
+NomTamFits.jar - java FITS file support
+NomTamImage.jar - java FITS file support
+NomTamUtil.jar - java FITS file support
+jdom.jar - java DOM package (XML support, www.jdom.org)
+odrfgui_cfg.xml - GUI configuration file
+osiris_cfg.xml - osiris configuration file
+RPBconfig.xml - DRP Backbone configuration file
+java.policy.odrfgui - java policy file
+odrfgui.bat - run script
+ucla_gui_configuration.pdf - description on how to customize the GUI 
+  using the configuration files.
+ODRFGUIParameters.java - listing of available configuration variables
+*_drfTemplate.xml - various DRF templates (see Templates, below)
+README - this file
+
+=== TO INSTALL ===
+
+Requires: java 1.4 or higher
+
+simply unpack the tar file, which you've likely done if you are reading this.
+Optionally, customize the GUI (see below).  You probably want to set 
+the location of the pipeline configuration file RPBconfig.xml, the 
+backbone queue directory, and the calibration file directory.
+
+
+=== TO RUN === 
+
+UNIX/LINUX/MAC: 
+cd to the directory in which the jar file and configs file are unpacked.
+type odrfgui.bat at prompt.
+
+WINDOWS:
+browse to the directory where the files were unpacked.
+double-click on odrfgui.bat
+
+
+=== Customizing the GUI ===
+
+A few constants in the GUI can be specified in the odrfgui_cfg.xml.  
+Of particular use are the default directories for input, output, logging,
+and queue dir.  
+
+
+  <File paramName="DEFAULT_INPUT_DIR" value="~/osiris/spec_raw/"
+    desc="Default raw file directory" />
+  <File paramName="DEFAULT_OUTPUT_DIR" value="~/osiris/spec_orp/"
+    desc="Default reduced file directory" />
+  <File paramName="DEFAULT_LOG_DIR" value="~/osiris/spec_orp/DRFs/"
+    desc="Default reduction log directory" />
+  <File paramName="DRF_QUEUE_DIR" value="~/osiris/drf_queue/"
+    desc="Default DRP queue directory" />
+  <File paramName="DRF_READ_PATH" value="~/osiris/"
+    desc="Default path for opening drfs" />
+  <File paramName="DRF_WRITE_PATH" value="~/osiris/"
+    desc="Default path for writing drfs" />
+
+To override, simply specify the correct path in the value attribute.  
+~ can be used for File tags to represent the your home directory.
+
+For conveniece, the calibration directory should be set.  This directory
+is used by the GUI to automatically find calibration files for the 
+modules that require them, based on the filter and scale of the 
+input files.  
+
+  <File paramName="OSIRIS_CALIB_ARCHIVE_DIR"
+    value="~/osiris/calib/SPEC"
+    desc="OSIRIS Calibration Data Archive" />
+
+Another value that should be set is the location of your pipeline's 
+configuration file, RPBconfig.xml.  By default, this file is located
+in the backbone/SupportFiles/ directory of the pipeline installation.
+The distribution package of this GUI contains the RPBconfig file as
+of this release (see date above).  Since this file may change, or may
+be customized, it is wise to set the value of this element to the file
+used by the pipeline itself to ensure congruency.  This GUI uses that 
+file to discover the available modules and information about them.
+
+  <File paramName="OSIRIS_DRP_BACKBONE_CONFIG_FILE" value="RPBconfig.xml"
+    desc="Module configuration file for DRP Backbone" />
+
+Additionally, the configuration file provides means to set the default
+values for the settings in the Tools->Options dialog.  These are the
+boolean tags in the configuration file, such as:
+
+  <boolean paramName="DEFAULT_CONFIRM_DROP_DRF" value="true"
+    desc="Default value for whether to confirm dropping DRFs" />
+
+This particular tag specifies whether or not a confirmation dialog is
+shown when dropping a DRF.  This can be turned off in the GUI by
+unchecking the check box in the Tools->Options dialog next to "Confirm
+dropping DRFs to queue", or by clicking the "Don't show this dialog
+again" check box on the confirmation dialog.  However, if you know
+you don't want this option, and you don't want to have to set this option
+everytime you run the GUI, you can override the default setting in the
+configuration file by setting the value attribute of the proper tag to
+"true" or "false".
+
+Other settings available can be found in ODRFGUIParameters.java.  
+This file is provided for reference only.  The GUI does not use the 
+code included in this particular copy of the file, since it relies
+on a previously compiled version.  Therefore, setting values in this
+file will not have any effect.  To override the values of the constants
+in this file, set them in the XML config file odrfgui_cfg.xml.
+
+See the attached ucla_gui_configuration.pdf for more information
+
+
+=== Templates ===
+
+This release includes the following reduction templates:
+
+basicARP_drfTemplate.xml: Template for basic ARP reductions, 
+  includes Subtract Frame, Adjust Channel Levels, Remove Crosstalk, 
+  Glitch Identification, Clean Cosmic Rays, Extract Spectra, 
+  Assemble Data Cube, Correct Dispersion, and Save Dataset Information.
+
+basicORP_drfTemplate.xml:  Template for basic ORP reduction, 
+  includes Subtract Frame, Adjust Channel Levels, Remove Crosstalk, 
+  Glitch Identification, Clean Cosmic Rays, Extract Spectra, 
+  Assemble Data Cube, and Save Dataset Information.
+
+fullARP_drfTemplate.xml:  Template for basic ARP reduction with 
+  telluric correction and mosaicing multiple frames, with the 
+  additional modules Divide by Star Spectrum and Mosaic Frames.
+
+telluricARP_drfTemplate.xml: Template for basic ARP reductions with 
+  extracting telluric stars, uses basic ARP modules with 
+  Extract Star, Remove Hydrogen Lines, and Divide by Blackbody modules.
+
+combine_skies_darks_drfTemplate.xml: Template for combining multiple 
+  dark and sky frames, uses Glitch Identification, and Combine Frames modules.
+
+cubes_mosaic_drfTemplate.xml: Template for mosaicing together 
+  already reduced OSIRIS cubes with Mosaic Frames module.
+
+cubes_telluric_correct_drfTemplate.xml: Template for telluric 
+  correcting reduced OSIRIS cubes with the Divide by Star Spectrum module.
+
+cubes_telluric_extract_drfTemplate.xml: Template for extracting a 
+  1D spectrum of a telluric star from reduced OSIRIS cubes with 
+  Extract Star,  Remove Hydrogen Lines, and Divide by Blackbody modules.
+
+
+=== REVISIONS ===
+
+since 2.2
+ - added options to Scaled Sky Module
+ - added options to Combine Frames
+ - added options to Extract Star
+
+since 2.1: 
+  - When removing input files, if there are none left, the working filter 
+    and scale are set to None, and the Dataset Name is cleared, if 
+    automatically created. 
+  - Added support for Scaled Sky Subtraction module, which takes a
+    specified file as a calibration file.  Default directory is the
+    input file directory.
+  - Reordered File menu, and added "New DRF" option, that resets GUI
+    to default startup fields (clears input file list, resets reduction type,
+    and loads initial template).
+  - Added a "Don't show this dialog again" option to the confirmation 
+    message when Clear List for input files is hit.  This setting was
+    added to the Tools->Options menu.
+  - Set default directory for Divide by Star Spectrum to input file directory.
+  - When adding input files, the selected files will remain the same as 
+    it was before adding the files.  If there was no selection before (e.g. 
+    there were no input files), the first input file will be selected.  
+    When files are removed, the row of the first removed files will remain
+    selected, if the row still exists.  Otherwise, it will select the last
+    existing row, if any.
+  - Added default values to Tools->Options dialog to odrfgui_cfg.xml for
+    easier overriding.
+
+since 2.01: 
+  - modified templates that contain Mosaic Frames to not use save 
+    dataset module.
+
+since 2.00: 
+  - Made calib dir of type File.  
+  - Removed subdirs for specific calibration files.  
+  - Default dir for Specify a File find file if resolved file not found 
+    is input dir for subtract frame, and calibdir otherwise.  
+  - Removed Clean Cosmic module from combine_skies_darks_drfTemplate.xml
+  - When switching reduction types, remove modules in the active list
+    that are not in the new available list.
