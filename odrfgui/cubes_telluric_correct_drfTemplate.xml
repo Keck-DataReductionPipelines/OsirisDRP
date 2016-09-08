@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Divide Cubes by Star Spectrum -->
+<!-- find_file_current -->
+<DRF
+  LogPath="find_file_construct_from_filename"
+  ReductionType="ARP_SPEC">
+  <dataset 
+     Name="find_file_current"
+     InputDir="find_file_construct_from_filename"
+     OutputDir="find_file_specify_file" >
+    <fits FileName="find_file_current" />
+  </dataset>
+  <module  Name="Divide by Star Spectrum"
+       CalibrationFile="find_file_specify_file"
+  />
+  <module 
+     Name="Save DataSet Information"
+  />
+</DRF>
