@@ -22,5 +22,7 @@ def test_skyline(drf_queue):
     fractRMS = lineRMS/totalRMS
 
     fits_osiris_allclose(output_file, expected_file)
-    assert ((fractRMS > 0.97) & (fractRMS <= 1.0))
+    assert ((fractRMS > 0.97) & (fractRMS < 1.03) & 
+            (lineRMS < 0.50) & (lineRMS > 0.49))
 
+    
