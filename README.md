@@ -65,8 +65,8 @@ You can add these lines to your ``.bashrc`` file or other startup profile if you
 
 ```
 OSIRIS_VERBOSE=0
-source scripts/osirisSetup.sh
-osirisSetup /my/path/to/osiris/drp/
+source /my/path/to/osiris/drp/scripts/osirisSetup.sh
+osirisSetup /my/path/to/osiris/drp
 ```
 
 
