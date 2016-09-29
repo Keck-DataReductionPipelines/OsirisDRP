@@ -74,18 +74,18 @@ for i = 0, nFrames-1 do begin
 			if ( pixel lt 0.0 ) then begin
 				pixel= 0.0-pixel	; If pixel is negative, flip both it and comparison
 				cmp=0.0-pixel
-			end
+			endif
 			cmp = cmp+3.0*std	; Set the comparison value to the value of the four neighbors plus 3 sigma noise.
-			if ( pixel gt. cmp*3.0 ) then begin ; Require that the pixel-background is less than 3*median of four neighbors after adding noise.
+			if ( pixel gt cmp*3.0 ) then begin ; Require that the pixel-background is less than 3*median of four neighbors after adding noise.
 				Frame[ii,j]=compare	; Shouldn't be used, but set value to median of 4 neighbors.
 				IntAuxFrame[ii,j]=0	; Flag as bad
-			end
-		    end
-                end
-            end
-        end
+			endif
+		    endif
+                endif
+            endfor
+        endfor
         bad = where(IntAuxFrame ne 9)
-    end
+    endfor
     *DataSet.IntAuxFrames[i] = IntAuxFrame
     *DataSet.Frames[i] = Frame
 
