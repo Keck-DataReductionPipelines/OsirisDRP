@@ -76,8 +76,8 @@ for i = 0, nFrames-1 do begin
 				cmp=0.0-pixel
 			endif
 			cmp = cmp+3.0*std	; Set the comparison value to the value of the four neighbors plus 3 sigma noise.
-			if ( pixel gt cmp*2.5 ) then begin ; Require that the pixel-background is less than 3*median of four neighbors after adding noise.
-				Frame[ii,j]=compare	; Shouldn't be used, but set value to median of 4 neighbors.
+			if ( pixel gt cmp*2.0 ) then begin ; Require that the pixel-background is less than 3*median of four neighbors after adding noise.
+				Frame[ii,j]=0    ; Shouldn't be used, but set value to 0.
 				IntAuxFrame[ii,j]=0	; Flag as bad
 			endif
 		    endif
