@@ -693,13 +693,16 @@ self.movie_min_value=-0.1
 self.movie_max_value=1.1
 self.boxcar=1
 self.current_display='As DN/s'
+;self.current_display_update=1.
 
 if has_valid_cconfigs(conbase_uval, cconfigs) then begin
     self.dwidth=cconfigs->GetDiagonal()
     self.collapse=cconfigs->GetCollapse()
+    self.current_display=cconfigs->GetDisplayAsDN()
 endif else begin
 	self.dwidth=10.
 	self.collapse=0
+        self.current_display='As DN/s'
 endelse
 
 if (itime ne 0) then self.def_itime=itime else self.def_itime=1.
@@ -764,7 +767,7 @@ cimwin_desc = [{cw_pdmenu_s, 1, 'File'}, $
                {cw_pdmenu_s, 0, 'HistEq'}, $
                {cw_pdmenu_s, 0, 'Logarithmic'}, $
                {cw_pdmenu_s, 0, 'Sqrt'}, $
-;               {cw_pdmenu_s, 0, 'AsinH'}, $
+               {cw_pdmenu_s, 0, 'AsinH'}, $
                {cw_pdmenu_s, 4, 'Position Angle'}, $
                {cw_pdmenu_s, 0, 'As Total DN'}, $
                {cw_pdmenu_s, 4, 'Draw Axes Labels'}, $
@@ -1535,6 +1538,8 @@ endif
 self.DispIm_xs=im_s[0]
 self.DispIm_ys=im_s[1]
 
+self.current_display_update=1.
+
 ; check to see if this is a slice event, 0=slice, 1=range
 slice=widget_info(uval.wids.cube_range_button, /button_set)
 if (slice eq 0) then begin
@@ -1619,7 +1624,8 @@ endelse
 
 itime=sxpar(hd, itime_kw)
 coadds=sxpar(hd, coadds_kw)
-
+;print, 'itime= ', itime
+;print, 'coadds= ', coadds
 ; fix im2 to be the correct displayed im
 if (itime ne 0) then begin
     if (coadds ne 0) then begin
@@ -1657,9 +1663,9 @@ if self.DoAutoScale eq 1 then begin
 	if has_valid_cconfigs(conbase_uval, cconfigs) then begin
                 im_max_con=cconfigs->GetImScaleMaxCon()
                 im_min_con=cconfigs->GetImScaleMinCon()
-    endif else begin
+        endif else begin
 	 	im_max_con=5.
-    	im_min_con=-3.
+    	        im_min_con=-3.
 	endelse
     meanval=moment(im2, sdev=im_std, /NAN)
     medianval=median(im2)
@@ -3583,7 +3589,7 @@ endif else begin
 endelse
 
 ; get new filename
-file=dialog_pickfile(/write, group=base_id, filter='*.fits', file=filename)
+file=dialog_pickfile(/write, group=base_id, filter='*.fits*', file=filename)
 
 ; if cancel was not hit
 if file ne '' then begin
@@ -3616,7 +3622,7 @@ hd=*hd_ptr
 filename=ImObj->GetPathFilename()
 
 ; get new filename
-file=dialog_pickfile(/write, group=base_id, filter='*.fits', file=filename)
+file=dialog_pickfile(/write, group=base_id, filter='*.fits*', file=filename)
 
 ; if cancel was not hit
 if file ne '' then begin
@@ -3660,7 +3666,7 @@ endif
 cancelled=0.
 
 varname=TextBox(Title='Provide Main-Level Variable Name...', Group_Leader=base_id, $
-                  Label=thingname+' Variable Name: ', Cancel=cancelled, XSize=200, Value=thingname) 
+         Label=thingname+' Variable Name: ', Cancel=cancelled, XSize=200, Value=thingname) 
 
 ; Dave Fanning says:
 ;
@@ -5876,7 +5882,7 @@ struct={CImWin, $
         boxcar:1, $             ; set the boxcar size for 3d images
 	scroll_slices_counter: 0, $  ;should we bail out from the scrolling?
         current_display:'', $    ; 'As Total DN' or 'As DN/s'
-        current_display_update:0. $    ; Toggle to update DN or DN/s
+        current_display_update:1. $    ; Toggle to update DN or DN/s
        }
 
 end
