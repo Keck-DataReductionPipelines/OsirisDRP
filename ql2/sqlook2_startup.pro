@@ -28,8 +28,16 @@ wdelete, 0
 
 ; get KROOT envvar
 kroot_dir=getenv('KROOT')
-if kroot_dir eq '' then $
-  kroot_dir='/kroot'
+if ( kroot_dir eq '' ) then kroot_dir='/kroot'
+
+; set kidl path
+kidlpath = kroot_dir+'/rel/default/lib/'
+!path=kidlpath+':'+!path
+
+; compile kidl.pro to get access to show and modify                                         
+find_kidl = file_test(kidlpath+'kidl.pro')
+.r kidl.pro
+
 
 ; get qlook directory from environment variable
 qlook_dir=getenv('QL_FILEDIR')
@@ -38,19 +46,7 @@ if qlook_dir eq '' then $
   qlook_dir=kroot_dir+'/kss/qlook2/'
 
 ; set up idl path
-!path=qlook_dir+':'+qlook_dir+'../idllib'+':'+!path
-;!path='/net/highz/kroot/kss/idllib'+':'+!path
-
-; set kidl path
-!path='$KROOT/rel/default/lib/:'+!path
-;!path='/net/highz/kroot/rel/default/lib/:'+!path
-
-
-; remove obsolete directory from path
-;!path=repstr(!path, '/usr/local/pkg/astron/contrib/varosi/vlib/386i', '')
-
-; compile kidl.pro to get access to show and modify
- .r kidl.pro
+!path=qlook_dir+':'+qlook_dir+'../idllib'+':'+qlook_dir+'/idl_downloads'+':'+!path
 
 ; load color table
 loadct, 1
