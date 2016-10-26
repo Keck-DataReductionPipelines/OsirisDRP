@@ -44,7 +44,7 @@ if (win_uval.current_os = 'WIN') then win_uval.last_file=''
 ; lets you pick a file from the directory
 path_file=dialog_pickfile(dialog_parent=conbase_id, $
                      path=win_uval.current_data_directory, $
-                     filter='*.fits', get_path=new_path, $
+                     filter='*.fits*', get_path=new_path, $
                      file=win_uval.last_file)
 
 ; make sure a file was selected, and cancel wasn't pressed
