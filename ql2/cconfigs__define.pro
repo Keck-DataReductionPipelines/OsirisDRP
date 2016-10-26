@@ -89,7 +89,7 @@ endif else begin
     self.cfg_name='OSIRIS'
     ; FITS Header Keywords
     self.inst_fitskw='INSTRUME'
-    self.itime_fitskw='ITIME'
+    self.itime_fitskw='TRUITIME'
     self.coadds_fitskw='COADDS'
     self.pa_fitskw='SCAMPA'
     self.object_fitskw='OBJECT'
