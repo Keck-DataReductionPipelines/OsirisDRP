@@ -322,7 +322,8 @@ int mkrecmatrx_000(int argc, void* argv[]) {
 	    }
 	  }
 	}
-      }
+	
+       }
       // Look at the upper and lower edges of each strip. Set them to 0, if they are too large
       if ( fabs(basis_vectors[sp][0][i]) > (pretotal/2.0) ) basis_vectors[sp][0][i]=0.0;
       if ( fabs(basis_vectors[sp][(basesize-1)][i]) > (pretotal/2.0) ) basis_vectors[sp][(basesize-1)][i]=0.0;
