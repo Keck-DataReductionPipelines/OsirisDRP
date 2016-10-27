@@ -35,7 +35,7 @@ widget_control, event.top, get_uval=uval
 
 if (tag_exist(uval, 'path') eq 1) then path=uval.path else path='.' 
 
-filename=dialog_pickfile(dialog_parent=event.id, filter='*.fits', $
+filename=dialog_pickfile(dialog_parent=event.id, filter='*.fits*', $
 	path=path, get_path=newpath, /read, /must_exist)
 
 if filename ne '' then begin

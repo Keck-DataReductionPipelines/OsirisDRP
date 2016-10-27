@@ -32,7 +32,7 @@ echo $*
 
 # start ql2
 if ($#argv > 0) then 
-    xterm -n "ql2: osiris offline" -T "ql2: osiris offline" -iconic -display $display -e idl $QL_FILEDIR/fqlook2_startup &
+    xterm -n "ql2: osiris offline" -T "ql2: osiris offline" -display $display -e idl $QL_FILEDIR/fqlook2_startup &
 else
-    xterm -n "ql2: osiris offline" -T "ql2: osiris offline" -iconic -e idl $QL_FILEDIR/fqlook2_startup &
+    xterm -n "ql2: osiris offline" -T "ql2: osiris offline" -e idl $QL_FILEDIR/fqlook2_startup &
 endif

@@ -115,9 +115,9 @@ if ptr_valid(p_WinObj) then begin
                             endif 
                         endif 
                     endif 
-				endif ; endif for if ptr_valid(uval.cconfigs_ptr)
+		endif ; endif for if ptr_valid(uval.cconfigs_ptr)
                 widget_control, winbase_uval.wids.datanum, set_value=datanum_val
-                
+      
                 if (im_zs gt 1) then begin
 					; if this is an IMAGE CUBE
                     widget_control, winbase_id, get_uval=winbase_uval
@@ -497,7 +497,7 @@ endif
 
 ; see if the itime keyword exists here
 if hd[0] ne '' then begin
-    itime=sxpar(hd, 'ITIME')
+    itime=sxpar(hd, 'TRUITIME')
     imwin_obj->SetDefItime, itime
 endif else begin
     itime=1.

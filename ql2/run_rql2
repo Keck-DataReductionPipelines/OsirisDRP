@@ -34,8 +34,8 @@ echo $*
 
 # start ql2
 if ($#argv > 0) then 
-    xterm -n ql2 -T ql2 -iconic -display $display -e idl $QL_FILEDIR/qlook2_startup &
+    xterm -n ql2 -T ql2  -display $display -e idl $QL_FILEDIR/qlook2_startup &
 else
-    xterm -n ql2 -T ql2 -iconic -e idl $QL_FILEDIR/qlook2_startup &
+    xterm -n ql2 -T ql2  -e idl $QL_FILEDIR/qlook2_startup &
 endif
 
