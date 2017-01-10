@@ -1,12 +1,31 @@
 # OSIRIS Data Reduction Pipeline
 
-## v4.0beta Release Notes (2016-05-30)
+## v4.0.0 Release Notes (2017-XX-XX)
 
-- Updates to the code in order to run the pipeline for the new detector.
-- For data taken in 2016 onward, it is no longer necessary to run the following modules: Remove Cross Talk, Glitch Identification. It is fine to keep them in the DRF XML, these modules will automatically not run on the new data.
+- Major updates:
+- Updates to the code in order to run the pipeline for the new detector (2016 data and newer).
 - Installation has now been simplified (see below for install directions). Bash scripts have been included for those who would like to use bash shell.
 - Test framework is now available to run tests of the pipeline (requires pytest module in python, see README in ''tests'' directory)
-- WCS bugs have been fixed. 
+- Optimized algorithms for the construction of data cubes
+- qlook2 and odrfgui are now also included in the repository
+
+
+- Minor Updates:
+- WCS bugs have been fixed.
+- qlook2 fixes
+  - units bug is fixed
+  - fix initial autoscale to imager display
+  - clean up startup scripts
+
+  
+## Important Notes
+
+- Running the cosmic ray module on data in 2016 or later will introduce significant artifacts and reduce overall signal to noise. This is due to the fact that unresolved emission lines such as OH lines are now sharper on the detector. The cosmic ray module will tend to interpret this as a cosmic ray. To remove cosmic rays, we recommend combining data with the mosaic module with the MEANCLIP keyword if there are sufficient number of frames. 
+- The cosmic ray module may lead to artifacts in data before 2016 as well, but at a lesser level. We recommend checking on individual science cases.
+- The pipeline team is investigating different cosmic ray modules for a future release. 
+- For data taken in 2016 onward, it is no longer necessary to run the following modules: Remove Cross Talk, Glitch Identification. It is fine to keep them in the DRF XML, these modules will automatically not run on the new data.
+
+
 
 ## Prerequisites
 
