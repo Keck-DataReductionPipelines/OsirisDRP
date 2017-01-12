@@ -1,10 +1,10 @@
-import pyfits
+from astropy.io import fits
 import sys
 import numpy as np
 
 def checkSkylines(filename,min_lambda,max_lambda,sumRow,outname):
 
-    file = pyfits.open(filename)
+    file = fits.open(filename)
     data = file[0].data
     hdr = file[0].header
     sizeLambda = data.shape[2]
@@ -34,6 +34,6 @@ def checkSkylines(filename,min_lambda,max_lambda,sumRow,outname):
     rowRMS = np.std(sumRowOnly)
 
 
-    pyfits.writeto(outname,sumLine,clobber=True)
+    fits.writeto(outname,sumLine,clobber=True)
 
     return totalRMS, rowRMS

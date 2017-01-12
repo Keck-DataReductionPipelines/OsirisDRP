@@ -3,7 +3,6 @@
 from astropy.extern import six
 from astropy.io.fits.diff import FITSDiff
 from astropy.io import fits
-from contextlib import nested
 from astropy.extern.six.moves import StringIO
 
 __all__ = ['fits_osiris_allclose']
