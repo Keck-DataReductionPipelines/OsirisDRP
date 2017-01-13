@@ -6,6 +6,9 @@ This is a script to install the OSIRIS DRS Pipeline from v4.0 onwards.
 It is heavily based on ``install_osiris_drs_v3.2.py``, the original OSIRIS
 pipeline installer.
 
+This script has a few options, you can examine them with
+python install_osiris_drs.py --help
+
 Author: Alexander Rudy (arrudy@ucsc.edu)
 Date: May 6, 2016
 
@@ -312,6 +315,8 @@ def get_pipeline_directory():
     drs_directory = ask_for_path("DRS Directory", default=os.path.join(OSIRIS_DEFAULT_SOFTWARE_ROOT, "drs"))
     log.info("Installing the DRS to '%s'", drs_directory)
     if os.listdir(drs_directory):
+        log.info("ls %s", drs_directory)
+        subprocess.call(['ls', drs_directory])
         log.warning("The installation directory is not empty!")
         ui("Installing the pipeline to %s will overwrite any files there used by the pipeline.", drs_directory)
         if not ask_yes_no("Are you sure you want to continue?", default='no'):
@@ -352,15 +357,20 @@ def extract_zip_with_commonprefix(filename, destination_dir):
     finally:
         shutil.rmtree(uzdir)
     
-def install_pipeline(directory):
+def install_pipeline(directory, download):
     """Install the pipeline."""
     idl_include = get_idl_include_path()
     cfitsio_lib = get_cfitsio_path()
-    download_drs_files(directory)
     os.environ["IDL_INCLUDE"] = idl_include
     os.environ["CFITSIOLIBDIR"] = cfitsio_lib
-    for filename in OSIRIS_DRS_FILES:
-        extract_zip_with_commonprefix(filename, directory)
+    if download:
+        download_drs_files(directory)
+        for filename in OSIRIS_DRS_FILES:
+            extract_zip_with_commonprefix(filename, directory)
+    else:
+        ui("The --no-download option assumes you have all of the necessary source files")
+        ui("in the pipeline directory %s", directory)
+        ui("If you are missing files, this script will probably fail.")
     make('all', directory)
     
 def configure_odrf(directory, data_directory, matrix_directory):
@@ -442,7 +452,7 @@ def make(command, directory):
     for line in stdout.splitlines():
         log.debug(line)
     if ps.returncode != 0:
-        raise subprocess.CalledProcessError(ps.returncode, ['make', command], stdout)
+        raise Abort("Command 'make {0}' failed with error code {1}".format(command, ps.returncode))
     log.info("Build successful")
     return
     
@@ -552,6 +562,7 @@ def main():
     """Main function"""
     parser = argparse.ArgumentParser(description="OSIRIS Pipeline download and install script.")
     parser.add_argument("--drs-only", action='store_false', dest='otools', help="Only install the DRS")
+    parser.add_argument("--no-download", action='store_false', dest='download', help="Skip downloading source files.")
     opt = parser.parse_args()
     try:
         setup_logging()
@@ -563,12 +574,13 @@ def main():
             raise Abort("Not installing pipeline until prerequisties are installed.")
         ui(INSTALL_GO_MESSAGE)
         drs_directory = get_pipeline_directory()
-        install_pipeline(drs_directory)
+        install_pipeline(drs_directory, opt.download)
         if opt.otools:
             install_tools(drs_directory)
         display_finished_info(opt.otools, drs_directory)
     except Abort as e:
         log.error(str(e))
+        log.info("See install_osiris_drs.log for more information.")
         return 1
     else:
         return 0
