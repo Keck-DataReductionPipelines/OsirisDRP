@@ -68,6 +68,9 @@ OSIRIS_LINKED_COMMANDS = {
     'run_oql2': os.path.join('ql2', 'run_oql2'),
 }
 
+class Abort(Exception):
+    pass
+
 def url_progress(request, destination, output=sys.stdout):
     """URL progress bar."""
     try:
@@ -115,7 +118,10 @@ def ask_for_value(prompt, default=None, validate=str, err_message=None):
     while result is None:
         value = input(prompt)
         if value == "":
-            result = default
+            try:
+                result = validate(default)
+            except Exception as e:
+                result = default
         else:
             try:
                 result = validate(value)
@@ -305,6 +311,11 @@ def get_pipeline_directory():
     ui("Press enter for the default.")
     drs_directory = ask_for_path("DRS Directory", default=os.path.join(OSIRIS_DEFAULT_SOFTWARE_ROOT, "drs"))
     log.info("Installing the DRS to '%s'", drs_directory)
+    if os.listdir(drs_directory):
+        log.warning("The installation directory is not empty!")
+        ui("Installing the pipeline to %s will overwrite any files there used by the pipeline.", drs_directory)
+        if not ask_yes_no("Are you sure you want to continue?", default='no'):
+            raise Abort("Refusing to overwrite files.")
     return drs_directory
     
 def get_data_directory(install_directory):
@@ -542,20 +553,25 @@ def main():
     parser = argparse.ArgumentParser(description="OSIRIS Pipeline download and install script.")
     parser.add_argument("--drs-only", action='store_false', dest='otools', help="Only install the DRS")
     opt = parser.parse_args()
-    setup_logging()
-    log.info("Installing the OSIRIS Toolbox")
-    log.info("Working in '%s'", os.getcwd())
-    ui(INSTALL_HEADER)
-    if not ask_yes_no("Are you ready to install the pipeline?", default='yes'):
-        ui("Re-run this script as 'python {0}' when you are ready to install the pipeline.".format(sys.argv[0]))
+    try:
+        setup_logging()
+        log.info("Installing the OSIRIS Toolbox")
+        log.info("Working in '%s'", os.getcwd())
+        ui(INSTALL_HEADER)
+        if not ask_yes_no("Are you ready to install the pipeline?", default='yes'):
+            ui("Re-run this script as 'python {0}' when you are ready to install the pipeline.".format(sys.argv[0]))
+            raise Abort("Not installing pipeline until prerequisties are installed.")
+        ui(INSTALL_GO_MESSAGE)
+        drs_directory = get_pipeline_directory()
+        install_pipeline(drs_directory)
+        if opt.otools:
+            install_tools(drs_directory)
+        display_finished_info(opt.otools, drs_directory)
+    except Abort as e:
+        log.error(str(e))
         return 1
-    ui(INSTALL_GO_MESSAGE)
-    drs_directory = get_pipeline_directory()
-    install_pipeline(drs_directory)
-    if opt.otools:
-        install_tools(drs_directory)
-    display_finished_info(opt.otools, drs_directory)
-    return 0
+    else:
+        return 0
 
 if __name__ == '__main__':
     sys.exit(main())
