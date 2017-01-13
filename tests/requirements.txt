@@ -1,3 +1,4 @@
 astropy
 pytest
 six
+urllib2

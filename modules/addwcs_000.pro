@@ -140,10 +140,13 @@ FUNCTION addwcs_000, DataSet, Modules, Backbone
 	sxaddpar, *DataSet.Headers[0], "PC2_3", pc[0,1], "RA, Dec axes rotated by "+PA_str+" degr."
 	sxaddpar, *DataSet.Headers[0], "PC3_2", pc[1,0], "RA, Dec axes rotated by "+PA_str+" degr."
 	sxaddpar, *DataSet.Headers[0], "PC3_3", pc[1,1], "RA, Dec axes rotated by "+PA_str+" degr."
-	sxaddpar, *DataSet.Headers[0], "SPECSYS1", "TOPOCENT", "Axis 1 is in topocentric coordinates."
-	; TODO I don't fully understand the WCS paper explanation of SSYSOBS... ???!?!
-	sxaddpar, *DataSet.Headers[0], "SSYSOBS1", "TOPOCENT", "Axis 1 is constant in in topocentric coordinates."
-	; TODO WCS paper III suggests adding MJD-AVG to specify midpoint of
+    
+    ; The spectral axis is in topocentric coordiantes (i.e. constant)
+	sxaddpar, *DataSet.Headers[0], "SPECSYS", "TOPOCENT", "Spec axis ref frame is in topocentric coordinates."
+	; The spectral axis reference frame does not vary with the celestial axes
+	sxaddpar, *DataSet.Headers[0], "SSYSOBS", "TOPOCENT", "Spec axis ref frame is constant across RADEC axes."
+	
+    ; TODO WCS paper III suggests adding MJD-AVG to specify midpoint of
 	; observations for conversions to barycentric.
 	sxaddpar, *DataSet.Headers[0], "RADESYS", "FK5", "RA and Dec are in FK5"
 	sxaddpar, *DataSet.Headers[0], "EQUINOX", 2000.0, "RA, Dec equinox is J2000, I think"

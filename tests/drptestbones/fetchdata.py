@@ -1,5 +1,13 @@
 # -*- coding: utf-8 -*-
-import urllib2
+#! /usr/bin/env python
+
+try:
+    # For Python 3.0 and later
+    from urllib.request import urlopen
+except ImportError:
+    # Fall back to Python 2's urllib2
+    from urllib2 import urlopen
+
 from astropy.table import Table
 import inspect
 import os
@@ -73,9 +81,9 @@ def get_test_file(test_name, file_name, refresh=False):
     idx = np.where((data_map['test_name'] == test_name) & (data_map['file_name'] == file_name))[0]
 
     if len(idx) > 1:
-        print 'Found duplicate entries in map_file: {0:s}. '.format(map_file)
-        print 'Using the first one. Duplicates are:'
-        print data_map[idx]
+        print( 'Found duplicate entries in map_file: {0:s}. '.format(map_file))
+        print( 'Using the first one. Duplicates are:')
+        print( data_map[idx])
 
     if len(idx) == 0:
         raise KeyError(file_name)
@@ -83,10 +91,10 @@ def get_test_file(test_name, file_name, refresh=False):
     file_url = data_map['file_url'][idx[0]]
 
     # Fetch the file from the specified URL
-    print 'Downloading ' + file_name
-    response = urllib2.urlopen(file_url)
+    print( 'Downloading ' + file_name)
+    response = urlopen(file_url)
 
-    _out = open(file_save_name, 'w')
+    _out = open(file_save_name, 'wb')
     _out.write(response.read())
     _out.close()
 
@@ -118,9 +126,9 @@ def get_calib_file(file_name, refresh=False):
     idx = np.where((data_map['test_name'] == 'calib') & (data_map['file_name'] == file_name))[0]
 
     if len(idx) > 1:
-        print 'Found duplicate entries in map_file: {0:s}. '.format(map_file)
-        print 'Using the first one. Duplicates are:'
-        print data_map[idx]
+        print( 'Found duplicate entries in map_file: {0:s}. '.format(map_file))
+        print( 'Using the first one. Duplicates are:')
+        print( data_map[idx])
 
     if len(idx) == 0:
         raise KeyError(file_name)
@@ -128,10 +136,10 @@ def get_calib_file(file_name, refresh=False):
     file_url = data_map['file_url'][idx[0]]
 
     # Fetch the file from the specified URL
-    print 'Downloading ' + file_name
-    response = urllib2.urlopen(file_url)
+    print( 'Downloading ' + file_name)
+    response = urlopen(file_url)
 
-    _out = open(file_save_name, 'w')
+    _out = open(file_save_name, 'wb')
     _out.write(response.read())
     _out.close()
 
