@@ -6,7 +6,6 @@ This is a script to install the OSIRIS DRS Pipeline from v4.0 onwards.
 It is heavily based on ``install_osiris_drs_v3.2.py``, the original OSIRIS
 pipeline installer.
 
-
 Author: Alexander Rudy (arrudy@ucsc.edu)
 Date: May 6, 2016
 
@@ -20,6 +19,7 @@ import argparse
 import subprocess
 import zipfile
 import shutil
+import tempfile
 
 if sys.version_info[0] < 3:
     from urllib2 import urlopen
@@ -27,8 +27,19 @@ if sys.version_info[0] < 3:
 else:
     from urllib.request import urlopen
 
-log = logging.getLogger("install_osiris_drs")
+log = logging.getLogger("install_osiris_drs.log")
 log.setLevel(logging.DEBUG)
+
+ui_logger = logging.getLogger("install_osiris_drs.ui")
+ui_logger.setLevel(logging.INFO)
+ui = ui_logger.info
+
+# Locations where we might find CFITSIO
+CFITSIO_PATH_GUESSES = [
+    '/usr/local/lib',
+    '/opt/local/lib',
+    '/usr/lib',
+]
 
 # These constants are for the OSIRIS pipeline, which is on GitHub.
 OSIRIS_DRS_URL = "https://github.com/Keck-DataReductionPipelines/OsirisDRP/archive/"
@@ -37,16 +48,12 @@ OSIRIS_DRS_FILES = ["develop.zip"]
 
 # URLs and version numbers for software hosted at Keck.
 OSIRIS_TOOLS_URL = "http://www2.keck.hawaii.edu/inst/osiris/tools/current/"
-OSIRIS_ODRFGUI_VERSION = '2.3'
 OSIRIS_OOPGUI_VERSION = '1.5'
-OSIRIS_QUICKLOOK_VERSION = '2.2'
 OSIRIS_QL_MANUAL_VERSION = '2.2'
 OSIRIS_MANUAL_VERSION = '2.3'
 
 OSIRIS_TOOLS_FILES = {
-    "odrfgui_v%s.tar.gz" % OSIRIS_ODRFGUI_VERSION: "odrfgui", 
     "oopgui_v%s.tar.gz" % OSIRIS_OOPGUI_VERSION: "oopgui",
-    "qlook2_v%s.tar.gz" % OSIRIS_QUICKLOOK_VERSION: "",
     "OSIRIS_Manual_v%s.pdf" % OSIRIS_MANUAL_VERSION: "",
     "qlook2_manual_v%s.pdf" % OSIRIS_QL_MANUAL_VERSION: "",
 }
@@ -114,9 +121,9 @@ def ask_for_value(prompt, default=None, validate=str, err_message=None):
                 result = validate(value)
             except Exception as e:
                 if err_message:
-                    print(err_message)
+                    ui(err_message)
                 else:
-                    print(str(e))
+                    ui(str(e))
         
     return result
     
@@ -176,8 +183,8 @@ def download_tools_files(destination_directory):
         else:
             log.debug("Not downloading %s, it seems to be here already.", filename)
     
-def download_drp_files(destination_directory):
-    """Download the DRP"""
+def download_drs_files(destination_directory):
+    """Download the DRS"""
     for filename in OSIRIS_DRS_FILES:
         if not os.path.exists(filename):
             log.info("Downloading %s", filename)
@@ -193,6 +200,11 @@ def setup_logging(logfile="install_osiris_drs.log", stream_level=logging.INFO):
     sh.setLevel(stream_level)
     log.addHandler(sh)
     
+    ui_sh = logging.StreamHandler()
+    ui_sh.setFormatter(logging.Formatter("%(message)s"))
+    ui_sh.setLevel(stream_level)
+    ui_logger.addHandler(ui_sh)
+    
     if os.path.exists(logfile):
         for i in range(9):
             if not os.path.exists(logfile + ".{:d}".format(i+1)):
@@ -200,7 +212,7 @@ def setup_logging(logfile="install_osiris_drs.log", stream_level=logging.INFO):
         os.rename(logfile, logfile + ".{:d}".format(i+1))
     fh = logging.FileHandler(logfile, mode='w')
     fh.setLevel(logging.DEBUG)
-    log.addHandler(fh)
+    logging.getLogger("install_osiris_drs").addHandler(fh)
     
 def validate_idl_include(value):
     """Validate that a given directory contains 'idl_export.h'"""
@@ -211,6 +223,18 @@ def validate_idl_include(value):
     
 def get_idl_include_path():
     """Get IDL settings"""
+    if "IDL_INCLUDE" in os.environ:
+        try:
+            idl_include = validate_idl_include(os.environ['IDL_INCLUDE'])
+        except ValueError:
+            log.debug("IDL_INCLUDE=%s does not appear to have idl_export.h", os.environ['IDL_INCLUDE'])
+        else:
+            log.info("IDL_INCLUDE=%s", os.environ['IDL_INCLUDE'])
+            ui("Found IDL via the IDL_INCLUDE environment variable.")
+            if ask_yes_no("Use the environment variable IDL_INCLUDE?"):
+                log.info("IDL include set to '%s'", idl_include)
+                return idl_include
+    
     path = os.path.realpath(subprocess.check_output(["which", "idl"]).rstrip())
     if os.path.exists(path):
         log.debug("Located IDL at '%s'", path)
@@ -218,8 +242,8 @@ def get_idl_include_path():
         include_path = os.path.join("/",os.path.join(*parts[:-2]), "external", "include")
         if os.path.exists(include_path):
             log.debug("Found 'external/include' at %s", path)
-            print("Enter your IDL include directory.")
-            print("The default was determined from the \nlocation of the 'idl' command line binary.")
+            ui("Enter your IDL include directory.")
+            ui("The default was determined from the \nlocation of the 'idl' command line binary.")
             include_path = ask_for_value("IDL include directory", default=include_path, validate=validate_idl_include)
             log.info("IDL include set to '%s'", include_path)
             return include_path
@@ -227,9 +251,9 @@ def get_idl_include_path():
             log.debug("Didn't find 'external/include' at '%s'", include_path)
             
     
-    print("Can't find your installation of IDL.")
-    print("Please specify your IDL include directory")
-    print("It is usually something like '/Applications/exelis/idl/external/include'")
+    ui("Can't find your installation of IDL.")
+    ui("Please specify your IDL include directory")
+    ui("It is usually something like '/Applications/exelis/idl/external/include'")
     include_path = ask_for_value("IDL include directory", default=include_path, validate=validate_idl_include)
     log.info("IDL include set to '%s'", include_path)
     return include_path
@@ -243,59 +267,90 @@ def validate_cftisio_path(value):
     
 def get_cfitsio_path():
     """Get the path to CFITSIO"""
-    print("Set the location of the CFITSIO library.")
-    print("On many systems, this will be something like /usr/local/lib")
-    cfitsio_path = ask_for_value("CFITSIO Library Location", validate=validate_cftisio_path)
+    if "CFITSIOLIBDIR" in os.environ:
+        try:
+            log.debug("Checking environment varaible CFITSIOLIBDIR=%s for CFITSIO", os.environ['CFITSIOLIBDIR'])
+            cfitsio_path = validate_cftisio_path(os.environ['CFITSIOLIBDIR'])
+        except ValueError as e:
+            log.debug("Didn't find CFITSIO at %s", os.environ['CFITSIOLIBDIR'])
+        else:
+            ui("The environment varaible CFITSIOLIBDIR points to a copy of CFITSIO")
+            log.info("Found a copy of CFITSIO at %s", glob.glob(os.path.join(path, "libcfitsio*"))[0])
+            ui("If this is the wrong CFITSIO, you can specify a path to CFITSIO in the next step.")
+            if ask_yes_no("Do you want to use this CFITSIO?", default="yes"):
+                log.info("CFITSIO found at '%s'", cfitsio_path)
+                return cfitsio_path
+            
+    for path in CFITSIO_PATH_GUESSES:
+        try:
+            log.debug("Checking %s for CFITSIO", path)
+            cfitsio_path = validate_cftisio_path(path)
+        except ValueError as e:
+            log.debug("Didn't find CFITSIO at %s", path)
+        else:
+            log.info("Found a copy of CFITSIO at %s", glob.glob(os.path.join(path, "libcfitsio*"))[0])
+            ui("If this is the wrong CFITSIO, you can specify a path to CFITSIO in the next step.")
+            if ask_yes_no("Do you want to use this CFITSIO?", default="yes"):
+                break
+    else:
+        ui("Set the location of the CFITSIO library.")
+        ui("On many systems, this will be something like /usr/local/lib")
+        cfitsio_path = ask_for_value("CFITSIO Library Location", validate=validate_cftisio_path)
     log.info("CFITSIO found at '%s'", cfitsio_path)
     return cfitsio_path
     
 def get_pipeline_directory():
     """Get the pipeline install location."""
-    print("Into which directory should the DRS be installed?")
-    print("Press enter for the default.")
+    ui("Into which directory should the DRS be installed?")
+    ui("Press enter for the default.")
     drs_directory = ask_for_path("DRS Directory", default=os.path.join(OSIRIS_DEFAULT_SOFTWARE_ROOT, "drs"))
     log.info("Installing the DRS to '%s'", drs_directory)
     return drs_directory
     
 def get_data_directory(install_directory):
     """Get the pipeline install location."""
-    print("Where do you keep your OSIRIS data?")
-    print("This is only used as the default directory for GUIs.")
+    ui("Where do you keep your OSIRIS data?")
+    ui("This is only used as the default directory for GUIs.")
     directory = ask_for_path("Data Directory", default=os.path.join("~", "osiris"))
     log.info("Setting data directory to '%s'", directory)
     return directory
     
 def get_matrix_directory(install_directory):
     """Get the pipeline install location."""
-    print("Where do you keep your rectification matricies?")
-    print("If you have never downloaded recmats, the default is probably fine.")
-    directory = ask_for_path("Calibration Directory", default=os.path.join(install_directory, "drs", "calib"))
+    ui("Where do you keep your rectification matricies?")
+    ui("If you have never downloaded recmats, the default is probably fine.")
+    directory = ask_for_path("Calibration Directory", default=os.path.join(install_directory, "calib"))
     log.info("Storing recmats in '%s'", directory)
+    if not os.path.exists(directory):
+        os.makedirs(directory)
     return directory
     
 def extract_zip_with_commonprefix(filename, destination_dir):
     """Extract a zipfile with a common prefix."""
-    log.info("Unzipping %s", filename)
-    zf = zipfile.ZipFile(filename)
-    prefix = os.path.commonprefix(zf.namelist())
-    for name in zf.namelist():
-        zf.extract(name)
-        npname = name[len(prefix):]
-        if not os.path.isdir(os.path.join(destination_dir, npname)):
-            shutil.move(name, os.path.join(destination_dir, npname))
-    log.debug("Removing zip root %s", filename)
-    shutil.rmtree(prefix)
+    uzdir = tempfile.mkdtemp()
+    try:
+        log.info("Unzipping %s to %s", filename, uzdir)
+        zf = zipfile.ZipFile(filename)
+        prefix = os.path.commonprefix(zf.namelist())
+        for name in zf.namelist():
+            zf.extract(name, uzdir)
+            npname = name[len(prefix):]
+            if not os.path.isdir(os.path.join(destination_dir, npname)):
+                shutil.move(os.path.join(uzdir,name), os.path.join(destination_dir, npname))
+        log.debug("Removing zip root %s", uzdir)
+    finally:
+        shutil.rmtree(uzdir)
     
 def install_pipeline(directory):
     """Install the pipeline."""
     idl_include = get_idl_include_path()
     cfitsio_lib = get_cfitsio_path()
-    download_drp_files(directory)
+    download_drs_files(directory)
     os.environ["IDL_INCLUDE"] = idl_include
     os.environ["CFITSIOLIBDIR"] = cfitsio_lib
     for filename in OSIRIS_DRS_FILES:
-        extract_zip_with_commonprefix(filename, os.path.join(directory, 'drs'))
-    make('all', os.path.join(directory, 'drs'))
+        extract_zip_with_commonprefix(filename, directory)
+    make('all', directory)
     
 def configure_odrf(directory, data_directory, matrix_directory):
     """Configure ODRF"""
@@ -308,8 +363,8 @@ def configure_odrf(directory, data_directory, matrix_directory):
     xml_set_paramvalue(root, 'DEFAULT_LOG_DIR', data_directory)
     xml_set_paramvalue(root, 'DRF_READ_PATH', data_directory)
     xml_set_paramvalue(root, 'DRF_WRITE_PATH', data_directory)
-    xml_set_paramvalue(root, 'DRF_QUEUE_DIR', os.path.abspath(os.path.join(directory, 'drs', 'drf_queue')))
-    xml_set_paramvalue(root, 'OSIRIS_DRP_BACKBONE_CONFIG_FILE', os.path.abspath(os.path.join(directory, 'drs', 'backbone', 'SupportFiles', 'RPBconfig.xml')))
+    xml_set_paramvalue(root, 'DRF_QUEUE_DIR', os.path.abspath(os.path.join(directory, 'drf_queue')))
+    xml_set_paramvalue(root, 'OSIRIS_DRP_BACKBONE_CONFIG_FILE', os.path.abspath(os.path.join(directory, 'backbone', 'SupportFiles', 'RPBconfig.xml')))
     xml_set_paramvalue(root, 'OSIRIS_CALIB_ARCHIVE_DIR', os.path.abspath(matrix_directory))
     log.info("Configured ORDFGUI by changing '%s'", filename)
     tree.write(filename)
@@ -317,10 +372,8 @@ def configure_odrf(directory, data_directory, matrix_directory):
 def xml_set_paramvalue(root, name, value, tag="File", comment=""):
     """docstring for xml_replace_paramvalue"""
     import xml.etree.ElementTree as ET
-    
     node = root.find("*[@paramName='{0:s}']".format(name))
     if node is not None:
-        print(node)
         node.set("value", value)
     else:
         ET.SubElement(root, tag, dict(paramName=name, value=value, desc=comment))
@@ -331,6 +384,8 @@ def install_tools(directory):
     matrix_directory = get_matrix_directory(directory)
     data_directory = get_data_directory(directory)
     download_tools_files(directory)
+    
+    # Install downloaded files.
     for filename, destination_dir in OSIRIS_TOOLS_FILES.items():
         destination_path = os.path.join(directory, destination_dir)
         if destination_path[-1] != os.path.sep:
@@ -344,20 +399,22 @@ def install_tools(directory):
                 shutil.copy2(filename, destination_path)
             except shutil.Error:
                 pass
+                
     configure_odrf(directory, data_directory, matrix_directory)
+    # Install scripts.
     for script, src in OSIRIS_LINKED_COMMANDS.items():
-        dst = os.path.join(directory, 'drs', 'scripts', script)
+        dst = os.path.join(directory, 'scripts', script)
         if os.path.exists(dst):
             os.remove(dst)
         st = os.stat(src)
         os.chmod(src, st.st_mode | stat.S_IEXEC)
         os.symlink(os.path.abspath(src), os.path.abspath(dst))
-    write_script(os.path.join(directory, 'drs', 'scripts', 'odrfgui'), ODRPGUI_SCRIPT)
-    write_script(os.path.join(directory, 'drs', 'scripts', 'oopgui'), OOPGUI_SCRIPT)
-    log.info(RECMAT_MESSAGE, dict(matrix_directory=os.path.abspath(matrix_directory), install_dir=os.path.abspath(directory)))
+    write_script(os.path.join(directory, 'scripts', 'odrfgui'), ODRPGUI_SCRIPT)
+    write_script(os.path.join(directory, 'scripts', 'oopgui'), OOPGUI_SCRIPT)
+    ui(RECMAT_MESSAGE, dict(matrix_directory=os.path.abspath(matrix_directory), install_dir=os.path.abspath(directory)))
     
 def write_script(dst, content):
-    """docstring for write_script"""
+    """Write an executable script to disk."""
     if os.path.exists(dst):
         os.remove(dst)
     with open(dst, 'w') as f:
@@ -368,8 +425,7 @@ def write_script(dst, content):
     
 def make(command, directory):
     """Run 'make' and capture output."""
-    log.info("From %s", directory)
-    log.info("Running 'make {0}'".format(command))
+    log.info("Running 'make {0}' in {1}".format(command, directory))
     ps = subprocess.Popen(['make', command], cwd=os.path.abspath(directory), stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
     stdout, stderr = ps.communicate()
     for line in stdout.splitlines():
@@ -381,10 +437,10 @@ def make(command, directory):
     
 def get_odrf_settings():
     """Get the settings for ODRFGUI"""
-    print("In what directory do you want to store the extraction matrices?")
-    print(" (The default is almost certainly fine here, unless you ")
-    print("  already have some other directory full of extraction matrices.) ")
-    print("Press enter for the default.")
+    ui("In what directory do you want to store the extraction matrices?")
+    ui(" (The default is almost certainly fine here, unless you ")
+    ui("  already have some other directory full of extraction matrices.) ")
+    ui("Press enter for the default.")
     matrix_directory = ask_for_path("Extraction Matrix Directory", default=os.path.join(drs_directory, "calib"))
     log.info("Setting the matrix directory to '%s'", matrix_directory)
     
@@ -415,6 +471,9 @@ INSTALL_HEADER = """
    3) about 25 MB for the pipeline itself, plus 160 MB for each 
       extraction matrix, one per filter/pixel scale combination. 
  
+"""
+
+INSTALL_GO_MESSAGE = """
 This script will now ask you a few locations about where these things are 
 located, after which it will download and install the software.
 """
@@ -433,12 +492,12 @@ ENVIRONMENT_MESSAGE="""
  
  For bash (or other POSIX shells):
    soruce %(osiris_setup_script)s.sh
-   osirisSetup %(install_dir)s/drs
+   osirisSetup %(install_dir)s
    export PATH=${PATH}:${OSIRIS_ROOT}/scripts
 
  For c-shell (csh/tcsh etc.):
    
-   setenv OSIRIS_ROOT %(install_dir)s/drs
+   setenv OSIRIS_ROOT %(install_dir)s
    source %(osiris_setup_script)s.csh
    setenv PATH ${PATH}:${OSIRIS_ROOT}/scripts
 
@@ -470,12 +529,12 @@ def display_finished_info(otools, drs_directory):
         installed += [" * OSIRIS Data Reduction File GUI    (odrfgui)"]
         installed += [" * Quicklook 2                       (ql2)"]
     
-    log.info(INSTALL_POSTSCRIPT % dict(installed_software="\n".join(installed)))
+    ui(INSTALL_POSTSCRIPT % dict(installed_software="\n".join(installed)))
     
     commands = ['run_odrp']
     if otools:
         commands += ['run_ql', 'oopgui', 'odrfgui']
-    log.info(ENVIRONMENT_MESSAGE % dict(install_dir=os.path.abspath(drs_directory), osiris_setup_script=os.path.join(drs_directory, "drs", "scripts", "osirisSetup"),
+    ui(ENVIRONMENT_MESSAGE % dict(install_dir=os.path.abspath(drs_directory), osiris_setup_script=os.path.join(drs_directory, "drs", "scripts", "osirisSetup"),
         commands=", ".join(commands)))
 
 def main():
@@ -486,12 +545,17 @@ def main():
     setup_logging()
     log.info("Installing the OSIRIS Toolbox")
     log.info("Working in '%s'", os.getcwd())
-    log.info(INSTALL_HEADER)
+    ui(INSTALL_HEADER)
+    if not ask_yes_no("Are you ready to install the pipeline?", default='yes'):
+        ui("Re-run this script as 'python {0}' when you are ready to install the pipeline.".format(sys.argv[0]))
+        return 1
+    ui(INSTALL_GO_MESSAGE)
     drs_directory = get_pipeline_directory()
     install_pipeline(drs_directory)
     if opt.otools:
         install_tools(drs_directory)
     display_finished_info(opt.otools, drs_directory)
+    return 0
 
 if __name__ == '__main__':
     sys.exit(main())
