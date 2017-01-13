@@ -613,9 +613,11 @@ print,'cotemp ',cotemp
 	sxaddpar, *DataSet.Headers[q], "PC2_3", pc[0,1], "RA, Dec axes rotated by "+PA_str+" degr."
 	sxaddpar, *DataSet.Headers[q], "PC3_2", pc[1,0], "RA, Dec axes rotated by "+PA_str+" degr."
 	sxaddpar, *DataSet.Headers[q], "PC3_3", pc[1,1], "RA, Dec axes rotated by "+PA_str+" degr."
-	sxaddpar, *DataSet.Headers[q], "SPECSYS1", "TOPOCENT", "Axis 1 is in topocentric coordinates."
-	; TODO I don't fully understand the WCS paper explanation of SSYSOBS... ???!?!
-	sxaddpar, *DataSet.Headers[q], "SSYSOBS1", "TOPOCENT", "Axis 1 is in topocentric coordinates."
+    ; The spectral axis is in topocentric coordiantes (i.e. constant)
+	sxaddpar, *DataSet.Headers[q], "SPECSYS", "TOPOCENT", "Spec axis ref frame is in topocentric coordinates."
+	; The spectral axis reference frame does not vary with the celestial axes
+	sxaddpar, *DataSet.Headers[q], "SSYSOBS", "TOPOCENT", "Spec axis ref frame is constant across RADEC axes."
+    
 	; TODO WCS paper III suggests adding MJD-AVG to specify midpoint of
 	; observations for conversions to barycentric.
 	sxaddpar, *DataSet.Headers[q], "RADESYS", "FK5", "RA and Dec are in FK5"
