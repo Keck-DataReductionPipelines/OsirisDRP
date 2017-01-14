@@ -400,11 +400,12 @@ def xml_set_paramvalue(root, name, value, tag="File", comment=""):
         ET.SubElement(root, tag, dict(paramName=name, value=value, desc=comment))
     
     
-def install_tools(directory):
+def install_tools(directory, download):
     """Install pipeline tools"""
     matrix_directory = get_matrix_directory(directory)
     data_directory = get_data_directory(directory)
-    download_tools_files(directory)
+    if download:
+        download_tools_files(directory)
     
     # Install downloaded files.
     for filename, destination_dir in OSIRIS_TOOLS_FILES.items():
@@ -466,10 +467,10 @@ def get_odrf_settings():
     log.info("Setting the matrix directory to '%s'", matrix_directory)
     
 ODRPGUI_SCRIPT = """
-cd ${OSIRIS_ROOT}../odrfgui && java -Djava.security.policy=java.policy.odrfgui -jar ./odrfgui.jar cfg=./odrfgui_cfg.xml
+cd ${OSIRIS_ROOT}odrfgui && java -Djava.security.policy=java.policy.odrfgui -jar ./odrfgui.jar cfg=./odrfgui_cfg.xml
 """
 OOPGUI_SCRIPT = """
-cd ${OSIRIS_ROOT}../oopgui && java -Djava.security.policy=java.policy.oopgui -jar ./oopgui.jar cfg=./oopgui_cfg.xml
+cd ${OSIRIS_ROOT}oopgui && java -Djava.security.policy=java.policy.oopgui -jar ./oopgui.jar cfg=./oopgui_cfg.xml
 """
 
 INSTALL_HEADER = """
@@ -576,7 +577,7 @@ def main():
         drs_directory = get_pipeline_directory()
         install_pipeline(drs_directory, opt.download)
         if opt.otools:
-            install_tools(drs_directory)
+            install_tools(drs_directory, opt.download)
         display_finished_info(opt.otools, drs_directory)
     except Abort as e:
         log.error(str(e))
