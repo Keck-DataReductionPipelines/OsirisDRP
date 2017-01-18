@@ -68,7 +68,7 @@ git commit -m "Adding a new test: mytest"
 5. Temporarily place all .fits files that are needed by the .xml file into the test
    directory. Any rectification matrices should be deposited into
    ``tests/calib/``. You should also create a reference cube that is
-   the "write answer" that will be tested against.
+   the "right answer" that will be tested against.
 
    These ``*.fits`` files are large and should not be checked into the
    git repository. Instead, these files should be loaded onto a data
