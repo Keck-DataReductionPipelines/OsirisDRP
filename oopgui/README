@@ -1,0 +1,72 @@
+OSIRIS Observation Planning GUI
+Jason Weiss
+UCLA Infrared Laboratory
+weiss@astro.ucla.edu
+
+Version 1.5
+Release Date: 2008 March 31
+
+=== Files ===
+oopgui.jar - java code for oopgui
+osirisUtil.jar - java library with general utility classes for OSIRIS programs
+jdom.jar - java DOM package (XML support, www.jdom.org)
+oopgui_cfg.xml - GUI configuration file
+osiris_cfg.xml - osiris configuration file
+java.policy.oopgui - java policy file
+oopgui.bat - run script for windows
+oopgui - run script for UNIX/LINUX/MAC
+ucla_gui_configuration.pdf - description on how to customize the GUI 
+  using the configuration files.
+OOPGUIParameters.java - listing of available configuration variables
+README - this file
+
+=== TO INSTALL ===
+
+Requires: java 1.4 or higher
+
+simply unpack the tar file, which you've likely done if you are reading this.
+Optionally, customize the GUI (see below).  You probably want to set 
+the location of the ddf directories.
+
+
+=== TO RUN === 
+
+UNIX/LINUX/MAC: 
+cd to the directory in which the jar file and configs file are unpacked.
+type oopgui at prompt.
+
+note: to run the oopgui outside of the installation directory, set the 
+OOPGUI_DIR variable to the installation directory in the oopgui script.
+
+WINDOWS:
+browse to the directory where the files were unpacked.
+double-click on oopgui.bat
+
+
+=== Customizing the GUI ===
+
+A few constants in the GUI can be specified in the oopgui_cfg.xml.  
+Of particular use are the default directories for reading and writing ddfs.
+
+  <File paramName="DDF_READ_PATH" value="~/ddfs"
+    desc="Name of the directory to read DDFs" />
+  <File paramName="DDF_WRITE_PATH" value="~/ddfs/"
+    desc="Name of the directory to write DDFs" />
+
+To override, simply specify the correct path in the value attribute.  
+~ can be used for File tags to represent the your home directory.
+
+Other settings available can be found in OOPGUIParameters.java.  
+This file is provided for reference only.  The GUI does not use the 
+code included in this particular copy of the file, since it relies
+on a previously compiled version.  Therefore, setting values in this
+file will not have any effect.  To override the values of the constants in
+this file, set them in the XML config file oopgui_cfg.xml.
+
+See the attached ucla_gui_configuration.pdf for more information
+
+
+=== REVISIONS  ===
+
+since 1.004: updated with new OSIRIS pupil mask filters (Kcb, Kc#)
+since 1.003: removed Reduction button on face of GUI.

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<cfg package="oopgui">
+
+  <!-- OSIRIS Config File -->
+    <File paramName="OSIRIS_CONFIG_FILE" 
+    value="osiris_cfg.xml"
+    desc="Name of file to use to configure OsirisParameters class" />
+
+  <!-- Points: must have x and y tags -->
+  <Point paramName="POINT_MAINFRAME_LOCATION" x="0" y="20" 
+    desc="Default Location for main frame" />
+
+  <!-- Dimensions: must have xs and ys tags -->
+  <Dimension paramName="DIM_MAINFRAME" xs="476" ys="850" 
+    desc="Default Size for main frame" />
+
+  <!-- Fonts: must have name(face), style, and size tags -->
+  <Font paramName="FONT_MENU" name="SansSerif" style="plain" size="11" 
+    desc="Font for menu items"/>
+  <Font paramName="FONT_MENUITEM" name="SanSerif" style="plain" size="11" 
+    desc="Font for menu items"/>
+  <Font paramName="FONT_BORDER_TITLES" name="SanSerif" style="italic" size="11" 
+    desc="Font for" />
+  <Font paramName="FONT_LABEL" name="SanSerif" style="plain" size="11" 
+    desc="Font for" />
+  <Font paramName="FONT_FIELD" name="SanSerif" style="plain" size="11" 
+    desc="Font for" />
+  <Font paramName="FONT_COMBO" name="SanSerif" style="plain" size="11" 
+    desc="Font for" />
+  <Font paramName="FONT_UNITS" name="SanSerif" style="plain" size="11" 
+    desc="Font for" />
+  <Font paramName="FONT_SEND_TO_QUEUE_BUTTON" name="SanSerif" style="bold" size="11" 
+    desc="Font for" />
+  <Font paramName="FONT_POSITION_LIST_BUTTON" name="SanSerif" style="plain" size="11" 
+    desc="Font for" />
+  <Font paramName="FONT_REDUCTION_PARAMS_BUTTON" name="SanSerif" style="plain" size="11" 
+    desc="Font for" />
+  <Font paramName="FONT_TAB_DITHER_PANEL" name="SanSerif" style="bold" size="11"
+    desc="Font for" />
+
+
+  <!-- DDF Polling Parameters -->
+  <File paramName="DDF_READ_PATH" value="~/ddfs"
+    desc="Name of the directory to read DDFs" />
+  <File paramName="DDF_WRITE_PATH" value="~/ddfs/"
+    desc="Name of the directory to write DDFs" />
+  <File paramName="CDF_READ_PATH" value="~/ddfs/"
+    desc="Name of the directory to read CDFs" />
+  <File paramName="CDF_WRITE_PATH" value="~/ddfs/"
+    desc="Name of the directory to write CDFs" />
+
+</cfg>
+
+
