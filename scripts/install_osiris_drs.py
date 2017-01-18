@@ -21,14 +21,18 @@ import logging
 import argparse
 import subprocess
 import zipfile
+import tarfile
 import shutil
 import tempfile
+import contextlib
 
 if sys.version_info[0] < 3:
     from urllib2 import urlopen
+    from urlparse import urljoin
     input = raw_input
 else:
     from urllib.request import urlopen
+    from urllib.parse import urljoin
 
 log = logging.getLogger("install_osiris_drs.log")
 log.setLevel(logging.DEBUG)
@@ -47,16 +51,22 @@ CFITSIO_PATH_GUESSES = [
 # These constants are for the OSIRIS pipeline, which is on GitHub.
 OSIRIS_DRS_URL = "https://github.com/Keck-DataReductionPipelines/OsirisDRP/archive/"
 OSIRIS_DRS_VERSION = "4.0"
-OSIRIS_DRS_FILES = ["develop.zip"]
+OSIRIS_DRS_FILES = ["{branch:s}.zip"]
 
 # URLs and version numbers for software hosted at Keck.
 OSIRIS_TOOLS_URL = "http://www2.keck.hawaii.edu/inst/osiris/tools/current/"
-OSIRIS_OOPGUI_VERSION = '1.5'
 OSIRIS_QL_MANUAL_VERSION = '2.2'
 OSIRIS_MANUAL_VERSION = '2.3'
+OSIRIS_ODRFGUI_VERSION = '2.3'
+OSIRIS_OOPGUI_VERSION = '1.5'
+OSIRIS_QUICKLOOK_VERSION = '2.2'
 
 OSIRIS_TOOLS_FILES = {
+    "odrfgui_v%s.tar.gz" % OSIRIS_ODRFGUI_VERSION: "odrfgui", 
     "oopgui_v%s.tar.gz" % OSIRIS_OOPGUI_VERSION: "oopgui",
+    "qlook2_v%s.tar.gz" % OSIRIS_QUICKLOOK_VERSION: "",
+}
+OSIRIS_TOOLS_MANUALS = {
     "OSIRIS_Manual_v%s.pdf" % OSIRIS_MANUAL_VERSION: "",
     "qlook2_manual_v%s.pdf" % OSIRIS_QL_MANUAL_VERSION: "",
 }
@@ -73,6 +83,21 @@ OSIRIS_LINKED_COMMANDS = {
 
 class Abort(Exception):
     pass
+    
+try:
+    FileNotFoundError
+except NameError:
+    class FileNotFoundError(OSError):
+        pass
+    
+@contextlib.contextmanager
+def tempdir():
+    """Temporary directory"""
+    tempdir = tempfile.mkdtemp()
+    try:
+        yield tempdir
+    finally:
+        shutil.rmtree(tempdir)
 
 def url_progress(request, destination, output=sys.stdout):
     """URL progress bar."""
@@ -95,7 +120,6 @@ def url_progress(request, destination, output=sys.stdout):
                 _update_progress_bar(output, progress, total_size)
         _update_progress_bar(output, progress, total_size)
         output.write("\n")
-        log.info("Downloaded %s", destination)
         
 def _update_progress_bar(output, progress, total):
     """Update a progress bar."""
@@ -104,10 +128,15 @@ def _update_progress_bar(output, progress, total):
     output.write(status)
     output.flush()
 
-def download_file(url, destination):
+def download_file(url, filename, destination):
     """Download a file."""
-    request = urlopen(url)
-    url_progress(request, destination, output=sys.stdout)
+    if not os.path.exists(destination):
+        log.info("Downloading %s from %s", filename, url)
+        request = urlopen(url)
+        url_progress(request, destination, output=sys.stdout)
+        log.info("Downloaded %s", filename)
+    else:
+        log.debug("Not downloading %s, it seems to be here already.", filename)
     
 def ask_for_value(prompt, default=None, validate=str, err_message=None):
     """Ask for a value"""
@@ -183,24 +212,27 @@ def ask_for_path(prompt, default=None, err_message=None):
     return ask_for_value(prompt, default, validate=validate_path, err_message=err_message)
 
 
+def download_files(destination_directory, files, url):
+    """Download all the tools files."""
+    for filename in files:
+        filepath = os.path.join(destination_directory, filename)
+        download_file(urljoin(url,filename), filename, filepath)
+
 def download_tools_files(destination_directory):
     """Download all the tools files."""
-    for filename in OSIRIS_TOOLS_FILES:
-        if not os.path.exists(filename):
-            log.info("Downloading %s", filename)
-            download_file(OSIRIS_TOOLS_URL + filename, filename)
-        else:
-            log.debug("Not downloading %s, it seems to be here already.", filename)
+    download_files(destination_directory, OSIRIS_TOOLS_FILES, OSIRIS_TOOLS_URL)
     
-def download_drs_files(destination_directory):
+def download_tools_manuals(destination_directory):
+    """Download OSIRIS tools manuals"""
+    download_files(destination_directory, OSIRIS_TOOLS_MANUALS, OSIRIS_TOOLS_URL)
+    
+    
+def download_drs_files(destination_directory, branch='master'):
     """Download the DRS"""
     for filename in OSIRIS_DRS_FILES:
-        if not os.path.exists(filename):
-            log.info("Downloading %s", filename)
-            download_file(OSIRIS_DRS_URL + filename, filename)
-        else:
-            log.debug("Not downloading %s, it seems to be here already.", filename)
-        
+        filename = filename.format(branch=branch)
+        filepath = os.path.join(destination_directory, filename)
+        download_file(urljoin(OSIRIS_DRS_URL, filename), filename, filepath)
     
 def setup_logging(logfile="install_osiris_drs.log", stream_level=logging.INFO):
     """Set up the DRS log"""
@@ -308,11 +340,11 @@ def get_cfitsio_path():
     log.info("CFITSIO found at '%s'", cfitsio_path)
     return cfitsio_path
     
-def get_pipeline_directory():
+def get_pipeline_directory(drs_directory):
     """Get the pipeline install location."""
     ui("Into which directory should the DRS be installed?")
     ui("Press enter for the default.")
-    drs_directory = ask_for_path("DRS Directory", default=os.path.join(OSIRIS_DEFAULT_SOFTWARE_ROOT, "drs"))
+    drs_directory = ask_for_path("DRS Directory", default=drs_directory)
     log.info("Installing the DRS to '%s'", drs_directory)
     if os.listdir(drs_directory):
         log.info("ls %s", drs_directory)
@@ -343,9 +375,8 @@ def get_matrix_directory(install_directory):
     
 def extract_zip_with_commonprefix(filename, destination_dir):
     """Extract a zipfile with a common prefix."""
-    uzdir = tempfile.mkdtemp()
-    try:
-        log.info("Unzipping %s to %s", filename, uzdir)
+    with tempdir() as uzdir:
+        log.info("Unzipping %s to %s", filename, destination_dir)
         zf = zipfile.ZipFile(filename)
         prefix = os.path.commonprefix(zf.namelist())
         for name in zf.namelist():
@@ -354,19 +385,18 @@ def extract_zip_with_commonprefix(filename, destination_dir):
             if not os.path.isdir(os.path.join(destination_dir, npname)):
                 shutil.move(os.path.join(uzdir,name), os.path.join(destination_dir, npname))
         log.debug("Removing zip root %s", uzdir)
-    finally:
-        shutil.rmtree(uzdir)
     
-def install_pipeline(directory, download):
+def install_pipeline(directory, download=True, branch='master'):
     """Install the pipeline."""
     idl_include = get_idl_include_path()
     cfitsio_lib = get_cfitsio_path()
     os.environ["IDL_INCLUDE"] = idl_include
     os.environ["CFITSIOLIBDIR"] = cfitsio_lib
     if download:
-        download_drs_files(directory)
-        for filename in OSIRIS_DRS_FILES:
-            extract_zip_with_commonprefix(filename, directory)
+        with tempdir() as download_dir:
+            download_drs_files(download_dir, branch)
+            for filename in OSIRIS_DRS_FILES:
+                extract_zip_with_commonprefix(os.path.join(download_dir, filename.format(branch=branch)), directory)
     else:
         ui("The --no-download option assumes you have all of the necessary source files")
         ui("in the pipeline directory %s", directory)
@@ -400,32 +430,53 @@ def xml_set_paramvalue(root, name, value, tag="File", comment=""):
         ET.SubElement(root, tag, dict(paramName=name, value=value, desc=comment))
     
     
-def install_tools(directory, download):
+def stage_tools_file(filename, destination_dir, drs_directory, download_dir):
+    """Download a single osiris tools file."""
+    destination_path = os.path.join(drs_directory, destination_dir)
+    origin_path = os.path.join(download_dir, filename)
+    if destination_path[-1] != os.path.sep:
+        destination_path += os.path.sep
+    if not os.path.exists(destination_path):
+        os.mkdir(destination_path)
+    if filename.endswith(".tar.gz"):
+        with tarfile.open(origin_path) as tf:
+            for tinfo in tf:
+                dpath = os.path.join(destination_path, tinfo.name)
+                if os.path.exists(dpath):
+                    log.debug("Not installing %s as it appears to be already present.", filename)
+                    break
+            else:
+                log.debug("Extracting %s.", filename)
+                tf.extractall(destination_path)
+    elif not os.path.exists(os.path.join(destination_path, os.path.basename(origin_path))):
+        try:
+            log.debug("Moving %s.", filename)
+            shutil.copy2(origin_path, destination_path)
+        except shutil.Error:
+            pass
+    
+def install_tools(directory, download, download_manuals):
     """Install pipeline tools"""
     matrix_directory = get_matrix_directory(directory)
     data_directory = get_data_directory(directory)
     if download:
-        download_tools_files(directory)
+        with tempdir() as download_dir:
+            download_tools_files(download_dir)
+            # Install downloaded files.
+            for filename, destination_dir in OSIRIS_TOOLS_FILES.items():
+                stage_tools_file(filename, destination_dir, directory, download_dir)
+            if download_manuals:
+                download_tools_manuals(download_dir)
+                for filename, destination_dir in OSIRIS_TOOLS_MANUALS.items():
+                    stage_tools_file(filename, destination_dir, directory, download_dir)
     
-    # Install downloaded files.
-    for filename, destination_dir in OSIRIS_TOOLS_FILES.items():
-        destination_path = os.path.join(directory, destination_dir)
-        if destination_path[-1] != os.path.sep:
-            destination_path += os.path.sep
-        if not os.path.exists(destination_path):
-            os.mkdir(destination_path)
-        if filename.endswith(".tar.gz"):
-            subprocess.check_call(["tar","-C",destination_path, "-xzf", filename])
-        elif os.path.abspath(os.path.realpath(filename)) != os.path.abspath(os.path.realpath(destination_path)):
-            try:
-                shutil.copy2(filename, destination_path)
-            except shutil.Error:
-                pass
-                
     configure_odrf(directory, data_directory, matrix_directory)
     # Install scripts.
     for script, src in OSIRIS_LINKED_COMMANDS.items():
         dst = os.path.join(directory, 'scripts', script)
+        src = os.path.join(directory, src)
+        if not os.path.exists(src):
+            raise FileNotFoundError("Can't find script {0}".format(src))
         if os.path.exists(dst):
             os.remove(dst)
         st = os.stat(src)
@@ -496,8 +547,20 @@ INSTALL_HEADER = """
 """
 
 INSTALL_GO_MESSAGE = """
+
+*********** OSIRIS DRS installation ***************
+
 This script will now ask you a few locations about where these things are 
 located, after which it will download and install the software.
+"""
+
+INSTALL_TOOLS_MESSAGE = """
+
+*********** OSIRIS tools installation ***************
+
+The script will now install software not currently bundled with
+the main installation.
+
 """
 
 INSTALL_POSTSCRIPT = """
@@ -562,8 +625,11 @@ def display_finished_info(otools, drs_directory):
 def main():
     """Main function"""
     parser = argparse.ArgumentParser(description="OSIRIS Pipeline download and install script.")
+    parser.add_argument("--branch", default='master', help='Specify a branch of the pipeline to install.')
     parser.add_argument("--drs-only", action='store_false', dest='otools', help="Only install the DRS")
     parser.add_argument("--no-download", action='store_false', dest='download', help="Skip downloading source files.")
+    parser.add_argument("--no-manuals", action='store_false', dest='download_manuals', help='Skip downloading manuals.')
+    parser.add_argument("--drs-directory", default=OSIRIS_DEFAULT_SOFTWARE_ROOT, help='Specify the installation directory.')
     opt = parser.parse_args()
     try:
         setup_logging()
@@ -574,13 +640,23 @@ def main():
             ui("Re-run this script as 'python {0}' when you are ready to install the pipeline.".format(sys.argv[0]))
             raise Abort("Not installing pipeline until prerequisties are installed.")
         ui(INSTALL_GO_MESSAGE)
-        drs_directory = get_pipeline_directory()
-        install_pipeline(drs_directory, opt.download)
+        drs_directory = get_pipeline_directory(opt.drs_directory)
+        install_pipeline(drs_directory, opt.download, opt.branch)
         if opt.otools:
-            install_tools(drs_directory, opt.download)
+            install_tools(drs_directory, opt.download, opt.download_manuals)
         display_finished_info(opt.otools, drs_directory)
     except Abort as e:
         log.error(str(e))
+        log.info("See install_osiris_drs.log for more information.")
+        return 1
+    except KeyboardInterrupt as e:
+        import traceback
+        log.info("Installation interrupted by the user.")
+        traceback.print_exc()
+        return 1
+    except Exception as e:
+        import traceback
+        log.exception("Installation failed.")
         log.info("See install_osiris_drs.log for more information.")
         return 1
     else:
