@@ -40,12 +40,16 @@ a future release.
 
 ## Installation
 ### Prerequisites
+=======
+# OSIRIS Data Reduction Pipeline
+>>>>>>> 856522c943389c76c67e9dd7cbb037b1e09e7914
 
 To install and run the OSIRIS DRP, you will need the following:
 
 - A working C compiler (e.g. ``gcc``)
 - A copy of the compiled library cfitsio
 - A working installation of IDL
+<<<<<<< HEAD
 - Python dependencies (optional, for testing): pytest, astropy
 
 ### Compiling a Local version of the DRP
@@ -150,4 +154,3 @@ Please check out the OSIRIS pipeline manual: <http://www2.keck.hawaii.edu/inst/o
 ### Troubleshooting
 
 If you run into problems, please re-read this README.md, then read INSTALLPROBLEMS.md for some common installation problems.
-
