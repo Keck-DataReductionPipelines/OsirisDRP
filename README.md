@@ -48,7 +48,27 @@ To install and run the OSIRIS DRP, you will need the following:
 - A working installation of IDL
 - Python dependencies (optional, for testing): pytest, astropy
 
-### Compiling a Local version of the DRP
+### Options to install the pipeline
+
+- [Using a python script](#installing-with-a-python-script) -- this is the simplest method for the most recent release
+- [Manually install from github repository](#installing-from-source) -- useful if you want to use the latest pipeline development version
+
+### Installing with a python script
+
+- Download the installation script [install_osiris_drs.py](https://github.com/Keck-DataReductionPipelines/OsirisDRP/blob/release/scripts/install_osiris_drs.py)
+- Run the script
+```
+chmod +x install_osiris_drs.py
+./install_osiris_drs.py
+```
+- For more information and script options:
+```
+./install_osiris_drs.py --help
+```
+
+### Installing from source
+
+Either clone or download the source from github (the [``develop``](https://github.com/Keck-DataReductionPipelines/OsirisDRP/tree/develop) branch has the latest development)
 
 Set up the following environment variables (optional). The defaults should work for installations of IDL on Mac OS X and CFITSIO installed using [MacPorts][]:
 
@@ -150,4 +170,3 @@ Please check out the OSIRIS pipeline manual: <http://www2.keck.hawaii.edu/inst/o
 ### Troubleshooting
 
 If you run into problems, please re-read this README.md, then read INSTALLPROBLEMS.md for some common installation problems.
-
