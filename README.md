@@ -1,4 +1,4 @@
-# OSIRIS Data Reduction Pipeline
+# Keck OSIRIS Data Reduction Pipeline
 
 * [Release Notes for v4.0.0](#release-notes-for-v4.0.0)
 * [Important Runtime Notes](#important-runtime-notes)
@@ -12,7 +12,7 @@ Major updates:
 - Installation has now been simplified (see below for install directions). Bash scripts have been included for those who would like to use bash shell.
 - Test framework is now available to run tests of the pipeline (requires pytest module in python, see README in ''tests'' directory)
 - Optimized algorithms for the construction of data cubes
-- qlook2 and odrfgui are now also included in the repository
+- qlook2, odrfgui, and oopgui are now also included in the repository
 
 Minor Updates:
 - WCS bugs have been fixed.
@@ -21,20 +21,22 @@ Minor Updates:
   - fix initial autoscale to imager display
   - clean up startup scripts
 
-
-
 ## Important Runtime Notes
 
 **Cosmic Ray Module**
-- Running the cosmic ray module on data in 2016 or later will introduce significant artifacts and reduce overall signal to noise. This is due to the fact that unresolved emission lines such as OH lines are now sharper on the detector. The cosmic ray module will tend to interpret this as a cosmic ray. To remove cosmic rays, we recommend combining data with the mosaic module with the MEANCLIP keyword if there are sufficient number of frames. 
+- We do not recommend running the cosmic ray module on data in 2016 or later, as it will introduce significant artifacts and reduce overall signal to noise. This is due to the fact that unresolved emission lines such as OH lines are now sharper on the detector. The cosmic ray module will tend to interpret this as a cosmic ray. To remove cosmic rays, we recommend combining data with the mosaic module with the MEANCLIP keyword if there are sufficient number of frames. 
 - The cosmic ray module may lead to artifacts in data before 2016 as well, but at a lesser level. We recommend checking on individual science cases.
 - The pipeline team is investigating different cosmic ray modules for
 a future release.
 
-** Old Modules**
+**Old Modules**
 - For data taken in 2016 onward, it is no longer necessary to run the following modules: Remove Cross Talk, Glitch Identification. It is fine to keep them in the DRF XML, these modules will automatically not run on the new data.
 
+**Current Important OSIRIS Issues**
 
+- For certain cases, there are flux mis-assignment: [Issue 20](https://github.com/Keck-DataReductionPipelines/OsirisDRP/issues/20), [wiki link](https://github.com/Keck-DataReductionPipelines/OsirisDRP/wiki/Tests:-Quantified-Flux-Mis-assignment)
+- Spatial rippling is seen in the integrate flux of sky lines spatially across the field: [Issue 21](https://github.com/Keck-DataReductionPipelines/OsirisDRP/issues/21)
+- [2016-09-07 OSIRIS Hackathon report](https://drive.google.com/open?id=0B_YkzZoUSrX-YnpCRjVZRkRPWnM) on these and other issues from the most recent OSIRIS Hackathon
 
 ## Installation
 ### Prerequisites
