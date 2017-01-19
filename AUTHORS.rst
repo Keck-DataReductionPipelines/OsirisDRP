@@ -8,6 +8,7 @@ OSIRIS DRP Project Contributors
 Project Coordinators
 --------------------
 * Jim Lyke (@jlyke-keck)
+* Tuan Do (@followthesheep)
 
 Alphabetical list of contributors
 ---------------------------------
@@ -15,7 +16,6 @@ Alphabetical list of contributors
 * Randy Campbell
 * Sam Chappell
 * Devin Chu
-* Tuan Do (@followthesheep)
 * Mike Fitzgerald (@astrofitz)
 * Tom Gasawy
 * Christof Iserlohe
