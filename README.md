@@ -3,6 +3,8 @@
 * [Release Notes for v4.0.0](#release-notes-for-v4.0.0)
 * [Important Runtime Notes](#important-runtime-notes)
 * [Installation](#installation)
+* [Running the Pipeline](#running-the-pipeline)
+* [Testing the Pipeline](#testing-the-pipeline)
 
 ## Release Notes for v4.0.0
 **2017-XX-XX**
@@ -46,7 +48,7 @@ To install and run the OSIRIS DRP, you will need the following:
 
 - A working C compiler (e.g. ``gcc``)
 - A copy of the compiled library cfitsio
-- A working installation of IDL
+- A working installation of IDL (the IDL binary directory should be in your ``PATH`` environment variable)
 - Python dependencies (optional, for testing): pytest, astropy
 
 ### Options to install the pipeline
@@ -167,6 +169,22 @@ To run the pipeline, use ``run_odrp``. If you don't want the pipeline
 to open a new xterm window, call ``run_odrp -n``.
 
 Please check out the OSIRIS pipeline manual: <http://www2.keck.hawaii.edu/inst/osiris/OSIRIS_Manual_v2.3.pdf>
+
+### Testing the Pipeline
+
+To run the suite of tests on the pipeline, and you have ``pytest`` and ``astropy`` in your python environment:
+
+```
+make test
+```
+
+The first time you run the tests, data will be downloaded so it will take longer. If the tests pass, your pipeline is installed properly. You will see something like the following if the tests pass:
+
+```
+============================== 3 passed, 1 skipped in 67.15 seconds =================
+
+```
+
 
 ### Troubleshooting
 
