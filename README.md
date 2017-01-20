@@ -28,6 +28,7 @@ Minor Updates:
 - The cosmic ray module may lead to artifacts in data before 2016 as well, but at a lesser level. We recommend checking on individual science cases.
 - The pipeline team is investigating different cosmic ray modules for
 a future release.
+- More information is available in [Issue 49](https://github.com/Keck-DataReductionPipelines/OsirisDRP/issues/49) or in the [wiki](https://github.com/Keck-DataReductionPipelines/OsirisDRP/wiki/Tests:-cosmic-ray-module).
 
 **Old Modules**
 - For data taken in 2016 onward, it is no longer necessary to run the following modules: Remove Cross Talk, Glitch Identification. It is fine to keep them in the DRF XML, these modules will automatically not run on the new data.
