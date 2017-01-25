@@ -34,3 +34,26 @@ If you need to explicitly tell your compilier to target a specific architecutre,
 - For 32 bit systems, either ``-m32`` or ``-arch i386``
 - For 64 bit systems, ``-arch x86_64``
 
+## Error Starting IDL scripts
+
+If you get an error that says something like:
+
+```
+    xterm: Can’t execvp idl: No such file or directory
+```
+
+Then it is likely one of two issues.
+
+The first is that the IDL executable is not in your PATH. Something like the following should be in your path:
+
+```
+    /Applications/exelis/idl85/bin/
+```
+
+You can check what is in your PATH by entering the following command:
+
+```
+    echo $PATH
+```
+
+If the IDL executable is in your PATH and you are running this on a MAC then there may be a compatibility issue between your versions of XQuarts, IDL, and ENVI. This problem and the solution to it is documented on the Harris Geospatial website [here.] (http://www.harrisgeospatial.com/Home/NewsUpdates/TabId/170/ArtMID/735/ArticleID/14944/XQuartz-2710-is-Not-Compatible-with-ENVI-531-and-IDL-851.aspx)
