@@ -7,7 +7,7 @@
 * [Testing the Pipeline](#testing-the-pipeline)
 
 ## Release Notes for v4.0.0
-**2017-XX-XX**
+**2017-01-23**
 
 Major updates:
 - Updates to the code in order to run the pipeline for the new detector (2016 data and newer).
@@ -181,8 +181,7 @@ make test
 The first time you run the tests, data will be downloaded so it will take longer. If the tests pass, your pipeline is installed properly. You will see something like the following if the tests pass:
 
 ```
-============================== 3 passed, 1 skipped in 67.15 seconds =================
-
+======================== 2 passed, 2 skipped in 41.77 seconds ===================
 ```
 
 
