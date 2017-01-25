@@ -347,12 +347,23 @@ FUNCTION combframes_000, DataSet, Modules, Backbone
     if ( n_Dims(2) ne 2048 ) then $
       return, error ('Error, y-dim must be 2048')
 
+    if ( nFrames lt 2 ) then $
+      return, error ('Combframes requires at least 2 frames.')
+
+
+    ; update for detector upgrade to H2RG:
+    ; check Julian date of data: if after Jan. 1st, 2016, 
+    ; then readout channel offsets are not adjusted before frames are combined,
+    ; because data is from new H2RG detector.
+    ; read in header of first frame to get MJD
+    jul_date = sxpar(*DataSet.Headers[0], "MJD-OBS", count=num)
+    if (jul_date ge 57388.0) then begin
+        print, 'Data is from H2RG detector: readout channels do not need to be adjusted for offsets.'
+    endif else begin
+
     itime = float(SXPAR(*DataSet.Headers[0],'ITIME'))
     if ( itime lt 1.0 ) then itime = 2.0
     print, 'itime=', itime
-
-    if ( nFrames lt 2 ) then $
-      return, error ('Combframes requires at least 2 frames.')
 
     ; Create an average frame to determine the offset levels
     avg = fltarr(2048,2048)
@@ -439,6 +450,9 @@ FUNCTION combframes_000, DataSet, Modules, Backbone
         end
     end
 
+  endelse
+
+
     ; Now finally combine the frames into
     ; a single frame through medianing
     ; each pixel where valid.
@@ -516,8 +530,12 @@ FUNCTION combframes_000, DataSet, Modules, Backbone
 
     itime = string(sxpar(*DataSet.Headers[0], 'ITIME'))
 
-
+    ; updated code for H2RG (by jlyke, added by A. Boehle - April 2016)
+    ; For H2, this file name DOES NOT include the .fits file extension.
+    ; For H2RG, this file name DOES include the .fits file extenstion.
     fname = sxpar(*DataSet.Headers[0],'DATAFILE')
+    fn = STRSPLIT(fname, '.', /EXTRACT)
+    fname = fn[0]
     fname = strtrim(fname,2) + '_combo_'+strtrim(itime,2)
     fname = strtrim(fname,2)
     message,/info, fname

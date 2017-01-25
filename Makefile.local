@@ -1,0 +1,17 @@
+#
+#  Makefile.local
+#  OsirisDRP
+#
+#  Created by Alexander Rudy on 2016-05-04.
+#
+
+SOURCE = modules/source
+include modules/source/Makefile.local
+
+.PHONY: test
+
+
+	
+
+test: all
+	. scripts/osirisSetup.sh && osirisSetup && py.test

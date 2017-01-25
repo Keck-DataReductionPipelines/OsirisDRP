@@ -53,6 +53,11 @@
 ;		dependent on julian date from 01/2009 to 10/2009
 ;		(SAW - Oct 2009)
 ;
+;            - Added a Julian date check for after the detector
+;              upgrade to the H2RG.  If date is after 1/1/2016 (MJD =
+;              57388.0) then the adjust channel algorithm is not
+;              run. (A. Boehle - April 2016)
+;
 ; @END
 ;
 ;-----------------------------------------------------------------------
@@ -71,6 +76,31 @@ FUNCTION adjchan_000, DataSet, Modules, Backbone
     n_Dims = size( *DataSet.Frames[0])
     ; Read the modified Julian date.
     jul_date = sxpar(*DataSet.Headers[0],"MJD-OBS", count=num)
+
+    ; update for detector upgrade to H2RG:
+    ; check Julian date of data: if after Jan. 1st, 2016, 
+    ; then remove crosstalk is not run because data is from new H2RG detector
+    if (jul_date ge 57388.0) then begin
+        print, 'Adjust channels not performed: data is from H2RG detector.'
+        drpLog, 'Adjust channels not performed: data is from H2RG detector.', /DRF, DEPTH=1
+
+        ; use the top 13 pixels of each column excluding ref pixels, 
+        ; which get no light, to correct the DC offset between columns
+        ; due to 60 Hz noise (added: 4/17/16)
+        for n = 0, (nFrames-1) do begin
+            im = *DataSet.Frames[n]
+            
+            medians = median(im[*,2032:2044],dimension=2)
+            for yy=0, 2047 do begin
+                im[*,yy] = im[*,yy] - medians
+            endfor
+
+            *DataSet.Frames[n] = im
+
+        endfor
+
+    endif else begin
+
 
     ; Accumulate the deltas for the upper and lower halfs of the detector
     del_upper = 0.0
@@ -487,6 +517,8 @@ FUNCTION adjchan_000, DataSet, Modules, Backbone
         end
 
     end
+
+  endelse
 
     ; it is not neccessary to change the dataset pointer
 

@@ -1,0 +1,9 @@
+*.o
+*.so*
+.cache/*
+
+# This directory usually contains recmats.
+calib
+
+# This is the default queue directory.
+drf_queue

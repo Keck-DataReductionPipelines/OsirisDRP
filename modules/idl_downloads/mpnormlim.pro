@@ -70,7 +70,7 @@
 ;   Reduced obtrusiveness of common block and math error handling, 18
 ;     Nov 2001, CM
 ;
-;  $Id$
+;  $Id: mpnormlim.pro,v 1.1 2005/09/22 00:46:39 osiris Exp $
 ;-
 ; Copyright (C) 1997-2001, Craig Markwardt
 ; This software is provided as is without any warranty whatsoever.

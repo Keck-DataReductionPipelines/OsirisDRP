@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<cfg package="odrfgui">
+
+  <!-- OSIRIS Config File -->
+    <File paramName="OSIRIS_CONFIG_FILE" 
+    value="osiris_cfg.xml"
+    desc="Name of file to use to configure OsirisParameters class" />
+
+  <!-- Points: must have x and y tags -->
+  <Point paramName="POINT_MAINFRAME_LOCATION" x="0" y="20" 
+    desc="Default Location for main frame" />
+
+  <!-- Dimensions: must have xs and ys tags -->
+  <Dimension paramName="DIM_MAINFRAME" xs="800" ys="800" 
+    desc="Default Size for main frame" />
+
+  <!-- Fonts: must have name(face), style, and size tags -->
+  <Font paramName="FONT_MENU" name="SansSerif" style="plain" size="11" 
+    desc="Font for menu items"/>
+  <Font paramName="FONT_MENUITEM" name="SanSerif" style="plain" size="11" 
+    desc="Font for menu items"/>
+   
+  <!-- Files: must have value tag -->
+  <File paramName="DEFAULT_INPUT_DIR" value="~/osiris/spec_raw/"
+    desc="Default raw file directory" />
+  <File paramName="DEFAULT_OUTPUT_DIR" value="~/osiris/spec_orp/"
+    desc="Default reduced file directory" />
+  <File paramName="DEFAULT_LOG_DIR" value="~/osiris/spec_orp/DRFs/"
+    desc="Default reduction log directory" />
+  <File paramName="DRF_QUEUE_DIR" value="~/osiris/drf_queue/"
+    desc="Default DRP queue directory" />
+  <File paramName="DRF_READ_PATH" value="~/osiris/"
+    desc="Default path for opening drfs" />
+  <File paramName="DRF_WRITE_PATH" value="~/osiris/"
+    desc="Default path for writing drfs" />
+  <File paramName="OSIRIS_DRP_BACKBONE_CONFIG_FILE" value="RPBconfig.xml"
+    desc="Module configuration file for DRP Backbone" />
+
+  <!-- Options in Tools - Options -->
+  <boolean paramName="DEFAULT_AUTOSET_DATASET_NAME" value="true"
+    desc="Default value for whether or not dataset name is automatically generated" />
+  <boolean paramName="DEFAULT_CONFIRM_DROP_DRF" value="true"
+    desc="Default value for whether to confirm dropping DRFs" />
+  <boolean paramName="DEFAULT_CONFIRM_DROP_INVALID_DRF" value="true"
+    desc="Default value for whether to confirm dropping invalid DRFs" />
+  <boolean paramName="DEFAULT_CONFIRM_SAVE_INVALID_DRF" value="true"
+    desc="Default value for whether to confirm saving invalid DRFs" />
+  <boolean paramName="DEFAULT_CONFIRM_RESET_DRF" value="true"
+    desc="Default value for whether to confirm resetting DRF" />
+  <boolean paramName="DEFAULT_CONFIRM_CLEAR_INPUT_FILES" value="true"
+    desc="Default value for whether to confirm clearing of input file list" />
+  <boolean paramName="DEFAULT_SHOW_KEYWORD_UPDATE_PANEL" value="false"
+    desc="Default value for whether to show the keyword update panel" />
+  <boolean paramName="DEFAULT_WRITE_DRF_VERBOSE" value="false"
+    desc="Default value for whether to write DRFs verbosely" />
+
+  <StringArray paramName="DEFAULT_REDUCTION_TEMPLATE_LIST">
+    <String value="basicARP_drfTemplate.xml"
+      desc="Template DRF for regular astronomical reductions" />
+    <String value="basicORP_drfTemplate.xml"
+      desc="Template DRF for online astronomical reductions" />
+    <String value="fullARP_drfTemplate.xml" 
+      desc="Template DRF for basic ARP reduction with telluric correction and mo
+saicing multiple 
+        frames" />
+    <String value="telluricARP_drfTemplate.xml" 
+      desc="Template DRF for basic ARP reductions with extracting telluric stars
+" />
+    <String value="combine_skies_darks_drfTemplate.xml" 
+      desc="Template DRF for combining multiple dark and sky frames" />
+    <String value="cubes_mosaic_drfTemplate.xml" 
+      desc="Template DRF for mosaicing together already reduced OSIRIS cubes" />
+    <String value="cubes_telluric_correct_drfTemplate.xml" 
+      desc="Template DRF for telluric correcting reduced OSIRIS cubes" />
+    <String value="cubes_telluric_extract_drfTemplate.xml" 
+      desc="Template DRF for extracting a 1D spectrum of a telluric star from re
+duced OSIRIS cubes" />
+  </StringArray>
+
+</cfg>
+
+

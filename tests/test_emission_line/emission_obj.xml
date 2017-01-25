@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  rev: Wed May 13 06:00:36 2015 -->
+<DRF LogPath="$OSIRIS_ROOT/tests/logs" ReductionType="ARP_SPEC">
+<dataset InputDir="$OSIRIS_ROOT/tests/test_emission_line" OutputDir="$OSIRIS_ROOT/tests/test_emission_line">
+<fits FileName="s150531_a025002.fits" />
+</dataset>
+  <module CalibrationFile="$OSIRIS_ROOT/tests/test_emission_line/s150531_a025001.fits" Name="Subtract Dark Frame"  />
+  <module Name="Adjust Channel Levels" />
+  <module Name="Remove Crosstalk" />
+  <module Name="Glitch Identification" />
+<module Name="Clean Cosmic Rays" />
+  <module CalibrationFile="$OSIRIS_ROOT/tests/calib/s150901_c008___infl_Kn5_035.fits" Name="Spatially Rectify Spectrum" />
+  <module Name="Assemble Data Cube" /> 
+  <module Name="Save DataSet Information" />
+ </DRF>

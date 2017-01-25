@@ -33,7 +33,10 @@
 ; @STATUS not tested
 ;
 ; @HISTORY 6.15.2005, created
-;          6.20.2006 - added check that there is a channel causing the crosstalk
+;          6.20.2006 - added check that there is a channel causing the
+;                      crosstalk
+;          4.06.2016 - modified so algorithm is not run on data from
+;                      new H2RG detector (A. Boehle)
 ;
 ; @AUTHOR James Larkin and Shelley Wright
 ;
@@ -55,6 +58,16 @@ FUNCTION rmcrosstalk_000, DataSet, Modules, Backbone
 
     ; do the subtraction
     n_Dims = size( *DataSet.Frames[0])
+
+    ; update for detector upgrade to H2RG:
+    ; check Julian date of data: if after Jan. 1st, 2016, 
+    ; then remove crosstalk is not run because data is from new H2RG detector.
+    ; read in header of first frame to get MJD
+    jul_date = sxpar(*DataSet.Headers[0], "MJD-OBS", count=num)
+    if (jul_date ge 57388.0) then begin
+        print, 'Remove crosstalk not performed: data is from H2RG detector.'
+        drpLog, 'Remove crosstalk not performed: data is from H2RG detector.', /DRF, DEPTH=1
+    endif else begin
 
     for n = 0, (nFrames-1) do begin
 
@@ -136,6 +149,9 @@ FUNCTION rmcrosstalk_000, DataSet, Modules, Backbone
         
     endfor
     
+  endelse
+
+
     ; it is not neccessary to change the dataset pointer
 
     report_success, functionName, T

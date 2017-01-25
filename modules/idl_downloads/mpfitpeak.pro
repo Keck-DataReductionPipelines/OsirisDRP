@@ -231,7 +231,7 @@
 ;   Documentation clarification, 05 Sep 2001, CM
 ;   Make more consistent with comparable IDL routines, 30 Jun 2003, CM
 ;
-;  $Id$
+;  $Id: mpfitpeak.pro,v 1.1 2005/09/22 00:46:38 osiris Exp $
 ;-
 ; Copyright (C) 1997-2001, 2003, Craig Markwardt
 ; This software is provided as is without any warranty whatsoever.

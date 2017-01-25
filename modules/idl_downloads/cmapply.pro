@@ -162,7 +162,7 @@
 ;   Add user-defined functions, ON_ERROR, CM, 09 Feb 2002
 ;   Correct bug in MAX/MIN initialization of RESULT, CM, 05 Dec 2002
 ;
-;  $Id$
+;  $Id: cmapply.pro,v 1.1 2005/09/22 00:46:16 osiris Exp $
 ;
 ;-
 ; Copyright (C) 1998, 2000, 2002, Craig Markwardt

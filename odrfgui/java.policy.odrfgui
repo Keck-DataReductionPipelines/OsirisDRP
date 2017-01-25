@@ -1,0 +1,12 @@
+grant {
+  //. hide banner
+  permission java.awt.AWTPermission "showWindowWithoutWarningBanner";
+
+  //. allow access to all files (normal file permissions remain)
+  permission java.io.FilePermission "<<ALL FILES>>", "read,write,execute,delete";
+  //. allow access to read all properties
+  permission java.util.PropertyPermission "*", "read";
+
+  //. allow clipboard access for copying and pasting
+  permission java.awt.AWTPermission "accessClipboard"; 
+};

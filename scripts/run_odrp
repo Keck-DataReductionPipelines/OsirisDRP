@@ -9,9 +9,20 @@
 # modified to run outside of qlook dir by setting env 
 #    variable -- Jason L. Weiss 02/03/00
 # modified for drp -- JLW 2005/02/19
+# run_odrp accpets a ``-n`` argument to not launch an xterm.
 
 #setenv OSIRIS_BACKBONE_DIR $KROOT/rel/default/idl/odrs/backbone
 
-#start drp
-xterm +ls -sb -sl 5000 -T 'OSIRIS DRP' -e idl ${OSIRIS_BACKBONE_DIR}/osiris_drp_backbone_startup.pro
+if ( $?1 & $1 == "-n" ) then
+
+    onintr -
+    idl -IDL_STARTUP ${OSIRIS_BACKBONE_DIR}/drpStartup.pro ${OSIRIS_BACKBONE_DIR}/osiris_drp_backbone_startup.pro
+    onintr
+
+else 
+
+    #start drp
+    xterm +ls -sb -sl 5000 -T 'OSIRIS DRP' -e idl -IDL_STARTUP ${OSIRIS_BACKBONE_DIR}/drpStartup.pro ${OSIRIS_BACKBONE_DIR}/osiris_drp_backbone_startup.pro
+
+endif
 

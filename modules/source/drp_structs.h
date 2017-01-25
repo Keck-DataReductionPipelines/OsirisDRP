@@ -19,7 +19,7 @@
 #define MAXFRAMESINDATASETS       30
 
 #define DATA       2048                           // Equivalent to BIGFRAMES' FRAMESIZE
-#define MAXSLICE     16                           // Maximum slice of image in pixels
+#define MAXSLICE     16                           // Maximum slice of image in pixels; original value = 16
 #define numspec    1216                           // numspec and numcolumn are same for BB and NB.
 #define numcolumn    19                           // ... final NB frames will have 51 columns and (51*66)=3366 spectra!
 #define specpercol (numspec/numcolumn)            // # of spectra per lenslet column

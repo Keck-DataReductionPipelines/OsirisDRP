@@ -11,8 +11,9 @@
 ##############################################################################
 
 #IDL_INCLUDE = /usr/local/idl/7.1/idl71/external/include
-IDL_INCLUDE = /usr/local/idl/8.0/idl/idl80/external/include
-CFITSIOLIBDIR = /$(KROOT)/kss/osiris/drs_dev/modules/lib/
+#IDL_INCLUDE = /Applications/itt/idl70/external/include
+IDL_INCLUDE = /Applications/exelis/idl/external/include
+CFITSIOLIBDIR = /opt/local/lib/
 OUTPUTDIR = .
 
 # Include files.

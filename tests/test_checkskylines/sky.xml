@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  rev: Mon Jul 11 14:32:24 2016 -->
+<DRF LogPath="$OSIRIS_ROOT/tests/logs/" ReductionType="ARP_SPEC">
+<dataset InputDir="$OSIRIS_ROOT/tests/test_checkskylines" OutputDir="$OSIRIS_ROOT/tests/test_checkskylines">
+<fits FileName="s160711_a013002.fits" />
+</dataset>
+  <module CalibrationFile="$OSIRIS_ROOT/tests/test_checkskylines/superdark.fits" Name="Subtract Dark Frame"  />
+<module Name="Clean Cosmic Rays" />
+  <module CalibrationFile="$OSIRIS_ROOT/tests/calib/s160416_c006___infl_Kbb_035.fits" Name="Spatially Rectify Spectrum" />
+  <module Name="Assemble Data Cube" /> 
+  <module Name="Save DataSet Information" />
+ </DRF>
