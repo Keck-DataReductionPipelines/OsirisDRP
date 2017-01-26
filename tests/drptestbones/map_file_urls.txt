@@ -7,3 +7,8 @@ test_emission_line s150531_a025001.fits https://www.dropbox.com/s/cturwr3ynctb1l
 test_emission_line s150531_a025002.fits https://www.dropbox.com/s/f2yhcyh585ew4b1/s150531_a025002.fits?dl=1
 test_emission_line s150531_a025002_Kn5_035_ref.fits https://www.dropbox.com/s/05jge00i5yo79vz/s150531_a025002_Kn5_035_ref.fits?dl=1
 calib s150901_c008___infl_Kn5_035.fits https://www.dropbox.com/s/xj9cl125scfm3pw/s150901_c008___infl_Kn5_035.fits?dl=1
+calib s160318_c005___infl_Hn3_100.fits https://www.dropbox.com/s/e4rlb7psv3r4a2c/s160318_c005___infl_Hn3_100.fits?dl=1
+test_quasar_assignment s160321_a002010_Hn3_100_ref.fits https://www.dropbox.com/s/fozhh94zltt00is/s160321_a002010_Hn3_100_ref.fits?dl=1
+test_quasar_assignment s160321_a002010.fits https://www.dropbox.com/s/xs4b6yt6o175cob/s160321_a002010.fits?dl=1
+test_quasar_assignment s160321_a002011.fits https://www.dropbox.com/s/eg6ijctrk0z8wsh/s160321_a002011.fits?dl=1
+
