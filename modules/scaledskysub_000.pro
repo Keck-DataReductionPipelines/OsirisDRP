@@ -56,6 +56,15 @@
 ;                     smoothing the sky spectra vs. fitting a thermal
 ;                     function.  (Default = YES)
 ;
+; scale_cont = scales the sky continuum and lines together when subtracting
+;                     from the object spectrum. If turned off, the continuum
+;                     is first subtracted, the lines are scaled, and the
+;                     continuum is added back in. Recommended to turn
+;                     off if there is a thermal continuum contribution
+;                     (e.g. in K band) and there are no clean sky
+;                     spaxels in the object cube to turn on
+;                     Scale_K_continuum. (Default = YES)
+;
 ; STATUS : tested on a limited amount of Jbb, Hbb, Kbb data. 
 ;		   Seems to work reasonably well, but NOT YET EXTENSIVELY TESTED.
 ;
@@ -215,7 +224,8 @@ l_rotmed = [1.00282,1.02139,1.04212,1.07539,1.09753,1.13542,1.15917,1.20309,1.22
         if tag_exist( Modules[thisModuleIndex], "max_sky_fraction") then maxfrac = float(Modules[thisModuleIndex].max_sky_fraction) else maxfrac=0.25
 	if tag_exist( Modules[thisModuleIndex], "min_sky_fraction") then minfrac = float(Modules[thisModuleIndex].min_sky_fraction) else minfrac=0.10
 	if tag_exist( Modules[thisModuleIndex], "line_halfwidth") then linehalfwidth = fix(Modules[thisModuleIndex].line_halfwidth) else linehalfwidth=4
-	if tag_exist( Modules[thisModuleIndex], "show_plots") then show_plots = strupcase(strtrim(Modules[thisModuleIndex].show_plots, 2)) eq "YES" else show_plots=1
+        if tag_exist( Modules[thisModuleIndex], "show_plots") then show_plots = strupcase(strtrim(Modules[thisModuleIndex].show_plots, 2)) eq "YES" else show_plots=1
+        if tag_exist( Modules[thisModuleIndex], "scale_cont") then scale_cont = string(Modules[thisModuleIndex].scale_cont) else scale_cont="YES"
 	; TODO what is the optimum default for OSIRIS???
 
 
@@ -561,7 +571,11 @@ l_rotmed = [1.00282,1.02139,1.04212,1.07539,1.09753,1.13542,1.15917,1.20309,1.22
 		backgnd = median(skyspectrum, 10*linehalfwidth)
                 skyspectrum2 = skyspectrum - backgnd
                 
-                r = 1.0 ; QMK
+                r = 1.0         ; QMK
+
+                ; placeholders to hold line/continuum indices
+                line_regions_all = 0.
+                cont_regions_all = 0.
                 
 		for j=0L,14 do begin
 			lr = where(lambda ge l_boundary[j] and lambda lt l_boundary[j+1] $
@@ -586,12 +600,14 @@ l_rotmed = [1.00282,1.02139,1.04212,1.07539,1.09753,1.13542,1.15917,1.20309,1.22
 				; make a mask for where line regions are, and for where the
 				; continuum is. 
 	            line_mask = convol(line_mask,replicate(1,npixw),/edge_truncate,/center)
-	            line_regions = where(line_mask gt 0,line_count, complement=cont_regions, ncompl = cont_count)
-	
+                    line_regions = where(line_mask gt 0,line_count, complement=cont_regions, ncompl = cont_count)
+                    ; hold onto the line/continuum indices for each OH line family
+                    line_regions_all = [line_regions_all, (line_regions + lr[0])]
+                    cont_regions_all = [cont_regions_all, (cont_regions + lr[0])]
 
 				
 	            if (line_count ge 3 and cont_count ge 3) then begin
-					print, 'optimising '+description_strings[i]+' transitions'
+					print, 'optimising '+description_strings[j]+' transitions'
 					; plot each region in color, skipping the gaps (rather than
 					; drawing straight lines to connect across them, which is IDL
 					; plot's default behavior)
@@ -621,7 +637,7 @@ l_rotmed = [1.00282,1.02139,1.04212,1.07539,1.09753,1.13542,1.15917,1.20309,1.22
 	                      r = amoeba(1.e-5,function_name='scaledskysub_fitsky',p0=[1.],scale=[0.5])
 	                endif
 	
-                        if(llr[0] ge 2.3) then begin  ;QMK added
+                        if (llr[0] ge 2.3) then begin  ;QMK added
                            print,'Setting scaling for final bit to value for 9-7'
                            r = rhold
                         endif
@@ -637,13 +653,24 @@ l_rotmed = [1.00282,1.02139,1.04212,1.07539,1.09753,1.13542,1.15917,1.20309,1.22
 					sxaddhist, "IFS_OH_SCALESKY:  Scaling factor is "+sigfig(r, 3), *Dataset.Headers[i]
 					;stop
 	            endif
-		    endif ; if skylines_count gt 0
+                endif          ; if skylines_count gt 0
+                if llr[0] ge 2.3 then begin
+                   cont_regions_all = [cont_regions_all, lr]
+                endif
 		endfor
 		range0 = where(rscale0 ne 0.,range0_count)
 		if (range0_count gt 0) then $
 		  rscale = interpol(rscale0[range0],lambda[range0],lambda) else $
 		  rscale = rscale0
-		skyspectrumr = skyspectrum*rscale
+                if scale_cont eq 'NO' then begin
+                   ; scale just the line regions
+                   conts = interpol(skyspectrum[cont_regions_all],lambda[cont_regions_all],lambda)
+                   tmp = ((skyspectrum - conts) * rscale) + conts
+                   skyspectrumr = tmp
+                endif else begin
+                   ; scale the entire spectrum
+                   skyspectrumr = skyspectrum*rscale
+                endelse
 
 
 	;=====  new bit - do simple rotational correction ======
@@ -810,9 +837,15 @@ l_rotmed = [1.00282,1.02139,1.04212,1.07539,1.09753,1.13542,1.15917,1.20309,1.22
 			print,''
 		endif 
                 if crvalo gt 1900.0 and Scale_K_Continuum eq 'NO' then begin
-                        skyspectrumr = skyspectrum*rscale
-                        print,'Not scaling K band continuum'
-                   endif
+                   print,'Not scaling K band continuum'
+                   if scale_cont eq 'NO' then begin
+                      conts = interpol(skyspectrum[cont_regions_all],lambda[cont_regions_all],lambda)
+                      tmp = ((skyspectrum - conts) * rscale) + conts
+                      skyspectrumr = tmp
+                   endif else begin
+                      skyspectrumr = skyspectrum*rscale
+                   endelse
+                endif 
                 if crvalo le 1900.0 then begin
 			skyspectrumr = skyspectrum*rscale 
 			print,'Observations are below 1.9 microns - no continuum sky subtraction'	
@@ -892,10 +925,25 @@ l_rotmed = [1.00282,1.02139,1.04212,1.07539,1.09753,1.13542,1.15917,1.20309,1.22
                             scaledsky = (sky_hold - smsky_cube)*rscale_cube + smsky_cube*contscale_cube 
 
 
-			endif else if crvalo le 1900.0 or Scale_K_Continuum eq 'NO' then begin
-			    ;scaledsky = (sky_hold-therm_cube)*rscale_cube 
-  			    scaledsky = (sky_hold)*rscale_cube
-      			endif
+                         endif else if crvalo le 1900.0 or Scale_K_Continuum eq 'NO' then begin
+                            if scale_cont eq 'NO' then begin
+                               ; scaling just the lines, not the continuum
+                               szsky = size(sky_hold)
+                               scaledsky = sky_hold * 0.
+                               ; is there a way to do the interpolation without a for loop? 
+                               for ii = 0,szsky[1]-1 do begin
+                                  for jj = 0,szsky[2]-1 do begin
+                                     conts = interpol(sky_hold[ii,jj,cont_regions_all],lambda[cont_regions_all],lambda)
+                                     tmp = ((sky_hold[ii,jj,*] - conts) * rscale) + conts
+                                     scaledsky[ii,jj,*] = tmp
+                                  endfor
+                               endfor 
+                            endif else begin
+                               ; scale lines and continuum
+                                ;scaledsky = (sky_hold-therm_cube)*rscale_cube 
+                               scaledsky = (sky_hold)*rscale_cube
+                            endelse 
+                         endif
 
 			; re-arrange to OSIRIS axis order, and set all NaNs to zero, per OSIRIS
 			; convention
