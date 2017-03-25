@@ -301,17 +301,17 @@ def fit_spatial_profile_helper(inputArr,order = 2, mkplots = False):
             
         row = np.nanmedian(inputArr[iStart:iEnd,:],axis=0)
         goodPts = np.where(isfinite(row))[0]
+        if len(goodPts) > 0:
+            fitParams = np.ma.polyfit(inX[goodPts],row[goodPts],order)
+            outParams[i,:]=fitParams
 
-        fitParams = np.ma.polyfit(inX[goodPts],row[goodPts],order)
-        outParams[i,:]=fitParams
-     
-        if mkplots:
-            print fitParams
-            plot(inX,np.polyval(fitParams,inX))
-            
-            xlabel('x pixel')
-            ylabel('Fraction of starlight in pixel')
-            text(inX[goodPts[0]],np.polyval(fitParams,inX[goodPts[0]]),i)
+            if mkplots:
+                print fitParams
+                plot(inX,np.polyval(fitParams,inX))
+
+                xlabel('x pixel')
+                ylabel('Fraction of starlight in pixel')
+                text(inX[goodPts[0]],np.polyval(fitParams,inX[goodPts[0]]),i)
     return outParams
 
 def simple_trace_fit(inputArr,slicerange=None):
@@ -337,13 +337,18 @@ def simple_trace_fit(inputArr,slicerange=None):
     return (sampleLoc, fitarr)
     
 
-def trace_fit(inputArr,startloc = None,width=5,order=2,debug=False,slicerange=None,nsamples=25,xlim=None):
+def trace_fit(inputArr,startloc = None,width=5,order=2,debug=False,slicerange=None,nsamples=25,
+              xlim=None,return_spectrum=False,threshold=None):
     ''' Traces a spectrum across the detector and determine the best
     fit y values as a function of x.
 
     INPUTS: inputArr - either a numpy array or a FITS filename
             startloc - the y index to center the extraction for the slit
 
+    KEYWORDS:
+    threshold - a threshold for the flux. If no points are above or
+         equal to the threshold, then do not fit that slice. (default: None)
+              
     OUTPUT: (coefficients for polyfit, x position, y peak locations)
     '''
     if type(inputArr) is str:
@@ -396,8 +401,14 @@ def trace_fit(inputArr,startloc = None,width=5,order=2,debug=False,slicerange=No
     peakLoc = np.zeros(len(sampleLoc))
     for i in arange(len(sampleLoc)):
         tempSlice = lineProfile[:,sampleLoc[i]]
-        gfit = model_fits.fit_gaussian_peak(yArr,tempSlice)
-        peakLoc[i] = gfit.parameters[2]
+        if threshold is not None:
+            above_threshold = np.where(tempSlice >= threshold)[0]
+            if len(above_threshold) > 0:
+                gfit = model_fits.fit_gaussian_peak(yArr,tempSlice)
+                peakLoc[i] = gfit.parameters[2]
+        else:
+            gfit = model_fits.fit_gaussian_peak(yArr,tempSlice)
+            peakLoc[i] = gfit.parameters[2]
 
     if debug:
         subplot(2,1,2)
@@ -408,8 +419,11 @@ def trace_fit(inputArr,startloc = None,width=5,order=2,debug=False,slicerange=No
 
     if debug:
         plot(sampleLoc,np.polyval(tfit,sampleLoc))
-        
-    return (tfit, sampleLoc, peakLoc)
+
+    if return_spectrum:
+        return (tfit,sampleLoc,peakLoc,lineProfile, fitParams, spectrum)
+    else:
+        return (tfit, sampleLoc, peakLoc)
         
     
 def clipped_mean(arr,sig=2.0,maxiter=5,nconverge=0.02):

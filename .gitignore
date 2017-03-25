@@ -1,6 +1,7 @@
 *.o
 *.so*
 .cache/*
+.DS_Store
 
 # This directory usually contains recmats.
 calib

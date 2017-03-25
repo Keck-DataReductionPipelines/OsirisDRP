@@ -7,29 +7,70 @@ from model_fits import fit_gaussian_peak
 import fitter
 import time
 from scipy.ndimage import gaussian_filter1d,median_filter
+from tqdm import tqdm
 
-def trace_rect(rectfile='../../tests/calib/s150901_c008___infl_Kn5_035.fits'):
-    # trace the rectification matrix
+def trace_rect_example(rectfile='../../tests/calib/s150905_c003___infl_Kbb_035.fits'):
+    # trace the rectification matrix. This is an example to show how it works
     if os.path.exists(rectfile):
         hdu = fits.open(rectfile)
         matrix = hdu[2].data
-        newslice = matrix[0,:,:]
+        print 'shape: ',np.shape(matrix)
+        newslice = matrix[16,:,:]
 
         plt.clf()
         plt.subplot(2,1,1)
         plt.imshow(newslice,interpolation='nearest')
         
-        slicerange=[50,500]
+        #slicerange=[50,500]
+        slicerange=[50,2047]
         print 'input shape: ',newslice.shape
         #newslice = newslice.transpose()
         #print 'transposed shape: ',newslice.shape
         lineprofile, fitparams, spectrum = extractspectrum.find_spatial_profile(newslice, 4,slicerange=slicerange)
-        tfit, xlocation, ypeak_location = extractspectrum.trace_fit(newslice,4,slicerange=slicerange)
+        tfit, xlocation, ypeak_location,lineprofile, fitparams, spectrum = extractspectrum.trace_fit(newslice,4,slicerange=slicerange,threshold=0.0,return_spectrum=True)
         print fitparams
         plt.subplot(2,1,2)
         plt.plot(xlocation, ypeak_location)
         plt.xlim(0,2048)
 
+def trace_rect(rectfile='../../tests/calib/s150905_c003___infl_Kbb_035.fits',outfile=None,
+               width=4,slicerange=[0,2048]):
+    '''
+    This routine will go through a rectification matrix and trace the scans for each slice
+    of the rect. matrix.
+
+    NOTE: in order to map the slices of the rect matrix to spaxel location,
+    use LensletMapping.xlsx
+
+    OUTPUT
+    ------
+    outfile - file to store the output dictionary of the fit. The dictionary
+    has keys of the form 'sliceN': (tfit,sampleLoc,peakLoc,lineProfile, fitParams, spectrum)
+
+    Saved as a numpy npy file. To load use a = np.load(outfile), then b= a.items(0) to get the
+    dictionary back
+    HISTORY
+    -------
+    2017-03-25 - T. Do
+    '''
+    if os.path.exists(rectfile):
+        hdu = fits.open(rectfile)
+        # the slices for the rect matrix are in the second extension
+        matrix = hdu[2].data # should be shaped (1216, 16, 2048)
+        s = np.shape(matrix)
+        outdict = {}
+
+        for i in tqdm(range(s[0])):
+            newslice = matrix[i,:,:]
+            output = extractspectrum.trace_fit(newslice,width=width,slicerange=slicerange,
+                                               threshold=0.0)
+            outdict['slice'+str(i)] = output
+        if outfile is None:
+            parts = os.path.split(rectfile)
+            outfile = os.path.splitext(parts[-1])[0]+'_trace.npy'
+        print("saving: "+outfile)
+        np.save(outfile,outdict)
+    
 def trace_sky_kbb20():
     trace_sky(skyfile='raw/s160902_a004005.fits',ycenter=1089,slicewidth=8,
               darkfile='darks/s160902_a004002_combo_600s_Drk.fits',
