@@ -20,7 +20,7 @@ def trace_rect_example(rectfile='../../tests/calib/s150905_c003___infl_Kbb_035.f
         plt.clf()
         plt.subplot(2,1,1)
         plt.imshow(newslice,interpolation='nearest')
-        
+
         #slicerange=[50,500]
         slicerange=[50,2047]
         print 'input shape: ',newslice.shape
@@ -33,6 +33,7 @@ def trace_rect_example(rectfile='../../tests/calib/s150905_c003___infl_Kbb_035.f
         plt.plot(xlocation, ypeak_location)
         plt.xlim(0,2048)
 
+@profile
 def trace_rect(rectfile='../../tests/calib/s150905_c003___infl_Kbb_035.fits',outfile=None,
                width=4,slicerange=[0,2048]):
     '''
@@ -63,31 +64,31 @@ def trace_rect(rectfile='../../tests/calib/s150905_c003___infl_Kbb_035.fits',out
         if outfile is None:
             parts = os.path.split(rectfile)
             outfile = os.path.splitext(parts[-1])[0]+'_trace.npy'
-        
-        for i in tqdm(range(s[0])):
+
+        for i in tqdm(range(5)):
             newslice = matrix[i,:,:]
             output = extractspectrum.trace_fit(newslice,width=width,slicerange=slicerange,
                                                threshold=0.0)
             outdict['slice'+str(i)] = output
 
             if (i % 50) == 0:
-                print("saving: "+outfile)                
+                print("saving: "+outfile)
                 np.save(outfile,outdict)
         print("saving: "+outfile)
         np.save(outfile,outdict)
-    
+
 def trace_sky_kbb20():
     trace_sky(skyfile='raw/s160902_a004005.fits',ycenter=1089,slicewidth=8,
               darkfile='darks/s160902_a004002_combo_600s_Drk.fits',
               whitelightfile='raw/s160902_a004011.fits',
               whitelightdark='darks/s160902_a019007_combo_10s_Drk.fits')
-    
+
 def trace_sky_kbb50():
     trace_sky(skyfile='raw/s160902_a009006.fits',ycenter=1025,slicewidth=8,
               darkfile='darks/s160902_a004002_combo_600s_Drk.fits',
               whitelightfile='raw/s160902_a010018.fits',
               whitelightdark='darks/s160902_a019002_combo_1-5s_Drk.fits')
-    
+
 def trace_sky(skyfile='raw/s160902_a009004.fits',ycenter=1089,slicewidth=8,
               darkfile='darks/s160902_a004002_combo_600s_Drk.fits',
               whitelightfile='raw/s160902_a004014.fits',
@@ -99,7 +100,7 @@ def trace_sky(skyfile='raw/s160902_a009004.fits',ycenter=1089,slicewidth=8,
 
         dark = fits.getdata(darkfile)
         im = im - dark
-        
+
         newslice = im[ycenter-slicewidth:ycenter+slicewidth,:]
         newpeak = slicewidth
         width=6
@@ -108,7 +109,7 @@ def trace_sky(skyfile='raw/s160902_a009004.fits',ycenter=1089,slicewidth=8,
         time1 = time.time()
         plt.imshow(newslice,interpolation='nearest',origin='lower',vmin=0,vmax=3)
         plt.xlim(500,600)
-        
+
         slicerange=[300,1825]
         print 'input shape: ',newslice.shape
         #newslice = newslice.transpose()
@@ -119,22 +120,22 @@ def trace_sky(skyfile='raw/s160902_a009004.fits',ycenter=1089,slicewidth=8,
         xlocation, sky_fitparams = extractspectrum.simple_trace_fit(newslice,slicerange=slicerange)
         ypeak_location = sky_fitparams[2,:]
         sky_fwhm = sky_fitparams[3,:]
-        
+
         # save the locations in a file
         output = open('sky_trace.txt','w')
         for i in xrange(len(xlocation)):
             output.write('%f %f\n' % (xlocation[i],ypeak_location[i]))
         output.close()
-                        
+
         plt.plot(xlocation, ypeak_location-0.5,'--',linewidth=3,color='black')
-        
+
         plt.subplot(3,1,2)
         plt.plot(xlocation, ypeak_location,label='Sky Peak Position')
         plt.xlim(0,2048)
-        
+
 
         # look at white light scans
-        
+
         cal = fits.getdata(whitelightfile)
         cal_dark = fits.getdata(whitelightdark)
 
@@ -146,7 +147,7 @@ def trace_sky(skyfile='raw/s160902_a009004.fits',ycenter=1089,slicewidth=8,
 
         calypeak_location = cal_fitparams[2,:]
         cal_fwhm = cal_fitparams[3,:]
-        
+
         plt.plot(calxlocation,calypeak_location,label='White Light Peak Location')
         plt.xlabel('X location (pix)')
         #plt.ylabel('Relative Y location (pix)')
@@ -174,9 +175,9 @@ def trace_sky(skyfile='raw/s160902_a009004.fits',ycenter=1089,slicewidth=8,
         plt.ylim(-0.4,0.4)
         plt.legend()
         time2 = time.time()
-        
+
         print 'time: ',time2-time1
-        
+
 def check_profile(skyfile='raw/s160902_a009004.fits',ycenter=1089,slicewidth=8,
                   darkfile='darks/s160902_a004002_combo_600s_Drk.fits',
                   whitelightfile='raw/s160902_a004014.fits',xpos = [501,1650],
@@ -188,11 +189,11 @@ def check_profile(skyfile='raw/s160902_a009004.fits',ycenter=1089,slicewidth=8,
 
         dark = fits.getdata(darkfile)
         im = im - dark
-        
+
         newslice = im[ycenter-slicewidth:ycenter+slicewidth,:]
-        newpeak = slicewidth        
+        newpeak = slicewidth
         print np.shape(newslice)
-        
+
         s = np.shape(newslice)
 
         cal = fits.getdata(whitelightfile)
@@ -202,9 +203,9 @@ def check_profile(skyfile='raw/s160902_a009004.fits',ycenter=1089,slicewidth=8,
 
         calslice = cal[ycenter-slicewidth:ycenter+slicewidth,:]
 
-        
+
         xloc,yloc = np.loadtxt('sky_trace.txt',unpack=True)
-        
+
         plt.clf()
         plt.subplot(2,1,1)
         plt.imshow(newslice,vmin=0,vmax=3.0,origin='lower',interpolation='nearest',
@@ -212,7 +213,7 @@ def check_profile(skyfile='raw/s160902_a009004.fits',ycenter=1089,slicewidth=8,
         plt.plot(xloc,yloc,'--',linewidth=3,color='black')
         plt.xlim(450,550)
         plt.subplot(2,1,2)
-        yarr = np.arange(0,s[0])        
+        yarr = np.arange(0,s[0])
 
 
         print 'previous fit location: ',yloc[xloc == 501.0]
@@ -222,7 +223,7 @@ def check_profile(skyfile='raw/s160902_a009004.fits',ycenter=1089,slicewidth=8,
             tempcal = calslice[:,ind]
             tempcal = tempcal/tempcal.sum()
             peak_model_fit = fit_gaussian_peak(yarr,tempcol,guess=[0.0,1.0,9.0,1.0])
-            cal_peak_model_fit = fit_gaussian_peak(yarr,tempcal,guess=[0.0,1.0,9.0,1.0])            
+            cal_peak_model_fit = fit_gaussian_peak(yarr,tempcal,guess=[0.0,1.0,9.0,1.0])
             print 'sky: ',peak_model_fit.parameters
             print 'cal: ',cal_peak_model_fit.parameters
             plt.plot(yarr,tempcol,label='Sky x='+str(ind))
@@ -230,7 +231,7 @@ def check_profile(skyfile='raw/s160902_a009004.fits',ycenter=1089,slicewidth=8,
             plt.plot(yarr,peak_model_fit(yarr),'--')
             plt.plot(yarr,cal_peak_model_fit(yarr),'--')
         plt.legend()
-        
+
 def diff_frames(skyfile='raw/s160902_a009004.fits',
               darkfile='darks/s160902_a004002_combo_600s_Drk.fits',
               whitelightfile='raw/s160902_a004014.fits',
@@ -250,4 +251,3 @@ def diff_frames(skyfile='raw/s160902_a009004.fits',
     scale = 1.0/100.0
     hdu[0].data = im - whitelight*scale
     hdu.writeto('sky_whitelight_diff.fits',clobber=True)
-        

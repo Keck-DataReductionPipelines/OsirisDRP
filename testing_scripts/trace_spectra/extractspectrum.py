@@ -14,7 +14,8 @@ from pylab import *
 import fitter as Fit
 from scipy import stats
 import model_fits
-from model_fits import fit_gaussian_peak
+#from model_fits import fit_gaussian_peak
+from astropy.modeling import models, fitting
 def find_wavelength(fileName,y = None):
     '''
     Get the wavelengths corresponding to each pixel for a rectified MOSFIRE spectrum
@@ -26,7 +27,7 @@ def find_wavelength(fileName,y = None):
     y - optional input to return the wavelength solution at a given y
     value.
 
-    
+
     OUTPUT: array corresponding to the wavelength for each x value
     '''
     if os.path.isfile(fileName):
@@ -37,7 +38,8 @@ def find_wavelength(fileName,y = None):
         return wavelengths
     else:
         print 'File does not exist: '+fileName
-    
+
+@profile
 def find_spatial_profile(inputArr, startloc, width = 2, varImage = False,
                        order = 2,debug=False,threshold=9,simpleExtract = False,
                        extractMax = False, wavefile = None,slicerange=None):
@@ -68,7 +70,7 @@ def find_spatial_profile(inputArr, startloc, width = 2, varImage = False,
                        this is set, instead of returning fitParams, it
                        will return the weighted wavelength corresponding
                        to the input spectrum
-                       
+
     OPTIONAL INPUTS:
             threshold - threshold for the variance in which to clip
                         bad points
@@ -76,20 +78,20 @@ def find_spatial_profile(inputArr, startloc, width = 2, varImage = False,
     KEYWORDS: extractMax - extract around the maximum index collapsed
     in the wavelength direction. Will ignore the 'startloc' input
     parameter in this case, replacing it with the max index
-              
-    
+
+
     OUTPUT:
           lineProfile - lineProfile with the fraction of light in each pixel
           fitParams - the fit parameters per wavelength channel (or wavelength
           corresponding to the input spectrum if 'wavefile' is used)
           spec - the final extracted spectrum
-          
+
     HISTORY: 2013-08-27 - T. Do
     """
 
     # test to see if the input is a string, if it is, then assume it
     # is a fits file. Otherwise, assume that is a numpy array
-    
+
     if type(inputArr) is str:
         hdulist = fits.open(inputArr)
         image = hdulist[0].data
@@ -100,14 +102,14 @@ def find_spatial_profile(inputArr, startloc, width = 2, varImage = False,
     if wavefile is not None:
         wavehdu = fits.open(wavefile)
         waveSol = wavehdu[0].data
-        
+
     varWidth = 10 # region before and after the current index to calculate the variance.
 
 
     if extractMax:
         medSlice = np.nanmedian(image,axis=1)
         startloc = np.nanargmax(medSlice)
-    
+
     s = np.shape(image)
     startInd = startloc - width
     endInd =startloc +width
@@ -119,13 +121,13 @@ def find_spatial_profile(inputArr, startloc, width = 2, varImage = False,
     rawSlice = np.array(image[startInd:endInd,:])
     if wavefile is not None:
         waveSlice = waveSol[startInd:endInd,:]
-    
+
     # if simpleExtract is given, then us sum the values
     if simpleExtract:
         return (np.zeros(endInd-startInd+1)+1.0/(endInd-startInd+1),[1],np.sum(rawSlice,axis=0))
-    
+
     # normalize each slice
-   
+
     sliceShape = np.shape(rawSlice)
     if debug:
         print 'starting total flux at 1300: ',np.sum(rawSlice[:,1300])
@@ -147,7 +149,7 @@ def find_spatial_profile(inputArr, startloc, width = 2, varImage = False,
         subplot(221)
         ylim(0,25)
         xlim(0,2500)
-        
+
     xArr = np.arange(sliceShape[1])
 
     # initial polynomial fit to the profile
@@ -156,7 +158,7 @@ def find_spatial_profile(inputArr, startloc, width = 2, varImage = False,
     # ================ second iteration ===================
     # go back and remove all the bad pixels and cosmic rays
     stdev = np.ma.std(specSlice,axis=0)
-    
+
     for i in np.arange(sliceShape[0]):
         # difference between observed and the fitted value
         row = np.copy(specSlice[i,:])
@@ -173,14 +175,14 @@ def find_spatial_profile(inputArr, startloc, width = 2, varImage = False,
         else:
             endVarInd = i+varWidth
 
-        
+
         variance = np.std(rowDiff[startVarInd:endVarInd])**2
 
         if debug:
             plot(rowDiff**2/variance)
             xlabel('x pixel')
             ylabel('rowDiff**2/variance')
-            
+
         badPts = np.where(((rowDiff**2/variance) > threshold) & isfinite(rowDiff))[0]
         if i == 1:
             # save one of the bad pixels to test later
@@ -208,7 +210,7 @@ def find_spatial_profile(inputArr, startloc, width = 2, varImage = False,
         n, bins, patches = hist(rowDiff,bins=20,range=[np.median(rowDiff)-3*np.std(rowDiff),np.median(rowDiff)+3*np.std(rowDiff)])
         xlabel('Difference in Observed vs. Fitted Light Fraction')
         # check that all spatial locations are actually normalized
-        
+
         subplot(223)
 
     fitParams = fit_spatial_profile_helper(specSlice,order = order,mkplots=debug)
@@ -233,15 +235,15 @@ def find_spatial_profile(inputArr, startloc, width = 2, varImage = False,
         else:
             endVarInd = i+varWidth
 
-        
+
         variance = np.std(rowDiff[startVarInd:endVarInd])**2
-        
+
         badPts = np.where((rowDiff**2/variance > threshold) & isfinite(rowDiff))[0]
         if len(badPts) > 0:
             specSlice.mask[i,badPts] = 1
             specSlice.data[i,badPts] = nan
 
-   
+
     fitParams = fit_spatial_profile_helper(specSlice,order = order,mkplots=False)
 
     # now make an array of weights using the fitted polynomials
@@ -252,15 +254,15 @@ def find_spatial_profile(inputArr, startloc, width = 2, varImage = False,
 
     # make everything positive
     lineProfile[lineProfile < 0] = 0
-    
+
     # normalize the line profile
     lineProfile = lineProfile/np.ma.sum(lineProfile,axis=0)
-    
+
     # return the line profile, fit, and weighted extracted spectrum
     extractedSpectrum = np.sum(rawSlice*lineProfile,axis=0)/np.sum(lineProfile,axis=0)
     if wavefile is not None:
         wavelengths = np.sum(waveSlice*lineProfile,axis=0)/np.sum(lineProfile,axis=0)
-        
+
     if debug and validBadPtTest:
         print 'ending total of rawslice at test pixel: ',testBadInd, np.ma.sum(rawSlice[:,testBadInd])
         print 'spectrum at test pixel: ',rawSlice[:,testBadInd]
@@ -270,6 +272,7 @@ def find_spatial_profile(inputArr, startloc, width = 2, varImage = False,
         print 'weights: ',np.ma.sum(lineProfile[:,testBadInd])
         print 'ending total flux at test pixel: ',extractedSpectrum[testBadInd]
 
+    del image
     if wavefile is not None:
         return (lineProfile, wavelengths, extractedSpectrum)
     else:
@@ -298,7 +301,7 @@ def fit_spatial_profile_helper(inputArr,order = 2, mkplots = False):
             iEnd = inShape[0] - 1
         else:
             iEnd = i+2
-            
+
         row = np.nanmedian(inputArr[iStart:iEnd,:],axis=0)
         goodPts = np.where(isfinite(row))[0]
         if len(goodPts) > 0:
@@ -318,7 +321,7 @@ def simple_trace_fit(inputArr,slicerange=None):
     '''
     Assume the input array only has a single line and do the trace
     with a Gaussian fit.
-    
+
     '''
     s = np.shape(inputArr)
     if slicerange is not None:
@@ -333,10 +336,10 @@ def simple_trace_fit(inputArr,slicerange=None):
         tempcol = inputArr[:,ind]
         tempfit = fit_gaussian_peak(yarr,tempcol)
         fitarr[:,i] = tempfit.parameters
-        
-    return (sampleLoc, fitarr)
-    
 
+    return (sampleLoc, fitarr)
+
+@profile
 def trace_fit(inputArr,startloc = None,width=5,order=2,debug=False,slicerange=None,nsamples=25,
               xlim=None,return_spectrum=False,threshold=None):
     ''' Traces a spectrum across the detector and determine the best
@@ -348,7 +351,7 @@ def trace_fit(inputArr,startloc = None,width=5,order=2,debug=False,slicerange=No
     KEYWORDS:
     threshold - a threshold for the flux. If no points are above or
          equal to the threshold, then do not fit that slice. (default: None)
-              
+
     OUTPUT: (coefficients for polyfit, x position, y peak locations)
     '''
     if type(inputArr) is str:
@@ -360,7 +363,7 @@ def trace_fit(inputArr,startloc = None,width=5,order=2,debug=False,slicerange=No
 
     if debug:
         clf()
-        
+
     if startloc is None:
         # collapse the image across the x direction
         testSlice = np.median(inputArr,axis=1)
@@ -387,9 +390,9 @@ def trace_fit(inputArr,startloc = None,width=5,order=2,debug=False,slicerange=No
         endInd = s[0]-1
 
     yArr = np.arange(startInd,endInd)
-    
+
     lineProfile, fitParams, spectrum = find_spatial_profile(image,startloc,width=width)
-    
+
     if xlim is None:
         xlim = np.array([0,s[1]])
 
@@ -397,18 +400,43 @@ def trace_fit(inputArr,startloc = None,width=5,order=2,debug=False,slicerange=No
         sampleLoc = np.arange(slicerange[0],slicerange[1])
     else:
         sampleLoc = np.arange(xlim[0],xlim[1],s[1]/nsamples)
-    
+
     peakLoc = np.zeros(len(sampleLoc))
+
+    # setup the fitting models
+    g1 = models.Gaussian1D(amplitude=1.0,mean=3.0,stddev=1.0)
+    amp = models.Const1D(0.0)
+    peak_model = amp + g1
+    fitter = fitting.LevMarLSQFitter()
+
+    #peak_model_fit = fitter(peak_model,x,y)
+
     for i in arange(len(sampleLoc)):
         tempSlice = lineProfile[:,sampleLoc[i]]
         if threshold is not None:
             above_threshold = np.where(tempSlice >= threshold)[0]
             if len(above_threshold) > 0:
-                gfit = model_fits.fit_gaussian_peak(yArr,tempSlice)
+                offset = np.min(tempSlice)
+                #guess = [offset, np.max(tempSlice)-offset,x[np.argmax(tempSlice)],1.0]
+                peak_model.amplitude_0 = offset  # this is the offset
+                peak_model.amplitude_1 = np.max(tempSlice)-offset # amplitude of Gaussian1D
+                peak_model.mean_1 = yArr[np.argmax(tempSlice)] # location of peak of Gaussian1D
+                peak_model.stddev_1 = 1.0
+                gfit = fitter(peak_model,yArr,tempSlice)
+                #gfit = model_fits.fit_gaussian_peak(yArr,tempSlice)
                 peakLoc[i] = gfit.parameters[2]
         else:
-            gfit = model_fits.fit_gaussian_peak(yArr,tempSlice)
+            offset = np.min(tempSlice)
+            #guess = [offset, np.max(tempSlice)-offset,x[np.argmax(tempSlice)],1.0]
+            peak_model.amplitude_0 = offset  # this is the offset
+            peak_model.amplitude_1 = np.max(tempSlice)-offset # amplitude of Gaussian1D
+            peak_model.mean_1 = yArr[np.argmax(tempSlice)] # location of peak of Gaussian1D
+            peak_model.stddev_1 = 1.0
+            gfit = fitter(peak_model,yArr,tempSlice)
+            #gfit = model_fits.fit_gaussian_peak(yArr,tempSlice)
             peakLoc[i] = gfit.parameters[2]
+            #gfit = model_fits.fit_gaussian_peak(yArr,tempSlice)
+            #peakLoc[i] = gfit.parameters[2]
 
     if debug:
         subplot(2,1,2)
@@ -420,12 +448,13 @@ def trace_fit(inputArr,startloc = None,width=5,order=2,debug=False,slicerange=No
     if debug:
         plot(sampleLoc,np.polyval(tfit,sampleLoc))
 
+    del image
     if return_spectrum:
         return (tfit,sampleLoc,peakLoc,lineProfile, fitParams, spectrum)
     else:
         return (tfit, sampleLoc, peakLoc)
-        
-    
+
+
 def clipped_mean(arr,sig=2.0,maxiter=5,nconverge=0.02):
     ''' returns the clipped mean
 
@@ -439,7 +468,7 @@ def clipped_mean(arr,sig=2.0,maxiter=5,nconverge=0.02):
     niter = 0
     lastct = 0
     #print goodVal
-    
+
     while (niter < maxiter) and (ct > 0) and (float(np.abs(ct-lastct))/float(ct) > nconverge):
         #print niter
         lastct = np.copy(ct)
@@ -469,5 +498,5 @@ def rmcontinuum(wave,flux,order=2):
     goodPts = np.where((flux != 0) & isfinite(flux))[0]
 
     pFit = np.polyfit(wave[goodPts],flux[goodPts],order)
-    
+
     return flux/np.polyval(pFit,wave)
