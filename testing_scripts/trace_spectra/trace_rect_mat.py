@@ -60,14 +60,19 @@ def trace_rect(rectfile='../../tests/calib/s150905_c003___infl_Kbb_035.fits',out
         s = np.shape(matrix)
         outdict = {}
 
+        if outfile is None:
+            parts = os.path.split(rectfile)
+            outfile = os.path.splitext(parts[-1])[0]+'_trace.npy'
+        
         for i in tqdm(range(s[0])):
             newslice = matrix[i,:,:]
             output = extractspectrum.trace_fit(newslice,width=width,slicerange=slicerange,
                                                threshold=0.0)
             outdict['slice'+str(i)] = output
-        if outfile is None:
-            parts = os.path.split(rectfile)
-            outfile = os.path.splitext(parts[-1])[0]+'_trace.npy'
+
+            if (i % 50) == 0:
+                print("saving: "+outfile)                
+                np.save(outfile,outdict)
         print("saving: "+outfile)
         np.save(outfile,outdict)
     
