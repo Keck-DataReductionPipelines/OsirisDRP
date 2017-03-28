@@ -3,7 +3,7 @@ import numpy as np
 
 
 def fit_gaussian_peak(x,y,guess = None):
-    
+
     # fit a Gaussian to a peak
     #
     # Return model fitted object
@@ -16,7 +16,7 @@ def fit_gaussian_peak(x,y,guess = None):
     g1 = models.Gaussian1D(guess[1],guess[2],guess[3])
     amp = models.Const1D(guess[0])
     peak_model = amp + g1
-    
+
     fitter = fitting.LevMarLSQFitter()
 
     peak_model_fit = fitter(peak_model,x,y)
