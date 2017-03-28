@@ -8,6 +8,7 @@ OSIRIS DRP Project Contributors
 Project Coordinators
 --------------------
 * Jim Lyke (@jlyke-keck)
+* Tuan Do (@followthesheep)
 
 Alphabetical list of contributors
 ---------------------------------
@@ -15,7 +16,6 @@ Alphabetical list of contributors
 * Randy Campbell
 * Sam Chappell
 * Devin Chu
-* Tuan Do (@followthesheep)
 * Mike Fitzgerald (@astrofitz)
 * Tom Gasawy
 * Christof Iserlohe
@@ -35,7 +35,7 @@ Alphabetical list of contributors
 * Tommer Wizanski
 * Shelley Wright
 
-(If you have contributed to the ccdproc project and your name is missing,
+(If you have contributed to the OSIRIS pipeline and your name is missing,
 please send an email to the coordinators, or
 `open a pull request for this page <https://github.com/Keck-DataReductionPipelines/OsirisDRP/edit/master/AUTHORS.rst>`_
 in the `OsirisDRP repository <https://github.com/Keck-DataReductionPipelines/OsirisDRP>`_)

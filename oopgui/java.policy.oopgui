@@ -1,0 +1,9 @@
+grant {
+  // Allow everything for now
+  permission java.net.SocketPermission "*:1024-65535", "accept, connect, listen";
+  permission java.awt.AWTPermission "showWindowWithoutWarningBanner";
+
+  permission java.io.FilePermission "/-", "read,write,execute,delete";
+  permission java.io.FilePermission "\\-", "read,write,execute,delete";
+  permission java.util.PropertyPermission "*", "read";
+};

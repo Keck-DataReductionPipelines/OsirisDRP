@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- s160321_a002 -->
+<DRF LogPath="$OSIRIS_ROOT/tests/logs" ReductionType="ARP_SPEC">
+  <dataset InputDir="$OSIRIS_ROOT/tests/test_quasar_assignment" OutputDir="$OSIRIS_ROOT/tests/test_quasar_assignment">
+    <fits FileName="s160321_a002010.fits" />
+  </dataset>
+  <module Name="Subtract Frame" CalibrationFile="$OSIRIS_ROOT/tests/test_quasar_assignment/s160321_a002011.fits" />
+  <module Name="Adjust Channel Levels" />
+  <module Name="Remove Crosstalk" />
+  <module Name="Glitch Identification" />
+  <module Name="Clean Cosmic Rays" />
+  <module Name="Extract Spectra" CalibrationFile="$OSIRIS_ROOT/tests/calib/s160318_c005___infl_Hn3_100.fits" />
+  <module Name="Assemble Data Cube" />
+  <module Name="Correct Dispersion" />
+  <module Name="Save DataSet Information" />
+</DRF>
+

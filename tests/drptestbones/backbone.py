@@ -67,10 +67,14 @@ def consume_queue_directory(queue_directory, test_directory=None):
     kwargs['stderr'] = subprocess.STDOUT
     kwargs['bufsize'] = 0
     # Run a subprocess IDL
+    print('calling ', args)
     proc = subprocess.Popen(args, **kwargs)
-    
-    for line in iter(proc.stdout.readline,''):
-       sys.stdout.write(line)
+
+    while True:
+        nextline = proc.stdout.readline()
+        if nextline == b'' and proc.poll() != None:
+            break
+        sys.stdout.write(nextline.decode(sys.stdout.encoding))
     sys.stdout.flush()
     proc.wait()
     

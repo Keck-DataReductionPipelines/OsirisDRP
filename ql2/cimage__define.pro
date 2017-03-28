@@ -163,7 +163,21 @@ self.header=header_ptr
 end
 
 function CImage::GetHeader
-
+truitime=sxpar(*(self.header),'TRUITIME')
+if ( truitime eq 0 ) then begin
+  ; truitime not defined in header
+  hxrg = sxpar(*(self.header),'HXRGVERS')
+  if (hxrg gt 0 ) then begin
+    ; HxRG has different def of itime than Hx
+    readtime = sxpar(*(self.header),'READTIME')
+    itime = sxpar(*(self.header),'ITIME')
+    truitime = readtime*fix(itime/1000./readtime)
+  endif else begin
+    ; Original detector (Hx) data
+    truitime = sxpar(*(self.header),'ITIME')
+  endelse
+  sxaddpar,*(self.header),'TRUITIME',truitime, 'True itime in seconds',after='ITIME'
+endif
 return, self.header
 
 end

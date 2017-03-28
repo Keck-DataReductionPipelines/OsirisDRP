@@ -20,7 +20,7 @@ if (error_status eq 0) then begin
 struct={ cconfigs, $
          cfg_name:'OSIRIS ONLINE', $ ; instrument configuration
          inst_fitskw:'CURRINST', $ ; instrument fits keyword
-         itime_fitskw:'ITIME', $ ; integration time
+         itime_fitskw:'TRUITIME', $ ; integration time
          coadds_fitskw:'COADDS', $ ; # of coadds
          pa_fitskw:'ROTPOSN', $ ; rotator position
          object_fitskw:'OBJECT', $ ; object kw

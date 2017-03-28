@@ -17,7 +17,7 @@ im=*im_ptr
 hd=*(uval.hd_ptr)
 
 ; get new filename
-file=dialog_pickfile(/write, group=event.top, filter='*.fits', file=filename)
+file=dialog_pickfile(/write, group=event.top, filter='*.fits*', file=filename)
 
 ; if cancel was not hit
 if file ne '' then begin
