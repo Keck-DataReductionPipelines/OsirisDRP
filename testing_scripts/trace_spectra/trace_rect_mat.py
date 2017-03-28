@@ -33,7 +33,7 @@ def trace_rect_example(rectfile='../../tests/calib/s150905_c003___infl_Kbb_035.f
         plt.plot(xlocation, ypeak_location)
         plt.xlim(0,2048)
 
-@profile
+
 def trace_rect(rectfile='../../tests/calib/s150905_c003___infl_Kbb_035.fits',outfile=None,
                width=4,slicerange=[0,2048]):
     '''
@@ -65,10 +65,10 @@ def trace_rect(rectfile='../../tests/calib/s150905_c003___infl_Kbb_035.fits',out
             parts = os.path.split(rectfile)
             outfile = os.path.splitext(parts[-1])[0]+'_trace.npy'
 
-        for i in tqdm(range(5)):
+        for i in tqdm(range(s[0])):
             newslice = matrix[i,:,:]
             output = extractspectrum.trace_fit(newslice,width=width,slicerange=slicerange,
-                                               threshold=0.0)
+                                               threshold=0.0,return_spectrum=True)
             outdict['slice'+str(i)] = output
 
             if (i % 50) == 0:

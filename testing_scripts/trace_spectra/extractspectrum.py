@@ -39,7 +39,7 @@ def find_wavelength(fileName,y = None):
     else:
         print 'File does not exist: '+fileName
 
-@profile
+
 def find_spatial_profile(inputArr, startloc, width = 2, varImage = False,
                        order = 2,debug=False,threshold=9,simpleExtract = False,
                        extractMax = False, wavefile = None,slicerange=None):
@@ -339,7 +339,7 @@ def simple_trace_fit(inputArr,slicerange=None):
 
     return (sampleLoc, fitarr)
 
-@profile
+
 def trace_fit(inputArr,startloc = None,width=5,order=2,debug=False,slicerange=None,nsamples=25,
               xlim=None,return_spectrum=False,threshold=None):
     ''' Traces a spectrum across the detector and determine the best
