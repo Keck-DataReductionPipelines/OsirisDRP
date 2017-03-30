@@ -8,6 +8,7 @@ import fitter
 import time
 from scipy.ndimage import gaussian_filter1d,median_filter
 from tqdm import tqdm
+from astropy.time import Time
 
 def trace_rect_example(rectfile='../../tests/calib/s150905_c003___infl_Kbb_035.fits'):
     # trace the rectification matrix. This is an example to show how it works
@@ -65,7 +66,7 @@ def trace_rect(rectfile='../../tests/calib/s150905_c003___infl_Kbb_035.fits',out
             parts = os.path.split(rectfile)
             outfile = os.path.splitext(parts[-1])[0]+'_trace.npy'
 
-        for i in tqdm(range(s[0])):
+        for i in tqdm(range(150)):
             newslice = matrix[i,:,:]
             output = extractspectrum.trace_fit(newslice,width=width,slicerange=slicerange,
                                                threshold=0.0,return_spectrum=True)
@@ -74,6 +75,93 @@ def trace_rect(rectfile='../../tests/calib/s150905_c003___infl_Kbb_035.fits',out
             if (i % 50) == 0:
                 print("saving: "+outfile)
                 np.save(outfile,outdict)
+        print("saving: "+outfile)
+        np.save(outfile,outdict)
+
+
+def trace_rect_parallel(rectfile='../../tests/calib/s150905_c003___infl_Kbb_035.fits',outfile=None,
+               width=4,slicerange=[0,2048]):
+    '''
+    This routine will go through a rectification matrix and trace the scans for each slice
+    of the rect. matrix.
+
+    NOTE: in order to map the slices of the rect matrix to spaxel location,
+    use LensletMapping.xlsx
+
+    OUTPUT
+    ------
+    outfile - file to store the output dictionary of the fit. The dictionary
+    has keys of the form 'sliceN': (tfit,sampleLoc,peakLoc,lineProfile, fitParams, spectrum)
+
+    Saved as a numpy npy file. To load use a = np.load(outfile), then b= a.items(0) to get the
+    dictionary back
+    HISTORY
+    -------
+    2017-03-25 - T. Do
+    '''
+    if os.path.exists(rectfile):
+        hdu = fits.open(rectfile)
+        # the slices for the rect matrix are in the second extension
+        matrix = hdu[2].data # should be shaped (1216, 16, 2048)
+        s = np.shape(matrix)
+        outdict = {}
+        nslice = s[0]
+
+        if outfile is None:
+            parts = os.path.split(rectfile)
+            outfile = os.path.splitext(parts[-1])[0]+'_trace.npy'
+
+        def worker(input, output):
+            for i in iter(input.get, 'STOP'):
+                print 'worker got i: ',i
+
+                newslice = matrix[i,:,:]
+                output_dat = extractspectrum.trace_fit(newslice,width=width,slicerange=slicerange,
+                                                threshold=0.0,return_spectrum=True)
+                output_dat = output_dat + (i,)
+                print 'worker i: ',i
+                output.put(output_dat)
+
+
+
+        import multiprocessing as mp
+        n_process = mp.cpu_count()-1
+        n_max = n_process*8
+
+        inqueue = mp.Queue()
+        outqueue = mp.Queue()
+        # start worker processes
+        for ii in np.arange(nslice):
+            inqueue.put(ii)
+
+        for i in range(n_process):
+            mp.Process(target=worker, args=(inqueue, outqueue)).start()
+            # start feeder
+            # collect output
+        for k in range(nslice):
+            vals = outqueue.get()
+            #print vals
+            if type(vals) is not int:
+                outdict['slice'+str(vals[-1])] = vals[0:-1]
+                print 'recieved good value from queue:', vals[-1]
+            else:
+                print 'recieved bad value from queue:', vals
+            # kill worker processes
+
+        for i in range(n_process):
+            inqueue.put('STOP')
+            # block until feeder finished
+
+
+        # for i in tqdm(range(150)):
+        #     newslice = matrix[i,:,:]
+        #     output = extractspectrum.trace_fit(newslice,width=width,slicerange=slicerange,
+        #                                        threshold=0.0,return_spectrum=True)
+        #     outdict['slice'+str(i)] = output
+        #
+        #     if (i % 50) == 0:
+        #         print("saving: "+outfile)
+        #         np.save(outfile,outdict)
         print("saving: "+outfile)
         np.save(outfile,outdict)
 
@@ -251,3 +339,31 @@ def diff_frames(skyfile='raw/s160902_a009004.fits',
     scale = 1.0/100.0
     hdu[0].data = im - whitelight*scale
     hdu.writeto('sky_whitelight_diff.fits',clobber=True)
+
+def stack_rect_mat(rectfile='../../tests/calib/s150905_c003___infl_Kbb_035.fits'):
+    # stack the rectification slices to remake a raw frame
+    if os.path.exists(rectfile):
+        hdu = fits.open(rectfile)
+        # the slices for the rect matrix are in the second extension
+        inds = hdu[0].data
+        matrix = hdu[2].data # should be shaped (1216, 16, 2048)
+        s = np.shape(matrix)
+
+        outarr = np.zeros((2048,2048))
+        print s
+        for i in xrange(s[0]):
+            outarr[inds[i,0]:inds[i,0]+16,:] = outarr[inds[i,0]:inds[i,0]+16,:]+matrix[i,:,:]
+
+        hdu1 = fits.PrimaryHDU(outarr)
+        parts = os.path.split(rectfile)
+        outfile = os.path.splitext(parts[-1])[0]+'_flatten.fits'
+        hdulist = fits.HDUList([hdu1])
+        # try to figure out what header keywords are necessary to reduce the cube
+        hdulist[0].header['SSCALE']='0.035'
+        hdulist[0].header['SFILTER']='Kn3'
+        t = Time('2015-09-05',scale='utc')
+        hdulist[0].header['DTMP7']='50.0'
+        hdulist[0].header['MJD-OBS'] = t.mjd
+        hdulist[0].header['DATAFILE']= 's150905_a003001'
+        hdulist[0].header['ITIME'] = '60.0'
+        hdulist.writeto(outfile,clobber=True)

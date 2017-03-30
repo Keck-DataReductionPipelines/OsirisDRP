@@ -391,7 +391,7 @@ def trace_fit(inputArr,startloc = None,width=5,order=2,debug=False,slicerange=No
 
     yArr = np.arange(startInd,endInd)
 
-    lineProfile, fitParams, spectrum = find_spatial_profile(image,startloc,width=width)
+    lineProfile, fitParams, spectrum = find_spatial_profile(image,startloc,width=width,simpleExtract =True)
 
     if xlim is None:
         xlim = np.array([0,s[1]])
@@ -410,7 +410,12 @@ def trace_fit(inputArr,startloc = None,width=5,order=2,debug=False,slicerange=No
     fitter = fitting.LevMarLSQFitter()
 
     #peak_model_fit = fitter(peak_model,x,y)
+    # the line profile from find_spatial_profile does not seem to work well, so
+    # just use the whole slice
 
+    lineProfile = image
+    imshape = np.shape(image)
+    yArr = np.arange(imshape[0])
     for i in arange(len(sampleLoc)):
         tempSlice = lineProfile[:,sampleLoc[i]]
         if threshold is not None:
@@ -500,3 +505,16 @@ def rmcontinuum(wave,flux,order=2):
     pFit = np.polyfit(wave[goodPts],flux[goodPts],order)
 
     return flux/np.polyval(pFit,wave)
+
+def test_extract():
+    rectfile = '../../tests/calib/s150905_c003___infl_Kbb_035.fits'
+    hdu = fits.open(rectfile)
+    matrix = hdu[2].data
+    print 'shape: ',np.shape(matrix)
+    newslice = matrix[0,:,:]
+
+
+    lineProfile, fitParams, spectrum = find_spatial_profile(newslice,0,width=4,extractMax =True)
+    print spectrum
+    plt.clf()
+    plt.plot(spectrum)
