@@ -9,15 +9,15 @@
 ; STATUS : prototype
 ;
 ; NOTES : 
-;         It is assumed that input frames have been made into cubes and
-;         are linear in wavelength. This allows it to compare pixels
-;         within the same slice.
 ;
 ; ALGORITHM :
 ; REQUIRED ROUTINE :
 ;
 ; HISTORY : Oct 3, 2005    created
 ;           June 8, 2006   modified to work on raw data instead of cubes
+;	    Sept 16, 2016  complete change to old algorithm which was NOT
+;				written by James Larkin :) It was entirely
+;				S/N driven and clipped bright pixels in lines!
 ;
 ; AUTHOR : created by James Larkin
 ;-----------------------------------------------------------------------
@@ -50,36 +50,40 @@ for i = 0, nFrames-1 do begin
       return, error ( ['FAILURE (' + strtrim(functionName,2) + '):', $
                        '        In Set ' + strtrim(string(i+1),2) + $
                        ' Y-Spatial axis is not 2048 pixels.'] )
+
     ; Repeat search for bad pixels twice
-    for qq = 0, 1 do begin
-        ; Step through the array horizontally in 97 pixel increments
-        for j = 0, 2047 do begin
-            for ii = 0, 1947, 97 do begin
-                smalla=Frame[ii:ii+99, j] ; 100 pixel strip of data
-                smallb=IntAuxFrame[ii:ii+99, j] ; Bad pixel strip
+    for qq = 0, 1 do begin 
+         for j = 1, 2046 do begin  ; columns, Routine requires 3x3 region to calculate stdev
+            for ii = 1, 2046 do begin ; rows
+                smalla=Frame[ii-1:ii+1, j-1:j+1] ; 3x3 pixel region to calculate median and stdev
+                smallb=IntAuxFrame[ii-1:ii+1, j-1:j+1] ; 3x3 array to check if pixels are valid
+		; We only want to use valid pixels not already flagged to 0.
                 isok = where( smallb eq 9 )
                 notok = where( smallb ne 9)
                 if ( isok[0] ne -1 ) then begin
                     osz = size(isok)
-                    if ( osz[1] gt 20 ) then begin
+                    if ( osz[1] gt 6 ) then begin  ; require at least 6 valid pixels to operate
                         srt = sort(smalla[isok])
                         sz = size(srt)
-                        q = srt[10:sz[1]-10]
-                        std = stddev(smalla[q])
-                        compare = abs(smalla) > 3.0*std
-                        if ( notok[0] ne -1) then compare[notok]=3.0*std
-                        rat = abs(smalla[indx]) / (compare[0>indx-1]+compare[99<indx+1])
-                        bad = where(rat gt 1.2)
-                        rat[*] = 1.0
-                        if ( bad[0] ne -1 ) then rat[bad]=0.0
-                        IntAuxFrame[ii+1:ii+98,j] = intAuxFrame[ii+1:ii+98,j]*rat[1:98]
-                    end
-                end
-            end
-        end
+			std=stddev(srt[1:(osz[1]-1)])  ; std used clipped set of pixels that are valid
+			surround=[Frame[ii-1,j],Frame[ii+1,j],Frame[ii,j-1],Frame[ii,j+1]]  ; Four neighboring pixels are primary comparison for shape.
+			compare=median(surround)	; This is the median of four neighbors
+			back=median(srt)		; A local background is median of valid pixel in 3x3 box
+			pixel=Frame[ii,j]-back		; Subtract local background from pixel
+			cmp=compare-back		; Subtract local background from median of four neighbors.
+			pixel= abs(pixel)	; If pixel is negative, flip both it and comparison
+			cmp=abs(cmp)
+			cmp = cmp+3.0*std	; Set the comparison value to the value of the four neighbors plus 3 sigma noise.
+			if ( pixel gt cmp*3.0 ) then begin ; Require that the pixel-background is less than 43median of four neighbors after adding noise.
+				Frame[ii,j]=0    ; Shouldn't be used, but set value to 0.
+				IntAuxFrame[ii,j]=0	; Flag as bad
+			endif
+		    endif
+                endif
+            endfor
+        endfor
         bad = where(IntAuxFrame ne 9)
-        Frame[bad] = 0.0
-    end
+    endfor
     *DataSet.IntAuxFrames[i] = IntAuxFrame
     *DataSet.Frames[i] = Frame
 
