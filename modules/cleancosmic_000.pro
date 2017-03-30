@@ -65,18 +65,16 @@ for i = 0, nFrames-1 do begin
                     if ( osz[1] gt 6 ) then begin  ; require at least 6 valid pixels to operate
                         srt = sort(smalla[isok])
                         sz = size(srt)
-			std=stddev(srt[2:(osz[1]-2)])  ; std used clipped set of pixels that are valid
+			std=stddev(srt[1:(osz[1]-1)])  ; std used clipped set of pixels that are valid
 			surround=[Frame[ii-1,j],Frame[ii+1,j],Frame[ii,j-1],Frame[ii,j+1]]  ; Four neighboring pixels are primary comparison for shape.
 			compare=median(surround)	; This is the median of four neighbors
 			back=median(srt)		; A local background is median of valid pixel in 3x3 box
 			pixel=Frame[ii,j]-back		; Subtract local background from pixel
 			cmp=compare-back		; Subtract local background from median of four neighbors.
-			if ( pixel lt 0.0 ) then begin
-				pixel= 0.0-pixel	; If pixel is negative, flip both it and comparison
-				cmp=0.0-pixel
-			endif
+			pixel= abs(pixel)	; If pixel is negative, flip both it and comparison
+			cmp=abs(cmp)
 			cmp = cmp+3.0*std	; Set the comparison value to the value of the four neighbors plus 3 sigma noise.
-			if ( pixel gt cmp*2.0 ) then begin ; Require that the pixel-background is less than 3*median of four neighbors after adding noise.
+			if ( pixel gt cmp*3.0 ) then begin ; Require that the pixel-background is less than 43median of four neighbors after adding noise.
 				Frame[ii,j]=0    ; Shouldn't be used, but set value to 0.
 				IntAuxFrame[ii,j]=0	; Flag as bad
 			endif
