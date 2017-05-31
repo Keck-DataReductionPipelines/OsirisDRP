@@ -56,14 +56,14 @@
 ;                     smoothing the sky spectra vs. fitting a thermal
 ;                     function.  (Default = YES)
 ;
-; scale_cont = scales the sky continuum and lines together when subtracting
-;                     from the object spectrum. If turned off, the continuum
+; scale_fitted_lines_only = scales only the fitted, bright lines when subtracting
+;                     from the object spectrum. If turned on, the continuum
 ;                     is first subtracted, the lines are scaled, and the
 ;                     continuum is added back in. Recommended to turn
-;                     off if there is a thermal continuum contribution
+;                     on if there is a thermal continuum contribution
 ;                     (e.g. in K band) and there are no clean sky
 ;                     spaxels in the object cube to turn on
-;                     Scale_K_continuum. (Default = YES)
+;                     Scale_K_continuum. (Default = NO)
 ;
 ; STATUS : tested on a limited amount of Jbb, Hbb, Kbb data. 
 ;		   Seems to work reasonably well, but NOT YET EXTENSIVELY TESTED.
@@ -225,7 +225,7 @@ l_rotmed = [1.00282,1.02139,1.04212,1.07539,1.09753,1.13542,1.15917,1.20309,1.22
 	if tag_exist( Modules[thisModuleIndex], "min_sky_fraction") then minfrac = float(Modules[thisModuleIndex].min_sky_fraction) else minfrac=0.10
 	if tag_exist( Modules[thisModuleIndex], "line_halfwidth") then linehalfwidth = fix(Modules[thisModuleIndex].line_halfwidth) else linehalfwidth=4
         if tag_exist( Modules[thisModuleIndex], "show_plots") then show_plots = strupcase(strtrim(Modules[thisModuleIndex].show_plots, 2)) eq "YES" else show_plots=1
-        if tag_exist( Modules[thisModuleIndex], "scale_cont") then scale_cont = string(Modules[thisModuleIndex].scale_cont) else scale_cont="YES"
+        if tag_exist( Modules[thisModuleIndex], "scale_fitted_lines_only") then scale_fitted_lines_only = string(Modules[thisModuleIndex].scale_fitted_lines_only) else scale_fitted_lines_only="NO"
 	; TODO what is the optimum default for OSIRIS???
 
 
@@ -662,7 +662,7 @@ l_rotmed = [1.00282,1.02139,1.04212,1.07539,1.09753,1.13542,1.15917,1.20309,1.22
 		if (range0_count gt 0) then $
 		  rscale = interpol(rscale0[range0],lambda[range0],lambda) else $
 		  rscale = rscale0
-                if scale_cont eq 'NO' then begin
+                if scale_fitted_lines_only eq 'YES' then begin
                    ; scale just the line regions
                    conts = interpol(skyspectrum[cont_regions_all],lambda[cont_regions_all],lambda)
                    tmp = ((skyspectrum - conts) * rscale) + conts
@@ -833,12 +833,12 @@ l_rotmed = [1.00282,1.02139,1.04212,1.07539,1.09753,1.13542,1.15917,1.20309,1.22
                                 ;sky which should be ok because
                                 ;continuum is pretty flat here -  QMK
                         ;if(skyfilter eq 'Kbb') then contscale[0:400] = median(smobjRaw[0:400]) / median(smskyRaw[0:400]) ; QMK                        		       skyspectrumr = (skyspectrum - smskyRaw)*rscale + smskyRaw*contscale ;QMK
-			print,'Performing scaled continuum for K band observations'
+                        print,'Performing scaled continuum for K band observations'
 			print,''
 		endif 
                 if crvalo gt 1900.0 and Scale_K_Continuum eq 'NO' then begin
                    print,'Not scaling K band continuum'
-                   if scale_cont eq 'NO' then begin
+                   if scale_fitted_lines_only eq 'YES' then begin
                       conts = interpol(skyspectrum[cont_regions_all],lambda[cont_regions_all],lambda)
                       tmp = ((skyspectrum - conts) * rscale) + conts
                       skyspectrumr = tmp
@@ -926,7 +926,7 @@ l_rotmed = [1.00282,1.02139,1.04212,1.07539,1.09753,1.13542,1.15917,1.20309,1.22
 
 
                          endif else if crvalo le 1900.0 or Scale_K_Continuum eq 'NO' then begin
-                            if scale_cont eq 'NO' then begin
+                            if scale_fitted_lines_only eq 'YES' then begin
                                ; scaling just the lines, not the continuum
                                szsky = size(sky_hold)
                                scaledsky = sky_hold * 0.
