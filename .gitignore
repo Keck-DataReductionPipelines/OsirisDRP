@@ -1,6 +1,41 @@
 *.o
 *.so*
 .cache/*
+__pycache__
+
+# Sphinx
+_build
+docs/api
+
+# Packages/installer info
+*.egg
+*.egg-info
+dist
+build
+eggs
+parts
+bin
+var
+sdist
+develop-eggs
+.installed.cfg
+distribute-*.tar.gz
+
+# Other
+.*.swp
+*~
+.settings
+.project
+.pydevproject
+
+# Mac OSX
+.DS_Store
+
+#coverage related ignores
+
+htmlcov
+.coverage
+
 
 # This directory usually contains recmats.
 calib
