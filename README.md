@@ -6,6 +6,12 @@
 * [Running the Pipeline](#running-the-pipeline)
 * [Testing the Pipeline](#testing-the-pipeline)
 
+## Release Notes for v4.1.0beta
+**2017-07-28**
+Major Updates
+- Includes a new wavelength solution for data after May 2017. A shift in the wavelenth solution in May 2017 required a re-derivation of the solution. The new solution has an average offset between the observed and vacuum wavelength of OH lines of 0.07 +- 0.06 Angstroms in Kn3 35 mas.
+- A new keyword is available in the Scaled Sky Subtraction module called 'scale_fitted_lines_only'. To turn on the new behavior, the keyword should be set to YES (default is NO). This keyword will only scale only OH lines, not the rest of the spectrum as well. This setting greatly improves sky subtraction for the case where the science target fills the lenslets and there are no true sky locations. 
+
 ## Release Notes for v4.0.0
 **2017-01-23**
 
@@ -37,7 +43,7 @@ a future release.
 
 **Current Important OSIRIS Issues**
 
-- For certain cases, there are flux mis-assignment: [Issue 20](https://github.com/Keck-DataReductionPipelines/OsirisDRP/issues/20), [wiki link](https://github.com/Keck-DataReductionPipelines/OsirisDRP/wiki/Tests:-Quantified-Flux-Mis-assignment)
+- For certain cases, there are flux artifacts: [Issue 20](https://github.com/Keck-DataReductionPipelines/OsirisDRP/issues/20), [wiki link](https://github.com/Keck-DataReductionPipelines/OsirisDRP/wiki/Tests:-Quantified-Flux-Mis-assignment)
 - Spatial rippling is seen in the integrate flux of sky lines spatially across the field: [Issue 21](https://github.com/Keck-DataReductionPipelines/OsirisDRP/issues/21)
 - [2016-09-07 OSIRIS Hackathon report](https://drive.google.com/open?id=0B_YkzZoUSrX-YnpCRjVZRkRPWnM) on these and other issues from the most recent OSIRIS Hackathon
 
@@ -48,7 +54,7 @@ To install and run the OSIRIS DRP, you will need the following:
 
 - A working C compiler (e.g. ``gcc``)
 - A copy of the compiled library cfitsio
-- A working installation of IDL (the IDL binary directory should be in your ``PATH`` environment variable)
+- A working installation of IDL 7 or IDL 8 (the IDL binary directory should be in your ``PATH`` environment variable)
 - Python dependencies (optional, for testing): pytest, astropy
 
 ### Options to install the pipeline
