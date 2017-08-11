@@ -34,7 +34,8 @@ parser.add_argument("-m","--mask",help="filename of the bad pixel mask to apply 
 args = parser.parse_args()
 
 if args.mask is None:
-    bpm = 'badpixelmask2017.fits.gz'
+    directory = os.getenv('OSIRIS_ROOT', './')
+    bpm = os.path.join(directory,'data/badpixelmask2017.fits.gz')
 else:
     bpm = args.mask
 
@@ -43,6 +44,7 @@ if os.path.exists(bpm):
 else:
     print("bad pixel mask not found: "+bpm)
 
+print("using mask: "+bpm)
 print(args.inputfile)
 
 for tmp in args.inputfile:

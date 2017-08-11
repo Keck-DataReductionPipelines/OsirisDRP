@@ -10,7 +10,12 @@
 **2017-07-28**
 Major Updates
 - Includes a new wavelength solution for data after May 2017. A shift in the wavelenth solution in May 2017 required a re-derivation of the solution. The new solution has an average offset between the observed and vacuum wavelength of OH lines of 0.07 +- 0.06 Angstroms in Kn3 35 mas.
-- A new keyword is available in the Scaled Sky Subtraction module called 'scale_fitted_lines_only'. To turn on the new behavior, the keyword should be set to YES (default is NO). This keyword will only scale only OH lines, not the rest of the spectrum as well. This setting greatly improves sky subtraction for the case where the science target fills the lenslets and there are no true sky locations. 
+- A preliminary bad pixel mask is available. This mask meant to be used as extension 2 in the raw fits files. Current, the mask is not automatically applied by Keck. To apply it, use the following command in the raw spectra directory once the pipeline is installed (by default, it will use the new mask `badpixelmask2017.fits.gz`): 
+```
+apply_mask.py *.fits
+```
+
+- A new keyword is available in the Scaled Sky Subtraction module called 'scale_fitted_lines_only'. To turn on the new behavior, the keyword should be set to YES (default is NO). This keyword will only scale only OH lines, not the rest of the spectrum as well. This setting greatly improves sky subtraction for the case where the science target fills the lenslets and there are no true sky locations.
 
 ## Release Notes for v4.0.0
 **2017-01-23**
@@ -32,7 +37,7 @@ Minor Updates:
 ## Important Runtime Notes
 
 **Cosmic Ray Module**
-- We do not recommend running the cosmic ray module on data in 2016 or later, as it will introduce significant artifacts and reduce overall signal to noise. This is due to the fact that unresolved emission lines such as OH lines are now sharper on the detector. The cosmic ray module will tend to interpret this as a cosmic ray. To remove cosmic rays, we recommend combining data with the mosaic module with the MEANCLIP keyword if there are sufficient number of frames. 
+- We do not recommend running the cosmic ray module on data in 2016 or later, as it will introduce significant artifacts and reduce overall signal to noise. This is due to the fact that unresolved emission lines such as OH lines are now sharper on the detector. The cosmic ray module will tend to interpret this as a cosmic ray. To remove cosmic rays, we recommend combining data with the mosaic module with the MEANCLIP keyword if there are sufficient number of frames.
 - The cosmic ray module may lead to artifacts in data before 2016 as well, but at a lesser level. We recommend checking on individual science cases.
 - The pipeline team is investigating different cosmic ray modules for
 a future release.
