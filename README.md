@@ -7,10 +7,10 @@
 * [Testing the Pipeline](#testing-the-pipeline)
 
 ## Release Notes for v4.1.0beta
-**2017-07-28**
+**2017-08-10**
 Major Updates
 - Includes a new wavelength solution for data after May 2017. A shift in the wavelenth solution in May 2017 required a re-derivation of the solution. The new solution has an average offset between the observed and vacuum wavelength of OH lines of 0.07 +- 0.06 Angstroms in Kn3 35 mas.
-- A preliminary bad pixel mask is available. This mask meant to be used as extension 2 in the raw fits files. Current, the mask is not automatically applied by Keck. To apply it, use the following command in the raw spectra directory once the pipeline is installed (by default, it will use the new mask `badpixelmask2017.fits.gz`): 
+- A preliminary bad pixel mask is available for data taken after 2016 (new spectrograph detector). This mask meant to be used as extension 2 in the raw fits files. Currently, the mask is not automatically applied by Keck. To apply it, use the following command in the raw spectra directory once the pipeline is installed (by default, it will use the new mask `badpixelmask2017.fits.gz`):
 ```
 apply_mask.py *.fits
 ```
