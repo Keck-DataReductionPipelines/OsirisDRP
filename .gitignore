@@ -2,7 +2,6 @@
 *.py[co]
 *.a
 *.o
-<<<<<<< HEAD
 *.so
 __pycache__
 *.0
@@ -13,11 +12,6 @@ __pycache__
 htmlcov
 .coverage
 .cache
-=======
-*.so*
-.cache/*
-__pycache__
->>>>>>> fee0cab1d93ac17ca941e1fe07422e82174a2119
 
 # Sphinx
 _build
@@ -51,10 +45,6 @@ distribute-*.tar.gz
 
 htmlcov
 .coverage
-<<<<<<< HEAD
-=======
-
->>>>>>> fee0cab1d93ac17ca941e1fe07422e82174a2119
 
 # This directory usually contains recmats.
 calib

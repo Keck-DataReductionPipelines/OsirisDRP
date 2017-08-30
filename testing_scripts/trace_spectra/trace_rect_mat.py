@@ -49,7 +49,7 @@ def trace_rect(rectfile='../../tests/calib/s150905_c003___infl_Kbb_035.fits',out
     outfile - file to store the output dictionary of the fit. The dictionary
     has keys of the form 'sliceN': (tfit,sampleLoc,peakLoc,lineProfile, fitParams, spectrum)
 
-    Saved as a numpy npy file. To load use a = np.load(outfile), then b= a.items(0) to get the
+    Saved as a numpy npy file. To load use a = np.load(outfile), then b= a.item(0) to get the
     dictionary back
     HISTORY
     -------
@@ -126,7 +126,7 @@ def trace_rect_parallel(rectfile='../../tests/calib/s150905_c003___infl_Kbb_035.
 
         import multiprocessing as mp
         n_process = mp.cpu_count()-1
-        n_max = n_process*8
+        n_max = n_process*4
 
         inqueue = mp.Queue()
         outqueue = mp.Queue()
