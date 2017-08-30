@@ -94,7 +94,8 @@ FUNCTION assembcube_000, DataSet, Modules, Backbone
    s06_09CoeffFile   = strg(Backbone->getParameter('assembcube_COMMON___06_09CoeffFile'))
    s09_12CoeffFile   = strg(Backbone->getParameter('assembcube_COMMON___09_12CoeffFile'))
    s12_12CoeffFile   = strg(Backbone->getParameter('assembcube_COMMON___12_12CoeffFile'))
-   s13_15CoeffFile   = strg(Backbone->getParameter('assembcube_COMMON___13_15CoeffFile'))
+   s13_15CoeffFile   = strg(Backbone -> getParameter('assembcube_COMMON___13_15CoeffFile'))
+   s16_17CoeffFile   = strg(Backbone->getParameter('assembcube_COMMON___16_17CoeffFile'))   
 
    ; midwave is a wavelength offset used to make the poly fit symmetric in wavelength
    ; This must match what is in the routine that fits raw spectra: plot_fwhm
@@ -225,9 +226,14 @@ FUNCTION assembcube_000, DataSet, Modules, Backbone
    if ( (num eq 1) and (jul_date ge 56242.0 and jul_date lt 57388.0)) then begin
         print, "Using wavelength coefficient solution from Nov 9, 2012 - Dec 31, 2015"
        coeffFile = s13_15CoeffFile
+    endif
+   if ( (num eq 1) and (jul_date ge 57388.0 and jul_date lt 57881.0)) then begin
+        print, "Using wavelength coefficient solution from Jan, 01 2016 - May 08, 2017"
+       coeffFile = s16_17CoeffFile
    endif
-   ; use current coeff file for dates Jan 1, 2016 and after
-   if ( (num eq 1) and (jul_date ge 57388.0 )) then begin
+   
+   ; use current coeff file for dates May 9, 2017 and after
+   if ( (num eq 1) and (jul_date ge 57881.0 )) then begin
         coeffFile = s_CoeffFile
    endif
 
