@@ -15,7 +15,7 @@ def trace_rect_example(rectfile='../../tests/calib/s150905_c003___infl_Kbb_035.f
     if os.path.exists(rectfile):
         hdu = fits.open(rectfile)
         matrix = hdu[2].data
-        print 'shape: ',np.shape(matrix)
+        print('shape: ',np.shape(matrix))
         newslice = matrix[16,:,:]
 
         plt.clf()
@@ -50,7 +50,7 @@ def trace_rect(rectfile='../../tests/calib/s150905_c003___infl_Kbb_035.fits',out
     has keys of the form 'sliceN': (tfit,sampleLoc,peakLoc,lineProfile, fitParams, spectrum)
 
     Saved as a numpy npy file. To load use a = np.load(outfile), then b= a.item(0) to get the
-    dictionary back
+    dictionary back. Note: loading the .npy file will not work on python3 if prduced by python2.7
     HISTORY
     -------
     2017-03-25 - T. Do
@@ -367,3 +367,25 @@ def stack_rect_mat(rectfile='../../tests/calib/s150905_c003___infl_Kbb_035.fits'
         hdulist[0].header['DATAFILE']= 's150905_a003001'
         hdulist[0].header['ITIME'] = '60.0'
         hdulist.writeto(outfile,clobber=True)
+
+def plot_trace_detector(rectfile='../../tests/calib/s170508_c008___infl_Kn3_035.fits.gz',tracefile='s170509_c014___infl_Kbb_035_trace.npy'):
+    # plot the trace on the detector coordinate system
+    if os.path.exists(rectfile):
+        hdu = fits.open(rectfile)
+        # the slices for the rect matrix are in the second extension
+        inds = hdu[0].data
+        matrix = hdu[2].data # should be shaped (1216, 16, 2048)
+        s = np.shape(matrix)
+
+        a = np.load(tracefile)
+        b = a.item(0)
+        nslice = len(b)
+        plt.clf()
+        for i in np.arange(nslice):
+            xarr = b['slice'+str(i)][1]
+            yarr = b['slice'+str(i)][2]
+            good = np.where(yarr > 0)[0]
+            xarr=xarr[good]
+            yarr=yarr[good]+inds[i,0]
+
+            plt.plot(xarr,yarr,'b')
