@@ -10,6 +10,10 @@
   </lensletmaps>
 
   <wavesolns>
+    <wavesoln begin="050222" end="060222" dir="DRP">data/osiris_wave_coeffs_050222-060222.fits</wavesoln>
+    <wavesoln begin="060223" end="091004" dir="DRP">data/osiris_wave_coeffs_060223-091004.fits</wavesoln>
+    <wavesoln begin="091005" end="120103" dir="DRP">data/osiris_wave_coeffs_091005-120103.fits</wavesoln>
+    <wavesoln begin="120104" end="121109" dir="DRP">data/osiris_wave_coeffs_120104-121109.fits</wavesoln>
     <wavesoln begin="121110" end="151231" dir="DRP">data/osiris_wave_coeffs_121110-151231.fits</wavesoln>
     <wavesoln begin="160101" end="170508" dir="DRP">data/osiris_wave_coeffs_160101-170508.fits</wavesoln>
     <wavesoln begin="170509" dir="DRP">data/osiris_wave_coeffs.fits</wavesoln>
