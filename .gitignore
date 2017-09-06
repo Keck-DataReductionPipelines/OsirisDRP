@@ -1,7 +1,17 @@
+# Compiled files
+*.py[co]
+*.a
 *.o
-*.so*
-.cache/*
+*.so
 __pycache__
+*.0
+
+# Other generated files
+*/version.py
+*/cython_version.py
+htmlcov
+.coverage
+.cache
 
 # Sphinx
 _build
@@ -35,7 +45,6 @@ distribute-*.tar.gz
 
 htmlcov
 .coverage
-
 
 # This directory usually contains recmats.
 calib
