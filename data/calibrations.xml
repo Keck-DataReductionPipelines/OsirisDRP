@@ -1,0 +1,26 @@
+<osiriscalibrations>
+  <rectmats>
+    <rectmat begin="121109" end="151231" band="Kbb" scale="35" dir="DRP">tests/calib/s150905_c003___infl_Kbb_035.fits.gz</rectmat>
+    <rectmat begin="160101" end="170508" band="Kbb" scale="35" dir="DRP">tests/calib/s160416_c006___infl_Kbb_035.fits.gz</rectmat>
+    <rectmat begin="170509" band="Kbb" scale="35" dir="GDRV">Test Data/Trace/s170509_c014___infl_Kbb_035.fits</rectmat>
+  </rectmats>
+
+  <lensletmaps>
+    <lensletmap band="Kbb" dir="DRP">testing_scripts/trace_spectra/kbb_2016_slice_to_lenslet.txt</lensletmap>
+  </lensletmaps>
+
+  <wavesolns>
+    <wavesoln begin="121110" end="151231" dir="DRP">data/osiris_wave_coeffs_121110-151231.fits</wavesoln>
+    <wavesoln begin="160101" end="170508" dir="DRP">data/osiris_wave_coeffs_160101-170508.fits</wavesoln>
+    <wavesoln begin="170509" dir="DRP">data/osiris_wave_coeffs.fits</wavesoln>
+  </wavesolns>
+
+  <traces>
+    <trace begin="121109" end="151231" band="Kbb" scale="35" dir="GDRV">Test Data/Trace/s150905_c003___infl_Kbb_035_trace.npy</trace>
+    <trace begin="170509" band="Kbb" scale="35" dir="GDRV">Test Data/Trace/s170509_c014___infl_Kbb_035_trace.npy</trace>
+  </traces>
+
+  <sspsfs>
+    <sspsf begin="121109" end="151231" band="Kbb" scale="50" dir=".">data/osiris/superPSF_Kbbarc_2015.fits.gz</sspsf>
+  </sspsfs>
+</osiriscalibrations>
