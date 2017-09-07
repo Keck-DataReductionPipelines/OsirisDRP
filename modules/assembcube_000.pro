@@ -634,6 +634,9 @@ print,'cotemp ',cotemp
 	sxaddpar, *DataSet.Headers[q], "RADESYS", "FK5", "RA and Dec are in FK5"
 	sxaddpar, *DataSet.Headers[q], "EQUINOX", 2000.0, "RA, Dec equinox is J2000 (I think)"
  
+
+        sxaddhist, functionName+":   used wavelength coefficient file: "+coeffFile, *DataSet.Headers[q]
+
 ;stop
     endfor
 
