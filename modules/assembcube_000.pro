@@ -10,8 +10,6 @@
 ;
 ; @@@PARAMETERS
 ;
-;   assembcube_COMMON___CoeffFile    : File that contains the
-;                                      wavelength solutions for each lenslet.
 ;   assembcube_COMMON___Filterfile   : File that contains filter info.
 ;
 ; @CALIBRATION-FILES wavelength fit coefficients cube
