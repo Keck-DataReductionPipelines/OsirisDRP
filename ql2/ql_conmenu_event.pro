@@ -76,7 +76,7 @@ case selection of
             answer=dialog_message(message, dialog_parent=event.top, /error)
             print, "Not ready yet"
         end 
-	'About...': answer=dialog_message(['Quicklook v2.1', $
+	'About...': answer=dialog_message(['Quicklook v4.1 2017-09-07', $
 		string(169B)+' Michael McElwain, UCLA (2005)', $
                 'mcelwain@astro.ucla.edu', 'Jason Weiss, UCLA (2001)', $
                 'weiss@astro.ucla.edu'], $
