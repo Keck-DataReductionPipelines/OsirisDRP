@@ -126,7 +126,7 @@
 
     spatrectif_COMMON___numiter="4"
     spatrectif_ARP_SPEC_numiter="40"
-    spatrectif_ORP_SPEC_numiter="25"
+    spatrectif_ORP_SPEC_numiter="4"
     spatrectif_COMMON___relaxation="1.0"
 
     srtrectdat_COMMON___Debug="1"
