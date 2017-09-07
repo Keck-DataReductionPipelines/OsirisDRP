@@ -39,10 +39,11 @@ find_kidl = file_test(kidlpath+'kidl.pro')
 
 
 ; get qlook directory from environment variable
-qlook_dir=getenv('QL_FILEDIR')
+qlook_dir = getenv('QL_FILEDIR')
+osiris_root = getenv('OSIRIS_ROOT')
 ; if env var not set, use default
-if qlook_dir eq '' then $
-  qlook_dir=kroot_dir+'/kss/qlook2/'
+if (osiris_root ne '') and (qlook_dir eq '') then qlook_dir = osiris_root + '/ql2/'
+if qlook_dir eq '' then qlook_dir = kroot_dir+'/kss/qlook2/'
 
 ; set up idl path
 !path=qlook_dir+':'+qlook_dir+'../idllib'+':'+qlook_dir+'/idl_downloads'+':'+!path
