@@ -24,6 +24,7 @@ def apply_mask(infile,maskfile,outfile):
         mask = fits.getdata(maskfile)
         mask = np.array(mask,dtype='uint8')
         hdu[2].data = mask
+        hdu[0].header['BPM'] = (maskfile, 'Bad pixel mask applied')
         print("writing: "+outfile)
         ver = float(astropy.__version__.split('.')[0])
         if ver < 2:

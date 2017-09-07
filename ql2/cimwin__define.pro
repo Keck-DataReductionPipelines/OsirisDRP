@@ -3426,7 +3426,7 @@ save=!D.WINDOW
 wset, self.DrawIndex
 
 ; set mask to [1,1,1,1,1,...]
-mask = !d.n_colors - 1
+if !d.n_colors gt 256 then mask = 250 else mask = !d.n_colors - 1
 
 ; set graphics to xor type
 device, get_graphics=oldg, set_graphics=winbase_uval.xor_type
