@@ -4,7 +4,7 @@ import os
 import numpy as np
 from astropy.io import fits
 import glob
-
+import astropy
 
 def apply_mask(infile,maskfile,outfile):
     '''
@@ -25,7 +25,11 @@ def apply_mask(infile,maskfile,outfile):
         mask = np.array(mask,dtype='uint8')
         hdu[2].data = mask
         print("writing: "+outfile)
-        hdu.writeto(outfile,overwrite=True)
+        ver = float(astropy.__version__.split('.')[0])
+        if ver < 2:
+            hdu.writeto(outfile,clobber=True)
+        else:
+            hdu.writeto(outfile,overwrite=True)
 
 parser = argparse.ArgumentParser()
 parser.add_argument("inputfile",help="Input file(s), can have wildcard characters",type=str,nargs='+')
