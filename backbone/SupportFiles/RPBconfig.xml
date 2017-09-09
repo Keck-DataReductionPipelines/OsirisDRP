@@ -123,6 +123,7 @@
     scaledskysub_COMMON___Scale_K_Continuum = "Yes"
     scaledskysub_COMMON___line_halfwidth = "4"
     scaledskysub_COMMON___show_plots = "Yes"
+    scaledskysub_COMMON___scale_fitted_lines_only = "No"
 
     spatrectif_COMMON___numiter="4"
     spatrectif_ARP_SPEC_numiter="40"
@@ -218,6 +219,7 @@
       <Argument Name="Line_Halfwidth" Type="float" Range="(1,20)" Default="4" />
       <Argument Name="Show_Plots" Type="enum" Range="YES|NO" Default="YES" />
       <Argument Name="Scale_K_Continuum" Type="enum" Range="YES|NO" Default="YES" />
+      <Argument Name="scale_fitted_lines_only" Type="enum" Range="YES|NO" Default="NO" />
   </Module> 
     <Module Name="Mosaic Frames" IDLFunc="mosaic_000" Comment="Mosaic Frames combines multiple OSIRIS cubes with the same PA using header keywords from TEL (default), NGS, and LGS. Combining frames may be performed with either AVERAGE (default), MEDIAN, or MEANCLIP.">
       <Argument Name="Combine_Method" Type="enum" Range="AVERAGE|MEDIAN|MEANCLIP|MEANCLIP2" Default="AVERAGE" />
