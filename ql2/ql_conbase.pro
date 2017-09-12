@@ -80,7 +80,7 @@ recent_file_list=ql_conmenu_desc[recent_file_index:recent_file_index+3].name
 
 ; creates the parent control base widget, with the menu bar and draw window
 ; as children
-ql_conbase=widget_base(title='Quicklook v4.1', mbar=ql_conbase_mbar, $
+ql_conbase=widget_base(title='QL2v4.1', mbar=ql_conbase_mbar, $
                        /tlb_size_events, /tlb_kill_request_events, /col, $
                        resource_name='ql2_conbase')
 ql_conmenu=cw_pdmenu(ql_conbase_mbar, ql_conmenu_desc, /mbar, /return_name, $
