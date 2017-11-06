@@ -6,16 +6,24 @@
 * [Running the Pipeline](#running-the-pipeline)
 * [Testing the Pipeline](#testing-the-pipeline)
 
-## Release Notes for v4.1.0beta
-**2017-08-10**
+## Release Notes for v4.1.0
+**2017-11-07**
 Major Updates
-- Includes a new wavelength solution for data after May 2017. A shift in the wavelenth solution in May 2017 required a re-derivation of the solution. The new solution has an average offset between the observed and vacuum wavelength of OH lines of 0.07 +- 0.06 Angstroms in Kn3 35 mas.
-- A preliminary bad pixel mask is available for data taken after 2016 (new spectrograph detector). This mask meant to be used as extension 2 in the raw fits files. Currently, the mask is not automatically applied by Keck. To apply it, use the following command in the raw spectra directory once the pipeline is installed (by default, it will use the new mask `badpixelmask2017.fits.gz`):
+- Includes a new wavelength solution for data after May 2017. A shift in the wavelength solution (on average about 2.8 Angstroms offset) in May 2017 required a re-derivation of the solution. The new solution has an average offset between the observed and vacuum wavelength of OH lines of 0.07 +- 0.06 Angstroms in Kn3 35 mas.
+- A preliminary bad pixel mask is available for data taken after 2016 (new spectrograph detector). The mask was computed from a series of darks. There is both a bad pixel mask of hot pixels (pixels with permanently elevated value) as well as a dead pixel mask (pixels with permanently low values). This mask meant to be used as extension 2 in the raw fits files. Currently, the mask is not automatically applied by Keck. To apply it, use the following command in the raw spectra directory once the pipeline is installed:
 ```
 apply_mask.py *.fits
 ```
+NOTE: this requires python installed with ``numpy`` and ``astropy`` packages. Tests show that using the bad pixel mask improves the SNR by about 10%.
 
-- A new keyword is available in the Scaled Sky Subtraction module called 'scale_fitted_lines_only'. To turn on the new behavior, the keyword should be set to YES (default is NO). This keyword will only scale only OH lines, not the rest of the spectrum as well. This setting greatly improves sky subtraction for the case where the science target fills the lenslets and there are no true sky locations.
+- A new keyword is available in the Scaled Sky Subtraction module called ``scale_fitted_lines_only``. To turn on the new behavior, the keyword should be set to YES  and the ``Scale_K_Continuum`` should be set to NO:
+```
+scale_fitted_lines_only='YES'
+Scale_K_Continuum='NO'
+```
+ This keyword will only scale only OH lines, not the rest of the spectrum as well. This setting greatly improves sky subtraction for the case where the science target fills the lenslets and there are no true sky locations. It may also help in other cases. Users are encouraged to try this option if they see large residuals in sky subtraction, or if the residual continuum is problematic.
+
+- The cosmic ray module is now automatically turned off for all data with the new detector (see reasoning below). Cosmic rays represent about 1% of the bad pixels in a typical 15 minute exposure -- the majority are static bad pixels that should now be accounted for by the bad pixel mask.
 
 ## Release Notes for v4.0.0
 **2017-01-23**
@@ -62,29 +70,14 @@ To install and run the OSIRIS DRP, you will need the following:
 - A working installation of IDL 7 or IDL 8 (the IDL binary directory should be in your ``PATH`` environment variable)
 - Python dependencies (optional, for testing): pytest, astropy
 
-### Options to install the pipeline
-
-- [Using a python script](#installing-with-a-python-script) -- this is the simplest method for the most recent release
-- [Manually install from github repository](#installing-from-source) -- useful if you want to use the latest pipeline development version
-
-### Installing with a python script
-
-- Download the installation script [install_osiris_drs.py](https://github.com/Keck-DataReductionPipelines/OsirisDRP/blob/release/scripts/install_osiris_drs.py)
-- Run the script
-```
-chmod +x install_osiris_drs.py
-./install_osiris_drs.py
-```
-- For more information and script options:
-```
-./install_osiris_drs.py --help
-```
 
 ### Installing from source
 
-Either clone or download the source from github (the [``develop``](https://github.com/Keck-DataReductionPipelines/OsirisDRP/tree/develop) branch has the latest development)
+Either clone or download the source from github, choose either the master branch or the develop branch.
+ - the [``master``](https://github.com/Keck-DataReductionPipelines/OsirisDRP) branch as the latest official release.
+ - the [``develop``](https://github.com/Keck-DataReductionPipelines/OsirisDRP/tree/develop) branch has the latest development
 
-Set up the following environment variables (optional). The defaults should work for installations of IDL on Mac OS X and CFITSIO installed using [MacPorts][]:
+Set up the following environment variables to compile the code (you can remove these variables after compiling). The defaults should work for installations of IDL on Mac OS X and CFITSIO installed using [MacPorts][]:
 
 - ``IDL_INCLUDE``: The IDL include directory. If you don't set ``IDL_INCLUDE``, it defaults to ``IDL_INCLUDE=/Applications/exelis/idl/external/include``
 - ``CFITSIOLIBDIR``: The directory containing your installation of CFITSIO. If you don't set ``CFITSIOLIBDIR``, it will default to ``CFITSIOLIBDIR=/opt/local/lib``, which is correct for [MacPorts][].
@@ -99,7 +92,7 @@ You should see that the pipeline has been built correctly. Be sure you are using
 
 [MacPorts]: https://www.macports.org
 
-### OSIRIS DRP Runtime Environment
+### Setup OSIRIS DRP Runtime Environment
 
 The OSIRIS DRP requires various environment variables to find and run
 the pipeline. Instructions are below for bash (should work for other
@@ -112,35 +105,7 @@ your OSIRIS pipeline environment.
 
 #### Environment Setup in Bash
 
-To setup the OSIRIS environment, source the file
-``scripts/osirisSetup.sh``, then run ``osirisSetup`` with the root
-directory of your OSIRIS DRF installation. If your OSIRIS pipeline is
-installed in ``/usr/local/osiris/drs/``, then you would do:
-
-```
-$ source scripts/osirisSetup.sh
-To use the OSIRIS DRP, run osirisSetup /path/to/my/drp
-
-$ osirisSetup /my/path/to/osiris/drp/
-Setting OSIRIS_ROOT=/my/path/to/osiris/drp/
-Adding /my/path/to/osiris/drp/scripts to your path.
-Successfully setup OSIRIS DRP environment.
-The DRP is in /my/path/to/osiris/drp/
-```
-
-You can change all of the relevant OSIRIS variables later by running
-``osirisSetup`` again. ``osirisSetup`` will add
-``$OSIRIS_ROOT/scripts`` to your environment's PATH variable by
-default. To skip this step, run ``osirisSetup`` with ``-n``:
-
-```
-$ osirisSetup -n /my/path/to/osiris/drp/
-Setting OSIRIS_ROOT=/my/path/to/osiris/drp/
-Successfully setup OSIRIS DRP environment.
-The DRP is in /my/path/to/osiris/drp/
-```
-
-You can add these lines to your ``.bashrc`` file or other startup profile if you want to set up the osiris environment variables for all of your shell sessions. Add lines like this to your profile:
+You can add these lines to your ``.bashrc`` file or other startup profile if you want to set up the osiris environment variables for all of your shell sessions. Add these lines to your profile:
 
 ```
 OSIRIS_VERBOSE=0
@@ -148,30 +113,27 @@ source /my/path/to/osiris/drp/scripts/osirisSetup.sh
 osirisSetup /my/path/to/osiris/drp
 ```
 
+Remember if your IDL binary is not in your path, you should also add it to your ``.bashrc`` file, for example:
+
+```
+export PATH=$PATH:/Applications/exelis/idl/bin
+```
 
 #### Environment Setup in CSH
 
-To setup the OSIRIS environment, set the environment variable
-``OSIRIS_ROOT`` to the root directory for the OSIRIS data reduction
-pipeline. Then source the file ``scripts/osirisSetup.csh``.
-
-```
-$ setenv OSIRIS_ROOT /my/path/to/osiris/drp/
-
-$ source scripts/osirisSetup.csh
-Using OSIRIS_ROOT=/my/path/to/osiris/drp/
-Successfully setup OSIRIS DRP environment.
-The DRP is in /my/path/to/osiris/drp/
-You might want to add /my/path/to/osiris/drp/scripts to your PATH.
-```
-
-You can add these lines to your ``.cshrc`` file or other startup profile if you want to set up the osiris environment variables for each of your shell sessions. Add lines like this to your profile:
+You can add these lines to your ``.cshrc`` file or other startup profile if you want to set up the osiris environment variables for each of your shell sessions. Add these lines to your profile:
 
 ```
 set OSIRIS_VERBOSE=0
 setenv OSIRIS_ROOT=/my/path/to/osiris/drp/
 source ${OSIRIS_ROOT}/scripts/osirisSetup.csh
 setenv PATH ${PATH}:${OSIRIS_ROOT}/scripts
+```
+
+Remember if your IDL binary is not in your path, you should also add it to your ``.cshrc`` file, for example:
+
+```
+setenv PATH ${PATH}:/Applications/exelis/idl/bin
 ```
 
 ### Running the Pipeline
@@ -198,4 +160,44 @@ The first time you run the tests, data will be downloaded so it will take longer
 
 ### Troubleshooting
 
-If you run into problems, please re-read this README.md, then read INSTALLPROBLEMS.md for some common installation problems.
+If you run into problems, please re-read this [README.md](https://github.com/Keck-DataReductionPipelines/OsirisDRP), then read [INSTALLPROBLEMS.md](https://github.com/Keck-DataReductionPipelines/OsirisDRP/blob/master/INSTALLPROBLEMS.md) for some common installation problems.
+
+OSIRIS DRP Project Contributors
+============================
+
+Project Coordinators
+--------------------
+* Jim Lyke (@jlyke-keck)
+* Tuan Do (@followthesheep)
+
+Alphabetical list of contributors
+---------------------------------
+* Anna Boehle (@aboehle)
+* Randy Campbell
+* Sam Chappell
+* Devin Chu
+* Mike Fitzgerald (@astrofitz)
+* Tom Gasawy
+* Christof Iserlohe
+* Alfred Krabbe
+* James Larkin
+* Jim Lyke (@jlyke-keck)
+* Kelly Lockhart
+* Jessica Lu
+* Etsuko Mieda
+* Mike McElwain
+* Marshall Perrin
+* Alex Rudy (@alexrudy)
+* Breann Sitarski
+* Andrey Vayner
+* Greg Walth
+* Jason Weiss
+* Tommer Wizanski
+* Shelley Wright
+
+(If you have contributed to the OSIRIS pipeline and your name is missing,
+please send an email to the coordinators, or
+If you have contributed to the OSIRIS pipeline and your name is missing,
+please send an email to the coordinators, or
+open a pull request for this [page](https://github.com/Keck-DataReductionPipelines/OsirisDRP/edit/master/AUTHORS.rst>)
+in the [OsirisDRP repository](https://github.com/Keck-DataReductionPipelines/OsirisDRP>)
