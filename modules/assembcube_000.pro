@@ -10,8 +10,6 @@
 ;
 ; @@@PARAMETERS
 ;
-;   assembcube_COMMON___CoeffFile    : File that contains the
-;                                      wavelength solutions for each lenslet.
 ;   assembcube_COMMON___Filterfile   : File that contains filter info.
 ;
 ; @CALIBRATION-FILES wavelength fit coefficients cube
@@ -89,12 +87,6 @@ FUNCTION assembcube_000, DataSet, Modules, Backbone
 
    ; Store common variables into local ones.
    s_FilterFile  = strg(Backbone->getParameter('assembcube_COMMON___Filterfile'))
-   s_CoeffFile   = strg(Backbone->getParameter('assembcube_COMMON___CoeffFile'))
-   s05_06CoeffFile   = strg(Backbone->getParameter('assembcube_COMMON___05_06CoeffFile'))
-   s06_09CoeffFile   = strg(Backbone->getParameter('assembcube_COMMON___06_09CoeffFile'))
-   s09_12CoeffFile   = strg(Backbone->getParameter('assembcube_COMMON___09_12CoeffFile'))
-   s12_12CoeffFile   = strg(Backbone->getParameter('assembcube_COMMON___12_12CoeffFile'))
-   s13_15CoeffFile   = strg(Backbone->getParameter('assembcube_COMMON___13_15CoeffFile'))
 
    ; midwave is a wavelength offset used to make the poly fit symmetric in wavelength
    ; This must match what is in the routine that fits raw spectra: plot_fwhm
@@ -198,38 +190,57 @@ FUNCTION assembcube_000, DataSet, Modules, Backbone
    ; Read in the matrix of coefficients used for fitting pixel as a function
    ; of wavelength
    jul_date = sxpar(*DataSet.Headers[0], "MJD-OBS", count=num)
-   print,'Julian Date of Observations =',jul_date
-   ; Check to see if the date is set and if it is prior to the service
-   ; mission in February 2006. If so, then use the old calib
-   ; file. Otherwise the default is the new file. 
-   if ( (num eq 1) and (jul_date lt 53790.0) ) then begin
-       print, "Using wavelength coefficients from before 2006"
-       coeffFile = s05_06CoeffFile
-   endif
-   ;finds coeffs between Feb 2006 and Oct 2009
-   if ( (num eq 1) and (jul_date ge 53790.0 and jul_date lt 55110.0) ) then begin
-       print, "Using wavelength coefficient solution from Feb 23, 2006 - Oct 4, 2009"
-       coeffFile = s06_09CoeffFile
-   endif
-   ;finds coeffs between Oct 2009 and Jan 2012
-   if ( (num eq 1) and (jul_date ge 55110.0 and jul_date lt 55930.0) ) then begin
-       print, "Using wavelength coefficient solution from Oct 4, 2009 - Jan 3, 2012"
-       coeffFile = s09_12CoeffFile
-   endif
-   ;finds coeffs between Jan 2012 and Nov 2012
-   if ( (num eq 1) and (jul_date ge 55930.0 and jul_date lt 56242.0) ) then begin
-       print, "Using wavelength coefficient solution from Jan 3, 2012 - Nov 9, 2012"
-       coeffFile = s12_12CoeffFile
-   endif
-   ; finds coeffs between Nov 2012 and Dec 2015
-   if ( (num eq 1) and (jul_date ge 56242.0 and jul_date lt 57388.0)) then begin
-        print, "Using wavelength coefficient solution from Nov 9, 2012 - Dec 31, 2015"
-       coeffFile = s13_15CoeffFile
-   endif
-   ; use current coeff file for dates Jan 1, 2016 and after
-   if ( (num eq 1) and (jul_date ge 57388.0 )) then begin
-        coeffFile = s_CoeffFile
-   endif
+   print, 'Julian Date of Observations =', jul_date
+   
+   ;; load the calibrations XML file and get all the wavelength solutions
+   cal_fn = strg(Backbone->getParameter('ALL_COMMON___CalibrationFile'))
+   oDocument = obj_new('IDLffXMLDOMDocument', filename = expand_path(cal_fn))
+   oCalibs = oDocument -> GetFirstChild()
+   oWavesolnsList = oCalibs -> GetElementsByTagName('wavesolns')
+   if (oWavesolnsList -> GetLength() ne 1) then $
+      message, 'no wavelength solutions found', /error
+   oWavesolns = oWavesolnsList -> Item(0)
+   oWavesolnList = oWavesolns -> GetElementsByTagName('wavesoln')
+   n_wavesolns = oWavesolnList -> GetLength()
+   if (n_wavesolns eq 0) then $
+      message, 'no wavelength solutions found', /error
+   begins = dblarr(n_wavesolns)
+   ends = dblarr(n_wavesolns)
+   dirs = strarr(n_wavesolns)
+   wave_fns = strarr(n_wavesolns)
+   for i = 0, n_wavesolns-1 do begin
+     oWavesoln = oWavesolnList -> Item(i)
+     dirs[i] = oWavesoln -> GetAttribute('dir')
+     oNameText = oWavesoln -> GetFirstChild()
+     wave_fns[i] = oNameText -> GetNodeValue()
+     obj_destroy, oNameText
+     ;; convert beginning and ending YYMMDD integers to MJD floats
+     b = oWavesoln -> GetAttribute('begin')
+     ymd = '20'+strmid(b, 0, 2)+'-'+strmid(b, 2, 2)+'-'+strmid(b, 4, 2)
+     begins[i] = date_conv(ymd+' 00:00:00.00', 'M')
+     e = oWavesoln -> GetAttribute('end')
+     if (e eq '') then begin
+       ends[i] = 1e6
+     endif else begin
+       ymd = '20'+strmid(e, 0, 2)+'-'+strmid(e, 2, 2)+'-'+strmid(e, 4, 2)
+       ends[i] = date_conv(ymd+' 00:00:00.00', 'M')
+     endelse
+     obj_destroy, oWavesoln
+   endfor
+   ;; cleanup
+   obj_destroy, oWavesolnList
+   obj_destroy, oWavesolns
+   obj_destroy, oWavesolnsList
+   obj_destroy, oCalibs
+   obj_destroy, oDocument
+
+   ;; select the correct wavelength solution file
+   w = where((jul_date ge begins) and (jul_date le ends), nw)
+   if (nw ne 1) then message, 'error selecting wavelength coefficient', /error
+   coeffFile = wave_fns[w]
+   if dirs[w] eq 'DRPDATA' then $
+      coeffFile = '${OSIRIS_DRP_DATA_PATH}/'+coeffFile
+   print, "using wavelength coefficient file: ", coeffFile
 
    dum = strsplit(coeffFile, '/', /extract)
    coeffFileNoPath = dum[n_elements(dum)-1]
@@ -623,6 +634,9 @@ print,'cotemp ',cotemp
 	sxaddpar, *DataSet.Headers[q], "RADESYS", "FK5", "RA and Dec are in FK5"
 	sxaddpar, *DataSet.Headers[q], "EQUINOX", 2000.0, "RA, Dec equinox is J2000 (I think)"
  
+
+        sxaddhist, functionName+":   used wavelength coefficient file: "+coeffFile, *DataSet.Headers[q]
+
 ;stop
     endfor
 
