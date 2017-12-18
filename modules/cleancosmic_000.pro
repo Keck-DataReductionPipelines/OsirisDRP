@@ -18,6 +18,8 @@
 ;
 ; HISTORY : Oct 3, 2005    created
 ;           June 8, 2006   modified to work on raw data instead of cubes
+;           Sep 7, 2017    jlyke - skip cosmic ray rejection for H2RG data
+;                                  until we can make a better routine
 ;
 ; AUTHOR : created by James Larkin
 ;-----------------------------------------------------------------------
@@ -29,10 +31,19 @@ functionName = 'cleancosmic_000'
 
 drpLog, 'Received data set: ' + DataSet.Name, /DRF, DEPTH = 1
 
-nFrames = Backbone->getValidFrameCount(DataSet.Name)
-indx = lindgen(100)
+; update for detector upgrade to H2RG:
+; check Julian date of data: if after Jan. 1st, 2016, 
+; then glitch ID is not run because data is from new H2RG detector.
+; read in header of first frame to get MJD
+jul_date = sxpar(*DataSet.Headers[0], "MJD-OBS", count=num)
+if (jul_date ge 57388.0) then begin
+   print, 'Clean Cosmic Ray not performed: data is from H2RG detector.'
+   drpLog, 'Clean Cosmic Ray not performed: data is from H2RG detector.', /DRF, DEPTH=1
+endif else begin
+  nFrames = Backbone->getValidFrameCount(DataSet.Name)
+  indx = lindgen(100)
 
-for i = 0, nFrames-1 do begin
+  for i = 0, nFrames-1 do begin
     ; Setup local pointers to the frames
     Frame       = *DataSet.Frames[i]
     IntFrame    = *DataSet.IntFrames[i]
@@ -83,7 +94,9 @@ for i = 0, nFrames-1 do begin
     *DataSet.IntAuxFrames[i] = IntAuxFrame
     *DataSet.Frames[i] = Frame
 
-endfor                          ; repeat on nFrames
+  endfor                          ; repeat on nFrames
+
+endelse                           ; end of if pre-H2RG
 
 RETURN, OK
 

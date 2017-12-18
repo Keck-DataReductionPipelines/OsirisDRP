@@ -1,6 +1,50 @@
+# Compiled files
+*.py[co]
+*.a
 *.o
-*.so*
-.cache/*
+*.so
+__pycache__
+*.0
+
+# Other generated files
+*/version.py
+*/cython_version.py
+htmlcov
+.coverage
+.cache
+
+# Sphinx
+_build
+docs/api
+
+# Packages/installer info
+*.egg
+*.egg-info
+dist
+build
+eggs
+parts
+bin
+var
+sdist
+develop-eggs
+.installed.cfg
+distribute-*.tar.gz
+
+# Other
+.*.swp
+*~
+.settings
+.project
+.pydevproject
+
+# Mac OSX
+.DS_Store
+
+#coverage related ignores
+
+htmlcov
+.coverage
 
 # This directory usually contains recmats.
 calib

@@ -33,7 +33,8 @@
 ; 			     the image.
 ; 			     Draw/Remove menu axes label now toggles.
 ;			2008-03-18 MDP: Various bug fixes and improvements. (I know, such a useful log message...)
-; 			     
+; 2017-09-07 - T.Do : fixed bug when displaying DN/s in the cube
+;              dividing by the itime when it is already in DN/s			     
 ;-
 
 
@@ -168,8 +169,10 @@ endelse
 
 ; check to see if there is an itime keyword
 if (hd[0] ne '') then begin
-    itime=sxpar(hd,'ITIME')
+   print, 'using TRUITIME keyword'
+   itime = sxpar(hd, 'TRUITIME')
 endif else begin
+   print, 'no header found, setting itime=1'
     itime=1.
 endelse
 
@@ -705,7 +708,10 @@ endif else begin
         self.current_display='As DN/s'
 endelse
 
-if (itime ne 0) then self.def_itime=itime else self.def_itime=1.
+if (itime ne 0) then self.def_itime = itime else begin
+   print, 'no itime found, setting itime = 1'
+   self.def_itime = 1.
+endelse
 
 widget_control, base, get_uval=uval
 widget_control, uval.wids.collapse_list, set_droplist_select=self.collapse
@@ -1600,7 +1606,8 @@ if (im_zs gt 1) then begin
         0: begin
             ; median the collapsed cube
             reformed_im=reform(im[*, *, z0:z1], im_s[0], im_s[1], z1-z0+1)
-            im2=cmapply('USER:CMMEDIAN', reformed_im, 3)
+            im2 = cmapply('USER:CMMEDIAN', reformed_im, 3)
+
         end
         1: begin
             ; average the collapsed cube
@@ -1615,16 +1622,18 @@ endelse
 ; get the itime and coadds keywords from the config file, if possible
 
 if has_valid_cconfigs(conbase_uval, cconfigs) then begin
+   print, 'Getting itime keyword from config'
             itime_kw=cconfigs->GetItimeFitskw()
             coadds_kw=cconfigs->GetCoaddsFitskw()
 endif else begin
-	itime_kw='ITIME'
+   print, 'no valid config, using defaults for itime_kw and coadds_kw'
+	itime_kw='TRUITIME'
 	coadds_kw='COADDS'
 endelse
 
 itime=sxpar(hd, itime_kw)
 coadds=sxpar(hd, coadds_kw)
-;print, 'itime= ', itime
+print, 'itime= ', itime
 ;print, 'coadds= ', coadds
 ; fix im2 to be the correct displayed im
 if (itime ne 0) then begin
@@ -1633,7 +1642,7 @@ if (itime ne 0) then begin
         if (self.current_display_update) then begin
 	        case self.current_display of
 	            'As Total DN': im2=im2*itime*coadds
-	            'As DN/s': im2=im2/(itime*coadds)
+	            'As DN/s': im2=im2 ;/(itime*coadds)
 	            else:
 	        endcase
 	        if (uval.current_display_skip ne 0) then begin
@@ -2792,8 +2801,9 @@ pro CImWin::DisplayAsDN, no_rescale=no_rescale
 	if has_valid_cconfigs(conbase_uval, cconfigs) then begin
 	    itime_kw=cconfigs->GetItimeFitskw()
 	    coadds_kw=cconfigs->GetCoaddsFitskw()
-	endif else begin
-	    itime_kw='ITIME' ; default
+         endif else begin
+            print, 'no valid config, using defaults for itime_kw and coadds_kw'            
+	    itime_kw='TRUITIME' ; default
 	    coadds_kw='COADDS'
 	endelse
 
@@ -3416,7 +3426,7 @@ save=!D.WINDOW
 wset, self.DrawIndex
 
 ; set mask to [1,1,1,1,1,...]
-mask = !d.n_colors - 1
+if !d.n_colors gt 256 then mask = 250 else mask = !d.n_colors - 1
 
 ; set graphics to xor type
 device, get_graphics=oldg, set_graphics=winbase_uval.xor_type

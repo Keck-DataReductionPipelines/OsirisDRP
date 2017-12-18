@@ -2,10 +2,10 @@
 set CONTINUE=1
 
 if (! $?OSIRIS_VERBOSE) then       
-  set OSIRIS_VERBOSE="1"
+  set OSIRIS_VERBOSE=1
 else
   if ("$OSIRIS_VERBOSE" == "")  then
-      set OSIRIS_VERBOSE="0"
+      set OSIRIS_VERBOSE=0
   endif
 endif
 
@@ -40,28 +40,28 @@ endif
 
 if ($CONTINUE == "1") then
     # Location of data files
-    setenv OSIRIS_DRP_DATA_PATH $OSIRIS_ROOT/data/
+    setenv OSIRIS_DRP_DATA_PATH ${OSIRIS_ROOT}/data/
     
     # Set the queue directory for any pipelines started by this user
-    setenv DRF_QUEUE_DIR $OSIRIS_ROOT/drf_queue
+    setenv DRF_QUEUE_DIR ${OSIRIS_ROOT}/drf_queue
     
     # Set a default for the overall (general) DRP log files to go.  These log
     # files are created each time the pipeline backbone is started
-    setenv OSIRIS_DRP_DEFAULTLOGDIR $OSIRIS_ROOT/drf_queue/logs
+    setenv OSIRIS_DRP_DEFAULTLOGDIR ${OSIRIS_ROOT}/drf_queue/logs
     
     # This is where the backbone IDL code looks for the shared libraries that
     # implement C code called by the IDL code.
-    setenv OSIRIS_DRP_EXTERNAL_LIB_DIR $OSIRIS_ROOT/modules/source
+    setenv OSIRIS_DRP_EXTERNAL_LIB_DIR ${OSIRIS_ROOT}/modules/source
     
     # This is where the backbone IDL code looks for the shared libraries that
     # implement C code called by the IDL code.
-    setenv OSIRIS_BACKBONE_DIR $OSIRIS_ROOT/backbone
+    setenv OSIRIS_BACKBONE_DIR ${OSIRIS_ROOT}/backbone
     
     # Specify where the configuration filename is stored. This file just
     # contains the real name of the configuration file.
-    setenv OSIRIS_DRP_CONFIG_FILE $OSIRIS_ROOT/backbone/SupportFiles/local_osirisDRPConfigFile
+    setenv OSIRIS_DRP_CONFIG_FILE ${OSIRIS_ROOT}/backbone/SupportFiles/local_osirisDRPConfigFile
     
-    setenv OSIRIS_IDL_BASE $OSIRIS_ROOT
+    setenv OSIRIS_IDL_BASE ${OSIRIS_ROOT}
     
     if ("$OSIRIS_VERBOSE" != "0") then
         echo "Successfully setup OSIRIS DRP environment."

@@ -3,13 +3,9 @@
     adjchan_COMMON___Debug="1"
     ALL_COMMON___Colors="1"
 
-    assembcube_COMMON___CoeffFile         ='$OSIRIS_DRP_DATA_PATH/osiris_wave_coeffs.fits'
-    assembcube_COMMON___05_06CoeffFile    ='$OSIRIS_DRP_DATA_PATH/osiris_wave_coeffs_050222-060222.fits'
-    assembcube_COMMON___06_09CoeffFile    ='$OSIRIS_DRP_DATA_PATH/osiris_wave_coeffs_060223-091004.fits'
-    assembcube_COMMON___09_12CoeffFile    ='$OSIRIS_DRP_DATA_PATH/osiris_wave_coeffs_091005-120103.fits'
-    assembcube_COMMON___12_12CoeffFile    ='$OSIRIS_DRP_DATA_PATH/osiris_wave_coeffs_120104-121109.fits'
-    assembcube_COMMON___13_15CoeffFile    ='$OSIRIS_DRP_DATA_PATH/osiris_wave_coeffs_121110-151231.fits'
-    assembcube_COMMON___Filterfile        ='$OSIRIS_DRP_DATA_PATH/osiris_filter_info.list'
+    ALL_COMMON___CalibrationFile          ='${OSIRIS_DRP_DATA_PATH}/calibrations.xml'
+
+    assembcube_COMMON___Filterfile        ='${OSIRIS_DRP_DATA_PATH}/osiris_filter_info.list'
 
     caelum_mosaic_COMMON___Debug          = '0'
 
@@ -21,7 +17,7 @@
     calibrwave_COMMON___UpperLimitBad     = '5.'
     calibrwave_COMMON___NoiseMultiplier   = '10.'
     calibrwave_COMMON___InterPolType      = 'LINEAR'
-    calibrwave_COMMON___Filterfile        ='$OSIRIS_DRP_DATA_PATH/osiris_filter_info.list'
+    calibrwave_COMMON___Filterfile        ='${OSIRIS_DRP_DATA_PATH}/osiris_filter_info.list'
 
     combframes_COMMON___Combine_Method		 = 'AVERAGE'
 
@@ -32,7 +28,7 @@
     corrtilt_COMMON___Pressure   ="640."
     corrtilt_COMMON___Temperature="273."
 
-    detspecres_COMMON___Linefile         = '$OSIRIS_DRP_DATA_PATH/osiris_cal_line.list'
+    detspecres_COMMON___Linefile         = '${OSIRIS_DRP_DATA_PATH}/osiris_cal_line.list'
     detspecres_COMMON___FitHalfWindow    ='12'
     detspecres_COMMON___FitFunction      ='GAUSSIAN'
     detspecres_COMMON___FitTerms         ='4'
@@ -90,15 +86,15 @@
     mkwavcalfr_COMMON___MaxLag_px            = '20'
     mkwavcalfr_COMMON___DispFitSigma_fact    = '2.'
     mkwavcalfr_COMMON___DispFitIter          = '2'
-    mkwavcalfr_COMMON___Linefile             = '$OSIRIS_DRP_DATA_PATH/osiris_cal_line.list'
-    mkwavcalfr_COMMON___Filterfile           = '$OSIRIS_DRP_DATA_PATH/osiris_filter_info.list'
+    mkwavcalfr_COMMON___Linefile             = '${OSIRIS_DRP_DATA_PATH}/osiris_cal_line.list'
+    mkwavcalfr_COMMON___Filterfile           = '${OSIRIS_DRP_DATA_PATH}/osiris_filter_info.list'
     mkwavcalfr_COMMON___MedianLag            = '1'
 
     mkwavsmo_COMMON___Debug                  = '1'
     mkwavsmo_COMMON___Order                  = '2'
     mkwavsmo_COMMON___MedianWindow           = '5'
     mkwavsmo_COMMON___LimitPixel             = '2'
-    mkwavsmo_COMMON___FilterFile             = '$OSIRIS_DRP_DATA_PATH/osiris_filter_info.list'
+    mkwavsmo_COMMON___FilterFile             = '${OSIRIS_DRP_DATA_PATH}/osiris_filter_info.list'
 
     mosaicdpos_COMMON___Debug             = '1'
     mosaicdpos_COMMON___Magnification     = '1.'
@@ -122,10 +118,11 @@
     scaledskysub_COMMON___Scale_K_Continuum = "Yes"
     scaledskysub_COMMON___line_halfwidth = "4"
     scaledskysub_COMMON___show_plots = "Yes"
+    scaledskysub_COMMON___scale_fitted_lines_only = "No"
 
     spatrectif_COMMON___numiter="4"
     spatrectif_ARP_SPEC_numiter="40"
-    spatrectif_ORP_SPEC_numiter="25"
+    spatrectif_ORP_SPEC_numiter="4"
     spatrectif_COMMON___relaxation="1.0"
 
     srtrectdat_COMMON___Debug="1"
@@ -217,6 +214,7 @@
       <Argument Name="Line_Halfwidth" Type="float" Range="(1,20)" Default="4" />
       <Argument Name="Show_Plots" Type="enum" Range="YES|NO" Default="YES" />
       <Argument Name="Scale_K_Continuum" Type="enum" Range="YES|NO" Default="YES" />
+      <Argument Name="scale_fitted_lines_only" Type="enum" Range="YES|NO" Default="NO" />
   </Module> 
     <Module Name="Mosaic Frames" IDLFunc="mosaic_000" Comment="Mosaic Frames combines multiple OSIRIS cubes with the same PA using header keywords from TEL (default), NGS, and LGS. Combining frames may be performed with either AVERAGE (default), MEDIAN, or MEANCLIP.">
       <Argument Name="Combine_Method" Type="enum" Range="AVERAGE|MEDIAN|MEANCLIP|MEANCLIP2" Default="AVERAGE" />
