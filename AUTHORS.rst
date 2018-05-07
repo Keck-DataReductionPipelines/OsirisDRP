@@ -35,7 +35,7 @@ Alphabetical list of contributors
 * Tommer Wizanski
 * Shelley Wright
 
-(If you have contributed to the OSIRIS pipeline and your name is missing,
+If you have contributed to the OSIRIS pipeline and your name is missing,
 please send an email to the coordinators, or
-`open a pull request for this page <https://github.com/Keck-DataReductionPipelines/OsirisDRP/edit/master/AUTHORS.rst>`_
-in the `OsirisDRP repository <https://github.com/Keck-DataReductionPipelines/OsirisDRP>`_)
+open a pull request for this [page](https://github.com/Keck-DataReductionPipelines/OsirisDRP/edit/master/AUTHORS.rst>)
+in the [OsirisDRP repository](https://github.com/Keck-DataReductionPipelines/OsirisDRP>)
