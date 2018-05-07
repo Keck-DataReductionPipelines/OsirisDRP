@@ -1,10 +1,16 @@
 # Keck OSIRIS Data Reduction Pipeline
 
-* [Release Notes for v4.0.0](#release-notes-for-v4.0.0)
+* [Release Notes for v4.2.0](#release-notes-for-v4.2.0)
 * [Important Runtime Notes](#important-runtime-notes)
 * [Installation](#installation)
 * [Running the Pipeline](#running-the-pipeline)
 * [Testing the Pipeline](#testing-the-pipeline)
+
+## Release Notes for v4.2.0
+**2018-05-07**
+Major Updates
+- Derived new wavelength solution for OSIRIS in March 2018, which was required because OSIRIS was opened. All users are recommended to use this version, especially those with data post March 2018.
+- **Updated manual** - new installation instructions, wavelength solution, bad pixel mask info, updated information post-2016 detector upgrade are ongoing. Download [here](OSIRIS_Manual_v4.2.pdf)
 
 ## Release Notes for v4.1.0
 **2017-11-07**
