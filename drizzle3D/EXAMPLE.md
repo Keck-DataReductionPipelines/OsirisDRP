@@ -24,7 +24,7 @@ python drizzle3D_fast.py directory frame1 frame2 ... frameN option1 d_fine optio
 
 - "option1" choose which method to find the relative distance of each frame.
 
-option1 = 1: Using dither pattern as an input to determine the relative positions
+(option1 = 1): Using dither pattern as an input to determine the relative positions
 
 (option1 = 2): Using WCS info to determine the relative positions of each frame
 
@@ -47,9 +47,9 @@ contSub_Central_170518_new.fits 2.27815 1.65655
 contSub_Central_170519.fits 2.35025 1.61245
 #######################################################################################
 
-If users choose 2, no action is needed
+If users choose (option1 = 2), no action is needed
 
-If users choose 3, users need to supply a text file, config, in the same file directory. The coordinates show behind the frame name are the pixel coordiates where every frame share the same feature. For example, if the target is a star, the x and y can be the pixel coorediate which has brightest intensity. The last number is the intensity at that pixel. See below.
+If users choose (option1 = 3), users need to supply a text file, config, in the same file directory. The coordinates show behind the frame name are the pixel coordiates where every frame share the same feature. For example, if the target is a star, the x and y can be the pixel coorediate which has brightest intensity. The last number is the intensity at that pixel. See below.
 
 #######################################################################################
 Chih-FandeMacBook-Pro-4:drizzle_file Geoff$ emacs config
@@ -67,14 +67,13 @@ s180816_a003004_Kn3_100.fits 34 24 1434
 
 - "d_fine" is the physical size of the fine grid (in the unit of arcsec) *no default value
 
-- "option2" choose to stacking per # of channels. Ex: (option2 = 30) means that the final drizzled cube will stacking every 30 channels. The default, -1, is to stack every 10 channels.
+- "option2" choose to stacking per # of channels. Ex: (option2 = 30) means that the final drizzled cube will stacking every 30 channels. *The default, -1, is to stack every 10 channels.
 
 - "option3" choose how to stack channels.
 
 (option3 = 1): average  *Default is -1, which use average.
 
 (option3 = 2): Median
-
 
 
 - "option4" choose the fractional size of original pixel (value should > 0 and < 1). *the default value is 0.7.
