@@ -11,9 +11,12 @@
 Chih-FandeMacBook-Pro-4:drizzle3D Geoff$ pwd
 /Users/Geoff/GitHub/OsirisDRP/drizzle3D
 
-## Type following commands to perform the drizzling.
+## Type following command to perform the drizzling.
 
 python drizzle3D_fast.py directory frame1 frame2 ... frameN option1 d_fine option2 option3 option4
+
+
+## Explanations of the options/meaning in the command
 
 - "directory" is the path where you put the data cubes (after sky substraction)
 
