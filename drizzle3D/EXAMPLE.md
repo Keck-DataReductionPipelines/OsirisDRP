@@ -79,10 +79,7 @@ s180816_a003004_Kn3_100.fits 34 24 1434
 
 - "option4" choose the fractional size of original pixel (value should > 0 and < 1). *the default value is 0.7.
 
-except drizzled_cube.fits, the drizzle3D_fast.py will also output drizzled_cover.fits
-
-drizzled_cover.fits presents how much information from the coarse drop into each fine pixel. It is crucial to make sure that the area of interest (usually it is the brightest area in the center) is uniformly coverd with the info from coarse pixel. Thus, users need to check the RMS/median inside the area of interest. The value should < 0.2. See more detail in Avila et al. 2015
-
+Except drizzled_cube.fits, the drizzle3D_fast.py also output drizzled_cover.fits which presents how much information from the coarse drop into each fine pixel. It is crucial to make sure that the area of interest (usually it is the brightest area in the center) is uniformly coverd with the info from coarse pixel. Thus, users need to check the RMS/median inside the area of interest. The value should < 0.2. See more detail in Avila et al. 2015
 
 
 ## An practical example:
