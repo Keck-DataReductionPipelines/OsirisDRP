@@ -6,12 +6,12 @@
 - Python 3.6.1 |Anaconda custom (x86_64)
 
 
-## go to the directory where you put the drizzle3D_fast.py and drizzle3D_modules.py
+## Go to the directory where you put the drizzle3D_fast.py and drizzle3D_modules.py
 
 Chih-FandeMacBook-Pro-4:drizzle3D Geoff$ pwd
 /Users/Geoff/GitHub/OsirisDRP/drizzle3D
 
-## type following commands to perform the drizzling.
+## Type following commands to perform the drizzling.
 
 python drizzle3D_fast.py directory frame1 frame2 ... frameN option1 d_fine option2 option3 option4
 
@@ -20,6 +20,7 @@ python drizzle3D_fast.py directory frame1 frame2 ... frameN option1 d_fine optio
 - "frame1 frame2 ... frameN" are the data cubes in the directory you want to drizzle
 
 - "option1" choose which method to find the relative distance of each frame.
+
 1: Using dither pattern as an input to determine the relative positions
 2: Using WCS info to determine the relative positions of each frame
 3: Using auto-detection to determine the relative positions of each frame
@@ -30,9 +31,9 @@ If users choose 1 (or -1), users need to supply a text file, config_input, in th
 #######################################################################################
 Chih-FandeMacBook-Pro-4:drizzle_file Geoff$ emacs config_input
 
-# input info
+input info
 
-# name x y (in arcsec)
+name x y (in arcsec)
 
 contSub_Central_170517.fits 2.2547 1.673
 
@@ -48,9 +49,9 @@ If users choose 3, users need to supply a text file, config, in the same file di
 #######################################################################################
 Chih-FandeMacBook-Pro-4:drizzle_file Geoff$ emacs config
 
-# input info
+input info
 
-# name x y (in pixel coordiate) intensity
+name x y (in pixel coordiate) intensity
 
 s180816_a003002_Kn3_100.fits 35 23 2651
 
@@ -75,7 +76,7 @@ drizzled_cover.fits presents how much information from the coarse drop into each
 
 
 
-An example:
+## An real example:
 
 python drizzle3D_fast.py /Users/Geoff/drizzle_file contSub_Central_170517.fits contSub_Central_170518_new.fits contSub_Central_170519.fits -1 0.05 -1 -1 -1
 
