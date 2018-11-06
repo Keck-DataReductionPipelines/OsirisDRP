@@ -22,10 +22,12 @@ python drizzle3D_fast.py directory frame1 frame2 ... frameN option1 d_fine optio
 - "option1" choose which method to find the relative distance of each frame.
 
 1: Using dither pattern as an input to determine the relative positions
+
 2: Using WCS info to determine the relative positions of each frame
+
 3: Using auto-detection to determine the relative positions of each frame
 
-The default is -1, which use dither pattern as an input.
+The default is -1, which use the dither pattern as an input.
 
 If users choose 1 (or -1), users need to supply a text file, config_input, in the same file directory. The coordinates show behind the frame name is in unit of arcsecond. Actually it is the dither pattern one used in observing. See an example below.
 #######################################################################################
@@ -65,7 +67,9 @@ s180816_a003004_Kn3_100.fits 34 24 1434
 - "option2" choose to stacking per # of channels. Ex: 30 means that the final drizzled cube will stacking every 30 channels. The default, -1, is to stack every 10 channels.
 
 - "option3" choose how to stack channels.
+
 1 (or default, -1): average
+
 2: Median
 
 - "option4" choose the fractional size of original pixel (value should >0 and <1). default is 0.7.
@@ -76,7 +80,7 @@ drizzled_cover.fits presents how much information from the coarse drop into each
 
 
 
-## An real example:
+## An practical example:
 
 python drizzle3D_fast.py /Users/Geoff/drizzle_file contSub_Central_170517.fits contSub_Central_170518_new.fits contSub_Central_170519.fits -1 0.05 -1 -1 -1
 
