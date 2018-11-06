@@ -33,6 +33,7 @@ python drizzle3D_fast.py directory frame1 frame2 ... frameN option1 d_fine optio
 *The default is (option1 = -1), which use the dither pattern as an input.
 
 1. If users choose 1 (or -1), users need to supply a text file, config_input, in the same file directory. The coordinates show behind the frame name is in unit of arcsecond. Actually it is the dither pattern one used in observing. See an example below.
+
 #######################################################################################
 Chih-FandeMacBook-Pro-4:drizzle_file Geoff$ emacs config_input
 
