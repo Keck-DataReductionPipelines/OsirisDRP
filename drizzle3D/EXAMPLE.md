@@ -86,5 +86,5 @@ Except drizzled_cube.fits, the drizzle3D_fast.py also output drizzled_cover.fits
 
 python drizzle3D_fast.py /Users/Geoff/drizzle_file contSub_Central_170517.fits contSub_Central_170518_new.fits contSub_Central_170519.fits -1 0.05 -1 -1 -1
 
-Above command ask drizzle3D_fast.py to drizzle three files (contSub_Central_170517.fits, contSub_Central_170518_new.fits, and contSub_Central_170519.fits) inside the directory, /Users/Geoff/drizzle_file, into fine grid with 0.05'' per pixel. The method to find the position is using dither pattern (default) inside a text file, config_input. It stacking every 10 channels (default) in the output data cube. The stacking method is average (default). the fractional pixel is 0.7 (default).
+Above command ask drizzle3D_fast.py to drizzle three files (contSub_Central_170517.fits, contSub_Central_170518_new.fits, and contSub_Central_170519.fits) inside the directory, /Users/Geoff/drizzle_file, into fine grid with 0.05'' per pixel. The method to find the position is using dither pattern (default) inside a text file, config_input. It stacking every 10 channels (default) in the output data cube. The stacking method is average (default). the fractional pixel is 0.7 (default). It output drizzled_cube.fits and drizzled_cover.fits inside the same file directory, /Users/Geoff/drizzle_file.
 
