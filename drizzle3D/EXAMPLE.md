@@ -32,7 +32,7 @@ python drizzle3D_fast.py directory frame1 frame2 ... frameN option1 d_fine optio
 
 *The default is (option1 = -1), which use the dither pattern as an input.
 
-If users choose 1 (or -1), users need to supply a text file, config_input, in the same file directory. The coordinates show behind the frame name is in unit of arcsecond. Actually it is the dither pattern one used in observing. See an example below.
+1. If users choose 1 (or -1), users need to supply a text file, config_input, in the same file directory. The coordinates show behind the frame name is in unit of arcsecond. Actually it is the dither pattern one used in observing. See an example below.
 #######################################################################################
 Chih-FandeMacBook-Pro-4:drizzle_file Geoff$ emacs config_input
 
@@ -47,9 +47,9 @@ contSub_Central_170518_new.fits 2.27815 1.65655
 contSub_Central_170519.fits 2.35025 1.61245
 #######################################################################################
 
-If users choose (option1 = 2), no action is needed
+2. If users choose (option1 = 2), no action is needed
 
-If users choose (option1 = 3), users need to supply a text file, config, in the same file directory. The coordinates show behind the frame name are the pixel coordiates where every frame share the same feature. For example, if the target is a star, the x and y can be the pixel coorediate which has brightest intensity. The last number is the intensity at that pixel. See below.
+3. If users choose (option1 = 3), users need to supply a text file, config, in the same file directory. The coordinates show behind the frame name are the pixel coordiates where every frame share the same feature. For example, if the target is a star, the x and y can be the pixel coorediate which has brightest intensity. The last number is the intensity at that pixel. See below.
 
 #######################################################################################
 Chih-FandeMacBook-Pro-4:drizzle_file Geoff$ emacs config
