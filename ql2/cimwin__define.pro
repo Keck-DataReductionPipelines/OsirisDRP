@@ -1618,6 +1618,31 @@ endif else begin
     im2=im
 endelse
 
+
+; flip image if needed to give a rotation from N=up, E=left
+; only want to flip if we have an upgraded detector AND flip > 0
+hxrg = sxpar(hd, 'HXRGVERS')
+if (hxrg gt 0 ) then begin ; kwd is 0 if it is not in header
+  ql2flip = sxpar(hd, 'QL2FLIP')
+  if (ql2flip eq 0 ) then begin ; kwd is 0 if it is not in header
+    ; image has not been flipped previously
+    if has_valid_cconfigs(conbase_uval, cconfigs) then begin
+      print, 'H2RG detector: getting image flip setting from config'
+      flip=cconfigs->GetFlip()
+      print, 'Flip is ', flip
+    endif else begin
+      flip=0
+    endelse
+    if ( flip gt 0 ) then begin
+      im2=reverse(im2,flip)
+    endif
+  endif else begin
+     print, 'H2RG detector, but QL2FLIP header keyword indicates previously flipped'
+  endelse     
+endif else begin
+  print, 'H1 detector: ignoring flip'
+endelse
+
 ; check to see if you do the display as DN or total DN
 ; get the itime and coadds keywords from the config file, if possible
 
@@ -2005,7 +2030,7 @@ PRO CImWin::UpdateWCSDisplay, disp_x, disp_y
 	if not obj_valid(*p_imObj) then return
 	p_astr = (*p_ImObJ)->GetAstr(valid=astr_valid)
 
-	if astr_valid then begin
+        if astr_valid then begin
 		position = fltarr(3) ; contains the position in AXIS1, AXIS2, AXIS3 order
 		position[self.axesorder[0]] = disp_x
 		position[self.axesorder[1]] = disp_y
@@ -3880,7 +3905,9 @@ pa=call_function(pa_function, hd)
 
 ; set mask to [1,1,1,1,1,...]
 ;mask = !d.n_colors - 1
-mask = !p.color
+;mask = !p.color
+; color index must be 8-bit
+if !d.n_colors gt 256 then mask = 250 else mask = !d.n_colors - 1
 
 ; if error
 if pa[0] eq -1 then begin

@@ -76,6 +76,7 @@ if keyword_set(configs) then begin
     self.axes_labels3d=configs.axes_labels3d
     self.imscalemaxcon=configs.imscalemaxcon
     self.imscalemincon=configs.imscalemincon
+    self.flip=configs.flip
     self.displayasdn=configs.displayasdn
     self.collapse=configs.collapse
     ; QL2 info
@@ -128,6 +129,7 @@ endif else begin
     self.axes_labels3d=ptr_new(['AXIS 1', 'AXIS 2', 'AXIS 3'], /allocate_heap)
     self.imscalemaxcon=5.
     self.imscalemincon=-3.
+    self.flip=0
     self.displayasdn='As DN/s'
     self.collapse=0
     self.pa_function='osiris_calc_pa'
@@ -454,6 +456,13 @@ if (error ne -1) then begin
     endif else begin
         error_message=error_message+' imscalemincon'
         error_flag=1    
+    endelse
+
+    if ((size(inst_config.flip))[1] eq 2) then begin
+        self.flip=inst_config.flip
+    endif else begin
+        error_message=error_message+' flip'
+        error_flag=1   
     endelse
 
     if ((size(inst_config.displayasdn))[1] eq 7) then begin
@@ -881,6 +890,14 @@ function CConfigs::GetImScaleMinCon
 return, self.imscalemincon
 end
 
+pro CConfigs::SetFlip, flip
+self.flip=flip
+end
+
+function CConfigs::GetFlip
+return, self.flip
+end
+
 pro CConfigs::SetDisplayAsDN, displayasdn
 self.displayasdn=displayasdn
 end
@@ -953,6 +970,7 @@ struct={ cconfigs, $
          axes_labels3d:ptr_new(), $ ; labels for the cimwin axes
          imscalemaxcon:0.0, $ ; constant to multiply by im stddev to get the scale max
          imscalemincon:0.0, $ ; constant to multiply by im stddev to get the scale min
+         flip:0, $ ; flip image to be 1 rotation from N=up, E=left
          displayasdn:'', $    ; sets member variable as "As DN/s" or "As Total DN", how the image is displayed
          collapse:0.0, $    ; sets collapse member var to "Median" (0) or "Average" (1)
          pa_function:'', $    ; function that calculates the position angle

@@ -1,0 +1,2 @@
+#!/bin/csh -f
+xterm +ls -sb -sl 5000 -T 'ql2' -e idl ${OSIRIS_ROOT}/ql2/iqlook2_startup.pro

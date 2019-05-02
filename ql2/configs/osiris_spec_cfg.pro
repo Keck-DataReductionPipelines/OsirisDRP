@@ -53,6 +53,7 @@ struct={ cconfigs, $
          axes_labels3d:axes_labels3d, $
          imscalemaxcon:5., $ ; default image stretch max imscalemaxcon*im_sigma
          imscalemincon:-3., $ ; default image stretch min imscalemincon*im_sigma
+         flip:1, $ ; flip the display image if required for N=up, E=left
          displayasdn:'As DN/s', $ ; sets member variable as "As DN/s" or "As Total DN", how the image is displayed
          collapse:1, $ ; sets collapse member var to 'Median' (0) or 'Average' (1)
          pa_function:'osiris_calc_pa', $ ; function that calculates the position angle
