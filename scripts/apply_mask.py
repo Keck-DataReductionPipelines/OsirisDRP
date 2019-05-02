@@ -28,7 +28,7 @@ def apply_mask(infile,maskfile,deadpixelfile,outfile):
         mask = np.array(mask,dtype='uint8')
         hdu[2].data = mask
         hdu[0].header['BPM'] = (maskfile, 'Bad pixel mask applied')
-        hdu[0].header['DEADPIX'] = (deadpixelfile, 'Dead pixel mask applied')        
+        hdu[0].header['DEADPIX'] = (deadpixelfile, 'Dead pixel mask applied')
         print("writing: "+outfile)
         ver = float(astropy.__version__.split('.')[0])
         if ver < 2:
@@ -51,7 +51,7 @@ else:
 
 if args.deadpixels is None:
     directory = os.getenv('OSIRIS_ROOT', './')
-    deadpixelfile = os.path.join(directory,'data/bpm_deadpixels_null.fits.gz')
+    deadpixelfile = os.path.join(directory,'data/bpm_dead_4pixbufgood.fits.gz')
 else:
     deadpixelfile = args.deadpixels
 
@@ -59,7 +59,7 @@ if os.path.exists(bpm):
     print("bad pixel mask found: "+bpm)
 else:
     print("bad pixel mask not found: "+bpm)
-    
+
 if os.path.exists(deadpixelfile):
     print("dead pixel mask found: "+deadpixelfile)
 else:
@@ -73,4 +73,3 @@ print(args.inputfile)
 for tmp in args.inputfile:
     print("applying bad pixel mask to "+tmp)
     apply_mask(tmp,bpm,deadpixelfile,tmp)
-    
