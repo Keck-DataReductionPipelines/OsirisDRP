@@ -1,10 +1,17 @@
 # Keck OSIRIS Data Reduction Pipeline
 
+* [QL2 Updates for Imager Upgrade](#ql2-updates-imager-upgrade)
 * [Release Notes for v4.2.0](#release-notes-for-v4.2.0)
 * [Important Runtime Notes](#important-runtime-notes)
 * [Installation](#installation)
 * [Running the Pipeline](#running-the-pipeline)
 * [Testing the Pipeline](#testing-the-pipeline)
+
+## QL2 Updates for Imager Upgrade
+**2019-05-02**
+- The FITS files from the imager upgrade were flipped such that the images were not in an astronomical orientation.
+- QL2 will now flip IMAGER images about the x-axis (IDL-> im=reverse(im,2)) for upgraded images only.  SPEC and DRP cubes are NOT flipped.
+- Made a slight update to IDL_astro routine xy2ad.pro to handle WCS in OSIMG images.
 
 ## Release Notes for v4.2.0
 **2018-05-07**
