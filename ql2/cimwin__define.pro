@@ -143,28 +143,34 @@ if ptr_valid(conbase_uval.cconfigs_ptr) then begin
     if obj_valid(*conbase_uval.cconfigs_ptr) then begin
         if obj_isa(*conbase_uval.cconfigs_ptr, 'CConfigs') then begin
             cconfigs=*(conbase_uval.cconfigs_ptr)
-            displayas=cconfigs->GetDisplayAsDN() 
+            displayas=cconfigs->GetDisplayAsDN()
+            cfgname=cconfigs->GetCfgName()
+            ; use cfgname for OSIRIS as INSTRUME
+            ; is not in headers and CURRINST is
+            ; not controlled by instrument
             ; check to see if the header exists
-            if (hd[0] ne '') then begin
-                instr=strtrim(sxpar(hd,'CURRINST'),2)
-                if (instr eq 'OSIRIS') or (instr eq 'NIRC2') then begin
-                    case displayas of
+            if (stregex(cfgname, 'OSIRIS') gt -1) then begin
+               instr='OSIRIS'
+            endif else begin
+               if (hd[0] ne '') then begin
+                  instr=strtrim(sxpar(hd,'CURRINST'),2)
+               endif
+            endelse
+            if (instr eq 'OSIRIS') or (instr eq 'NIRC2') then begin                
+                case displayas of
                         'As DN/s': datanum_val='DN/s'
                         'As Total DN': datanum_val='DN'
                         else: datanum_val=''
-                    endcase
-                endif else begin
-                    datanum_val=''
-                endelse
-            endif
-        endif else begin
-            datanum_val=''
-        endelse
+                endcase
+            endif else begin
+                datanum_val=''
+            endelse
+        endif
     endif else begin
         datanum_val=''
     endelse
 endif else begin
-    datanum_val=''    
+    datanum_val=''
 endelse
 
 ; check to see if there is an itime keyword
@@ -1640,14 +1646,14 @@ if (hxrg gt 0 ) then begin ; kwd is 0 if it is not in header
      print, 'H2RG detector, but QL2FLIP header keyword indicates previously flipped'
   endelse     
 endif else begin
-  print, 'H1 detector: ignoring flip'
+  print, 'Original detector: ignoring flip'
 endelse
 
 ; check to see if you do the display as DN or total DN
 ; get the itime and coadds keywords from the config file, if possible
 
 if has_valid_cconfigs(conbase_uval, cconfigs) then begin
-   print, 'Getting itime keyword from config'
+   print, 'Getting itime, coadds keywords from config'
             itime_kw=cconfigs->GetItimeFitskw()
             coadds_kw=cconfigs->GetCoaddsFitskw()
 endif else begin
@@ -1656,18 +1662,44 @@ endif else begin
 	coadds_kw='COADDS'
 endelse
 
+; SPEC: H2 was DN/s, coadds ?, H2RG is DN/s with averaged coadds (2 coadds DN/s = 1 coadd DN/s)
+; IMAG: H1 was DN/s, H2RG is DN, and coadds are added (2 coadds has 2x DN as 1 coadd)
+if (hxrg gt 0 ) then begin
+  if has_valid_cconfigs(conbase_uval, cconfigs) then begin
+    print, 'Getting pixel units from config'
+    pixelunits=cconfigs->GetPixelUnit()
+  endif else begin
+    print, 'no valid config, using DN/s for pixel units'
+    pixelunits='DN/s'
+  endelse
+endif else begin
+  print, 'Original detector: assuming pixel units = DN/s'
+  pixelunits='DN/s'
+endelse
+print, 'pixelunits= ', pixelunits
+
 itime=sxpar(hd, itime_kw)
 coadds=sxpar(hd, coadds_kw)
-print, 'itime= ', itime
-;print, 'coadds= ', coadds
+print, 'itime= ', itime, ' coadds= ', coadds
+; jlyke thinks there is no reason to multiply by coadds...
 ; fix im2 to be the correct displayed im
 if (itime ne 0) then begin
     if (coadds ne 0) then begin
 		; MDP reformat to reduce repetition
         if (self.current_display_update) then begin
 	        case self.current_display of
-	            'As Total DN': im2=im2*itime*coadds
-	            'As DN/s': im2=im2 ;/(itime*coadds)
+                   'As Total DN': BEGIN
+                      if ( pixelunits eq 'DN/s') then begin
+                         ; im2=im2*itime*coadds
+                         im2=im2*itime
+                      endif
+                   END
+                   'As DN/s': BEGIN
+                      if (pixelunits eq 'DN') then begin
+                         im2=im2 ;/(itime*coadds)
+                         im2=im2/itime
+                      endif
+                   END
 	            else:
 	        endcase
 	        if (uval.current_display_skip ne 0) then begin
@@ -2773,23 +2805,27 @@ widget_control, self.BaseId, set_uval=uval
 ; MDP modified the following to remove lots of redundancy.
 ; "datanum_val" is what gets displayed to label the mouseover counts
 if has_valid_cconfigs(conbase_uval, cconfigs) then begin
-	des=cconfigs->GetDisplayAsDN()
-    ; check to see if the header exists
-    if (hd[0] ne '') then begin
-        instr=strtrim(sxpar(hd,'CURRINST'),2)
-        if (instr eq 'OSIRIS') or (instr eq 'NIRC2') then begin
-            case des of
-                'As DN/s': datanum_val='DN/s'
-                'As Total DN': datanum_val='DN'
-                else: datanum_val=''
-            endcase
-        endif else begin
-            datanum_val=''
-        endelse 
-    endif 
+   des=cconfigs->GetDisplayAsDN()
+   cfgname=cconfigs->GetCfgName()
+   if (stregex(cfgname, 'OSIRIS') gt -1) then begin
+     instr='OSIRIS'
+   endif else begin
+     if (hd[0] ne '') then begin
+       instr=strtrim(sxpar(hd,'CURRINST'),2)
+     endif
+   endelse
+   if (instr eq 'OSIRIS') or (instr eq 'NIRC2') then begin
+     case des of
+       'As DN/s': datanum_val='DN/s'
+       'As Total DN': datanum_val='DN'
+     else: datanum_val=''
+     endcase
+   endif else begin
+     datanum_val=''
+   endelse  
 endif else begin
-	des=['As DN/s'] ; default 
-	datanum_val=''
+  des=['As DN/s'] ; default 
+  datanum_val=''
 endelse
 
 if ((des ne 'As Total DN') and (des ne 'As DN/s')) then begin
@@ -2849,8 +2885,12 @@ pro CImWin::DisplayAsDN, no_rescale=no_rescale
 	; multiply the displayed im by the integration time
 	im=*self.p_DispIm
 
-	; Are we updating? i.e. are we switching from DN/s to Total DN or vice versa?
-	if (self.current_display_update) then begin
+        ; Are we updating? i.e. are we switching from DN/s to Total DN or vice versa?
+        ; jlyke 2019 July 29 Unsure why all the cases--each one appears identical
+        ; as a hedge, add a use_original_method varable and place in an if block
+      use_original_method = 0 ; do not use original method
+      if (use_original_method eq 1 ) then begin
+        if (self.current_display_update) then begin
 		print, "Converting data to format = "+self.current_display
 		instr=sxpar(hd,'CURRINST', count=instr_count)
 		case self.current_display of
@@ -2973,8 +3013,66 @@ pro CImWin::DisplayAsDN, no_rescale=no_rescale
 		    self.DoAutoScale=0
 		    self->UpdateText
 		endif
-	endelse
-	 
+             endelse
+        ;print, 'Using ORIGINAL method'
+
+     endif else begin
+        if (self.current_display_update) then begin
+	  print, "Converting data to format = "+self.current_display
+          case self.current_display of
+	    'As Total DN': begin
+		widget_control, cimwin_uval.wids.datanum, set_value='DN'
+		im=im*itime*coadds
+		*self.p_DispIm=im
+		if (cimwin_uval.current_display_skip ne 0) then begin
+		  cimwin_uval.current_display_skip=0
+		  widget_control, self.BaseId, set_uval=cimwin_uval
+		endif
+		self.dispmin =  self.dispmin*itime*coadds
+		self.dispmax =  self.dispmax*itime*coadds
+	    end
+	    'As DN/s': begin
+		widget_control, cimwin_uval.wids.datanum, set_value='DN/s'
+		im=im/(itime*coadds)
+		*self.p_DispIm=im
+		if (cimwin_uval.current_display_skip ne 0) then begin
+		  cimwin_uval.current_display_skip=0
+		  widget_control, self.BaseId, set_uval=cimwin_uval
+		endif
+		self.dispmin =  self.dispmin/(itime*coadds)
+                self.dispmax =  self.dispmax/(itime*coadds)
+             end
+             else:
+	endcase
+	self.current_display_update=0
+	self.DoAutoScale=0
+	self->UpdateText
+	endif else begin
+          if NOT keyword_set(no_rescale) then begin
+		
+	    ; scales the image by computing the mean and scales the
+	    ; min and max values according to the standard deviation
+	    ; don't count the NaN values
+	    ; use the cconfigs values for the scale max and min, if possible
+		
+	    if has_valid_cconfigs(conbase_uval, cconfigs) then begin
+		im_max_con=cconfigs->GetImScaleMaxCon()
+		im_min_con=cconfigs->GetImScaleMinCon()
+	    endif else begin
+		im_max_con=5. ; defaults
+		im_min_con=-3.
+	    endelse
+            meanval=moment(*self.p_DispIm, sdev=im_std, /NAN)
+	    self.DispMax=meanval[0]+im_max_con*im_std
+            self.DispMin=meanval[0]+im_min_con*im_std
+            self.DoAutoScale=0
+            self->UpdateText
+	  endif
+       endelse
+        ;print, 'Using NEW method'
+      endelse ; use_original_method
+
+ 
 end
 
 

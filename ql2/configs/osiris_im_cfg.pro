@@ -55,6 +55,7 @@ struct={ cconfigs, $
          imscalemincon:-3., $
          flip:2, $ ; flip the display image if required for N=up, E=left 
          displayasdn:'As Total DN', $ ; 'As Total DN', 'As DN/s'
+         pixelunit:'DN', $ ; 'DN', 'DN/s'
          collapse:1, $ ; 'Median' (0), 'Average' (1)
          pa_function:'osiris_calc_pa', $
          exit_question:0., $

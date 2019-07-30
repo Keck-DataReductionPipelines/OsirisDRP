@@ -25,6 +25,7 @@
 ; 	2007-07-03	MDP: Fix multiple pointer leaks on startup.
 ; 	2007-07-12  MDP: Return to user's original working directory after
 ; 				     reading in config file.
+;       2019-07-26 jlyke: Add flip, pixelunit to config
 ;- 
 
 function CConfigs::Init, wid_leader=conbase_id, inst_cfg=configs
@@ -78,6 +79,7 @@ if keyword_set(configs) then begin
     self.imscalemincon=configs.imscalemincon
     self.flip=configs.flip
     self.displayasdn=configs.displayasdn
+    self.pixelunit=configs.pixelunit
     self.collapse=configs.collapse
     ; QL2 info
     self.pa_function=cconfigs.pa_function
@@ -95,7 +97,7 @@ endif else begin
     self.pa_fitskw='SCAMPA'
     self.object_fitskw='OBJECT'
     self.sampmode_fitskw='SAMPMODE'
-    self.numreads_fitskw='MULTISCA'
+    self.numreads_fitskw='NUMREADS'
     self.platescale_fitskw='SS1NAME'
     self.array_index_fitskw='CRPIX1'
     self.reference_fitskw='CRVAL1'
@@ -131,6 +133,7 @@ endif else begin
     self.imscalemincon=-3.
     self.flip=0
     self.displayasdn='As DN/s'
+    self.pixelunit='DN/s'
     self.collapse=0
     self.pa_function='osiris_calc_pa'
     self.exit_question=0
@@ -470,6 +473,13 @@ if (error ne -1) then begin
     endif else begin
         error_message=error_message+' displayasdn'
         error_flag=1    
+    endelse
+
+    if ((size(inst_config.pixelunit))[1] eq 7) then begin
+        self.pixelunit=inst_config.pixelunit
+    endif else begin
+        error_message=error_message+' pixelunit'
+        error_flag=1   
     endelse
 
     if ((size(inst_config.collapse))[1] eq 4) then begin
@@ -906,6 +916,14 @@ function CConfigs::GetDisplayAsDN
 return, self.displayasdn
 end
 
+pro CConfigs::SetPixelUnit, pixelunit
+self.pixelunit=pixelunit
+end
+
+function CConfigs::GetPixelUnit
+return, self.pixelunit
+end
+
 pro CConfigs::SetCollapse, collapse
 self.collapse=collapse
 end
@@ -970,8 +988,9 @@ struct={ cconfigs, $
          axes_labels3d:ptr_new(), $ ; labels for the cimwin axes
          imscalemaxcon:0.0, $ ; constant to multiply by im stddev to get the scale max
          imscalemincon:0.0, $ ; constant to multiply by im stddev to get the scale min
-         flip:0, $ ; flip image to be 1 rotation from N=up, E=left
+         flip:0,            $ ; flip image to be 1 rotation from N=up, E=left, 0=no flip, 1=about Y-axis (X->-X), 2=about X-axis
          displayasdn:'', $    ; sets member variable as "As DN/s" or "As Total DN", how the image is displayed
+         pixelunit:'', $      ; sets member variable as "DN/s" or "DN", what the actual pixel values are
          collapse:0.0, $    ; sets collapse member var to "Median" (0) or "Average" (1)
          pa_function:'', $    ; function that calculates the position angle
          exit_question:0.0, $  ; 1 if you want QL2 to ask about keeping IDL running when exiting
