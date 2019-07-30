@@ -35,6 +35,7 @@
 ;			2008-03-18 MDP: Various bug fixes and improvements. (I know, such a useful log message...)
 ; 2017-09-07 - T.Do : fixed bug when displaying DN/s in the cube
 ;              dividing by the itime when it is already in DN/s			     
+; 2019-07-29 - jlyke : Handle upgraded imager detector pixel units (DN)
 ;-
 
 
