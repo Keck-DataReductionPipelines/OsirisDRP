@@ -8,6 +8,8 @@
 * [Testing the Pipeline](#testing-the-pipeline)
 
 ## QL2 Updates for Imager Upgrade
+**2019-07-29**
+- Handle imager upgrade pixel units (DN) instead of DN/s
 **2019-05-02**
 - The FITS files from the imager upgrade were flipped such that the images were not in an astronomical orientation.
 - QL2 will now flip IMAGER images about the x-axis (IDL-> im=reverse(im,2)) for upgraded images only.  SPEC and DRP cubes are NOT flipped.
