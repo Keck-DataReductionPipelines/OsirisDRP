@@ -137,7 +137,7 @@ uval={  wids:wids, $
         activewin:0, $
         newwin:0, $
         newwin_active:1, $
-        newwin_defaults:0, $
+        newwin_defaults:1, $
         unravel:0, $
         actwin_xs:0., $
         actwin_ys:0., $
