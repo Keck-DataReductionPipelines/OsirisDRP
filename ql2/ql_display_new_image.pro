@@ -26,7 +26,13 @@
 ;
 ; PROCEDURES USED:
 ;
-; REVISION HISTORY: 24FEB2003 - MWM: added comments.
+; REVISION HISTORY:
+;          2003-02-24 - MWM: added comments.
+;          2020-04-10 - jlyke: Change indents on comments for easier
+;                                    reading
+;                              Add call to UpdateDispIm in the
+;                                    activeparams_set if block to
+;                                    preserve the image flip (OSIMG)
 ; -
 
 pro ql_display_new_image, conbase_id, p_ImObj, p_WinObj=p_WinObj, extension
@@ -151,12 +157,12 @@ if ptr_valid(p_WinObj) then begin
                     ; if plot window exists, update that menu too
                     if (winbase_uval.exist.plot ne 0L) then begin
                         widget_control, winbase_uval.exist.plot, get_uval=plot_uval
-						; TODO FIXME this is all screwed up, and when you open a
-						; new image with a plot already open, sometimes bad
-						; things happen. DEBUG LATER!!!
-						; MDP it seems ridiculous to destroy the old
-						; type_list_ptr only to imediately re-create it here.
-						; Also, it's crashing.
+		        ; TODO FIXME this is all screwed up, and when you open a
+                        ; new image with a plot already open, sometimes bad
+			; things happen. DEBUG LATER!!!
+			; MDP it seems ridiculous to destroy the old
+			; type_list_ptr only to imediately re-create it here.
+			; Also, it's crashing.
                         ; make a new type list
 ;MDP	                        type_list=['Horizontal Cut', $
 ;MDP	                                   'Vertical Cut', $
@@ -183,8 +189,8 @@ if ptr_valid(p_WinObj) then begin
                         im_ys=im->GetYS()
                         im_zs=im->GetZS()
                         imwin_obj->SetCurIm_s, [im_xs, im_ys, im_zs]
-						; this line will erase the plot, and 
-						; draw a new one using the params from imwin_uval
+			; this line will erase the plot, and 
+			; draw a new one using the params from imwin_uval
                         plot->ChangePlotType, plot_type ; MDP - moved this line to call it AFTER setting the new data.
 
                         ; reset the data range drawn plot
@@ -198,8 +204,8 @@ if ptr_valid(p_WinObj) then begin
                         ptr_free, wavesol_ptr
                         ; set the plot type to the old selection on the list
                         plottype=plot->GetPlotType()
-						; MDP I believe the following code does nothing, since
-						; droplist_select never gets used again.
+			; MDP I believe the following code does nothing, since
+			; droplist_select never gets used again.
 ;                        case plottype of
 ;                            'horizontal': droplist_select=0
 ;                            'vertical': droplist_select=1
@@ -423,8 +429,10 @@ if (activeparams_set) then begin
         widget_control, imwin_uval.wids.xdim_list, set_droplist_select=axesorder[0]
         widget_control, imwin_uval.wids.ydim_list, set_droplist_select=axesorder[1]
         widget_control, imwin_uval.wids.cube_base, sensitive=1
-    endelse
+     endelse
     imwin_obj->UpdateText
+    ; jlyke added UpdateDispIm 2020-Apr-09 to preserve image flip if needed
+    imwin_obj->UpdateDispIm
     imwin_obj->DrawImage
 endif else begin
     im_zs=im->GetZS()
