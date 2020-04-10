@@ -21,21 +21,30 @@
 ;
 ; PROCEDURES USED:
 ;
-; REVISION HISTORY: 18DEC2002 - MWM: added comments.
-; 		    09MAR2006 - Marshall Perrin:  Add axes plots, menu separators, and
+; REVISION HISTORY:
+;       2002-12-18 - MWM: added comments.
+;       2006-03-09 - Marshall Perrin:  Add axes plots, menu separators, and
 ; 						  'save to variable' feature.
-; 			2007-07-03 MDP: Fixed multiple memory leaks on startup. Also started
+;       2007-07-03 - MDP: Fixed multiple memory leaks on startup. Also started
 ; 			  to add support for FITS WCS (doesn't work yet)
-; 			2007-07-12 MDP: WCS code works
-; 			2007-10-31 MDP: Lots of redundant and/or convoluted code simplified.
-; 			     Changing from Total DN to DN/s now intelligently rescales the
-; 			     min/max values by the exposure time, rather than re-autoscaling
-; 			     the image.
-; 			     Draw/Remove menu axes label now toggles.
-;			2008-03-18 MDP: Various bug fixes and improvements. (I know, such a useful log message...)
-; 2017-09-07 - T.Do : fixed bug when displaying DN/s in the cube
-;              dividing by the itime when it is already in DN/s			     
-; 2019-07-29 - jlyke : Handle upgraded imager detector pixel units (DN)
+;       2007-07-12 - MDP: WCS code works
+;       2007-10-31 - MDP: Lots of redundant and/or convoluted code simplified.
+; 			  Changing from Total DN to DN/s now
+; 			      intelligently rescales the
+; 			      min/max values by the exposure time,
+;                             rather than re-autoscaling the image.
+;                         Draw/Remove menu axes label now toggles.
+;       2008-03-18 - MDP: Various bug fixes and improvements.
+;                             (I know, such a useful log message...)
+;       2017-09-07 - T.Do : fixed bug when displaying DN/s in the cube
+;                           dividing by the itime when it is already
+;                           in DN/s
+;       2019-07-29 - jlyke : Handle upgraded imager detector pixel units (DN)
+;                            Flip new OSIMG data for correct orientation
+;       2020-04-10 - jlyke : Add changes to DispMin/Max per image
+;                                stretch in UpdateDispIm
+;                            Change indents on comments for easier reading
+
 ;-
 
 
@@ -1625,7 +1634,6 @@ endif else begin
     im2=im
 endelse
 
-
 ; flip image if needed to give a rotation from N=up, E=left
 ; only want to flip if we have an upgraded detector AND flip > 0
 hxrg = sxpar(hd, 'HXRGVERS')
@@ -1641,10 +1649,10 @@ if (hxrg gt 0 ) then begin ; kwd is 0 if it is not in header
       flip=0
     endelse
     if ( flip gt 0 ) then begin
-      im2=reverse(im2,flip)
+       im2=reverse(im2,flip)
     endif
   endif else begin
-     print, 'H2RG detector, but QL2FLIP header keyword indicates previously flipped'
+    print, 'H2RG detector, but QL2FLIP header keyword indicates previously flipped'
   endelse     
 endif else begin
   print, 'Original detector: ignoring flip'
@@ -1736,8 +1744,44 @@ if self.DoAutoScale eq 1 then begin
 	endelse
     meanval=moment(im2, sdev=im_std, /NAN)
     medianval=median(im2)
-    self.DispMax=meanval[0]+im_max_con*im_std
-    self.DispMin=meanval[0]+im_min_con*im_std
+    maxval=max(im2)
+    ; Set the DispMin/Max for each stretch
+    ; jlyke 2020-04-10
+    ; Images look best when the min value
+    ; is smaller than the max value
+    ; For the non-linear stretches, using the mean + variance seems
+    ; better than using maxval or the mean + small factor * im_std
+    case self.DispScale of
+       'linear': begin
+          self.DispMax=meanval[0]+im_max_con*im_std
+          self.DispMin=meanval[0]+im_min_con*im_std
+       end
+       'negative': begin
+          self.DispMax=meanval[0]+im_max_con*im_std
+          self.DispMin=meanval[0]+im_min_con*im_std
+       end
+       'sqrt': begin
+          self.DispMax=meanval[0]+im_std*im_std
+          self.DispMin=meanval[0]+im_min_con*im_std
+       end
+       'asinh': begin
+          self.DispMax=maxval/2.
+          self.DispMax=meanval[0]+im_std*im_std
+          self.DispMin=meanval[0]+im_min_con*im_std
+       end
+       'histeq':begin
+          self.DispMax=meanval[0]+im_max_con*im_std
+          self.DispMin=meanval[0]+im_min_con*im_std
+       end
+       'logarithmic':begin
+          ; Logarithmic scaling algorithm borrowed from atv.pro
+          self.DispMax=meanval[0]+im_std*im_std
+          self.DispMin=meanval[0]+im_min_con*im_std
+       end
+    endcase
+
+    ;self.DispMax=meanval[0]+im_max_con*im_std
+    ;self.DispMin=meanval[0]+im_min_con*im_std
     print, 'the mean image value is ', strtrim(meanval[0],2)
     print, 'the median image value is ', strtrim(medianval,2)
     print, 'the standard deviation of the image value is ', strtrim(im_std,2)    
@@ -1747,7 +1791,7 @@ endif
 
 ; current order of the image axes
 self.CurIm_s=im_s
-; the pointer of the displayed image is set equal to the transposed image
+; the pointer of the displayed image is set equal to the modified image
 *self.p_DispIm=im2
 
 end
@@ -1759,7 +1803,7 @@ pro CImWin::DrawImage, PS=ps, noerase=noerase
 widget_control, self.BaseId, get_uval=uval
 widget_control, self.ParentBaseId, get_uval=conbase_uval
 
-im=*self.p_DispIm 
+im=*self.p_DispIm
 pmode=*uval.pmode_ptr
 
 ; get dimensions of window
@@ -1835,7 +1879,7 @@ case self.DispScale of
         dispim = bytscl(sqrt(im-self.DispMin),min=0,max=sqrt(self.DispMax-self.DispMin))
     end
     'asinh': begin
-		sdi = stddev(im)
+        sdi = stddev(im)
         dispim = bytscl(asinh((im-self.DispMin)/(sdi)),min=0,max=asinh((self.DispMax-self.DispMin)/(sdi)))
     end
     'histeq':begin
@@ -2796,7 +2840,7 @@ endif else begin
 endelse
 
 ; resets the display scale
-self.DispScale='linear'
+;self.DispScale='linear'
 
 widget_control, self.BaseId, set_uval=uval
 
