@@ -383,9 +383,11 @@ for k = 0,Naper-1 do begin      ;Find pixels within each aperture
     endelse
 endfor
 
- apmag = apmag - skymod*area  ;Subtract sky from the integrated brightnesses
-
- good = where (apmag GT 0.0, Ngood)     ;Are there any valid integrated fluxes?
+ ; jlyke 2020-04-15 removed sky correction as it was being redone 
+ ;                  in cimwin__define.pro 
+ ;apmag = apmag - skymod*area  ;Subtract sky from the integrated brightnesses
+ 
+good = where (apmag GT 0.0, Ngood)     ;Are there any valid integrated fluxes?
  if ( Ngood GT 0 ) then begin               ;If YES then compute errors
    error1[good] = area[good]*skyvar   ;Scatter in sky values
    error2[good] = apmag[good]/phpadu  ;Random photon noise 
