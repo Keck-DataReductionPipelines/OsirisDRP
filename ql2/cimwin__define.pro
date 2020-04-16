@@ -44,6 +44,8 @@
 ;       2020-04-10 - jlyke : Add changes to DispMin/Max per image
 ;                                stretch in UpdateDispIm
 ;                            Change indents on comments for easier reading
+;       2020-04-15 - jlyke : Change sky correction in photometry as it
+;                                was begin done twice
 
 ;-
 
@@ -4447,7 +4449,8 @@ maglabel=widget_label(magbase, value = 'Magnitude:',  yoff = ys + 2*ys2)
 magval=widget_label(magbase,value='0', frame=2, xsize=120, $
                     /align_right,  yoff = ys + 2*ys2)
 obcntbase=widget_base(photbase, /row)
-obcntlabel=widget_label(obcntbase, value = 'Object counts:',  yoff = ys + 3*ys2)
+obcntlabel=widget_label(obcntbase, value = 'Raw Object Counts:',  $
+                        yoff = ys + 3*ys2)
 obcntval=widget_label(obcntbase,value='0', frame=2, xsize=120, $
                     /align_right,  yoff = ys + 3*ys2)
 mskybase=widget_base(photbase, /row)
@@ -4579,12 +4582,20 @@ disp_im=*disp_im_ptr
 
 ql_aper, disp_im, cimwin_uval.phot_circ_x, cimwin_uval.phot_circ_y, flux, eflux, sky, skyerr, 1, self.photometry_aper, $
   [self.photometry_inner_an, self.photometry_outer_an], [0,0], NUMAPER_PIX=numaper_pix, /FLUX, BASE_ID=base_id
- 
+
+; jlyke 2020-04-15: ql_aper was sky-correcting data using the aperture
+;                   area, then below we were sky correcting again
+;                   using number of whole+partial pixels.
+;                   I removed the sky-correction from ql_aper and
+;                   changed the calc here: cor_counts=...
+
 ; calculate photometry parameters
 if (numaper_pix gt 0) then begin
     counts=flux
     mean_sky=sky[0]
-    cor_counts=(flux-sky[0]*double(numaper_pix))
+    ; jlyke - change noted above
+    ;cor_counts=(flux-sky[0]*double(numaper_pix))
+    cor_counts=(flux-sky[0]*!pi*self.photometry_aper*self.photometry_aper)
     ; check to see if the data is in DN or DN/s
     widget_control, cimwin_uval.wids.datanum, get_value=dntag
     case dntag of
