@@ -178,6 +178,12 @@ The first time you run the tests, data will be downloaded so it will take longer
 ======================== 2 passed, 2 skipped in 41.77 seconds ===================
 ```
 
+### OOPGUI &  ODRFGUI settings
+
+To set the default directories for the guis, you can edit the following two files:
+
+* ``odrfgui/odrfgui_cfg.xml``
+* ``oopgui/oopgui_cfg.xml``
 
 ### Troubleshooting
 

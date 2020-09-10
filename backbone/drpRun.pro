@@ -11,6 +11,11 @@ PRO drpRun, QUEUE_DIR=queue_dir
         drpData = GETENV('OSIRIS_DRP_DATA_PATH')
         drpConfig = GETENV('OSIRIS_DRP_CONFIG_FILE')
         IDLversion = !version.release
+        ver = ''
+        openr, lun, backboneDIR+'/version.txt',/get_lun
+        readf,lun,ver
+        close,lun
+        free_lun,lun
         print, "                                                     "
         PRINT, "*****************************************************"
         print, "*                                                   *"
@@ -18,7 +23,7 @@ PRO drpRun, QUEUE_DIR=queue_dir
         print, "*                                                   *"
         print, "*###################################################*"
         print, "*                                                   *"
-        print, "*                   VERSION 4.2.0                   *"
+        print, "*                   VERSION "+ver+"                  *"
         print, "*                                                   *"
         print, "*           James Larkin, Shelley Wright,           *"
         print, "*            Jason Weiss, Mike McElwain,            *"
