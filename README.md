@@ -1,25 +1,21 @@
 # Keck OSIRIS Data Reduction Pipeline
 
 * [Release Notes for v5.0beta](#release-notes-for-v5.0beta)
-* [QL2 Updates for Imager Upgrade](#ql2-updates-imager-upgrade)
-* [Release Notes for v4.2.0](#release-notes-for-v4.2.0)
 * [Important Runtime Notes](#important-runtime-notes)
 * [Installation](#installation)
 * [Running the Pipeline](#running-the-pipeline)
 * [Testing the Pipeline](#testing-the-pipeline)
+* [Citing the Pipeline](#citing-the-pipeline)
 
 ## Release Notes for v5.0beta
-**2019-08-30**
-- New wavelength solution for 2019. Still work in progress, as there appears to be some offset to the wavelength solutions.
-
-## QL2 Updates for Imager Upgrade
-**2019-07-29**
+**2019-09-22**
+- New wavelength solution for 2019 & 2020. Unlike data before 2019, there appears to be larger residual offsets in the wavelength solution between different plate scales. The smallest shift is at 50 mas and the grows larger for smaller plate scales. At Kn3 35 mas, the offset is about 0.3 Angstrom based on comparisons with OH sky lines. 
 - Handle imager upgrade pixel units (DN) instead of DN/s
-
-**2019-05-02**
 - The FITS files from the imager upgrade were flipped such that the images were not in an astronomical orientation.
 - QL2 will now flip IMAGER images about the x-axis (IDL-> im=reverse(im,2)) for upgraded images only.  SPEC and DRP cubes are NOT flipped.
 - Made a slight update to IDL_astro routine xy2ad.pro to handle WCS in OSIMG images.
+- Other minor updates
+
 
 ## Release Notes for v4.2.0
 **2018-05-07**
@@ -72,6 +68,14 @@ Minor Updates:
 a future release.
 - More information is available in [Issue 49](https://github.com/Keck-DataReductionPipelines/OsirisDRP/issues/49) or in the [wiki](https://github.com/Keck-DataReductionPipelines/OsirisDRP/wiki/Tests:-cosmic-ray-module).
 
+**Bad pixel mask**
+A preliminary bad pixel mask is available for data taken after 2016 (new spectrograph detector). The mask was computed from a series of darks. There is both a bad pixel mask of hot pixels (pixels with permanently elevated value) as well as a dead pixel mask (pixels with permanently low values). This mask meant to be used as extension 2 in the raw fits files. Currently, the mask is not automatically applied by Keck. To apply it, use the following command in the raw spectra directory once the pipeline is installed:
+```
+apply_mask.py *.fits
+```
+
+NOTE: this requires python installed with ``numpy`` and ``astropy`` packages. Tests show that using the bad pixel mask improves the SNR by about 10%.
+
 **Old Modules**
 - For data taken in 2016 onward, it is no longer necessary to run the following modules: Remove Cross Talk, Glitch Identification. It is fine to keep them in the DRF XML, these modules will automatically not run on the new data.
 
@@ -80,6 +84,10 @@ a future release.
 - For certain cases, there are flux artifacts: [Issue 20](https://github.com/Keck-DataReductionPipelines/OsirisDRP/issues/20), [wiki link](https://github.com/Keck-DataReductionPipelines/OsirisDRP/wiki/Tests:-Quantified-Flux-Mis-assignment)
 - Spatial rippling is seen in the integrate flux of sky lines spatially across the field: [Issue 21](https://github.com/Keck-DataReductionPipelines/OsirisDRP/issues/21)
 - [2016-09-07 OSIRIS Hackathon report](https://drive.google.com/open?id=0B_YkzZoUSrX-YnpCRjVZRkRPWnM) on these and other issues from the most recent OSIRIS Hackathon
+
+## Citing the Pipeline 
+
+Please cite [Lyke et al. (2017)](https://ui.adsabs.harvard.edu/abs/2017ascl.soft10021L/abstract) and [Lockhart et al. (2019)](https://ui.adsabs.harvard.edu/abs/2019AJ....157...75L/abstract) if you use this pipeline in a publication. 
 
 ## Installation
 ### Prerequisites
