@@ -92,6 +92,7 @@ pro xy2ad, x, y, astr, a, d
 ;       Evalue TPV distortion (SCAMP) if present W. Landsman   Jan 2014
 ;       Support IRAF TNX porjection  M. Sullivan U. of Southamptom  Mar 2014
 ;       No longer check that CDELT[0] NE 1  W. Landsman Apr 2015
+;       Handle missing PV1 tag   jlyke, WMKO, May 2019
 ;- 
  common Broyden_coeff, pv1, pv2       ;Needed for TPV transformation
  compile_opt idl2
@@ -165,6 +166,10 @@ pro xy2ad, x, y, astr, a, d
         ctype = strmid(astr.ctype,0,4) + '-TAN'
      endif
 
+if not tag_exist(astr, 'PV1') then begin
+   no_PV1 = 1
+endif
+   
  if N_elements(ctype) Eq 0 then ctype = astr.ctype
  crval = astr.crval
  IF astr2 THEN reverse = astr.reverse ELSE BEGIN
@@ -177,7 +182,7 @@ pro xy2ad, x, y, astr, a, d
      crval = rotate(crval,2)
      temp = TEMPORARY(xsi) & xsi = TEMPORARY(eta) & eta = TEMPORARY(temp)
  endif
-
+ 
  if strmid(ctype[0],4,1) EQ '-' then begin
      if no_PV1 then begin       ;Set default values for tangent projection
            pv1 = [0.0d,0,90.0d,180.0d,90.0d]  & pv2 = [0.0d,0.0d]	   

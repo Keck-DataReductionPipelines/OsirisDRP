@@ -21,20 +21,32 @@
 ;
 ; PROCEDURES USED:
 ;
-; REVISION HISTORY: 18DEC2002 - MWM: added comments.
-; 		    09MAR2006 - Marshall Perrin:  Add axes plots, menu separators, and
+; REVISION HISTORY:
+;       2002-12-18 - MWM: added comments.
+;       2006-03-09 - Marshall Perrin:  Add axes plots, menu separators, and
 ; 						  'save to variable' feature.
-; 			2007-07-03 MDP: Fixed multiple memory leaks on startup. Also started
+;       2007-07-03 - MDP: Fixed multiple memory leaks on startup. Also started
 ; 			  to add support for FITS WCS (doesn't work yet)
-; 			2007-07-12 MDP: WCS code works
-; 			2007-10-31 MDP: Lots of redundant and/or convoluted code simplified.
-; 			     Changing from Total DN to DN/s now intelligently rescales the
-; 			     min/max values by the exposure time, rather than re-autoscaling
-; 			     the image.
-; 			     Draw/Remove menu axes label now toggles.
-;			2008-03-18 MDP: Various bug fixes and improvements. (I know, such a useful log message...)
-; 2017-09-07 - T.Do : fixed bug when displaying DN/s in the cube
-;              dividing by the itime when it is already in DN/s			     
+;       2007-07-12 - MDP: WCS code works
+;       2007-10-31 - MDP: Lots of redundant and/or convoluted code simplified.
+; 			  Changing from Total DN to DN/s now
+; 			      intelligently rescales the
+; 			      min/max values by the exposure time,
+;                             rather than re-autoscaling the image.
+;                         Draw/Remove menu axes label now toggles.
+;       2008-03-18 - MDP: Various bug fixes and improvements.
+;                             (I know, such a useful log message...)
+;       2017-09-07 - T.Do : fixed bug when displaying DN/s in the cube
+;                           dividing by the itime when it is already
+;                           in DN/s
+;       2019-07-29 - jlyke : Handle upgraded imager detector pixel units (DN)
+;                            Flip new OSIMG data for correct orientation
+;       2020-04-10 - jlyke : Add changes to DispMin/Max per image
+;                                stretch in UpdateDispIm
+;                            Change indents on comments for easier reading
+;       2020-04-15 - jlyke : Change sky correction in photometry as it
+;                                was begin done twice
+
 ;-
 
 
@@ -143,28 +155,34 @@ if ptr_valid(conbase_uval.cconfigs_ptr) then begin
     if obj_valid(*conbase_uval.cconfigs_ptr) then begin
         if obj_isa(*conbase_uval.cconfigs_ptr, 'CConfigs') then begin
             cconfigs=*(conbase_uval.cconfigs_ptr)
-            displayas=cconfigs->GetDisplayAsDN() 
+            displayas=cconfigs->GetDisplayAsDN()
+            cfgname=cconfigs->GetCfgName()
+            ; use cfgname for OSIRIS as INSTRUME
+            ; is not in headers and CURRINST is
+            ; not controlled by instrument
             ; check to see if the header exists
-            if (hd[0] ne '') then begin
-                instr=strtrim(sxpar(hd,'CURRINST'),2)
-                if (instr eq 'OSIRIS') or (instr eq 'NIRC2') then begin
-                    case displayas of
+            if (stregex(cfgname, 'OSIRIS') gt -1) then begin
+               instr='OSIRIS'
+            endif else begin
+               if (hd[0] ne '') then begin
+                  instr=strtrim(sxpar(hd,'CURRINST'),2)
+               endif
+            endelse
+            if (instr eq 'OSIRIS') or (instr eq 'NIRC2') then begin                
+                case displayas of
                         'As DN/s': datanum_val='DN/s'
                         'As Total DN': datanum_val='DN'
                         else: datanum_val=''
-                    endcase
-                endif else begin
-                    datanum_val=''
-                endelse
-            endif
-        endif else begin
-            datanum_val=''
-        endelse
+                endcase
+            endif else begin
+                datanum_val=''
+            endelse
+        endif
     endif else begin
         datanum_val=''
     endelse
 endif else begin
-    datanum_val=''    
+    datanum_val=''
 endelse
 
 ; check to see if there is an itime keyword
@@ -1618,11 +1636,35 @@ endif else begin
     im2=im
 endelse
 
+; flip image if needed to give a rotation from N=up, E=left
+; only want to flip if we have an upgraded detector AND flip > 0
+hxrg = sxpar(hd, 'HXRGVERS')
+if (hxrg gt 0 ) then begin ; kwd is 0 if it is not in header
+  ql2flip = sxpar(hd, 'QL2FLIP')
+  if (ql2flip eq 0 ) then begin ; kwd is 0 if it is not in header
+    ; image has not been flipped previously
+    if has_valid_cconfigs(conbase_uval, cconfigs) then begin
+      print, 'H2RG detector: getting image flip setting from config'
+      flip=cconfigs->GetFlip()
+      print, 'Flip is ', flip
+    endif else begin
+      flip=0
+    endelse
+    if ( flip gt 0 ) then begin
+       im2=reverse(im2,flip)
+    endif
+  endif else begin
+    print, 'H2RG detector, but QL2FLIP header keyword indicates previously flipped'
+  endelse     
+endif else begin
+  print, 'Original detector: ignoring flip'
+endelse
+
 ; check to see if you do the display as DN or total DN
 ; get the itime and coadds keywords from the config file, if possible
 
 if has_valid_cconfigs(conbase_uval, cconfigs) then begin
-   print, 'Getting itime keyword from config'
+   print, 'Getting itime, coadds keywords from config'
             itime_kw=cconfigs->GetItimeFitskw()
             coadds_kw=cconfigs->GetCoaddsFitskw()
 endif else begin
@@ -1631,18 +1673,44 @@ endif else begin
 	coadds_kw='COADDS'
 endelse
 
+; SPEC: H2 was DN/s, coadds ?, H2RG is DN/s with averaged coadds (2 coadds DN/s = 1 coadd DN/s)
+; IMAG: H1 was DN/s, H2RG is DN, and coadds are added (2 coadds has 2x DN as 1 coadd)
+if (hxrg gt 0 ) then begin
+  if has_valid_cconfigs(conbase_uval, cconfigs) then begin
+    print, 'Getting pixel units from config'
+    pixelunits=cconfigs->GetPixelUnit()
+  endif else begin
+    print, 'no valid config, using DN/s for pixel units'
+    pixelunits='DN/s'
+  endelse
+endif else begin
+  print, 'Original detector: assuming pixel units = DN/s'
+  pixelunits='DN/s'
+endelse
+print, 'pixelunits= ', pixelunits
+
 itime=sxpar(hd, itime_kw)
 coadds=sxpar(hd, coadds_kw)
-print, 'itime= ', itime
-;print, 'coadds= ', coadds
+print, 'itime= ', itime, ' coadds= ', coadds
+; jlyke thinks there is no reason to multiply by coadds...
 ; fix im2 to be the correct displayed im
 if (itime ne 0) then begin
     if (coadds ne 0) then begin
 		; MDP reformat to reduce repetition
         if (self.current_display_update) then begin
 	        case self.current_display of
-	            'As Total DN': im2=im2*itime*coadds
-	            'As DN/s': im2=im2 ;/(itime*coadds)
+                   'As Total DN': BEGIN
+                      if ( pixelunits eq 'DN/s') then begin
+                         ; im2=im2*itime*coadds
+                         im2=im2*itime
+                      endif
+                   END
+                   'As DN/s': BEGIN
+                      if (pixelunits eq 'DN') then begin
+                         im2=im2 ;/(itime*coadds)
+                         im2=im2/itime
+                      endif
+                   END
 	            else:
 	        endcase
 	        if (uval.current_display_skip ne 0) then begin
@@ -1678,8 +1746,44 @@ if self.DoAutoScale eq 1 then begin
 	endelse
     meanval=moment(im2, sdev=im_std, /NAN)
     medianval=median(im2)
-    self.DispMax=meanval[0]+im_max_con*im_std
-    self.DispMin=meanval[0]+im_min_con*im_std
+    maxval=max(im2)
+    ; Set the DispMin/Max for each stretch
+    ; jlyke 2020-04-10
+    ; Images look best when the min value
+    ; is smaller than the max value
+    ; For the non-linear stretches, using the mean + variance seems
+    ; better than using maxval or the mean + small factor * im_std
+    case self.DispScale of
+       'linear': begin
+          self.DispMax=meanval[0]+im_max_con*im_std
+          self.DispMin=meanval[0]+im_min_con*im_std
+       end
+       'negative': begin
+          self.DispMax=meanval[0]+im_max_con*im_std
+          self.DispMin=meanval[0]+im_min_con*im_std
+       end
+       'sqrt': begin
+          self.DispMax=meanval[0]+im_std*im_std
+          self.DispMin=meanval[0]+im_min_con*im_std
+       end
+       'asinh': begin
+          self.DispMax=maxval/2.
+          self.DispMax=meanval[0]+im_std*im_std
+          self.DispMin=meanval[0]+im_min_con*im_std
+       end
+       'histeq':begin
+          self.DispMax=meanval[0]+im_max_con*im_std
+          self.DispMin=meanval[0]+im_min_con*im_std
+       end
+       'logarithmic':begin
+          ; Logarithmic scaling algorithm borrowed from atv.pro
+          self.DispMax=meanval[0]+im_std*im_std
+          self.DispMin=meanval[0]+im_min_con*im_std
+       end
+    endcase
+
+    ;self.DispMax=meanval[0]+im_max_con*im_std
+    ;self.DispMin=meanval[0]+im_min_con*im_std
     print, 'the mean image value is ', strtrim(meanval[0],2)
     print, 'the median image value is ', strtrim(medianval,2)
     print, 'the standard deviation of the image value is ', strtrim(im_std,2)    
@@ -1689,7 +1793,7 @@ endif
 
 ; current order of the image axes
 self.CurIm_s=im_s
-; the pointer of the displayed image is set equal to the transposed image
+; the pointer of the displayed image is set equal to the modified image
 *self.p_DispIm=im2
 
 end
@@ -1701,7 +1805,7 @@ pro CImWin::DrawImage, PS=ps, noerase=noerase
 widget_control, self.BaseId, get_uval=uval
 widget_control, self.ParentBaseId, get_uval=conbase_uval
 
-im=*self.p_DispIm 
+im=*self.p_DispIm
 pmode=*uval.pmode_ptr
 
 ; get dimensions of window
@@ -1777,7 +1881,7 @@ case self.DispScale of
         dispim = bytscl(sqrt(im-self.DispMin),min=0,max=sqrt(self.DispMax-self.DispMin))
     end
     'asinh': begin
-		sdi = stddev(im)
+        sdi = stddev(im)
         dispim = bytscl(asinh((im-self.DispMin)/(sdi)),min=0,max=asinh((self.DispMax-self.DispMin)/(sdi)))
     end
     'histeq':begin
@@ -2005,7 +2109,7 @@ PRO CImWin::UpdateWCSDisplay, disp_x, disp_y
 	if not obj_valid(*p_imObj) then return
 	p_astr = (*p_ImObJ)->GetAstr(valid=astr_valid)
 
-	if astr_valid then begin
+        if astr_valid then begin
 		position = fltarr(3) ; contains the position in AXIS1, AXIS2, AXIS3 order
 		position[self.axesorder[0]] = disp_x
 		position[self.axesorder[1]] = disp_y
@@ -2738,7 +2842,7 @@ endif else begin
 endelse
 
 ; resets the display scale
-self.DispScale='linear'
+;self.DispScale='linear'
 
 widget_control, self.BaseId, set_uval=uval
 
@@ -2748,23 +2852,27 @@ widget_control, self.BaseId, set_uval=uval
 ; MDP modified the following to remove lots of redundancy.
 ; "datanum_val" is what gets displayed to label the mouseover counts
 if has_valid_cconfigs(conbase_uval, cconfigs) then begin
-	des=cconfigs->GetDisplayAsDN()
-    ; check to see if the header exists
-    if (hd[0] ne '') then begin
-        instr=strtrim(sxpar(hd,'CURRINST'),2)
-        if (instr eq 'OSIRIS') or (instr eq 'NIRC2') then begin
-            case des of
-                'As DN/s': datanum_val='DN/s'
-                'As Total DN': datanum_val='DN'
-                else: datanum_val=''
-            endcase
-        endif else begin
-            datanum_val=''
-        endelse 
-    endif 
+   des=cconfigs->GetDisplayAsDN()
+   cfgname=cconfigs->GetCfgName()
+   if (stregex(cfgname, 'OSIRIS') gt -1) then begin
+     instr='OSIRIS'
+   endif else begin
+     if (hd[0] ne '') then begin
+       instr=strtrim(sxpar(hd,'CURRINST'),2)
+     endif
+   endelse
+   if (instr eq 'OSIRIS') or (instr eq 'NIRC2') then begin
+     case des of
+       'As DN/s': datanum_val='DN/s'
+       'As Total DN': datanum_val='DN'
+     else: datanum_val=''
+     endcase
+   endif else begin
+     datanum_val=''
+   endelse  
 endif else begin
-	des=['As DN/s'] ; default 
-	datanum_val=''
+  des=['As DN/s'] ; default 
+  datanum_val=''
 endelse
 
 if ((des ne 'As Total DN') and (des ne 'As DN/s')) then begin
@@ -2824,8 +2932,12 @@ pro CImWin::DisplayAsDN, no_rescale=no_rescale
 	; multiply the displayed im by the integration time
 	im=*self.p_DispIm
 
-	; Are we updating? i.e. are we switching from DN/s to Total DN or vice versa?
-	if (self.current_display_update) then begin
+        ; Are we updating? i.e. are we switching from DN/s to Total DN or vice versa?
+        ; jlyke 2019 July 29 Unsure why all the cases--each one appears identical
+        ; as a hedge, add a use_original_method varable and place in an if block
+      use_original_method = 0 ; do not use original method
+      if (use_original_method eq 1 ) then begin
+        if (self.current_display_update) then begin
 		print, "Converting data to format = "+self.current_display
 		instr=sxpar(hd,'CURRINST', count=instr_count)
 		case self.current_display of
@@ -2948,8 +3060,66 @@ pro CImWin::DisplayAsDN, no_rescale=no_rescale
 		    self.DoAutoScale=0
 		    self->UpdateText
 		endif
-	endelse
-	 
+             endelse
+        ;print, 'Using ORIGINAL method'
+
+     endif else begin
+        if (self.current_display_update) then begin
+	  print, "Converting data to format = "+self.current_display
+          case self.current_display of
+	    'As Total DN': begin
+		widget_control, cimwin_uval.wids.datanum, set_value='DN'
+		im=im*itime*coadds
+		*self.p_DispIm=im
+		if (cimwin_uval.current_display_skip ne 0) then begin
+		  cimwin_uval.current_display_skip=0
+		  widget_control, self.BaseId, set_uval=cimwin_uval
+		endif
+		self.dispmin =  self.dispmin*itime*coadds
+		self.dispmax =  self.dispmax*itime*coadds
+	    end
+	    'As DN/s': begin
+		widget_control, cimwin_uval.wids.datanum, set_value='DN/s'
+		im=im/(itime*coadds)
+		*self.p_DispIm=im
+		if (cimwin_uval.current_display_skip ne 0) then begin
+		  cimwin_uval.current_display_skip=0
+		  widget_control, self.BaseId, set_uval=cimwin_uval
+		endif
+		self.dispmin =  self.dispmin/(itime*coadds)
+                self.dispmax =  self.dispmax/(itime*coadds)
+             end
+             else:
+	endcase
+	self.current_display_update=0
+	self.DoAutoScale=0
+	self->UpdateText
+	endif else begin
+          if NOT keyword_set(no_rescale) then begin
+		
+	    ; scales the image by computing the mean and scales the
+	    ; min and max values according to the standard deviation
+	    ; don't count the NaN values
+	    ; use the cconfigs values for the scale max and min, if possible
+		
+	    if has_valid_cconfigs(conbase_uval, cconfigs) then begin
+		im_max_con=cconfigs->GetImScaleMaxCon()
+		im_min_con=cconfigs->GetImScaleMinCon()
+	    endif else begin
+		im_max_con=5. ; defaults
+		im_min_con=-3.
+	    endelse
+            meanval=moment(*self.p_DispIm, sdev=im_std, /NAN)
+	    self.DispMax=meanval[0]+im_max_con*im_std
+            self.DispMin=meanval[0]+im_min_con*im_std
+            self.DoAutoScale=0
+            self->UpdateText
+	  endif
+       endelse
+        ;print, 'Using NEW method'
+      endelse ; use_original_method
+
+ 
 end
 
 
@@ -3880,7 +4050,9 @@ pa=call_function(pa_function, hd)
 
 ; set mask to [1,1,1,1,1,...]
 ;mask = !d.n_colors - 1
-mask = !p.color
+;mask = !p.color
+; color index must be 8-bit
+if !d.n_colors gt 256 then mask = 250 else mask = !d.n_colors - 1
 
 ; if error
 if pa[0] eq -1 then begin
@@ -4277,7 +4449,8 @@ maglabel=widget_label(magbase, value = 'Magnitude:',  yoff = ys + 2*ys2)
 magval=widget_label(magbase,value='0', frame=2, xsize=120, $
                     /align_right,  yoff = ys + 2*ys2)
 obcntbase=widget_base(photbase, /row)
-obcntlabel=widget_label(obcntbase, value = 'Object counts:',  yoff = ys + 3*ys2)
+obcntlabel=widget_label(obcntbase, value = 'Raw Object Counts:',  $
+                        yoff = ys + 3*ys2)
 obcntval=widget_label(obcntbase,value='0', frame=2, xsize=120, $
                     /align_right,  yoff = ys + 3*ys2)
 mskybase=widget_base(photbase, /row)
@@ -4409,12 +4582,20 @@ disp_im=*disp_im_ptr
 
 ql_aper, disp_im, cimwin_uval.phot_circ_x, cimwin_uval.phot_circ_y, flux, eflux, sky, skyerr, 1, self.photometry_aper, $
   [self.photometry_inner_an, self.photometry_outer_an], [0,0], NUMAPER_PIX=numaper_pix, /FLUX, BASE_ID=base_id
- 
+
+; jlyke 2020-04-15: ql_aper was sky-correcting data using the aperture
+;                   area, then below we were sky correcting again
+;                   using number of whole+partial pixels.
+;                   I removed the sky-correction from ql_aper and
+;                   changed the calc here: cor_counts=...
+
 ; calculate photometry parameters
 if (numaper_pix gt 0) then begin
     counts=flux
     mean_sky=sky[0]
-    cor_counts=(flux-sky[0]*double(numaper_pix))
+    ; jlyke - change noted above
+    ;cor_counts=(flux-sky[0]*double(numaper_pix))
+    cor_counts=(flux-sky[0]*!pi*self.photometry_aper*self.photometry_aper)
     ; check to see if the data is in DN or DN/s
     widget_control, cimwin_uval.wids.datanum, get_value=dntag
     case dntag of

@@ -148,7 +148,7 @@ endelse
 
 average = fltarr( s[1], s[2], /nozero)
 
-cr = string("15b)  ;"
+cr = string("15b)  ;")
 form='($,a,a,i4,a,g,f6.1,1x,f6.1)'
 
 ;cputime,utimez,stimez
