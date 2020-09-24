@@ -8,7 +8,7 @@
 * [Citing the Pipeline](#citing-the-pipeline)
 
 ## Release Notes for v5.0beta
-**2019-09-22**
+**2020-09-22**
 - New wavelength solution for 2019 & 2020. Unlike data before 2019, there appears to be larger residual offsets in the wavelength solution between different plate scales. The smallest shift is at 50 mas and the grows larger for smaller plate scales. At Kn3 35 mas, the offset is about 0.3 Angstrom based on comparisons with OH sky lines. 
 - Handle imager upgrade pixel units (DN) instead of DN/s
 - The FITS files from the imager upgrade were flipped such that the images were not in an astronomical orientation.
