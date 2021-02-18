@@ -18,8 +18,9 @@
     <wavesoln begin="160101" end="170508" dir="DRPDATA">osiris_wave_coeffs_160101_170508.fits</wavesoln>
     <wavesoln begin="170509" end="180316" dir="DRPDATA">osiris_wave_coeffs_170509_180316.fits</wavesoln>
     <wavesoln begin="180317" end="190430" dir="DRPDATA">osiris_wave_coeffs_180317_190430.fits</wavesoln>
-    <wavesoln begin="190501" end="191231" dir="DRPDATA">osiris_wave_coeffs_190501_191231.fits</wavesoln>    
-    <wavesoln begin="200101" dir="DRPDATA">osiris_wave_coeffs.fits</wavesoln>
+    <wavesoln begin="190501" end="191231" dir="DRPDATA">osiris_wave_coeffs_190501_191231.fits</wavesoln>
+	<wavesoln begin="200101" end="201215" dir="DRPDATA">osiris_wave_coeffs_200101_201215.fits</wavesoln>    
+    <wavesoln begin="201216" dir="DRPDATA">osiris_wave_coeffs.fits</wavesoln>
   </wavesolns>
 
   <traces>
