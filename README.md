@@ -1,6 +1,6 @@
 # Keck OSIRIS Data Reduction Pipeline
 
-* [Release Notes for v5.0beta](#release-notes-for-v5.0beta)
+* [Release Notes for v5.0](#release-notes-for-v5.0)
 * [Important Runtime Notes](#important-runtime-notes)
 * [Installation](#installation)
 * [Running the Pipeline](#running-the-pipeline)
