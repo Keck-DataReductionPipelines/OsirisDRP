@@ -7,6 +7,11 @@
 * [Testing the Pipeline](#testing-the-pipeline)
 * [Citing the Pipeline](#citing-the-pipeline)
 
+
+## Release Notes for v5.0
+**2020-02-22**
+- New wavelength solution for 2021. OSIRIS had to be opened for servicing in Dec. 2020, so new arc scans were taken in Jan 2021 and new wavelength solutions were created. Tests show that the average wavelength shift at Kn3 35 mas to be about -0.04+-0.07 Angstroms (based on comparisons with OH skylines). At Kn3 50 mas, the shift is on average: 0.38+-0.06 Angstroms. 
+
 ## Release Notes for v5.0beta
 **2020-09-22**
 - New wavelength solution for 2019 & 2020. Unlike data before 2019, there appears to be larger residual offsets in the wavelength solution between different plate scales. The smallest shift is at 50 mas and the grows larger for smaller plate scales. At Kn3 35 mas, the offset is about 0.3 Angstrom based on comparisons with OH sky lines. 
