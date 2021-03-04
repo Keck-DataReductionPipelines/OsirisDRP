@@ -1,11 +1,16 @@
 # Keck OSIRIS Data Reduction Pipeline
 
-* [Release Notes for v5.0beta](#release-notes-for-v5.0beta)
+* [Release Notes for v5.0](#release-notes-for-v5.0)
 * [Important Runtime Notes](#important-runtime-notes)
 * [Installation](#installation)
 * [Running the Pipeline](#running-the-pipeline)
 * [Testing the Pipeline](#testing-the-pipeline)
 * [Citing the Pipeline](#citing-the-pipeline)
+
+
+## Release Notes for v5.0
+**2021-02-22**
+- New wavelength solution for 2021. OSIRIS had to be opened for servicing in Dec. 2020, so new arc scans were taken in Jan 2021 and new wavelength solutions were created. Tests show that the average wavelength shift at Kn3 35 mas to be about -0.04+-0.07 Angstroms (based on comparisons with OH skylines). At Kn3 50 mas, the shift is on average: 0.38+-0.06 Angstroms. 
 
 ## Release Notes for v5.0beta
 **2020-09-22**
