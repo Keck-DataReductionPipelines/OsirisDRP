@@ -28,7 +28,7 @@ IF (readcol_path EQ '') THEN EXIT, /NO_CONFIRM
 
 .compile skysclim.pro
 .compile strn.pro
-.compile buie_avgclip.pro
+;.compile buie_avgclip.pro
 .compile strnumber.pro
 .compile ICG_LIB.pro
 .compile break_path.pro
