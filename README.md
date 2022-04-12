@@ -1,11 +1,17 @@
-# Keck OSIRIS Data Reduction Pipeline
+# Keck OSIRIS Spectroscopic Data Reduction Pipeline
 
-* [Release Notes for v5.0](#release-notes-for-v5.0)
+* [Release Notes for v6.0](#release-notes-for-v6.0)
 * [Important Runtime Notes](#important-runtime-notes)
 * [Installation](#installation)
 * [Running the Pipeline](#running-the-pipeline)
 * [Testing the Pipeline](#testing-the-pipeline)
 * [Citing the Pipeline](#citing-the-pipeline)
+
+## Release Notes for v6.0
+**2022-04-12**
+- Update to the manual including: discussion of new imager, new tables of sensitivities for imager and spectrograph, updates on how to observe with the TRICK NIR TT sensor, discussion of the new exposure time calculator, new discussion of the OSIRIS imager reduction pipeline KAI.
+- The OSIRIS imager pipeline is now available as KAI in a seperate repository: [https://github.com/Keck-DataReductionPipelines/KAI](https://github.com/Keck-DataReductionPipelines/KAI)
+- Updated installation instructions for Apple M1 architecture.
 
 
 ## Release Notes for v5.0
@@ -103,6 +109,8 @@ To install and run the OSIRIS DRP, you will need the following:
 - A copy of the compiled library cfitsio
 - A working installation of IDL 7 or IDL 8 (the IDL binary directory should be in your ``PATH`` environment variable)
 - Python dependencies (optional, for testing): pytest, astropy
+- If using a computer with Apple M1 ARM chips, see [INSTALLPROBLEMS.md](https://github.com/Keck-DataReductionPipelines/OsirisDRP/blob/master/INSTALLPROBLEMS.md) for a workaround.
+- ODRFGUI: Java version 17 (newer versions of Java are likely to run into issues when running the GUI)
 
 
 ### Installing from source
@@ -200,7 +208,7 @@ To set the default directories for the guis, you can edit the following two file
 
 ### Troubleshooting
 
-If you run into problems, please re-read this [README.md](https://github.com/Keck-DataReductionPipelines/OsirisDRP), then read [INSTALLPROBLEMS.md](https://github.com/Keck-DataReductionPipelines/OsirisDRP/blob/master/INSTALLPROBLEMS.md) for some common installation problems.
+If you run into problems, please re-read this [README.md](https://github.com/Keck-DataReductionPipelines/OsirisDRP), then read [INSTALLPROBLEMS.md](https://github.com/Keck-DataReductionPipelines/OsirisDRP/blob/master/INSTALLPROBLEMS.md) for some common installation problems. Please post an issue on the issue page if you have problems not addressed in the above documents or in the manual. 
 
 OSIRIS DRP Project Contributors
 ============================

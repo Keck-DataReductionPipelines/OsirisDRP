@@ -2,6 +2,23 @@
 
 This file contains a bunch of common pipeline installation problems and their solutions.
 
+## Installing on Apple M1 ARM Chips
+
+There is an issue if CFITSIO is not compiled to be the same architecture as the DRP. CFITSIO should be compiled to be x86_64.
+
+If installing CFITSIO from Macports:
+
+```
+arch -x86_64 sudo port install libgcc-devel
+arch -x86_64 sudo port install cfitsio
+```
+
+In the Makefile for the OSIRIS DRP, update the CFLAGS variable:
+
+```
+CFLAGS += -arch x86_64
+```
+
 ## Wrong Architecture Errors
 
 If you get an error like this:
