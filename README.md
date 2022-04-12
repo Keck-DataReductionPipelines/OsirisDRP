@@ -28,6 +28,7 @@
 - Other minor updates
 
 **Previous Release Notes**
+
 For older release notes see: RELEASE_NOTES.md
 
 ## Important Runtime Notes
