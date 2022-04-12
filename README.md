@@ -183,21 +183,8 @@ setenv PATH ${PATH}:/Applications/exelis/idl/bin
 To run the pipeline, use ``run_odrp``. If you don't want the pipeline
 to open a new xterm window, call ``run_odrp -n``.
 
-Please check out the OSIRIS pipeline manual: <http://www2.keck.hawaii.edu/inst/osiris/OSIRIS_Manual_v2.3.pdf>
+Please check out the OSIRIS pipeline manual: OSIRIS_Manual_v5.pdf in this directory.
 
-### Testing the Pipeline
-
-To run the suite of tests on the pipeline, and you have ``pytest`` and ``astropy`` in your python environment:
-
-```
-make test
-```
-
-The first time you run the tests, data will be downloaded so it will take longer. If the tests pass, your pipeline is installed properly. You will see something like the following if the tests pass:
-
-```
-======================== 2 passed, 2 skipped in 41.77 seconds ===================
-```
 
 ### OOPGUI &  ODRFGUI settings
 
