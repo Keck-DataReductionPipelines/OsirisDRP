@@ -2,6 +2,23 @@
 
 This file contains a bunch of common pipeline installation problems and their solutions.
 
+## Installing on Apple M1 ARM Chips
+
+There is an issue if CFITSIO is not compiled to be the same architecture as the DRP. CFITSIO should be compiled to be x86_64.
+
+If installing CFITSIO from Macports:
+
+```
+arch -x86_64 sudo port install libgcc-devel
+arch -x86_64 sudo port install cfitsio
+```
+
+In the Makefile for the OSIRIS DRP, update the CFLAGS variable:
+
+```
+CFLAGS += -arch x86_64
+```
+
 ## Wrong Architecture Errors
 
 If you get an error like this:
@@ -57,3 +74,13 @@ You can check what is in your PATH by entering the following command:
 ```
 
 If the IDL executable is in your PATH and you are running this on a MAC then there may be a compatibility issue between your versions of XQuarts, IDL, and ENVI. This problem and the solution to it is documented on the Harris Geospatial website [here.] (http://www.harrisgeospatial.com/Home/NewsUpdates/TabId/170/ArtMID/735/ArticleID/14944/XQuartz-2710-is-Not-Compatible-with-ENVI-531-and-IDL-851.aspx)
+
+## Other startup errors
+
+If the pipline complains that ``csh`` or ``xterm`` are not installed, you will need to install them. You don't need to use cshell, but the startup script will automatically call it. 
+
+If you are unable to get ``run_odrp`` script to work, you can try to start the pipeline manually using (you will still need to setup your environment variables correctly):
+
+```
+idl -IDL_STARTUP ${OSIRIS_BACKBONE_DIR}/drpStartup.pro ${OSIRIS_BACKBONE_DIR}/osiris_drp_backbone_startup.pro
+```
