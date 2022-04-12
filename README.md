@@ -27,7 +27,8 @@
 - Made a slight update to IDL_astro routine xy2ad.pro to handle WCS in OSIMG images.
 - Other minor updates
 
-For older release notes see: RELEAS_NOTES.md
+**Previous Release Notes**
+For older release notes see: RELEASE_NOTES.md
 
 ## Important Runtime Notes
 
