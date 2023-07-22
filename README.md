@@ -7,11 +7,17 @@
 * [Testing the Pipeline](#testing-the-pipeline)
 * [Citing the Pipeline](#citing-the-pipeline)
 
+
+## Release Notes for v6.0.2
+**2023-07-21**
+- Modified QLook2 so that it can load FITS files without correct image headers without launching a dialog box that must be closed to continue. This helps to support saving all reads in up the ramp mode and visualizing it.
+
 ## Release Notes for v6.0.1
 **2023-05-02**
 - Small changes to the ``run_odrp`` and ``osirisDropDRF`` scripts to run better on more modern Linux environments.
 - Added more instructions on how to install on Linux
 - Added instructions on downloading test data for testing the pipeline
+
 
 
 ## Release Notes for v6.0
