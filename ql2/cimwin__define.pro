@@ -1723,11 +1723,11 @@ if (itime ne 0) then begin
 
 		
     endif else begin
-        print, ['Could not find the coadds keyword.', $
+        print, ['ERROR: Could not find the coadds keyword.', $
                  'No manipulation of the data']
     endelse
 endif else begin
-    print, ['Could not find the integration time keyword.', $
+    print, ['ERROR: Could not find the integration time keyword.', $
              'No manipulation of the data']
 endelse
 
@@ -2918,14 +2918,23 @@ pro CImWin::DisplayAsDN, no_rescale=no_rescale
 	itime=sxpar(hd, itime_kw, count=itime_count)
 	coadds=sxpar(hd, coadds_kw, count=coadd_count)
 	if itime_count eq 0 then begin
-	    message=['Could not find the coadds keyword.', $
-		     'No manipulation of the data']
-	    answer=dialog_message(message, dialog_parent=self.BaseId, /error)
+	    message=['ERROR: Could not find the coadds keyword.', $
+                     'No manipulation of the data']
+            ;; commented this out so that it can display images of
+            ;; individual reads which do not have headers. 
+            ;;answer=dialog_message(message, dialog_parent=self.BaseId, /error)
+
+            ;; instead, print out to the terminal
+            print, message
 	endif
 	if coadd_count eq 0 then begin
-	    message=['Could not find the integration time keyword.', $
-		     'No manipulation of the data']
-	    answer=dialog_message(message, dialog_parent=self.BaseId, /error)
+	    message=['ERROR Could not find the integration time keyword.', $
+                     'No manipulation of the data']
+            ;; commented this out so that it can display images of
+            ;; individual reads which do not have headers. 
+            
+            ;; answer = dialog_message(message, dialog_parent = self.BaseId, /error)
+            print, message
 	endif
 
 	print, "Integration time was ", itime

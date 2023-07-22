@@ -7,6 +7,19 @@
 * [Testing the Pipeline](#testing-the-pipeline)
 * [Citing the Pipeline](#citing-the-pipeline)
 
+
+## Release Notes for v6.0.2
+**2023-07-21**
+- Modified QLook2 so that it can load FITS files without correct image headers without launching a dialog box that must be closed to continue. This helps to support saving all reads in up the ramp mode and visualizing it.
+
+## Release Notes for v6.0.1
+**2023-05-02**
+- Small changes to the ``run_odrp`` and ``osirisDropDRF`` scripts to run better on more modern Linux environments.
+- Added more instructions on how to install on Linux
+- Added instructions on downloading test data for testing the pipeline
+
+
+
 ## Release Notes for v6.0
 **2022-04-12**
 - Update to the manual including: discussion of new imager, new tables of sensitivities for imager and spectrograph, updates on how to observe with the TRICK NIR TT sensor, discussion of the new exposure time calculator, new discussion of the OSIRIS imager reduction pipeline KAI.
@@ -67,11 +80,12 @@ Please cite [Lyke et al. (2017)](https://ui.adsabs.harvard.edu/abs/2017ascl.soft
 To install and run the OSIRIS DRP, you will need the following:
 
 - A working C compiler (e.g. ``gcc``)
-- A copy of the compiled library cfitsio
+- A copy of the compiled library cfitsio (for Linux, it's best to use the version that can be insalled with your package manager like ``apt``)
+- For Linux users: note that while you can use the bash shell and bash environment, some of the scripts require cshell to launch so you will need to install it. Newer versions of linux often lack cshell. To install on Ubuntu use ``sudo apt get csh``. 
 - A working installation of IDL 7 or IDL 8 (the IDL binary directory should be in your ``PATH`` environment variable)
-- Python dependencies (optional, for testing): pytest, astropy
 - If using a computer with Apple M1 ARM chips, see [INSTALLPROBLEMS.md](https://github.com/Keck-DataReductionPipelines/OsirisDRP/blob/master/INSTALLPROBLEMS.md) for a workaround.
 - ODRFGUI: Java version 17 (newer versions of Java are likely to run into issues when running the GUI)
+
 
 
 ### Installing from source
@@ -82,8 +96,8 @@ Either clone or download the source from github, choose either the master branch
 
 Set up the following environment variables to compile the code (you can remove these variables after compiling). The defaults should work for installations of IDL on Mac OS X and CFITSIO installed using [MacPorts][]:
 
-- ``IDL_INCLUDE``: The IDL include directory. If you don't set ``IDL_INCLUDE``, it defaults to ``IDL_INCLUDE=/Applications/exelis/idl/external/include``
-- ``CFITSIOLIBDIR``: The directory containing your installation of CFITSIO. If you don't set ``CFITSIOLIBDIR``, it will default to ``CFITSIOLIBDIR=/opt/local/lib``, which is correct for [MacPorts][].
+- ``IDL_INCLUDE``: The IDL include directory. If you don't set ``IDL_INCLUDE``, it defaults to ``IDL_INCLUDE=/Applications/exelis/idl/external/include``. On linux, this might be ``IDL_INCLUDE=/usr/local/harris/idl/external/include``
+- ``CFITSIOLIBDIR``: The directory containing your installation of CFITSIO. If you don't set ``CFITSIOLIBDIR``, it will default to ``CFITSIOLIBDIR=/opt/local/lib``, which is correct for [MacPorts][]. On Ubuntu Linux, you can install ``libcfitsio-dev`` from ``apt``. The library is then located at ``CFITSIOLIBDR=/usr/lib/x86_64-linux-gnu``
 
 Run the makefile from the top level of the OSIRIS DRP source code:
 
@@ -91,7 +105,7 @@ Run the makefile from the top level of the OSIRIS DRP source code:
 make all
 ```
 
-You should see that the pipeline has been built correctly. Be sure you are using ``gmake`` (which on OS X is the only ``make``, so using ``make`` works.)
+You should see that the pipeline has been built correctly by seeing that the file ``modules/source/libosiris_drp_ext_null.so.0.0`` exists. 
 
 [MacPorts]: https://www.macports.org
 
@@ -146,6 +160,13 @@ to open a new xterm window, call ``run_odrp -n``.
 
 Please check out the OSIRIS pipeline manual: OSIRIS_Manual_v5.pdf in this directory.
 
+
+### Testing the Pipeline
+
+You can run the xml file in ``tests/test_emission_line/emission_obj.xml`` by downloading the following files:
+- [s150531_a025001.fits](https://drive.google.com/file/d/0B_YkzZoUSrX-bUtKOXFmalNxQ3M/view?usp=share_link&resourcekey=0-NSjQcVOu5To5S0Jx5QlXHA) - place in ``tests/test_emission_line/``
+- [s150531_a025002.fits](https://drive.google.com/file/d/0B_YkzZoUSrX-bkJGbnc3Zzh3amM/view?usp=share_link&resourcekey=0-6j9yF66ERZxd2xj7LkRQRA) - place in ``tests/test_emission_line/``
+- [s150901_c008___infl_Kn5_035.fits](https://drive.google.com/file/d/0B_YkzZoUSrX-azZsWEV0clVUbnM/view?usp=share_link&resourcekey=0-rcn-lVT8bc4LhUCmYmJWvQ) - rectification matrix to be placed in ``tests/calib/``
 
 ### OOPGUI &  ODRFGUI settings
 
