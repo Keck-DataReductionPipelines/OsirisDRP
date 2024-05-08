@@ -25,6 +25,7 @@
 ;
 ; REVISION HISTORY: 17DEC2002 - MWM: added comments.
 ;2007-06-28 Added mode to check for GMOS data cube format and adjust accordingly. M.D.Perrin
+;2024-05-07 Now compatible with data that is not in the zeroth extension. This is common with other IFU instruments. - Tuan Do. 
 ;- 
 
 function ql_create_cimage, base_id, filename, extension, message=message
@@ -36,6 +37,10 @@ fits_info, filename, n_ext=n_ext, /silent
 h = headfits(filename)
 instrume = strcompress(sxpar(h,'INSTRUME',count=count),/remove_all) ;; HACK IN GMOS SUPPORT - MDP
 if count eq 1 then if instrume eq 'GMOS-N' then extension=1
+
+;; assume that if there is nothing in the first extension, we should go to the second extension
+naxis = sxpar(h, 'NAXIS')
+if naxis eq 0 then extension = 1
 
 if arg_present(extension) then begin
     ; check to make sure this extension exists
@@ -49,7 +54,8 @@ endelse
 
 ; reads in the file and gets its size (dim, xs, ys, zs)
 imdata=ql_readfits(filename, hd, EXTEN_NO=extension)
-imsize=size(imdata)
+imsize = size(imdata)
+
 
 if count eq 1 then if instrume eq 'GMOS-N' then begin
 	; re-read in the FITS header, inheriting from the PDU header, as is the

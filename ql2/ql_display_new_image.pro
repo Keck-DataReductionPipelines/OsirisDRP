@@ -33,6 +33,8 @@
 ;                              Add call to UpdateDispIm in the
 ;                                    activeparams_set if block to
 ;                                    preserve the image flip (OSIMG)
+;          2024-05-08 - Tuan Do - added ability to recongize non-OSIRIS instruments
+;                       that have their spatial axes first (e.g. JWST NIRSpec).
 ; -
 
 pro ql_display_new_image, conbase_id, p_ImObj, p_WinObj=p_WinObj, extension
@@ -141,8 +143,22 @@ if ptr_valid(p_WinObj) then begin
                                 axes=*(cconfigs->GetAxesLabels3d()) 
                             endif 
                         endif 
-                    endif 
-                    axesorder=[2, 1, 0]
+                     endif
+
+                    ;; check to see the fits header which axis is the
+                    ;; spatial and which are the spectral dimension.
+                    ;; OSIRIS has [wavelenght, ra, dec], but most
+                    ;; other IFUs use [ra, dec, wavelength] - T. Do
+                    dim1 = sxpar(hd, 'CTYPE1')
+                    if dim1 eq 'RA---TAN' then begin
+                       print, 'The file '+filename+' has RA as its first axis. This is likely  not OSIRIS data. Loading axess order [0,1,2] instead.'
+                       axesorder = [0, 1, 2]
+                    endif else begin
+                       axesorder = [2, 1, 0]
+                    endelse
+                    
+                    ;; axesorder=[2, 1, 0]
+                    
                     widget_control, winbase_uval.wids.xdim_list, set_value=axes[0:2]
                     widget_control, winbase_uval.wids.ydim_list, set_value=axes[0:2]
                     widget_control, winbase_id, set_uval=winbase_uval
@@ -439,8 +455,21 @@ endif else begin
     if (im_zs gt 1) then begin
         widget_control, imwin_uval.wids.cube_base, sensitive=1
         widget_control, imwin_obj->GetBaseId(), get_uval=imwin_uval
-        ; if the image is a cube, then open with the 2nd axis vs. the 3rd axis
-        axesorder=[2,1,0]
+        ;; if the image is a cube, then open with the 2nd axis vs. the 3rd axis
+
+        ;; check to see the fits header which axis is the
+        ;; spatial and which are the spectral dimension.
+        ;; OSIRIS has [wavelenght, ra, dec], but most
+        ;; other IFUs use [ra, dec, wavelength] - T. Do
+        dim1 = sxpar(hd, 'CTYPE1')
+        if dim1 eq 'RA---TAN' then begin
+           print, 'The file '+filename+' has RA as its first axis. This is likely  not OSIRIS data. Loading axess order [0,1,2] instead.'
+           axesorder = [0, 1, 2]
+        endif else begin
+           axesorder = [2, 1, 0]
+        endelse
+
+        ;axesorder=[2,1,0]
         imwin_obj->SetNAxis, 3
         imwin_obj->SetAxesOrder, axesorder
         widget_control, imwin_uval.wids.xdim_list, set_droplist_select=axesorder[0]
