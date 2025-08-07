@@ -1,3 +1,8 @@
+## Release Notes for v7 (beta)
+**2025-08-07**
+- Updates manual with latest timeline of OSIRIS updates and work
+- updated wavelength solution
+
 ## Release Notes for v6.0
 **2022-04-12**
 - Update to the manual including: discussion of new imager, new tables of sensitivities for imager and spectrograph, updates on how to observe with the TRICK NIR TT sensor, discussion of the new exposure time calculator, new discussion of the OSIRIS imager reduction pipeline KAI.

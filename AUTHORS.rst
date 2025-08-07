@@ -16,6 +16,7 @@ Alphabetical list of contributors
 * Randy Campbell
 * Sam Chappell
 * Devin Chu
+* Anna Ciurlo
 * Mike Fitzgerald (@astrofitz)
 * Tom Gasawy
 * Christof Iserlohe

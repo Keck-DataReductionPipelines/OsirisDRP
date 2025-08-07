@@ -1,0 +1,22 @@
+Start	End	start_cycle	Description
+2005-02-22	2005-02-22	1	‘first light’
+2005-06-07	2005-06-07	2	‘grating 2’
+2006-02-17	2006-02-17	3	‘lenslet and scale work’
+2006-10-15	2006-10-15	4	‘6.7 mag earthquake’
+2006-12-20	2006-12-20	5	‘Add Kc fiters’
+2011-09-20	2011-09-20	6	‘lenselet mask failure’
+2012-01-01	2012-05-01	7	‘lenselet mask fix and move to K1’
+2012-08-12	2012-08-12	8	‘grating 3’
+2015-12-01	2016-04-01	9	‘SPEC upgrade’
+2017-09-13	2017-09-16	10	‘Install new imager detector but wire bonds on the detector are damaged’
+2017-11-13	2017-11-15	11	‘Install new imager detector again with repaired wire bonds’
+2018-01-16 	2018-01-19	12	‘Reinstall baffle plate to clear light path for imager’
+2018-10-01	2018-10-03	13	‘Realign imager to be parfocal with spectrograph’
+2020-01-19 	2020-01-20	14	‘Better align pupils with telescope and install HAM v1.5’
+2020-11-16	2020-11-16	15	‘replace lenslet mask motor’
+2021-12-01	2021-12-01	16	‘not opened but work was done to the calibration uit’
+2022-03-20	2022-03-20	17	‘4.5 mag earthquake’
+2022-09-15	2022-09-16	18	‘replaced osiris imager filter 1 and lenslet mask motors’
+2023-05-30	2023-06-01	19	‘replaced lens let mask motor’
+2024-11-06	2024-11-06	20	‘OSIRIS was powered off for approximately 6 hours for facility electrical work’
+2025-03-31 	2025-04-14	21	‘warmed up the dewar to replace the CCR cold head did not break vacuum’

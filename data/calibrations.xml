@@ -20,10 +20,11 @@
     <wavesoln begin="180317" end="190430" dir="DRPDATA">osiris_wave_coeffs_180317_190430.fits</wavesoln>
     <wavesoln begin="190501" end="191231" dir="DRPDATA">osiris_wave_coeffs_190501_191231.fits</wavesoln>
     <wavesoln begin="200101" end="201215" dir="DRPDATA">osiris_wave_coeffs_200101_201215.fits</wavesoln>    
-    <wavesoln begin="201216" end="221010" dir="DRPDATA">osiris_wave_coeffs_201216_221010.fits</wavesoln>    
-    <wavesoln begin="221011" end="220430" dir="DRPDATA">osiris_wave_coeffs_221011_220430.fits</wavesoln>    
-    <wavesoln begin="220501" end="250416" dir="DRPDATA">osiris_wave_coeffs_220501_250416.fits</wavesoln>    
-    <wavesoln begin="250417" dir="DRPDATA">osiris_wave_coeffs.fits</wavesoln>
+    <wavesoln begin="201216" end="220320" dir="DRPDATA">osiris_wave_coeffs_201216.fits</wavesoln>    
+    <wavesoln begin="220321" end="230530" dir="DRPDATA">osiris_wave_coeffs_230421.fits</wavesoln>    
+    <wavesoln begin="230601" end="241106" dir="DRPDATA">osiris_wave_coeffs_230722.fits</wavesoln>
+    <wavesoln begin="241106" end="250331" dir="DRPDATA">osiris_wave_coeffs_250225.fits</wavesoln>
+    <wavesoln begin="250401"  dir="DRPDATA">osiris_wave_coeffs_250625.fits</wavesoln> 
   </wavesolns>
 
   <traces>
