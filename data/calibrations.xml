@@ -24,7 +24,8 @@
     <wavesoln begin="220321" end="230530" dir="DRPDATA">osiris_wave_coeffs_230421.fits</wavesoln>    
     <wavesoln begin="230601" end="241106" dir="DRPDATA">osiris_wave_coeffs_230722.fits</wavesoln>
     <wavesoln begin="241106" end="250331" dir="DRPDATA">osiris_wave_coeffs_250225.fits</wavesoln>
-    <wavesoln begin="250401"  dir="DRPDATA">osiris_wave_coeffs_250625.fits</wavesoln> 
+    <wavesoln begin="250401" end="260331" dir="DRPDATA">osiris_wave_coeffs_250625.fits</wavesoln> 
+    <wavesoln begin="260401" dir="DRPDATA">osiris_wave_coeffs_260602.fits</wavesoln> 
   </wavesolns>
 
   <traces>
