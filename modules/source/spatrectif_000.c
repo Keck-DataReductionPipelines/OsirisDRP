@@ -16,22 +16,20 @@ int errno;
 float blame[DATA][numspec][MAXSLICE];  // Kernal for applying blame to lenslets for the first portion of the iterations
 float weight[numspec][DATA];           // Weight normalization factor for distributing blame
 float good[numspec][DATA];             // Weighted version of quality to decide if a pixel is valid.
-float cmp[numspec][DATA];              // Weights for good
-
+float cmp[numspec][DATA];              // Weights for good				       
 float fblame[DATA][numspec][MAXSLICE]; // Kernal for applying blame during the final iterations
-float fbasisv[DATA][numspec][MAXSLICE];    // influence matrix
+float fbasisv[DATA][numspec][MAXSLICE];    // influence matrix (basis vector)
 float fweight[numspec][DATA];          // Weight factor for distributing final blame
 float *fw;                             // Weight factor for distributing final blame
 float *w;                              // Weight factor for distributing final blame
-float t_image[DATA][numspec];
-float c_image[DATA][numspec];
-float *ti;
-float *ci;
-float dummy[DATA];
-float residual[DATA];
-float new_image[numspec][DATA];
-float adjust[MAXSLICE];
-float maxi;
+float t_image[DATA][numspec];	       // Temporary extracted spectra
+float c_image[DATA][numspec];	       // Cumulative extracted spectra
+float *ti;			       // For each column accumulate delta to lenslet value
+float *ci;			       // For each column best current estimate of lenslet value
+float t_fbv[MAXSLICE];		       // Temporary basis vector to manipulate if necessary 
+float dummy[DATA];		       // Model of the flux given current lenslet estimate
+float residual[DATA];		       // Residual between data - model
+
 int where;
 
 int spatrectif_000(int argc, void* argv[])
@@ -120,6 +118,7 @@ int spatrectif_000(int argc, void* argv[])
   printf("Calculating weights.\n");
   (void)fflush(stdout);
   
+  // Making local copies of the basis vector 
   for (sp=0; sp<numspec; sp++)
     {            // for each spectral channel i ... (i.e., for a given column)
       index[sp]=sp*MAXSLICE*DATA;
@@ -134,6 +133,8 @@ int spatrectif_000(int argc, void* argv[])
 	    }
 	}
     }
+
+  // Assigning weights for each blame function, by intergrating under the blame function
   for (sp=0; sp<numspec; sp++)
     {            
       w=weight[sp];
@@ -145,21 +146,10 @@ int spatrectif_000(int argc, void* argv[])
 	  bl = blame[i][sp];
       	  fbl = fblame[i][sp];
 	  fbv = fbasisv[i][sp];
-	  //	  maxi = fbv[0];
-	  //for (l=0; l<MAXSLICE; l++)
-	  //  {
-	  //    bl[l]=0.0;
-	  //    if ( fbv[l] > maxi )
-	  //	{
-	  //	  maxi = fbv[l];
-	  //	  where = l;
-	  //	}
-	  //  }
-	  //	  bl[where]= maxi;   // Alternative initial blame where only peak pixel is used.
-	  //      w[i] = bl[where];
-	  for (l=0; l<MAXSLICE; l++)
+		for (l=0; l<MAXSLICE; l++)
 	    {
 	      bl[l]= fbv[l]*fbv[l]*fbv[l];   // initial blame is very focused on peak pixels.
+	      //bl[l]= fbv[l]*fbv[l]*fbv[l]*fbv[l]*fbv[l]*fbv[l];   // initial blame is very focused on peak pixels.	      
 	      w[i] += bl[l];                 // Weight factor for distributing blame
 	      fbl[l]= fbv[l];                // final blame is a copy of the infl matrices
 	      fw[i]+= fbl[l];                // Weight factor for distributing blame
@@ -197,9 +187,11 @@ int spatrectif_000(int argc, void* argv[])
 	}
     }
 
+  // Start iterations... here we go.
+ 
   printf("Doing iteration no. : 0000");
   (void)fflush(stdout);  // Initialize iteration status on the screen
-  memset( (void *) c_image, 0.0, numspec*DATA*sizeof(float));
+  memset( (void *) c_image, 0.0, numspec*DATA*sizeof(float)); // start all intial lenslet guesses to zero
   for (ii=0; ii<numiter; ii++)
     {     // calculate a solution for a column (i) iteratively...
       printf("\b\b\b\b%4d",ii);
@@ -207,25 +199,32 @@ int spatrectif_000(int argc, void* argv[])
       //	}
       //	relax = ((3.0*ii/numiter)+1)*relaxation;
       relax = relaxation;
+      // for each column calculate a new iteration on the lenslets
       for ( i=0; i<DATA; i++)
 	{ // for each spectral channel i ... (i.e., for a given column)
-	  memset( (void *) dummy, 0, DATA*sizeof(float));
-	  ci = c_image[i];
-	  ti = t_image[i];
+	  memset( (void *) dummy, 0, DATA*sizeof(float)); // current forward model of the lenslet PSF
+	  ci = c_image[i];	// current lenslet value
+	  ti = t_image[i];	// temporary (delta) lenslet value to be applied below
 	  for ( sp=0; sp<numspec; sp++ )
 	    {// calculate best current guess of raw data
 	      ti[sp]=0.0;
-	      fbv = fbasisv[i][sp];
-	      in1 = index[sp] + i;
+	      fbv = fbasisv[i][sp];	// temp PSF for this particular column
+	      for (jj=1; jj<(MAXSLICE-1); jj++ )	
+	      {// smoothing basis vector to better match on-sky and make temp basis vector array
+		//t_fbv[jj] = -fbv[jj-1]*0.02 + 1.04*fbv[jj] - 0.02*fbv[jj+1]; // attempt #1
+		//t_fbv[jj] = fbv[jj-1]*0.03 + 0.95*fbv[jj] + 0.02*fbv[jj+1]; // attempt #2; broadened_psf_1
+	        //t_fbv[jj] = fbv[jj-1]*0.3 + 0.4*fbv[jj] + 0.3*fbv[jj+1]; // attempt #3  // asymmetric
+		t_fbv[jj] = fbv[jj];
+	      }
+	      in1 = index[sp] + i;	// keep track of each spectrum location
 	      j=bottom[sp];
 	      for ( jj=0; jj<MAXSLICE; jj++ )
 		{
-		  //  dummy[j] += *(fbv+in2) * ci[sp];   // Influence element times current best lenslet value
-		  //  dummy[j] += fbv[in2] * ci[sp];   // Influence element times current best lenslet value
-		  dummy[j] += fbv[jj] * ci[sp];   // Influence element times current best lenslet value
+		  dummy[j] += t_fbv[jj] * ci[sp];   // Influence element times current best lenslet value
 		  j++;
 		}
 	    }
+	  //if (i==1020) printf("dummy[1020][100] = %lf\n", dummy[100] );	  
 	  for (j=0; j<DATA; j++)
 	    {
 	      if ( Quality[j][i] == 9 )  // For valid pixels.
@@ -245,76 +244,33 @@ int spatrectif_000(int argc, void* argv[])
 	      for ( jj=0; jj<MAXSLICE; jj++ )
 		{
 		  // Calculate how much the jth pixel would like to adjust the sp lenslet
-		  //		  if ( ii < 2 ) {
-		  //  // Initially be very aggressive in applying blame.
-		  //  ti[sp]+=relax*residual[j]* bl[jj];
-		  //}
 		  if ( ii < 15 ) {
-		    // Initially be very aggressive in applying blame. Accumulate the blame, but don't apply yet for the 1st iterations.
+		    // Initially be very aggressive in applying blame. Accumulate blame, but don't apply yet for 1st iterations.
 		    ti[sp]+=relax*residual[j]* bl[jj];
 		  }
 		  if ( ii > 14) {
 		    // After first set of iterations, settle down to stable solution
-		    ci[sp]+=relax*residual[j]* fbl[jj];
+		    ti[sp]+=relax*residual[j]* fbl[jj];
+		    //ti[sp]+=relax*residual[j]* bl[jj];		    
 		  }
-		  //		  if ( ii > 20) {
-		    // After first set of iterations, settle down to stable solution
-		    //		    ci[sp]+=2.0*relax*residual[j]* fbl[jj];
-		  //}
-		  j++;
+		  j++; // march up column to match PSF location
 		}
 	    }
-	  //	  For the first iterations, correction is sharpened and applied.
-	  if ( ii < 10 ) { 
-	    for (sp=0; sp< numspec; sp++) { // Correct middle rows
-	      if ( weight[sp][i] > 0.0 ) {// Increment guess image
-		ci[sp]+= ti[sp];
-		if ( sp > 63 )
-		  if ( weight[sp-64][i] > 0.0 ) // Increment guess image
-		    ci[sp]+= 0.4*(ti[sp]-ti[sp-64]);
-		if ( sp < numspec-64 )
-		  if ( weight[sp+64][i] > 0.0 ) // Increment guess image
-		    ci[sp]+= 0.4*(ti[sp]-ti[sp+64]);
-	      }
+	  //	 Correction is applied.
+	  for (sp=0; sp< numspec; sp++) { 
+	    if ( weight[sp][i] > 0.0 ) {
+	      ci[sp]+= ti[sp];
 	    }
 	  }
-	  if ( (ii > 9) && (ii < 15) ) {
-	    for (sp=0; sp< numspec; sp++) { // Correct middle rows
-	      if ( weight[sp][i] > 0.0 ) {// Increment guess image
-		ci[sp]+= ti[sp];
-		if ( sp > 63 )
-		  if ( weight[sp-64][i] > 0.0 ) // Increment guess image
-		    ci[sp]-= 0.2*(ti[sp]-ti[sp-64]);
-		if ( sp < numspec-64 )
-		  if ( weight[sp+64][i] > 0.0 ) // Increment guess image
-		    ci[sp]-= 0.2*(ti[sp]-ti[sp+64]);
-	      }
-	    }
-	  }
-
-	  //	  if ( (scale > 0.099) && (ii < 2)  ) {
 
 	} // end of loop over image.
-      // Smooth early iterations along the spectral direction.
-      if ( (ii > 11) && (ii < 18) )
-	{
-	  for (sp = 0; sp<numspec; sp++)
-	    for (i = 2; i<(DATA-2); i++ )
-	      // t_image[i][sp]=0.2*c_image[i-2][sp]+0.2*c_image[i-1][sp]+0.2*c_image[i][sp]+0.2*c_image[i+1][sp]+0.2*c_image[i+2][sp];
-	      t_image[i][sp]=0.1*c_image[i-2][sp]+0.2*c_image[i-1][sp]+0.4*c_image[i][sp]+0.2*c_image[i+1][sp]+0.1*c_image[i+2][sp];
-	  
-	  for (sp = 0; sp<numspec; sp++)
-	    for (i = 2; i<(DATA-2); i++ ) {
-	      c_image[i][sp]=t_image[i][sp];
-	    }	  
-	}
     } // for each iteration
 
   for (i=0; i<DATA; i++)
     {
       ci = c_image[i];
       for (sp=0; sp<numspec; sp++)
-	image[sp][i]=ci[sp]/1.28;  // Dividing by 1.28 for an overall normalization
+	image[sp][i]=ci[sp]/1.28;  // Dividing by 1.28 for an overall normalization (james' magic!)
     }
 
   // updating noise frame!!
@@ -350,7 +306,6 @@ int spatrectif_000(int argc, void* argv[])
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////
   t2 = systime();
   //  (void)printf("Total Time = %lf\n", t2-t1 );
-  
   //  writefitsimagefile("!/sdata1101/osiris-data/osiris2/050224/SPEC/ORP/resid.fits", FLOAT_IMG, 3, naxes, resid);
   //  free(resid);
   
